@@ -1,0 +1,67 @@
+<!-- Login Modal -->
+<div class="modal-overlay" id="loginModal">
+    <div class="modal">
+        <div class="modal-header">
+            <button class="modal-close" onclick="closeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 class="modal-title">
+                <i class="fas fa-sign-in-alt"></i>
+                Welcome Back
+            </h2>
+            <p class="modal-subtitle">Sign in to your LoveMeNow account</p>
+        </div>
+        <div class="modal-body">
+            <div class="error-message" id="loginError"></div>
+            <div class="success-message" id="loginSuccess"></div>
+            <form class="auth-form" id="loginForm">
+                <div class="form-group">
+
+                    <label class="form-label" for="loginEmail">Email Address</label>
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" name="email" id="loginEmail" class="form-input" placeholder="Enter your email" required>
+
+
+
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="loginPassword">Password</label>
+                    <i class="fas fa-lock"></i>
+                    <input type="password" name="password" id="loginPassword" class="form-input" placeholder="Enter your password" required>
+
+                    <i id="eyeButton" class="fas fa-eye"></i>
+
+                </div>
+
+                <button type="submit" class="auth-submit">
+                    Sign In
+                </button>
+                <a href="#" class="forgot-password" onclick="showForgotPassword()">
+                    Forgot your password?
+                </a>
+            </form>
+            <div class="social-login">
+                <h4>Or continue with</h4>
+                <div class="social-buttons">
+                    <a href="#" class="social-btn" onclick="socialLogin('google')">
+                        <i class="fab fa-google"></i>
+                        Google
+                    </a>
+                    <a href="#" class="social-btn" onclick="socialLogin('facebook')">
+                        <i class="fab fa-facebook-f"></i>
+                        Facebook
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <p>Don't have an account?</p>
+            <a href="#" class="modal-switch" onclick="switchModal('register')">
+                Create Account
+            </a>
+        </div>
+    </div>
+
+     <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+</div>
+
