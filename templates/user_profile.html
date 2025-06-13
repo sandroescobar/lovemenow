@@ -1,0 +1,283 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="LoveMeNow - User Profile Settings">
+    <title>Profile Settings - LoveMeNow</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container d-flex justify-content-between align-items-center" style="padding: 1rem;">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <svg class="logo-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+                LoveMeNow
+            </a>
+
+            <ul class="nav-links">
+                <li><a class="nav-link" href="{{ url_for('index') }}">Home</a></li>
+                <li><a class="nav-link" href="{{ url_for('products') }}">Products</a></li>
+                <li><a class="nav-link" href="#about">About</a></li>
+                <li><a class="nav-link" href="#contact">Contact</a></li>
+            </ul>
+
+            <div class="nav-buttons">
+                <a href="#" class="btn btn-outline">
+                    <i class="fas fa-heart"></i>
+                    <span class="cart-count">0</span>
+                </a>
+                <a href="#" class="btn btn-outline">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count">0</span>
+                </a>
+                <a href="#" class="btn btn-primary">Profile</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Profile Header -->
+    <section class="profile-header">
+        <div class="container">
+            <div class="profile-header-content">
+                <div class="profile-avatar">
+                    <div class="avatar-circle">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <button class="avatar-edit-btn">
+                        <i class="fas fa-camera"></i>
+                    </button>
+                </div>
+                <div class="profile-info">
+
+                    <h1>{{ current_user.full_name}}</h1>
+                    <p class="profile-email">{{ current_user.email }}</p>
+                    <p class="profile-member-since">{{ current_user.created_at.strftime('%B %-d, %Y')}}</p>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Profile Content -->
+    <div class="container profile-container">
+        <div class="profile-layout">
+            <!-- Profile Section -->
+            <section class="profile-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-user-circle"></i> Profile</h2>
+
+                </div>
+                <div class="section-content">
+                    <div class="profile-snapshot">
+                        <div class="form-group">
+                            <label class="form-label">Name:</label>
+                            <input type="text" class="form-control" value="{{current_user.full_name}}" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Primary Email:</label>
+                            <input type="email" class="form-control" value="{{current_user.email}}" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Member Since:</label>
+                            <input type="text" class="form-control" value="{{current_user.created_at.strftime('%B %-d, %Y')}}" readonly>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Contact & Shipping Section -->
+            <section class="profile-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-shipping-fast"></i> Contact & Shipping</h2>
+                    <p class="section-description">Will autofill at checkout</p>
+                </div>
+                <div class="section-content">
+                    <div class="shipping-addresses">
+                        <div class="address-header">
+                            <h3>Shipping Addresses</h3>
+                            <button class="btn btn-primary btn-sm">
+                                <i class="fas fa-plus"></i> Add Address
+                            </button>
+                        </div>
+                        <div class="address-list">
+                            <div class="address-card">
+
+                                <div class="address-info">
+
+      <h4>
+        Home
+        <span class="address-badge default">Default</span>
+      </h4>
+
+      <!-- one form-group per field -->
+      <div class="form-group" id="addressGroup">
+        <label for="addr1">Street Address</label>
+        <input id="addr1" name="street1" class="form-control" placeholder="Enter Address" required>
+      </div>
+
+      <div class="form-group">
+        <label for="addr2">Apt / Suite / Floor</label>
+        <input id="addr2" name="street2" class="form-control" placeholder="Apt, Suite …" >
+      </div>
+
+      <div class="form-row triple">  <!-- city-state-zip on one row -->
+        <div class="form-group flex-2">
+          <label for="city">City</label>
+          <input id="city" name="city" class="form-control" required>
+        </div>
+        <div class="form-group flex-1">
+          <label for="state">State</label>
+          <input id="state" name="state" maxlength="2" class="form-control" required>
+        </div>
+        <div class="form-group flex-1">
+          <label for="zip">ZIP</label>
+          <input id="zip" name="zip" maxlength="10" class="form-control" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="country">Country</label>
+        <select id="country" name="country" class="form-control">
+          <option value="US" selected>United States</option>
+          <!-- add others as needed -->
+        </select>
+      </div>
+
+      <div class="form-group default-check">
+        <label>
+          <input type="checkbox" name="is_default">
+          Make this my default address
+        </label>
+      </div>
+
+  </div>
+                                <div class="address-actions">
+                                    <button class="btn btn-outline btn-sm">Edit</button>
+                                    <button class="btn btn-outline btn-sm">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Security Section -->
+            <section class="profile-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-shield-alt"></i> Security</h2>
+                    <p class="section-description">Trust & control</p>
+                </div>
+                <div class="section-content">
+                    <div class="security-options">
+                        <div class="security-item">
+                            <div class="security-info">
+                                <h3>Change Password</h3>
+                                <p>Update your account password</p>
+                            </div>
+                            <button class="btn btn-outline">Change</button>
+                        </div>
+                        <div class="security-item">
+                            <div class="security-info">
+                                <h3>Two-Factor Authentication</h3>
+                                <p>Add an extra layer of security</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="security-item">
+                            <div class="security-info">
+                                <h3>Recent Login History</h3>
+                                <p>Last 5 sessions</p>
+                            </div>
+                            <button class="btn btn-outline">View</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Preferences Section -->
+            <section class="profile-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-cog"></i> Preferences</h2>
+                    <p class="section-description">Personalisation & compliance</p>
+                </div>
+                <div class="section-content">
+                    <div class="preferences-options">
+                        <div class="preference-item">
+                            <div class="preference-info">
+                                <h3>Marketing Email Opt-in/out</h3>
+                                <p>Receive promotional emails and offers</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="preference-item">
+                            <div class="preference-info">
+                                <h3>Theme Toggle</h3>
+                                <p>Switch between dark and light mode</p>
+                            </div>
+                            <div class="theme-selector">
+                                <button class="theme-btn active" data-theme="dark">
+                                    <i class="fas fa-moon"></i> Dark
+                                </button>
+                                <button class="theme-btn" data-theme="light">
+                                    <i class="fas fa-sun"></i> Light
+                                </button>
+                            </div>
+                        </div>
+                        <div class="preference-item">
+                            <div class="preference-info">
+                                <h3>Discreet Packaging Reminder</h3>
+                                <p>Always use discreet packaging for orders</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Danger Zone Section -->
+            <section class="profile-section danger-zone">
+                <div class="section-header">
+                    <h2><i class="fas fa-exclamation-triangle"></i> Danger Zone</h2>
+                    <p class="section-description">Data-privacy norms</p>
+                </div>
+                <div class="section-content">
+                    <div class="danger-actions">
+                        <div class="danger-item">
+                            <div class="danger-info">
+                                <h3>Delete Account & Data Export</h3>
+                                <p>Permanently delete your account and download your data (GDPR-style)</p>
+                            </div>
+                            <div class="danger-buttons">
+                                <button class="btn btn-outline">Export Data</button>
+                                <button class="btn btn-danger">Delete Account</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+</body>
+</html>
