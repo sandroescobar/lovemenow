@@ -39,13 +39,22 @@
                     <i class="fas fa-shopping-cart"></i>
                     <span class="cart-count">0</span>
                 </a>
-                <a href="#" class="btn btn-primary" id = "signInButton">Sign In</a>
+                <a href="#" class="btn btn-primary" id = "signInButton">
+                     {{ "Account" if current_user.is_authenticated else "Sign In" }}
+                </a>
+
             </div>
         </div>
     </nav>
 
 
 
+
+
+
+
+
+    <!-- Flash Messages -->
 
 
     <!-- Hero Section -->
@@ -239,11 +248,33 @@
         </div>
     </section>
 
-    {% include 'login_modal.html'%}
+    {% if current_user.is_authenticated %}
+        {# Already logged in → maybe show an account/settings modal instead #}
+        {% include "logged_in_modal.html" %}
+    {% else %}
+        {# Not logged in → show login + register modals #}
+        {% include "login_modal.html" %}
+        {% include "register_modal.html" %}
+    {% endif %}
 
-    {% include 'register_modal.html'%}
 
 
     <script src="{{ url_for('static', filename='js/index.js') }}"></script>
 </body>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="toast-stack" id="flashStack">
+      {% for category, msg in messages %}
+        <div class="toast toast-{{ category }}">
+            <button class="flash_message_close" onclick="this.parentElement.remove()">
+                <i  class="fas fa-times"></i>
+            </button>
+          {{ msg }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
 </html>
