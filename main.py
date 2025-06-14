@@ -1,10 +1,13 @@
 import os
+from urllib.parse import urlencode
+from datetime import timedelta
 from flask import Flask, render_template, redirect, request, url_for, flash
 from dotenv import load_dotenv
-from flask_login import login_user
+from flask_login import login_user, logout_user
 from sqlalchemy import text
 from routes import db, bcrypt, login_mgr
-from models     import User          # ← import AFTER extensions declared
+from models     import User
+# ← import AFTER extensions declared
 
 # ── env vars ─────────────────────────────────────────────────
 load_dotenv()                        # reads .env in local dev
@@ -12,6 +15,7 @@ load_dotenv()                        # reads .env in local dev
 # ── Flask app ────────────────────────────────────────────────
 app = Flask(__name__)
 app.config["SECRET_KEY"]              = os.getenv("SECRET_KEY", "dev_key")
+app.config["REMEMBER_COOKIE_DURATION"] = timedelta(days=1)
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
     "DB_URL",
     "mysql+pymysql://root:Ae9542790079@127.0.0.1:3306/love_me_now_db",
@@ -35,7 +39,7 @@ def load_user(user_id: str):
 def index():
     return render_template("index.html")
 
-@app.route("/products")
+@app.route("/products", methods = ['GET', 'POST'])
 def products():
     return render_template("products.html")
 
@@ -62,30 +66,50 @@ def register_modal():
     return redirect(url_for("index"))
 
 
-@app.route("/lgoin_modal")
+@app.route("/login_modal", methods = ['GET', 'POST'])
 def login_modal():
     msg = ''
     if request.method == 'POST' and 'email' in request.form and 'password' in request.form:
         email = request.form['email']
         password = request.form['password']
 
-        user = User.query.filter_by(email=email).frst()
+        user = User.query.filter_by(email=email).first()
 
         if user and user.check_password(password):
-            login_user(user)
-            flash("you've logged in successfully")
+            remember_flag = "remember" in request.form  # True if box checked
+            login_user(user, remember=remember_flag)
+            flash("you've logged in successfully", "success")
             return redirect(url_for("index"))
 
         flash("Incorrect email or password!", "danger")
 
+    qs = urlencode({"modal": "login"})
+    return redirect(f"{url_for('index')}?{qs}")
 
 
 
+@app.route("/logged_in_modal", methods = ['GET', 'POST'])
+def logged_in_modal():
+    return render_template("logged_in_modal.html",logged_in=User.is_authenticated)
+
+
+@app.route("/user_profile", methods = ['GET', 'POST'])
+def user_profile():
+    return render_template("user_profile.html")
+
+@app.route("/logout")
+def logout():
+    logout_user()              # clears the session
+    flash("You’ve been logged out.", "success")
+    return redirect(url_for("index"))
+
+@app.route("/user_profile_button")
+def user_profile_button():
+
+    return redirect(url_for('user_profile'))
 
 
 
-
-    return render_template("login_modal.html")
 
 # ── run & create tables once ─────────────────────────────────
 if __name__ == "__main__":
