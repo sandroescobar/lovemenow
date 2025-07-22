@@ -9,40 +9,60 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
+    <!-- Mapbox GL JS -->
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.js"></script>
+
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
     <!-- Navigation -->
     <nav class="navbar">
-        <div class="container d-flex justify-content-between align-items-center" style="padding: 1rem;">
-            <a class="navbar-brand" href="index.html">
+        <div class="navbar-container">
+            <!-- Logo Section -->
+            <a class="navbar-brand" href="{{url_for('index')}}">
                 <svg class="logo-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                 </svg>
                 LoveMeNow
             </a>
 
-            <ul class="nav-links">
-                <li><a class="nav-link active" href="{{url_for('index')}}">Home</a></li>
-                <li><a class="nav-link" href="{{url_for('products')}}">Products</a></li>
-                <li><a class="nav-link" href="#about">About</a></li>
-                <li><a class="nav-link" href="#contact">Contact</a></li>
-            </ul>
+            <!-- Main Navigation -->
+            <div class="navbar-center">
+                <ul class="nav-links">
+                    <li><a class="nav-link active" href="{{url_for('index')}}">Home</a></li>
+                    <li><a class="nav-link" href="{{url_for('products')}}">Shop</a></li>
+                    <li><a class="nav-link" href="{{url_for('about')}}">About</a></li>
+                    <li><a class="nav-link" href="{{url_for('support')}}">Support</a></li>
+                </ul>
+            </div>
 
-            <div class="nav-buttons">
-                <a href="#" class="btn btn-outline">
-                    <i class="fas fa-heart"></i>
-                    <span class="cart-count">0</span>
-                </a>
-                <a href="#" class="btn btn-outline">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span class="cart-count">0</span>
-                </a>
-                <a href="#" class="btn btn-primary" id = "signInButton">
-                     {{ "Account" if current_user.is_authenticated else "Sign In" }}
-                </a>
+            <!-- Right Side Actions -->
+            <div class="navbar-actions">
+                <!-- Action Buttons -->
+                <div class="nav-buttons">
+                    <button type="button" onclick="openWishlistModal()" class="nav-icon-btn" title="Wishlist">
+                        <i class="fas fa-heart"></i>
+                        <span class="icon-badge" id="wishlistCount" style="display: none;">0</span>
+                    </button>
+                    <a href="{{ url_for('cart_page') }}" class="nav-icon-btn" title="Cart">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span class="icon-badge" id="cartCount">0</span>
+                    </a>
+                    {% if current_user.is_authenticated %}
+                        <button class="btn btn-primary" id="userMenuButton">Account</button>
+                    {% else %}
+                        <button class="btn btn-primary" id="signInButton">Sign In</button>
+                    {% endif %}
+                </div>
 
+                <!-- Mobile Menu Toggle -->
+                <button class="mobile-menu-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
             </div>
         </div>
     </nav>
@@ -66,6 +86,91 @@
         </div>
     </section>
 
+    <!-- Miami Delivery & Pickup Section -->
+    <section class="miami-service-section">
+        <div class="container">
+            <div class="miami-content">
+                <div class="miami-info">
+                    <div class="service-badge">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Miami Exclusive</span>
+                    </div>
+                    <h2>Premium Service Across the Magic City</h2>
+                    <p class="miami-description">Experience unparalleled convenience with our discreet delivery and pickup services covering all of Miami-Dade County. From South Beach to Aventura, we bring premium intimate products directly to your doorstep.</p>
+
+                    <div class="service-features">
+                        <div class="service-feature">
+                            <div class="feature-icon">
+                                <i class="fas fa-truck"></i>
+                            </div>
+                            <div class="feature-content">
+                                <h3>Same-Day Delivery</h3>
+                                <p>Order before 2 PM for same-day delivery across Miami</p>
+                            </div>
+                        </div>
+
+                        <div class="service-feature">
+                            <div class="feature-icon">
+                                <i class="fas fa-store"></i>
+                            </div>
+                            <div class="feature-content">
+                                <h3>Discreet Pickup Points</h3>
+                                <p>Convenient pickup locations in Brickell, Wynwood & Coral Gables</p>
+                            </div>
+                        </div>
+
+                        <div class="service-feature">
+                            <div class="feature-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="feature-content">
+                                <h3>24/7 Service</h3>
+                                <p>Round-the-clock availability for your convenience</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="miami-cta">
+                        <a href="{{url_for('products')}}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-shopping-bag"></i>
+                            Shop Miami Collection
+                        </a>
+                        <a href="#coverage-map" class="btn-coverage-link">
+                            <i class="fas fa-map"></i>
+                            View Coverage Areas
+                        </a>
+                    </div>
+                </div>
+
+                <div class="miami-visual">
+                    <div class="miami-map-container">
+                        <iframe src="{{ url_for('miami_map') }}"
+                                class="folium-map"
+                                frameborder="0"
+                                style="width: 100%; flex: 1; border-radius: 1rem;">
+                        </iframe>
+
+                        <!-- Coverage Statistics -->
+                        <div class="coverage-stats">
+                            <div class="stat-item">
+                                <div class="stat-number">100+</div>
+                                <div class="stat-label">Areas Covered</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">1 Hour</div>
+                                <div class="stat-label">Avg Delivery</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">10AM-10PM</div>
+                                <div class="stat-label">Mon-Sun</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Featured Products -->
     <section class="container" style="padding: 4rem 1rem;">
         <div class="text-center mb-4">
@@ -74,66 +179,34 @@
         </div>
 
         <div class="product-grid">
-            <!-- Product 1 -->
+            {% for product in featured_products %}
             <div class="product-card fade-in-up">
                 <div class="product-image">
-                    <div class="placeholder-image">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                            <circle cx="9" cy="9" r="2"></circle>
-                            <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
-                        </svg>
-                    </div>
-                    <div class="product-actions">
-                        <button class="btn-quick-view" onclick="quickView(1)">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                <circle cx="12" cy="12" r="3"></circle>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-                <div class="product-info">
-                    <div class="product-category">Lubricants</div>
-                    <h3 class="product-title">
-                        <a href="product-detail.html">Premium Silicone Lubricant</a>
-                    </h3>
-                    <div class="product-rating">
-                        <span>★★★★★</span>
-                        <span>(24 reviews)</span>
-                    </div>
-                    <div class="product-price">$29.99</div>
-                    <p class="product-description">Long-lasting, premium quality silicone-based lubricant for enhanced comfort and pleasure.</p>
-                    <div class="product-buttons">
-                        <button class="btn-add-cart" onclick="addToCart(1)">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <circle cx="9" cy="21" r="1"></circle>
-                                <circle cx="20" cy="21" r="1"></circle>
-                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                            </svg>
-                            Add to Cart
-                        </button>
-                        <button class="btn-wishlist" onclick="addToWishlist(1)">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
+                    {% set all_images = [] %}
+                    {% if product.image_url %}
+                        {% set _ = all_images.append(product.image_url) %}
+                    {% endif %}
+                    {% for img in product.images %}
+                        {% if img.url not in all_images %}
+                            {% set _ = all_images.append(img.url) %}
+                        {% endif %}
+                    {% endfor %}
 
-            <!-- Product 2 -->
-            <div class="product-card fade-in-up">
-                <div class="product-image">
-                    <div class="placeholder-image">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                            <circle cx="9" cy="9" r="2"></circle>
-                            <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
-                        </svg>
-                    </div>
+                    {% if all_images %}
+                        <img style="width: 100%; height: 250px; object-fit: cover;"
+                             src="{{ all_images[0] if all_images[0].startswith('http') else url_for('static', filename=all_images[0].lstrip('/')) }}"
+                             alt="{{ product.name|e }}" loading="lazy">
+                    {% else %}
+                        <div class="placeholder-image">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <circle cx="9" cy="9" r="2"></circle>
+                                <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
+                            </svg>
+                        </div>
+                    {% endif %}
                     <div class="product-actions">
-                        <button class="btn-quick-view" onclick="quickView(2)">
+                        <button class="btn-quick-view" onclick="openQuickView({{ product.id }})">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                                 <circle cx="12" cy="12" r="3"></circle>
@@ -142,18 +215,46 @@
                     </div>
                 </div>
                 <div class="product-info">
-                    <div class="product-category">Vibrators</div>
+                    <div class="product-category">{{ product.category.name if product.category else 'Featured' }}</div>
                     <h3 class="product-title">
-                        <a href="product-detail.html">Luxury Wireless Vibrator</a>
+                        <a href="/product/{{ product.id }}">{{ product.name }}</a>
                     </h3>
-                    <div class="product-rating">
-                        <span>★★★★★</span>
-                        <span>(18 reviews)</span>
+                    <div class="product-colors">
+                        <span class="product-colors-label">Colors:</span>
+                        <div class="product-color-dots">
+                            {% if product.colors %}
+                                {% if product.colors|length == 1 %}
+                                    <div class="product-color-dot active"
+                                         style="background-color: {{ product.colors[0].hex }};"
+                                         title="{{ product.colors[0].name }}"></div>
+                                {% elif product.colors|length == 2 %}
+                                    <div class="product-color-dot active diagonal-split"
+                                         style="background: linear-gradient(135deg, {{ product.colors[0].hex }} 50%, {{ product.colors[1].hex }} 50%);"
+                                         title="{{ product.colors[0].name }} / {{ product.colors[1].name }}"></div>
+                                {% else %}
+                                    {% for color in product.colors[:3] %}
+                                        <div class="product-color-dot {{ 'active' if loop.first else '' }}"
+                                             style="background-color: {{ color.hex }};"
+                                             title="{{ color.name }}"></div>
+                                    {% endfor %}
+                                {% endif %}
+                            {% else %}
+                                <!-- No colors available yet -->
+                            {% endif %}
+                        </div>
                     </div>
-                    <div class="product-price">$89.99</div>
-                    <p class="product-description">Rechargeable, whisper-quiet vibrator with multiple intensity settings and premium silicone design.</p>
+                    <div class="product-price">${{ '%.2f'|format(product.price) }}</div>
+                    <!--
+                    <p class="product-description">
+                        {% if product.description %}
+                            {{ product.description|truncate(80, True, '...') }}
+                        {% else %}
+                            Premium quality product for your intimate moments.
+                        {% endif %}
+                    </p>
+                    -->
                     <div class="product-buttons">
-                        <button class="btn-add-cart" onclick="addToCart(2)">
+                        <button class="btn-add-cart" onclick='addToCart({{ product.id }}, {{ product.name|tojson }}, {{ product.price }})'>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <circle cx="9" cy="21" r="1"></circle>
                                 <circle cx="20" cy="21" r="1"></circle>
@@ -161,62 +262,21 @@
                             </svg>
                             Add to Cart
                         </button>
-                        <button class="btn-wishlist" onclick="addToWishlist(2)">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                            </svg>
-                        </button>
+                        <button class="btn-wishlist" onclick="toggleWishlist({{ product.id }}, '{{ product.name|e }}', this)" data-product-id="{{ product.id }}">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                </svg>
+                            </button>
                     </div>
                 </div>
             </div>
+            {% endfor %}
 
-            <!-- Product 3 -->
-            <div class="product-card fade-in-up">
-                <div class="product-image">
-                    <div class="placeholder-image">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                            <circle cx="9" cy="9" r="2"></circle>
-                            <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
-                        </svg>
-                    </div>
-                    <div class="product-actions">
-                        <button class="btn-quick-view" onclick="quickView(3)">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                <circle cx="12" cy="12" r="3"></circle>
-                            </svg>
-                        </button>
-                    </div>
+            {% if not featured_products %}
+                <div style="grid-column: 1/-1; text-align: center; padding: 2rem;">
+                    <p style="color: hsl(var(--muted-color));">No products available at the moment.</p>
                 </div>
-                <div class="product-info">
-                    <div class="product-category">Accessories</div>
-                    <h3 class="product-title">
-                        <a href="product-detail.html">Massage Candle Set</a>
-                    </h3>
-                    <div class="product-rating">
-                        <span>★★★★☆</span>
-                        <span>(31 reviews)</span>
-                    </div>
-                    <div class="product-price">$39.99</div>
-                    <p class="product-description">Romantic massage candle set with natural ingredients and enchanting fragrances.</p>
-                    <div class="product-buttons">
-                        <button class="btn-add-cart" onclick="addToCart(3)">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <circle cx="9" cy="21" r="1"></circle>
-                                <circle cx="20" cy="21" r="1"></circle>
-                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                            </svg>
-                            Add to Cart
-                        </button>
-                        <button class="btn-wishlist" onclick="addToWishlist(3)">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
+            {% endif %}
         </div>
 
         <div class="text-center mt-4">
@@ -248,18 +308,23 @@
         </div>
     </section>
 
-    {% if current_user.is_authenticated %}
-        {# Already logged in → maybe show an account/settings modal instead #}
-        {% include "logged_in_modal.html" %}
-    {% else %}
-        {# Not logged in → show login + register modals #}
+    {% include "quick_view_modal.html" %}
+
+    {# ░░░ WISHLIST MODAL ░░░ #}
+    {% include "wishlist_modal.html" %}
+
+    {# ░░░ AUTH MODALS ░░░ #}
+    {% if not current_user.is_authenticated %}
         {% include "login_modal.html" %}
         {% include "register_modal.html" %}
+    {% else %}
+        {% include "logged_in_modal.html" %}
     {% endif %}
 
+    {# ░░░ FOOTER ░░░ #}
+    {% include "footer.html" %}
 
-
-    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+    <script src="{{ url_for('static', filename='JS/index.js') }}"></script>
 </body>
 
 {% with messages = get_flashed_messages(with_categories=true) %}
