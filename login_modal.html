@@ -1,3 +1,4 @@
+
 <!-- Login Modal -->
 <div class="modal-overlay" id="loginModal">
     <div class="modal">
@@ -16,28 +17,23 @@
             <div class="success-message" id="loginSuccess"></div>
             <form class="auth-form" action="{{ url_for('login_modal') }}" method="post">
                 <div class="form-group">
-
                     <label class="form-label" for="loginEmail">Email Address</label>
                     <i class="fas fa-envelope"></i>
                     <input type="email" name="email" id="loginEmail" class="form-input" placeholder="Enter your email" required>
-
-
-
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="loginPassword">Password</label>
                     <i class="fas fa-lock"></i>
                     <input type="password" name="password" id="loginPassword" class="form-input" placeholder="Enter your password" required>
-
-                    <i class="fas fa-eye-slash password-toggle"></i>
-
+                    <button type="button" class="password-toggle" onclick="togglePasswordVisibility('loginPassword', this)">
+                        <i class="fas fa-eye-slash"></i>
+                    </button>
                 </div>
+
                 <div class="rememberDiv">
                     <input type="checkbox" name="remember">
                     <span>Keep me signed in?</span>
-
                 </div>
-
 
                 <button type="submit" class="auth-submit">
                     Sign In
@@ -62,11 +58,9 @@
         </div>
         <div class="modal-footer">
             <p>Don't have an account?</p>
-            <a href="#" class="modal-switch" onclick="switchModal('register')">
+            <a href="#" class="modal-switch" onclick="switchModal('register', event)">
                 Create Account
             </a>
         </div>
     </div>
-
-     <script src="{{ url_for('static', filename='js/index.js') }}"></script>
 </div>
