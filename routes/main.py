@@ -16,6 +16,25 @@ from database_utils import retry_db_operation, test_database_connection, get_fal
 
 main_bp = Blueprint('main', __name__)
 
+# Health check endpoint for Render
+@main_bp.route('/api/health')
+def health_check():
+    """Health check endpoint for deployment monitoring"""
+    try:
+        # Test database connection
+        db.session.execute(db.text('SELECT 1'))
+        return jsonify({
+            'status': 'healthy',
+            'database': 'connected',
+            'timestamp': db.func.now()
+        }), 200
+    except Exception as e:
+        return jsonify({
+            'status': 'unhealthy',
+            'database': 'disconnected',
+            'error': str(e)
+        }), 503
+
 # Age verification decorator
 def require_age_verification(f):
     """Decorator to require age verification for routes"""
