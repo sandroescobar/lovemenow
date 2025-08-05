@@ -249,10 +249,23 @@
         });
     });
     
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true
-    });
+    // Only observe if document.body exists
+    if (document.body) {
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    } else {
+        // Wait for DOM to be ready
+        document.addEventListener('DOMContentLoaded', function() {
+            if (document.body) {
+                observer.observe(document.body, {
+                    childList: true,
+                    subtree: true
+                });
+            }
+        });
+    }
     
     // Refresh CSRF token periodically (every 30 minutes)
     setInterval(refreshCSRFToken, 30 * 60 * 1000);

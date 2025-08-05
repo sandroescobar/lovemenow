@@ -1854,6 +1854,23 @@ window.clearColorFilter = function clearColorFilter() {
     window.location.href = url.toString();
 }
 
+// Modal functions
+function closeQuickViewModal() {
+    const modal = document.getElementById('quickViewModal');
+    if (modal) {
+        modal.style.display = 'none';
+        modal.classList.remove('active');
+    }
+}
+
+function closeWishlistModal() {
+    const modal = document.getElementById('wishlistModal');
+    if (modal) {
+        modal.style.display = 'none';
+        modal.classList.remove('active');
+    }
+}
+
 // Make functions globally available for onclick handlers
 window.closeQuickViewModal = closeQuickViewModal;
 window.closeQuickView = closeQuickViewModal; // Alias for backward compatibility
