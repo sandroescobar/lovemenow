@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="LoveMeNow - Premium quality adult products for your intimate moments">
+    <title>LoveMeNow - Premium Adult Products</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container d-flex justify-content-between align-items-center" style="padding: 1rem;">
+            <a class="navbar-brand" href="index.html">
+                <svg class="logo-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+                LoveMeNow
+            </a>
+
+            <ul class="nav-links">
+                <li><a class="nav-link active" href="{{url_for('index')}}">Home</a></li>
+                <li><a class="nav-link" href="{{url_for('products')}}">Products</a></li>
+                <li><a class="nav-link" href="#about">About</a></li>
+                <li><a class="nav-link" href="#contact">Contact</a></li>
+            </ul>
+
+            <div class="nav-buttons">
+                <a href="#" class="btn btn-outline">
+                    <i class="fas fa-heart"></i>
+                    <span class="cart-count">0</span>
+                </a>
+                <a href="#" class="btn btn-outline">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count">0</span>
+                </a>
+                <a href="#" class="btn btn-primary" id = "signInButton">
+                     {{ "Account" if current_user.is_authenticated else "Sign In" }}
+                </a>
+
+            </div>
+        </div>
+    </nav>
+
+
+
+
+
+
+
+
+    <!-- Flash Messages -->
+
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content fade-in-up">
+            <h1>Elevate Your Intimate Moments</h1>
+            <p class="lead">Discover premium quality products designed to enhance your personal experiences with discreet service and fast delivery.</p>
+            <a href= "{{url_for('products')}}" class="btn btn-primary btn-lg">Explore Now</a>
+        </div>
+    </section>
+
+    <!-- Featured Products -->
+    <section class="container" style="padding: 4rem 1rem;">
+        <div class="text-center mb-4">
+            <h2 style="font-size: 2.5rem; margin-bottom: 1rem; background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color))); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Featured Products</h2>
+            <p style="font-size: 1.125rem; opacity: 0.8; max-width: 600px; margin: 0 auto;">Carefully curated selection of our most popular intimate products</p>
+        </div>
+
+        <div class="product-grid">
+            <!-- Product 1 -->
+            <div class="product-card fade-in-up">
+                <div class="product-image">
+                    <div class="placeholder-image">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <circle cx="9" cy="9" r="2"></circle>
+                            <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
+                        </svg>
+                    </div>
+                    <div class="product-actions">
+                        <button class="btn-quick-view" onclick="quickView(1)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <div class="product-category">Lubricants</div>
+                    <h3 class="product-title">
+                        <a href="product-detail.html">Premium Silicone Lubricant</a>
+                    </h3>
+                    <div class="product-rating">
+                        <span>★★★★★</span>
+                        <span>(24 reviews)</span>
+                    </div>
+                    <div class="product-price">$29.99</div>
+                    <p class="product-description">Long-lasting, premium quality silicone-based lubricant for enhanced comfort and pleasure.</p>
+                    <div class="product-buttons">
+                        <button class="btn-add-cart" onclick="addToCart(1)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <circle cx="9" cy="21" r="1"></circle>
+                                <circle cx="20" cy="21" r="1"></circle>
+                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                            </svg>
+                            Add to Cart
+                        </button>
+                        <button class="btn-wishlist" onclick="addToWishlist(1)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product 2 -->
+            <div class="product-card fade-in-up">
+                <div class="product-image">
+                    <div class="placeholder-image">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <circle cx="9" cy="9" r="2"></circle>
+                            <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
+                        </svg>
+                    </div>
+                    <div class="product-actions">
+                        <button class="btn-quick-view" onclick="quickView(2)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <div class="product-category">Vibrators</div>
+                    <h3 class="product-title">
+                        <a href="product-detail.html">Luxury Wireless Vibrator</a>
+                    </h3>
+                    <div class="product-rating">
+                        <span>★★★★★</span>
+                        <span>(18 reviews)</span>
+                    </div>
+                    <div class="product-price">$89.99</div>
+                    <p class="product-description">Rechargeable, whisper-quiet vibrator with multiple intensity settings and premium silicone design.</p>
+                    <div class="product-buttons">
+                        <button class="btn-add-cart" onclick="addToCart(2)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <circle cx="9" cy="21" r="1"></circle>
+                                <circle cx="20" cy="21" r="1"></circle>
+                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                            </svg>
+                            Add to Cart
+                        </button>
+                        <button class="btn-wishlist" onclick="addToWishlist(2)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product 3 -->
+            <div class="product-card fade-in-up">
+                <div class="product-image">
+                    <div class="placeholder-image">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <circle cx="9" cy="9" r="2"></circle>
+                            <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
+                        </svg>
+                    </div>
+                    <div class="product-actions">
+                        <button class="btn-quick-view" onclick="quickView(3)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <div class="product-category">Accessories</div>
+                    <h3 class="product-title">
+                        <a href="product-detail.html">Massage Candle Set</a>
+                    </h3>
+                    <div class="product-rating">
+                        <span>★★★★☆</span>
+                        <span>(31 reviews)</span>
+                    </div>
+                    <div class="product-price">$39.99</div>
+                    <p class="product-description">Romantic massage candle set with natural ingredients and enchanting fragrances.</p>
+                    <div class="product-buttons">
+                        <button class="btn-add-cart" onclick="addToCart(3)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <circle cx="9" cy="21" r="1"></circle>
+                                <circle cx="20" cy="21" r="1"></circle>
+                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                            </svg>
+                            Add to Cart
+                        </button>
+                        <button class="btn-wishlist" onclick="addToWishlist(3)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="{{url_for('products')}}" class="btn btn-primary btn-lg">View All Products</a>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="container" style="padding: 4rem 1rem; background: hsla(var(--dark-color), 0.3); border-radius: var(--radius-lg); margin: 2rem auto;">
+        <div class="text-center mb-4">
+            <h2 style="font-size: 2rem; margin-bottom: 3rem;">Why Choose LoveMeNow?</h2>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
+            <div class="text-center glass p-3" style="border-radius: var(--radius-lg);">
+                <i class="fas fa-shipping-fast" style="font-size: 3rem; color: hsl(var(--accent-color)); margin-bottom: 1rem;"></i>
+                <h3 style="margin-bottom: 1rem;">Discreet Delivery</h3>
+                <p>Secure, unmarked packaging with fast and reliable delivery to your doorstep.</p>
+            </div>
+            <div class="text-center glass p-3" style="border-radius: var(--radius-lg);">
+                <i class="fas fa-star" style="font-size: 3rem; color: hsl(var(--accent-color)); margin-bottom: 1rem;"></i>
+                <h3 style="margin-bottom: 1rem;">Premium Quality</h3>
+                <p>Carefully curated products from trusted brands with body-safe materials.</p>
+            </div>
+            <div class="text-center glass p-3" style="border-radius: var(--radius-lg);">
+                <i class="fas fa-lock" style="font-size: 3rem; color: hsl(var(--accent-color)); margin-bottom: 1rem;"></i>
+                <h3 style="margin-bottom: 1rem;">100% Private</h3>
+                <p>Your privacy is our priority. Secure checkout and confidential service.</p>
+            </div>
+        </div>
+    </section>
+
+    {% if current_user.is_authenticated %}
+        {# Already logged in → maybe show an account/settings modal instead #}
+        {% include "logged_in_modal.html" %}
+    {% else %}
+        {# Not logged in → show login + register modals #}
+        {% include "login_modal.html" %}
+        {% include "register_modal.html" %}
+    {% endif %}
+
+
+
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+</body>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="toast-stack" id="flashStack">
+      {% for category, msg in messages %}
+        <div class="toast toast-{{ category }}">
+            <button class="flash_message_close" onclick="this.parentElement.remove()">
+                <i  class="fas fa-times"></i>
+            </button>
+          {{ msg }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+</html>
