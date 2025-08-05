@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Age Verification Preview - LoveMeNow</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ═══════════════════════════════════════════════════════════════════
+           CSS RESET & VARIABLES (Your Site's Theme)
+           ═══════════════════════════════════════════════════════════════════ */
+        
+        :root {
+            --primary-color: 280 100% 70%;
+            --accent-color: 320 100% 70%;
+            --dark-color: 220 13% 18%;
+            --background-color: 220 13% 15%;
+            --text-color: 220 13% 91%;
+            --muted-color: 220 9% 46%;
+            --border-color: 220 13% 31%;
+            --surface-color: 220 13% 24%;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --radius-sm: 0.5rem;
+            --radius-md: 0.75rem;
+            --radius-lg: 1rem;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: hsl(var(--text-color));
+            background: linear-gradient(135deg, hsl(var(--dark-color)), hsl(220 13% 12%));
+            min-height: 100vh;
+            overflow: hidden; /* Simulate blocked page */
+        }
+
+        /* ═══════════════════════════════════════════════════════════════════
+           AGE VERIFICATION MODAL - BEAUTIFUL STYLING
+           ═══════════════════════════════════════════════════════════════════ */
+        
+        .age-verification-overlay {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            background: linear-gradient(135deg, rgba(35, 39, 65, 0.95), rgba(35, 39, 65, 0.98)) !important;
+            backdrop-filter: blur(10px) !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            z-index: 99999 !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            animation: fadeIn 0.3s ease-out !important;
+        }
+        
+        .age-verification-modal {
+            background: linear-gradient(135deg, hsl(220, 13%, 24%), hsl(220, 13%, 20%)) !important;
+            border-radius: 1rem !important;
+            padding: 2.5rem !important;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+            border: 1px solid hsl(220, 13%, 31%) !important;
+            max-width: 450px !important;
+            width: 90% !important;
+            text-align: center !important;
+            position: relative !important;
+            color: hsl(220, 13%, 91%) !important;
+            animation: slideUp 0.4s ease-out !important;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .age-verification-icon {
+            font-size: 3rem !important;
+            background: linear-gradient(135deg, hsl(280, 100%, 70%), hsl(320, 100%, 70%)) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+            margin-bottom: 1.5rem !important;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3)) !important;
+        }
+        
+        .age-verification-title {
+            font-size: 1.75rem !important;
+            font-weight: 700 !important;
+            margin-bottom: 0.75rem !important;
+            color: hsl(220, 13%, 91%) !important;
+            background: linear-gradient(135deg, hsl(280, 100%, 70%), hsl(320, 100%, 70%)) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+        }
+        
+        .age-verification-text {
+            color: hsl(220, 9%, 66%) !important;
+            margin-bottom: 1.5rem !important;
+            line-height: 1.6 !important;
+            font-size: 1rem !important;
+            font-weight: 400 !important;
+        }
+        
+        .age-verification-warning {
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 152, 0, 0.1)) !important;
+            color: hsl(220, 13%, 91%) !important;
+            padding: 1rem !important;
+            border-radius: 0.75rem !important;
+            margin-bottom: 1.5rem !important;
+            border: 1px solid rgba(255, 193, 7, 0.3) !important;
+            font-size: 0.9rem !important;
+            font-weight: 500 !important;
+            backdrop-filter: blur(5px) !important;
+        }
+        
+        .age-verification-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .age-btn {
+            padding: 0.875rem 2rem !important;
+            border: none !important;
+            border-radius: 0.75rem !important;
+            font-weight: 600 !important;
+            font-size: 1rem !important;
+            cursor: pointer !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            text-decoration: none !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+            width: 150px !important;
+            height: 50px !important;
+            justify-content: center !important;
+            position: relative !important;
+            overflow: hidden !important;
+            flex-shrink: 0 !important;
+        }
+        
+        .age-btn-yes {
+            background: linear-gradient(135deg, hsl(280, 100%, 70%), hsl(320, 100%, 70%)) !important;
+            color: white !important;
+            box-shadow: 0 4px 15px rgba(147, 51, 234, 0.4) !important;
+        }
+        
+        .age-btn-yes:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 25px rgba(147, 51, 234, 0.6) !important;
+            filter: brightness(1.1) !important;
+        }
+        
+        .age-btn-no {
+            background: hsl(220, 13%, 24%) !important;
+            color: hsl(220, 9%, 66%) !important;
+            border: 2px solid hsl(220, 13%, 31%) !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+            text-decoration: none !important;
+        }
+        
+        .age-btn-no:hover {
+            background: hsl(220, 13%, 20%) !important;
+            border-color: hsl(0, 70%, 50%) !important;
+            color: hsl(0, 70%, 60%) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 25px rgba(220, 38, 127, 0.3) !important;
+            text-decoration: none !important;
+        }
+        
+        .age-btn-no:visited,
+        .age-btn-no:link {
+            color: hsl(220, 9%, 66%) !important;
+            text-decoration: none !important;
+        }
+        
+        .age-btn i {
+            font-size: 0.9rem !important;
+            margin-right: 0.5rem !important;
+        }
+        
+        .age-btn {
+            white-space: nowrap !important;
+            letter-spacing: 0.025em !important;
+        }
+        
+        .legal-notice {
+            margin-top: 1.5rem !important;
+            padding-top: 1rem !important;
+            border-top: 1px solid hsl(220, 13%, 31%) !important;
+            font-size: 0.8rem !important;
+            color: hsl(220, 9%, 56%) !important;
+            line-height: 1.4 !important;
+            opacity: 0.8 !important;
+        }
+        
+        @media (max-width: 768px) {
+            .age-verification-modal {
+                padding: 2rem !important;
+                margin: 1rem !important;
+                max-width: 380px !important;
+            }
+            
+            .age-verification-title {
+                font-size: 1.5rem !important;
+            }
+            
+            .age-verification-icon {
+                font-size: 2.5rem !important;
+            }
+            
+            .age-verification-buttons {
+                flex-direction: column !important;
+                gap: 1rem !important;
+            }
+            
+            .age-btn {
+                width: 100% !important;
+                padding: 1rem 2rem !important;
+            }
+        }
+
+        /* Demo background content */
+        .demo-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, hsl(var(--dark-color)), hsl(220 13% 12%));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.3;
+            z-index: 1;
+        }
+
+        .demo-text {
+            color: hsl(var(--text-color));
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Demo background content (simulates your site) -->
+    <div class="demo-content">
+        <div class="demo-text">
+            🔒 LoveMeNow Site Content<br>
+            <small style="font-size: 1rem; opacity: 0.7;">This content is blocked until age verification</small>
+        </div>
+    </div>
+
+    <!-- Age Verification Modal -->
+    <div class="age-verification-overlay">
+        <div class="age-verification-modal">
+            <div class="age-verification-icon">
+                <i class="fas fa-id-card"></i>
+            </div>
+            
+            <h1 class="age-verification-title">Age Verification</h1>
+            
+            <p class="age-verification-text">
+                You must be 18 or older to access this content.
+            </p>
+            
+            <div class="age-verification-warning">
+                <i class="fas fa-info-circle"></i>
+                This site contains adult content
+            </div>
+            
+            <div class="age-verification-buttons">
+                <button type="button" class="age-btn age-btn-yes" onclick="alert('✅ Age verified! Modal would disappear and site would be accessible.')">
+                    <i class="fas fa-check"></i>
+                    I am 18+
+                </button>
+                
+                <button type="button" class="age-btn age-btn-no" onclick="alert('❌ Redirecting to Google...')">
+                    <i class="fas fa-times"></i>
+                    Under 18
+                </button>
+            </div>
+            
+            <div class="legal-notice">
+                By proceeding, you confirm you are of legal age to view adult content in your jurisdiction.
+            </div>
+        </div>
+    </div>
+</body>
+</html>

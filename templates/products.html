@@ -2,142 +2,475 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Browse our complete collection of premium adult products - LoveMeNow">
-    <title>Products - LoveMeNow</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta name="description" content="Browse our complete collection of premium adult products – LoveMeNow">
+    <title>Products · LoveMeNow</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
-    <!-- Custom CSS -->
-     <link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <!-- Site CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}">
+    
+    <!-- CSRF Protection -->
+    {% include 'csrf_meta.html' %}
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="container d-flex justify-content-between align-items-center" style="padding: 1rem;">
-            <a class="navbar-brand" href="index.html">
-                <svg class="logo-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                </svg>
-                LoveMeNow
-            </a>
 
-            <ul class="nav-links">
-                <li><a class="nav-link" href="{{url_for('index')}}">Home</a></li>
-                <li><a class="nav-link active" href="{{url_for('products')}}">Products</a></li>
-                <li><a class="nav-link" href="#about">About</a></li>
-                <li><a class="nav-link" href="#contact">Contact</a></li>
-            </ul>
+{# ──────────────────────────────────────────────────────────────────
+   GLOBAL MACROS
+   ----------------------------------------------------------------- #}
+    {% macro render_colour_dots(product) -%}
+        {% set n = product.colors|length %}
+        {# ───── 0 colours ───────────────────────────── #}
+        {% if n == 0 %}
+            <span class="colour-unavailable">Colour N/A</span>
 
-            <div class="nav-buttons">
-                <a href="#" class="btn btn-outline">
-                    <i class="fas fa-heart"></i>
-                    <span class="wishlist-count">0</span>
+        {# ───── exactly 2 colours → diagonal split ──── #}
+        {% elif n == 2 %}
+            <span class="color-dot diagonal-split"
+                  style="background:linear-gradient(135deg,
+                         {{ product.colors[0].hex }} 0% 50%,
+                         {{ product.colors[1].hex }} 50% 100%);"
+                  title="{{ product.colors[0].name }} / {{ product.colors[1].name }}"></span>
+
+        {# ───── 3-plus colours → one striped gradient ─ #}
+        {% else %}
+            {# build “hex stop%, nextStop%” segments #}
+            {% set step = 100 // n %}
+            {% set stops = [] %}
+            {% for c in product.colors %}
+                {% set start = loop.index0 * step %}
+                {% set end   = loop.index * step %}
+                {% set _ = stops.append(c.hex ~ ' ' ~ start ~ '% ' ~ end ~ '%') %}
+            {% endfor %}
+            <span class="color-dot"
+                  style="background:linear-gradient(135deg, {{ stops|join(', ') }});"
+                  title="{{ product.colors|map(attribute='name')|join(' / ') }}"></span>
+        {% endif %}
+    {%- endmacro %}
+
+
+{# ░░░ NAVBAR ░░░ #}
+{% include "navbar.html" %}
+
+{# ░░░ FILTER NAVBAR ░░░ #}
+<section class="professional-filter-navbar">
+    <div class="container">
+        <div class="filter-navbar-content">
+            <!-- Top Row: Search Only -->
+            <div class="filter-top-row">
+                <div class="search-section">
+                    <div class="search-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text"
+                               id="productSearch"
+                               class="clean-search-input"
+                               placeholder="Search products..."
+                               value="{{ current_filters.search or '' }}"
+                               onkeyup="handleSearch()">
+                        <button class="clear-search-btn" onclick="clearSearch()" style="display:none;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Row: Category Navigation First -->
+            <div class="filter-bottom-row">
+                <!-- Secondary Filters Dropdown -->
+                <div class="nav-dropdown">
+                    <a href="#" class="dropdown-toggle">
+                        <span>More Filters</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <div class="dropdown-menu" style="min-width: 300px;">
+                        <div class="dropdown-section">
+                            <h4>Filter Options</h4>
+
+                            <!-- In-Stock Toggle -->
+                            <div style="padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                <div class="filter-section-with-clear">
+                                    <label class="toggle-filter" style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox" id="inStockFilter" onchange="handleInStockFilter()" {{ 'checked' if current_filters.in_stock else '' }}>
+                                        <span class="toggle-slider-filter"></span>
+                                        <span class="toggle-text">In Stock Only</span>
+                                    </label>
+                                    {% if current_filters.in_stock %}
+                                    <button class="filter-clear-btn" onclick="clearInStockFilter()" title="Clear in-stock filter">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Brand Filter -->
+                            <div style="padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                <label style="display: block; color: hsl(var(--text-color)); font-size: 0.8rem; margin-bottom: 0.5rem;">Brand:</label>
+                                <div class="filter-section-with-clear">
+                                    <select id="brandFilter" class="modern-select" onchange="handleBrandFilter()" style="width: 100%;">
+                                        <option value="">All Brands</option>
+                                        <option value="rianne" {{ 'selected' if current_filters.brand == 'rianne' else '' }}>Rianne S</option>
+                                        <option value="fetish fantasy" {{ 'selected' if current_filters.brand == 'fetish fantasy' else '' }}>Fetish Fantasy</option>
+                                        <option value="ouch" {{ 'selected' if current_filters.brand == 'ouch' else '' }}>Ouch!</option>
+                                        <option value="adam" {{ 'selected' if current_filters.brand == 'adam' else '' }}>Adam & Eve</option>
+                                        <option value="pipedream" {{ 'selected' if current_filters.brand == 'pipedream' else '' }}>Pipedream</option>
+                                        <option value="fun factory" {{ 'selected' if current_filters.brand == 'fun factory' else '' }}>Fun Factory</option>
+                                        <option value="sportsheets" {{ 'selected' if current_filters.brand == 'sportsheets' else '' }}>Sportsheets</option>
+                                    </select>
+                                    {% if current_filters.brand %}
+                                    <button class="filter-clear-btn" onclick="clearBrandFilter()" title="Clear brand filter">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Price Sort -->
+                            <div style="padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                <label style="display: block; color: hsl(var(--text-color)); font-size: 0.8rem; margin-bottom: 0.5rem;">Sort by Price:</label>
+                                <div class="filter-section-with-clear">
+                                    <select id="priceSort" class="modern-select" onchange="handlePriceSort()" style="width: 100%;">
+                                        <option value="">Default</option>
+                                        <option value="low-high" {{ 'selected' if current_filters.sort == 'low-high' else '' }}>Price: Low to High</option>
+                                        <option value="high-low" {{ 'selected' if current_filters.sort == 'high-low' else '' }}>Price: High to Low</option>
+                                    </select>
+                                    {% if current_filters.sort %}
+                                    <button class="filter-clear-btn" onclick="clearPriceSortFilter()" title="Clear price sort">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Color Filter -->
+                            <div style="padding: 0.75rem 0;">
+                                <div class="filter-section-with-clear">
+                                    <label style="display: block; color: hsl(var(--text-color)); font-size: 0.8rem; margin-bottom: 0.5rem;">Colors:</label>
+                                    {% if current_filters.color %}
+                                    <button class="filter-clear-btn" onclick="clearColorFilter()" title="Clear color filter">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                                <div class="color-grid" id="colorGrid" style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.5rem;">
+                                    <!-- Color dots will be populated by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Show All Products Button -->
+                <a href="#" class="dropdown-toggle" onclick="filterProducts('all')" style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(236, 72, 153, 0.2)); border-color: hsl(var(--primary-color));">
+                    <span>All Products</span>
                 </a>
-                <a href="#" class="btn btn-outline">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span class="cart-count">0</span>
+
+                <!-- Main Categories Navigation -->
+                {% for category in categories %}
+                    {% if category.children %}
+                        <div class="nav-dropdown">
+                            <a href="#" class="dropdown-toggle">
+                                <span>{{ category.name }}</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </a>
+                            <div class="dropdown-menu">
+                                <div class="dropdown-section">
+                                    <h4>{{ category.name }}</h4>
+                                    <a href="#" class="dropdown-item" onclick="filterProducts('{{ category.slug }}')">All {{ category.name }}</a>
+                                    {% for subcategory in category.children %}
+                                        <a href="#" class="dropdown-item" onclick="filterProducts('{{ subcategory.slug }}')">{{ subcategory.name }}</a>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="#" class="dropdown-toggle" onclick="filterProducts('{{ category.slug }}')">
+                            <span>{{ category.name }}</span>
+                        </a>
+                    {% endif %}
+                {% endfor %}
+
+                <!-- Active Category Filter Clear Button -->
+                {% if current_filters.category %}
+                <a href="#" id="clearFilterButton" class="dropdown-toggle active-category-clear" onclick="clearCategoryFilter()" title="Clear category filter">
+                    <i class="fas fa-times"></i>
+                    <span>Clear All</span>
                 </a>
-                <a href="#" class="btn btn-primary">Sign In</a>
+                {% endif %}
+
+                <!-- Clear All Button -->
+                <div class="filter-clear-wrapper">
+                    <button id="clearAllFilters" class="btn-clear-filters" onclick="clearAllFilters()">
+                        <i class="fas fa-times"></i>
+                        Clear All
+                    </button>
+                </div>
+
+                <!-- Results Counter -->
+                <div class="results-info">
+                    <span id="resultCount">{{ products.total }} product{{ 's' if products.total != 1 else '' }}</span>
+                </div>
             </div>
         </div>
-    </nav>
+    </div>
+</section>
 
-    <!-- Page Header -->
-    <section class="container" style="padding: 2rem 1rem;">
-        <div class="text-center">
-            <h1 style="font-size: 3rem; margin-bottom: 1rem; background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color))); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Our Collection</h1>
-            <p style="font-size: 1.125rem; opacity: 0.8; max-width: 600px; margin: 0 auto;">Explore our carefully curated selection of premium intimate products</p>
-        </div>
-    </section>
+{# ░░░ PRODUCTS GRID ░░░ #}
+<section class="products-section">
+    <div class="container">
+        <div class="product-grid" id="productGrid">
+            {% for p in products.items %}
+            <div class="product-card fade-in-up"
+                 data-category="{{ p.category.slug|default('uncategorised') }}"
+                 data-parent-category="{{ p.category.parent.slug if p.category and p.category.parent else (p.category.slug if p.category else 'uncategorised') }}"
+                 data-price="{{ p.price }}"
+                 data-rating="{{ p.rating|default(0) }}"
+                 data-in-stock="{{ p.in_stock|lower }}"
+                 data-brand="{{ p.name.split()[0]|lower|replace('!', '')|replace('&', 'and') }}"
+                 data-colors="{{ p.colors|map(attribute='slug')|join(',') }}"
+                 data-product-id="{{ p.id }}">
 
-    <div class="container" style="padding: 0 1rem 4rem;">
-        <div style="display: grid; grid-template-columns: 300px 1fr; gap: 2rem;">
-            <!-- Filters Sidebar -->
-            <aside class="filters">
-                <div class="filter-section">
-                    <h3 class="filter-title">Categories</h3>
-                    <div class="filter-options">
-                        <label class="filter-option">
-                            <input type="checkbox" value="lubricants" onchange="filterProducts()">
-                            <span>Lubricants</span>
-                        </label>
-                        <label class="filter-option">
-                            <input type="checkbox" value="vibrators" onchange="filterProducts()">
-                            <span>Vibrators</span>
-                        </label>
-                        <label class="filter-option">
-                            <input type="checkbox" value="accessories" onchange="filterProducts()">
-                            <span>Accessories</span>
-                        </label>
+                {# ── IMAGE ──────────────────────── #}
+                <div class="product-image product-card-slideshow" data-product-id="{{ p.id }}">
+                    {% set all_images = [] %}
+                    {# First, add primary image if it exists #}
+                    {% for img in p.images %}{% if img.is_primary and img.url not in all_images %}{% set _ = all_images.append(img.url) %}{% endif %}{% endfor %}
+                    {# Then add p.image_url if it exists and not already added #}
+                    {% if p.image_url and p.image_url not in all_images %}{% set _ = all_images.append(p.image_url) %}{% endif %}
+                    {# Finally, add remaining images #}
+                    {% for img in p.images %}{% if not img.is_primary and img.url not in all_images %}{% set _ = all_images.append(img.url) %}{% endif %}{% endfor %}
+
+                    {% if all_images %}
+                        <img class="product-card-image" style="width: 100%; height: 250px; object-fit: cover;"
+                             src="{{ all_images[0] if all_images[0].startswith('http') else url_for('static', filename=all_images[0].lstrip('/')) }}" 
+                             alt="{{ p.name|e }}" loading="lazy">
+                        
+                        {% if all_images|length > 1 %}
+                        <!-- Navigation Arrows -->
+                        <button class="product-card-nav-arrow prev" onclick="navigateProductCardImage({{ p.id }}, -1)" aria-label="Previous image">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="product-card-nav-arrow next" onclick="navigateProductCardImage({{ p.id }}, 1)" aria-label="Next image">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                        
+                        <!-- Image Counter -->
+                        <div class="product-card-image-counter">
+                            <span class="current-index">1</span> / <span class="total-images">{{ all_images|length }}</span>
+                        </div>
+                        
+                        <!-- Store images data for JavaScript -->
+                        <script type="application/json" class="product-images-data">
+                        [
+                            {% for image in all_images %}
+                            "{{ image if image.startswith('http') else url_for('static', filename=image.lstrip('/')) }}"{{ ',' if not loop.last else '' }}
+                            {% endfor %}
+                        ]
+                        </script>
+                        {% endif %}
+                    {% else %}
+                        <div class="placeholder-image">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <circle cx="9" cy="9" r="2"></circle>
+                                <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
+                            </svg>
+                        </div>
+                    {% endif %}
+                </div>
+
+                {# ── INFO ───────────────────────── #}
+                <div class="product-info">
+                    <div class="product-content">
+                        <div class="product-category">{{ p.category.name if p.category else 'Featured' }}</div>
+                        <h3 class="product-title"><a href="/product/{{ p.id }}">{{ p.name }}</a></h3>
+
+                        {% if p.colors %}
+                            <div class="product-colors">
+                                <span class="product-colors-label">Colors:</span>
+                                <div class="product-color-dots">
+                                    {% set n = p.colors|length %}
+                                    {% if n == 1 %}
+                                        <span class="color-dot" 
+                                             style="background-color: {{ p.colors[0].hex }};" 
+                                             title="{{ p.colors[0].name }}"></span>
+                                    {% elif n == 2 %}
+                                        <span class="color-dot diagonal-split"
+                                             style="background: linear-gradient(135deg, {{ p.colors[0].hex }} 0% 50%, {{ p.colors[1].hex }} 50% 100%);"
+                                             title="{{ p.colors[0].name }} / {{ p.colors[1].name }}"></span>
+                                    {% else %}
+                                        {% set step = 100 // n %}
+                                        {% set stops = [] %}
+                                        {% for c in p.colors %}
+                                            {% set start = loop.index0 * step %}
+                                            {% set end = loop.index * step %}
+                                            {% set _ = stops.append(c.hex ~ ' ' ~ start ~ '% ' ~ end ~ '%') %}
+                                        {% endfor %}
+                                        <span class="color-dot"
+                                             style="background: linear-gradient(135deg, {{ stops|join(', ') }});"
+                                             title="{{ p.colors|map(attribute='name')|join(' / ') }}"></span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="product-colors colour-unavailable">Colour: (add in store)</div>
+                        {% endif %}
+
+                        <div class="product-price">${{ '%.2f'|format(p.price) }}</div>
+                    </div>
+                    <!--
+                    <p class="product-description">
+                        {% if p.description %}{{ p.description|truncate(80, True, '...') }}{% else %}Premium quality product for your intimate moments.{% endif %}
+                    </p>
+                    -->
+                    <div class="product-buttons">
+                        {# products.html ─ inside each product‑card #}
+                        <!-- inside each product card -->
+<button class="btn-add-cart"
+        data-product-id="{{ p.id }}"
+        data-product-name="{{ p.name|e }}"
+        data-product-price="{{ p.price }}"
+        data-quantity-on-hand="{{ p.quantity_on_hand }}"
+        {% if not p.in_stock or p.quantity_on_hand <= 0 %}disabled{% endif %}>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <circle cx="9" cy="21" r="1"></circle>
+        <circle cx="20" cy="21" r="1"></circle>
+        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+    </svg>
+    {% if p.in_stock and p.quantity_on_hand > 0 %}Add&nbsp;to&nbsp;Cart{% else %}Out&nbsp;of&nbsp;Stock{% endif %}
+</button>
+
+
+                        <button class="btn-wishlist" data-product-id="{{ p.id }}" data-product-name="{{ p.name|e }}">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                            </svg>
+                        </button>
                     </div>
                 </div>
-
-                <div class="filter-section">
-                    <h3 class="filter-title">Price Range</h3>
-                    <div class="price-range">
-                        <input type="number" class="price-input" id="minPrice" placeholder="Min" min="0" onchange="filterProducts()">
-                        <span>-</span>
-                        <input type="number" class="price-input" id="maxPrice" placeholder="Max" min="0" onchange="filterProducts()">
-                    </div>
-                </div>
-
-                <div class="filter-section">
-                    <h3 class="filter-title">Rating</h3>
-                    <div class="filter-options">
-                        <label class="filter-option">
-                            <input type="checkbox" value="5" onchange="filterProducts()">
-                            <span>★★★★★ (5 stars)</span>
-                        </label>
-                        <label class="filter-option">
-                            <input type="checkbox" value="4" onchange="filterProducts()">
-                            <span>★★★★☆ (4+ stars)</span>
-                        </label>
-                        <label class="filter-option">
-                            <input type="checkbox" value="3" onchange="filterProducts()">
-                            <span>★★★☆☆ (3+ stars)</span>
-                        </label>
-                    </div>
-                </div>
-
-                <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" onclick="clearFilters()">
-                    Clear Filters
-                </button>
-            </aside>
-
-            <!-- Products Section -->
-            <main>
-                <!-- Search and Sort Bar -->
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding: 1rem; background: hsla(var(--dark-color), 0.3); border-radius: var(--radius-lg);">
-                    <div style="display: flex; align-items: center; gap: 1rem;">
-                        <input type="text" id="searchInput" placeholder="Search products..." class="form-control" style="width: 300px;" oninput="filterProducts()">
-                        <span id="productCount" style="color: hsla(var(--text-color), 0.7);">9 products</span>
-                    </div>
-                    <select id="sortSelect" class="form-control" style="width: 200px;" onchange="sortProducts()">
-                        <option value="name">Sort by Name</option>
-                        <option value="price-low">Price: Low to High</option>
-                        <option value="price-high">Price: High to Low</option>
-                        <option value="rating">Rating</option>
-                        <option value="newest">Newest</option>
-                    </select>
-                </div>
-
-                <!-- Products Grid -->
-                <div class="product-grid" id="productGrid">
-                    <!-- Products will be populated by JavaScript -->
-                </div>
-
-                <!-- Empty State -->
-                <div id="emptyState" class="text-center" style="display: none; padding: 4rem 0;">
-                    <i class="fas fa-search" style="font-size: 4rem; color: hsla(var(--text-color), 0.3); margin-bottom: 1rem;"></i>
-                    <h3 style="margin-bottom: 1rem;">No products found</h3>
-                    <p style="color: hsla(var(--text-color), 0.7);">Try adjusting your filters or search terms</p>
-                    <button class="btn btn-primary" onclick="clearFilters()" style="margin-top: 1rem;">Clear All Filters</button>
-                </div>
-            </main>
+            </div>
+            {% endfor %}
+            {% if products.total == 0 %}
+                <p style="grid-column:1/-1;text-align:center;padding:3rem 0">No products found.</p>
+            {% endif %}
         </div>
     </div>
+</section>
+
+{# ░░░ MODALS & SCRIPTS (unchanged) ░░░ #}
+<!-- (unchanged content omitted for brevity) -->
+
+
+
+{# ░░░ WISHLIST MODAL ░░░ #}
+    {% include "wishlist_modal.html" %}
+
+    {# ░░░ CART MODAL ░░░ #}
+    {% include "cart_modal.html" %}
+
+    {# ░░░ AUTH MODALS ░░░ #}
+    {% include "login_register_modal.html" %}
+    {% include "logged_in_modal.html" %}
+
+    {# ░░░ FOOTER ░░░ #}
+    {% include "footer.html" %}
+
+<script defer src="{{ url_for('static', filename='js/index.js') }}?v=20241220d"></script>
+
+<script>
+// Initialize search functionality on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('productSearch');
+    const clearButton = document.querySelector('.clear-search-btn');
+    
+    // Show clear button if there's a search term
+    if (searchInput && clearButton) {
+        if (searchInput.value.trim()) {
+            clearButton.style.display = 'block';
+        }
+    }
+    
+    // Initialize product card slideshows
+    initializeProductCardSlideshows();
+});
+
+// Product Card Slideshow Functionality
+const productCardImages = {};
+const productCardCurrentIndex = {};
+
+function initializeProductCardSlideshows() {
+    // Find all product cards with slideshows
+    const slideshows = document.querySelectorAll('.product-card-slideshow');
+    
+    slideshows.forEach(slideshow => {
+        const productId = slideshow.getAttribute('data-product-id');
+        const imagesScript = slideshow.querySelector('.product-images-data');
+        
+        if (imagesScript && productId) {
+            try {
+                // Parse the JSON data
+                const images = JSON.parse(imagesScript.textContent);
+                
+                // Fix HTML entity encoding in URLs
+                for (let i = 0; i < images.length; i++) {
+                    images[i] = images[i].replace(/&amp;/g, '&');
+                }
+                
+                // Store images and initialize index
+                productCardImages[productId] = images;
+                productCardCurrentIndex[productId] = 0;
+                
+                // Set initial image
+                const img = slideshow.querySelector('.product-card-image');
+                if (img && images.length > 0) {
+                    img.src = images[0];
+                }
+            } catch (e) {
+                console.error('Error parsing product images data:', e);
+            }
+        }
+    });
+}
+
+function navigateProductCardImage(productId, direction) {
+    const images = productCardImages[productId];
+    if (!images || images.length <= 1) return;
+    
+    // Calculate new index
+    let newIndex = productCardCurrentIndex[productId] + direction;
+    
+    // Handle looping
+    if (newIndex >= images.length) {
+        newIndex = 0;
+    } else if (newIndex < 0) {
+        newIndex = images.length - 1;
+    }
+    
+    // Update current index
+    productCardCurrentIndex[productId] = newIndex;
+    
+    // Update image
+    const slideshow = document.querySelector(`.product-card-slideshow[data-product-id="${productId}"]`);
+    if (slideshow) {
+        const img = slideshow.querySelector('.product-card-image');
+        const counter = slideshow.querySelector('.current-index');
+        
+        if (img && images[newIndex]) {
+            img.src = images[newIndex];
+        }
+        
+        if (counter) {
+            counter.textContent = newIndex + 1;
+        }
+    }
+}
+</script>
+
 
 
 </body>

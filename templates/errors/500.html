@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Error - LoveMeNow</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}">
+    
+    
+    <!-- CSRF Protection -->
+    {% include 'csrf_meta.html' %}<style>
+        .error-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+        }
+        .error-content {
+            max-width: 500px;
+        }
+        .error-code {
+            font-size: 6rem;
+            font-weight: bold;
+            color: #e91e63;
+            margin-bottom: 1rem;
+        }
+        .error-message {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            color: #666;
+        }
+        .error-description {
+            margin-bottom: 2rem;
+            color: #888;
+        }
+        .btn-home {
+            background: linear-gradient(135deg, #e91e63, #f06292);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.3s ease;
+        }
+        .btn-home:hover {
+            transform: translateY(-2px);
+            color: white;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-content">
+            <div class="error-code">500</div>
+            <div class="error-message">Internal Server Error</div>
+            <div class="error-description">
+                Something went wrong on our end. We're working to fix it!
+            </div>
+            <a href="{{ url_for('main.index') }}" class="btn-home">
+                <i class="fas fa-home"></i> Go Home
+            </a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmed - LoveMeNow</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    
+    
+    
+    <!-- CSRF Protection -->
+    {% include 'csrf_meta.html' %}<style>
+        .success-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .success-card {
+            background: hsl(var(--surface-color));
+            border-radius: var(--radius-lg);
+            padding: 3rem 2rem;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid hsl(var(--border-color));
+        }
+        
+        .success-icon {
+            font-size: 4rem;
+            color: hsl(var(--primary-color));
+            margin-bottom: 1.5rem;
+        }
+        
+        .success-title {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: hsl(var(--text-color));
+        }
+        
+        .success-message {
+            font-size: 1.1rem;
+            color: hsl(var(--muted-color));
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        
+        .order-details {
+            background: hsl(var(--background-color));
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border: 1px solid hsl(var(--border-color));
+        }
+        
+        .order-number {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: hsl(var(--primary-color));
+            margin-bottom: 0.5rem;
+        }
+        
+        .order-total {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: hsl(var(--text-color));
+            margin-bottom: 1rem;
+        }
+        
+        .order-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+            text-align: left;
+        }
+        
+        .info-item {
+            padding: 0.75rem;
+            background: hsl(var(--surface-color));
+            border-radius: var(--radius-sm);
+            border: 1px solid hsl(var(--border-color));
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: hsl(var(--text-color));
+            margin-bottom: 0.25rem;
+        }
+        
+        .info-value {
+            color: hsl(var(--muted-color));
+            font-size: 0.9rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+        
+        .next-steps {
+            background: hsl(var(--background-color));
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            margin-top: 2rem;
+            border: 1px solid hsl(var(--border-color));
+            text-align: left;
+        }
+        
+        .next-steps h3 {
+            color: hsl(var(--text-color));
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .next-steps ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .next-steps li {
+            padding: 0.5rem 0;
+            color: hsl(var(--muted-color));
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .next-steps li i {
+            color: hsl(var(--primary-color));
+            width: 20px;
+        }
+        
+        .order-items-section {
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: hsl(var(--surface-color));
+            border-radius: var(--radius-md);
+            border: 1px solid hsl(var(--border-color));
+        }
+        
+        .order-items-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .order-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            background: hsl(var(--background-color));
+            border-radius: var(--radius-sm);
+            border: 1px solid hsl(var(--border-color));
+        }
+        
+        .item-image {
+            flex-shrink: 0;
+        }
+        
+        .item-details {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .item-name {
+            font-weight: 600;
+            color: hsl(var(--text-color));
+            font-size: 1rem;
+        }
+        
+        .item-description {
+            color: hsl(var(--muted-color));
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .item-price-info {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+        
+        .item-quantity {
+            color: hsl(var(--muted-color));
+        }
+        
+        .item-unit-price {
+            color: hsl(var(--muted-color));
+        }
+        
+        .item-total-price {
+            font-weight: 600;
+            color: hsl(var(--primary-color));
+            margin-left: auto;
+        }
+        
+        @media (max-width: 768px) {
+            .order-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .success-card {
+                padding: 2rem 1rem;
+            }
+            
+            .order-item {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            
+            .item-image {
+                align-self: center;
+            }
+            
+            .item-price-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.25rem;
+            }
+            
+            .item-total-price {
+                margin-left: 0;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a class="navbar-brand" href="{{url_for('main.index')}}">
+                <svg class="logo-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+                LoveMeNow
+            </a>
+
+            <div class="navbar-center">
+                <ul class="nav-links">
+                    <li><a class="nav-link" href="{{url_for('main.index')}}">Home</a></li>
+                    <li><a class="nav-link" href="{{url_for('main.products')}}">Shop</a></li>
+                    <li><a class="nav-link" href="{{url_for('main.about')}}">About</a></li>
+                    <li><a class="nav-link" href="{{url_for('main.support')}}">Support</a></li>
+                </ul>
+            </div>
+
+            <div class="navbar-actions">
+                <div class="nav-buttons">
+                    <button type="button" onclick="openWishlistModal()" class="nav-icon-btn" title="Wishlist">
+                        <i class="fas fa-heart"></i>
+                        <span class="icon-badge" id="wishlistCount">0</span>
+                    </button>
+                    <a href="{{ url_for('main.cart_page') }}" class="nav-icon-btn" title="Cart">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span class="icon-badge" id="cartCount">0</span>
+                    </a>
+
+                    {% if current_user.is_authenticated %}
+                        <button class="btn btn-primary" id="userMenuButton">Account</button>
+                    {% else %}
+                        <button class="btn btn-primary" id="authButton">Sign In</button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="success-container">
+        <div class="success-card">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            
+            <h1 class="success-title">Order Confirmed!</h1>
+            
+            <p class="success-message">
+                Thank you for your order! Your payment has been processed successfully and your order has been fulfilled. You will receive a confirmation email shortly with your order details and tracking information.
+            </p>
+            
+            <div class="order-details">
+                <div class="order-number">Order #{{ order.order_number }}</div>
+                <div class="order-total">${{ "%.2f"|format(order.total_amount) }}</div>
+                
+                <!-- Order Items Section -->
+                <div class="order-items-section">
+                    <h4 style="margin-bottom: 1rem; color: hsl(var(--text-color)); font-size: 1.1rem;">Items Purchased</h4>
+                    <div class="order-items-list">
+                        {% for item in order_items %}
+                        <div class="order-item">
+                            <div class="item-image">
+                                {% if item.product_image %}
+                                    <img src="{{ item.product_image if item.product_image.startswith('http') else url_for('static', filename=item.product_image.lstrip('/')) }}" 
+                                         alt="{{ item.product.name|e }}" 
+                                         style="width: 80px; height: 80px; object-fit: cover; border-radius: var(--radius-sm);">
+                                {% else %}
+                                    <div class="placeholder-image" style="width: 80px; height: 80px; background: hsl(var(--muted-color)); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-image" style="color: white; font-size: 1.5rem;"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="item-details">
+                                <div class="item-name">{{ item.product.name }}</div>
+                                <div class="item-description">{{ item.product.description[:100] + '...' if item.product.description and item.product.description|length > 100 else item.product.description or 'Premium quality product' }}</div>
+                                <div class="item-price-info">
+                                    <span class="item-quantity">Qty: {{ item.quantity }}</span>
+                                    <span class="item-unit-price">${{ "%.2f"|format(item.unit_price) }} each</span>
+                                    <span class="item-total-price">${{ "%.2f"|format(item.total_price) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="order-info">
+                    <div class="info-item">
+                        <div class="info-label">Email</div>
+                        <div class="info-value">{{ order.email }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Payment Method</div>
+                        <div class="info-value">{{ order.payment_method|title if order.payment_method else 'Card' }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">{% if order.delivery_type == 'delivery' %}Delivery Address{% else %}Pickup Location{% endif %}</div>
+                        <div class="info-value">
+                            {{ order.shipping_address }}<br>
+                            {% if order.shipping_suite %}{{ order.shipping_suite }}<br>{% endif %}
+                            {{ order.shipping_city }}, {{ order.shipping_state }} {{ order.shipping_zip }}
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Order Status</div>
+                        <div class="info-value">{{ order.status|title }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="next-steps">
+                <h3>What happens next?</h3>
+                <ul>
+                    <li><i class="fas fa-envelope"></i> You'll receive a confirmation email with order details and tracking information</li>
+                    {% if order.delivery_type == 'delivery' %}
+                    <li><i class="fas fa-truck"></i> Your order is being prepared for delivery via Uber Direct</li>
+                    <li><i class="fas fa-map-marker-alt"></i> Track your delivery in real-time using the tracking link in your email</li>
+                    {% else %}
+                    <li><i class="fas fa-store"></i> Your order is ready for pickup at our Miami location</li>
+                    <li><i class="fas fa-clock"></i> Pickup available during business hours: 10AM-10PM daily</li>
+                    {% endif %}
+                    <li><i class="fas fa-shield-alt"></i> All orders are handled with complete discretion and privacy</li>
+                </ul>
+            </div>
+            
+            <div class="action-buttons">
+                {% if uber_delivery and uber_delivery.tracking_url %}
+                <a href="{{ uber_delivery.tracking_url }}" class="btn" style="background: #000; color: white;" target="_blank">
+                    <i class="fas fa-truck"></i>
+                    Continue Tracking Delivery
+                </a>
+                {% endif %}
+
+                <a href="{{ url_for('main.products') }}" class="btn btn-primary">
+                    <i class="fas fa-shopping-bag"></i>
+                    Continue Shopping
+                </a>
+                <a href="{{ url_for('main.index') }}" class="btn" style="background: hsl(var(--muted-color)); color: white;">
+                    <i class="fas fa-home"></i>
+                    Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include modals -->
+    {% include 'login_register_modal.html' %}
+    {% include 'logged_in_modal.html' %}
+    {% include 'wishlist_modal.html' %}
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartCount();
+            updateWishlistCount();
+            processPaymentSuccess();
+        });
+        
+        function processPaymentSuccess() {
+            // Get session_id from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const sessionId = urlParams.get('session_id');
+            
+            if (sessionId) {
+                
+                // Call our payment processing endpoint
+                fetch('/process-payment-success', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        session_id: sessionId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Clear the cart after successful payment
+                        clearCart();
+                    } else {
+                    }
+                })
+                .catch(error => {
+                });
+            }
+        }
+
+        function updateCartCount() {
+            fetch('/api/cart/count')
+                .then(response => response.json())
+                .then(data => {
+                    const cartCountElement = document.getElementById('cartCount');
+                    if (cartCountElement) {
+                        cartCountElement.textContent = data.count;
+                        cartCountElement.style.display = data.count > 0 ? 'inline-block' : 'none';
+                    }
+                })
+                .catch(error => {
+                });
+        }
+
+        function updateWishlistCount() {
+            // This will be handled by the included JS file
+        }
+
+        function clearCart() {
+            // Clear cart for both authenticated and guest users
+            fetch('/api/cart/clear', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update cart count display
+                    updateCartCount();
+                } else {
+                }
+            })
+            .catch(error => {
+            });
+        }
+    </script>
+</body>
+</html>

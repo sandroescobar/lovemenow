@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LoveMeNow Newsletter</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #8b5cf6, #a855f7); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #fff; padding: 30px; border: 1px solid #ddd; }
+        .footer { background: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 10px 10px; font-size: 12px; color: #666; }
+        .btn { display: inline-block; background: #8b5cf6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; margin: 10px 0; }
+        .featured-section { background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .products-grid { display: flex; flex-wrap: wrap; gap: 15px; margin: 20px 0; }
+        .product-item { flex: 1; min-width: 120px; border: 1px solid #ddd; border-radius: 8px; padding: 10px; text-align: center; }
+        .product-image { width: 100%; height: 100px; object-fit: cover; border-radius: 5px; }
+    </style>
+    
+    <!-- CSRF Protection -->
+    {% include 'csrf_meta.html' %}
+
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💌 LoveMeNow Newsletter</h1>
+            <p>Your weekly dose of passion and pleasure</p>
+        </div>
+        
+        <div class="content">
+            <h2>Hi {{ user.full_name }}! 👋</h2>
+            
+            <div class="featured-section">
+                {{ content|safe }}
+            </div>
+            
+            {% if featured_products %}
+            <h3>🌟 This Week's Featured Products</h3>
+            <div class="products-grid">
+                {% for product in featured_products %}
+                <div class="product-item">
+                    {% if product.image_url %}
+                    <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-image">
+                    {% endif %}
+                    <h4 style="font-size: 14px;">{{ product.name }}</h4>
+                    <p style="color: #8b5cf6; font-weight: bold;">${{ "%.2f"|format(product.price) }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <div class="featured-section">
+                <h3>💡 This Week's Tips</h3>
+                <ul>
+                    <li><strong>Self-Care Sunday:</strong> Take time for yourself and explore what makes you feel confident</li>
+                    <li><strong>Communication is Key:</strong> Open dialogue enhances every relationship</li>
+                    <li><strong>Quality Matters:</strong> Invest in products that prioritize your health and safety</li>
+                </ul>
+            </div>
+            
+            <a href="https://lovemenowmiami.com/products" class="btn">Explore All Products</a>
+            
+            <p><em>Thank you for being part of the LoveMeNow VIP community. We appreciate your trust and support!</em></p>
+        </div>
+        
+        <div class="footer">
+            <p>LoveMeNow - Miami's Premier Adult Lifestyle Store</p>
+            <p>You're receiving this because you opted into our marketing emails.</p>
+            <p><a href="https://lovemenowmiami.com/unsubscribe/{{ user.id }}" style="color: #666;">Unsubscribe</a> | <a href="https://lovemenowmiami.com/user_profile" style="color: #666;">Update Preferences</a></p>
+        </div>
+    </div>
+</body>
+</html>

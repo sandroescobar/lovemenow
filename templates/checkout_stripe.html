@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - LoveMeNow</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Stripe.js -->
+    <script src="https://js.stripe.com/v3/"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}">
+    
+    
+    
+    <!-- CSRF Protection -->
+    {% include 'csrf_meta.html' %}<style>
+        .checkout-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .checkout-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .checkout-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .checkout-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: start;
+        }
+        
+        @media (max-width: 1024px) {
+            .checkout-layout {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+        }
+        
+        .checkout-left {
+            background: hsl(var(--surface-color));
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid hsl(var(--border-color));
+        }
+        
+        .checkout-right {
+            background: hsl(var(--surface-color));
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid hsl(var(--border-color));
+            position: sticky;
+            top: 2rem;
+        }
+        
+        .section {
+            margin-bottom: 2rem;
+        }
+        
+        .section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: hsl(var(--text-color));
+            border-bottom: 2px solid hsl(var(--border-color));
+            padding-bottom: 0.5rem;
+        }
+        
+        .product-item {
+            display: grid;
+            grid-template-columns: 80px 1fr auto;
+            gap: 1rem;
+            align-items: center;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid hsl(var(--border-color));
+        }
+        
+        .product-item:last-child {
+            border-bottom: none;
+        }
+        
+        .product-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: var(--radius-md);
+            background: hsl(var(--background-color));
+            flex-shrink: 0;
+        }
+        
+        .product-details {
+            flex: 1;
+        }
+        
+        .product-name {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: hsl(var(--text-color));
+            font-size: 1.1rem;
+        }
+        
+        .product-description {
+            font-size: 0.85rem;
+            color: hsl(var(--muted-color));
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .product-price {
+            font-weight: 600;
+            color: hsl(var(--primary-color));
+            margin-bottom: 0.25rem;
+        }
+        
+        .product-quantity {
+            font-size: 0.9rem;
+            color: hsl(var(--muted-color));
+        }
+        
+        .product-total {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: hsl(var(--text-color));
+            text-align: right;
+        }
+        
+        .user-info {
+            background: hsl(var(--background-color));
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            border: 1px solid hsl(var(--border-color));
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .info-label {
+            font-weight: 500;
+            color: hsl(var(--muted-color));
+        }
+        
+        .info-value {
+            color: hsl(var(--text-color));
+        }
+        
+        .address-section {
+            background: hsl(var(--background-color));
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            border: 1px solid hsl(var(--border-color));
+        }
+        
+        .address-form {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .form-label {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: hsl(var(--text-color));
+        }
+        
+        .form-input {
+            padding: 0.75rem;
+            border: 1px solid hsl(var(--border-color));
+            border-radius: var(--radius-sm);
+            background: hsl(var(--surface-color));
+            color: hsl(var(--text-color));
+            font-size: 0.9rem;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: hsl(var(--primary-color));
+            box-shadow: 0 0 0 3px hsla(var(--primary-color), 0.1);
+        }
+        
+        .no-address-message {
+            text-align: center;
+            color: hsl(var(--muted-color));
+            font-style: italic;
+            margin-bottom: 1rem;
+        }
+        
+        .order-summary {
+            background: hsl(var(--background-color));
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            border: 1px solid hsl(var(--border-color));
+            margin-bottom: 1rem;
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .summary-row:last-child {
+            margin-bottom: 0;
+            padding-top: 0.5rem;
+            border-top: 1px solid hsl(var(--border-color));
+            font-weight: 600;
+        }
+        
+        .summary-label {
+            color: hsl(var(--muted-color));
+        }
+        
+        .summary-value {
+            color: hsl(var(--text-color));
+        }
+        
+        .summary-row:last-child .summary-label,
+        .summary-row:last-child .summary-value {
+            color: hsl(var(--primary-color));
+        }
+        
+        #checkout {
+            min-height: 500px;
+        }
+        
+
+        
+        /* Button styles */
+        .edit-address-btn {
+            background: hsl(var(--background-color));
+            border: 1px solid hsl(var(--border-color));
+            color: hsl(var(--text-color));
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+        
+        .edit-address-btn:hover {
+            background: hsl(var(--muted-color) / 0.1);
+            border-color: hsl(var(--primary-color));
+        }
+        
+        .edit-address-btn.primary {
+            background: hsl(var(--primary-color));
+            color: white;
+            border-color: hsl(var(--primary-color));
+        }
+        
+        .edit-address-btn.primary:hover {
+            background: hsl(var(--primary-color) / 0.9);
+        }
+        
+        .edit-address-btn.secondary {
+            background: transparent;
+            color: hsl(var(--muted-color));
+        }
+        
+        .edit-address-btn.secondary:hover {
+            background: hsl(var(--muted-color) / 0.1);
+        }
+        
+        .loading-container {
+            text-align: center;
+            padding: 3rem 2rem;
+        }
+        
+        .loading-spinner {
+            font-size: 2rem;
+            color: hsl(var(--primary-color));
+            margin-bottom: 1rem;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            color: hsl(var(--muted-color));
+            font-size: 1.1rem;
+        }
+        
+        .error-container {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #dc3545;
+        }
+        
+        .error-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .back-to-cart {
+            margin-top: 2rem;
+            text-align: center;
+        }
+        
+        #checkout {
+            min-height: 400px;
+            width: 100%;
+        }
+        
+        .security-notice {
+            background: hsl(var(--background-color));
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin-top: 1rem;
+            border: 1px solid hsl(var(--border-color));
+            text-align: center;
+            font-size: 0.9rem;
+            color: hsl(var(--muted-color));
+        }
+        
+        .security-notice i {
+            color: hsl(var(--primary-color));
+            margin-right: 0.5rem;
+        }
+        
+        .edit-address-btn {
+            background: none;
+            border: 1px solid hsl(var(--primary-color));
+            color: hsl(var(--primary-color));
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            transition: all 0.2s ease;
+        }
+        
+        .edit-address-btn:hover {
+            background: hsl(var(--primary-color));
+            color: white;
+        }
+        
+        .address-display {
+            line-height: 1.5;
+            color: hsl(var(--text-color));
+        }
+        
+        /* Cart-style item display for order items */
+        .cart-item {
+            display: grid;
+            grid-template-columns: 80px 1fr auto auto;
+            gap: 1rem;
+            align-items: center;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid hsl(var(--border-color));
+        }
+        
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+        
+        .cart-item-image {
+            width: 80px;
+            height: 80px;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+        
+        .cart-item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .cart-item-details h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.1rem;
+            color: hsl(var(--text-color));
+        }
+        
+        .cart-item-size {
+            font-size: 0.9rem;
+            color: hsl(var(--muted-color));
+            margin-bottom: 0.5rem;
+        }
+        
+        .cart-item-price {
+            font-weight: 600;
+            color: hsl(var(--primary-color));
+        }
+        
+        .quantity-display {
+            text-align: center;
+        }
+        
+        .quantity-label {
+            font-size: 0.9rem;
+            color: hsl(var(--muted-color));
+            font-weight: 500;
+        }
+        
+        .cart-item-total {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: hsl(var(--text-color));
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a class="navbar-brand" href="/">
+                <svg class="logo-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+                LoveMeNow
+            </a>
+
+            <div class="navbar-center">
+                <ul class="nav-links">
+                    <li><a class="nav-link" href="/">Home</a></li>
+                    <li><a class="nav-link" href="/products">Shop</a></li>
+                    <li><a class="nav-link" href="/about">About</a></li>
+                    <li><a class="nav-link" href="/support">Support</a></li>
+                </ul>
+            </div>
+
+            <div class="navbar-actions">
+                <div class="nav-buttons">
+                    <button type="button" onclick="openWishlistModal()" class="nav-icon-btn" title="Wishlist">
+                        <i class="fas fa-heart"></i>
+                        <span class="icon-badge" id="wishlistCount">0</span>
+                    </button>
+                    <a href="/cart" class="nav-icon-btn" title="Cart">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span class="icon-badge" id="cartCount">0</span>
+                    </a>
+                    {% if current_user.is_authenticated %}
+                        <button class="btn btn-primary" id="userMenuButton">Account</button>
+                    {% else %}
+                        <button class="btn btn-primary" id="authButton">Sign In</button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="checkout-container">
+        <div class="checkout-header">
+            <h1>Secure Checkout</h1>
+            <p>Complete your purchase securely with Stripe</p>
+        </div>
+        
+        <div class="checkout-layout">
+            <!-- Left Column: Order Details, User Info, Address -->
+            <div class="checkout-left">
+                <!-- Order Summary Section -->
+                <div class="section">
+                    <h2 class="section-title">
+                        <i class="fas fa-shopping-bag"></i>
+                        Order Summary
+                    </h2>
+                    <div id="order-items">
+                        <!-- Products will be loaded here -->
+                    </div>
+                    <div class="order-summary" id="order-totals">
+                        <!-- Order totals will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- User Information Section -->
+                {% if current_user.is_authenticated %}
+                <div class="section">
+                    <h2 class="section-title">
+                        <i class="fas fa-user"></i>
+                        Account Information
+                    </h2>
+                    <div class="user-info">
+                        <div class="info-row">
+                            <span class="info-label">Name:</span>
+                            <span class="info-value">{{ current_user.full_name }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Email:</span>
+                            <span class="info-value">{{ current_user.email }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Shipping Address Section -->
+                <div class="section">
+                    <h2 class="section-title">
+                        <i class="fas fa-truck"></i>
+                        Shipping Address
+                    </h2>
+                    <div class="address-section">
+                        <!-- Existing Address Display -->
+                        <div id="existing-address" style="display: none;">
+                            <div class="address-display" id="address-display"></div>
+                            <button type="button" class="edit-address-btn" onclick="showAddressForm()">
+                                Edit Address
+                            </button>
+                        </div>
+                        
+                        <!-- No Address State -->
+                        <div id="address-form-container">
+                            <div class="no-address-message" id="no-address-msg">
+                                Please enter your shipping address below
+                            </div>
+                            <form class="address-form" id="address-form">
+                               <i class="fas fa-plus"></i>  <div class="form-group full-width">
+                                            <!-- Address Form (Hidden by default) -->
+                <label class="form-label" for="address">Street Address *</label>
+                                    <input type="text" id="address" name="address" class="form-input" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="suite">Apt/Suite</label>
+                                    <input type="text" id="suite" name="suite" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="city">City *</label>
+                                    <input type="text" id="city" name="city" class="form-input" required>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label" for="state">State *</label>
+                                        <input type="text" id="state" name="state" class="form-input" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="zip">ZIP Code *</label>
+                                        <input type="text" id="zip" name="zip" class="form-input" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="country">Country *</label>
+                                    <select id="country" name="country" class="form-input" required>
+                                        <option value="US">United States</option>
+                                        <option value="CA">Canada</option>
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Stripe Checkout -->
+            <div class="checkout-right">
+                <h2 class="section-title">
+                    <i class="fas fa-credit-card"></i>
+                    Payment Information
+                </h2>
+                
+                <!-- Loading State -->
+                <div id="loading" class="loading-container">
+                    <div class="loading-spinner">
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </div>
+                    <div class="loading-text">Setting up secure payment...</div>
+                </div>
+                
+                <!-- Error State -->
+                <div id="error" class="error-container" style="display: none;">
+                    <div class="error-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h3>Unable to Load Checkout</h3>
+                    <p id="error-message">There was an error setting up the payment form. Please try again.</p>
+                    <div class="back-to-cart">
+                        <a href="/cart" class="btn btn-primary">Back to Cart</a>
+                    </div>
+                </div>
+                
+                <!-- Stripe Checkout will be mounted here -->
+                <div id="checkout" style="display: none;"></div>
+                
+                <div class="security-notice">
+                    <i class="fas fa-shield-alt"></i>
+                    Your payment information is processed securely by Stripe. We never store your card details.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include modals -->
+    {% include 'login_register_modal.html' %}
+    {% include 'logged_in_modal.html' %}
+    {% include 'wishlist_modal.html' %}
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+    
+    <script>
+        // Initialize Stripe
+        
+        const stripePublishableKey = '{{ config.STRIPE_PUBLISHABLE_KEY }}';
+        if (!stripePublishableKey || stripePublishableKey === 'None') {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('error-message').textContent = 'Payment system configuration error: Stripe key not found';
+            throw new Error('Stripe publishable key is not configured');
+        }
+        
+        const stripe = Stripe(stripePublishableKey);
+        let cartData = null;
+        let userAddress = null;
+        
+        // Load cart data and user address
+        async function loadCheckoutData() {
+            try {
+                // Load cart data
+                const cartResponse = await fetch('/api/cart/');
+                if (cartResponse.ok) {
+                    cartData = await cartResponse.json();
+                    displayOrderSummary(cartData);
+                }
+                
+                // Load user address if authenticated
+                {% if current_user.is_authenticated %}
+                const addressResponse = await fetch('/api/user/address');
+                if (addressResponse.ok) {
+                    const addressData = await addressResponse.json();
+                    if (addressData.address) {
+                        userAddress = addressData.address;
+                        displayExistingAddress(userAddress);
+                    }
+                }
+                {% endif %}
+                
+            } catch (error) {
+            }
+        }
+        
+        function displayOrderSummary(cartData) {
+            const orderItemsContainer = document.getElementById('order-items');
+            const orderTotalsContainer = document.getElementById('order-totals');
+            
+            // Handle both API formats: /api/cart returns 'products', /api/cart/ returns 'items'
+            const products = cartData.products || cartData.items || [];
+            
+            if (!cartData || products.length === 0) {
+                orderItemsContainer.innerHTML = '<p class="no-address-message">No items in cart</p>';
+                return;
+            }
+            
+            // Display cart items in shopping cart style
+            let itemsHtml = '';
+            products.forEach(item => {
+                // Handle both formats: direct product object or nested product object
+                const product = item.product || item;
+                const quantity = item.quantity;
+                const imageUrl = product.image_url || '/static/IMG/placeholder.svg';
+                const itemTotal = (product.price * quantity).toFixed(2);
+                
+                // Determine size display
+                let sizeDisplay = '';
+                if (product.dimensions && product.dimensions.trim()) {
+                    sizeDisplay = `<div class="cart-item-size"><strong>Size:</strong> ${product.dimensions}</div>`;
+                } else {
+                    sizeDisplay = `<div class="cart-item-size"><strong>Sizing:</strong> One size fits all / Adjustable</div>`;
+                }
+                
+                itemsHtml += `
+                    <div class="cart-item">
+                        <div class="cart-item-image">
+                            <img src="${imageUrl}" alt="${product.name}" onerror="this.src='/static/IMG/placeholder.svg'">
+                        </div>
+                        <div class="cart-item-details">
+                            <h3>${product.name}</h3>
+                            ${sizeDisplay}
+                            <div class="cart-item-price">$${product.price.toFixed(2)}</div>
+                        </div>
+                        <div class="quantity-display">
+                            <span class="quantity-label">Qty: ${quantity}</span>
+                        </div>
+                        <div class="cart-item-total">$${itemTotal}</div>
+                    </div>
+                `;
+            });
+            orderItemsContainer.innerHTML = itemsHtml;
+            
+            // Display order totals
+            const subtotal = cartData.subtotal || cartData.total || 0;
+            const shipping = cartData.shipping || (subtotal > 0 && subtotal < 50 ? 9.99 : 0);
+            const total = cartData.total || subtotal + shipping;
+            
+            const totalsHtml = `
+                <div class="summary-row">
+                    <span class="summary-label">Subtotal:</span>
+                    <span class="summary-value">$${subtotal.toFixed(2)}</span>
+                </div>
+                ${shipping > 0 ? `
+                <div class="summary-row">
+                    <span class="summary-label">Shipping:</span>
+                    <span class="summary-value">$${shipping.toFixed(2)}</span>
+                </div>
+                ` : ''}
+                <div class="summary-row">
+                    <span class="summary-label">Total:</span>
+                    <span class="summary-value">$${total.toFixed(2)}</span>
+                </div>
+            `;
+            orderTotalsContainer.innerHTML = totalsHtml;
+        }
+        
+        function displayExistingAddress(address) {
+            const existingAddressDiv = document.getElementById('existing-address');
+            const addressFormContainer = document.getElementById('address-form-container');
+            const addressDisplay = document.getElementById('address-display');
+            const noAddressMsg = document.getElementById('no-address-msg');
+            
+            let addressHtml = `
+                <strong>${address.address}</strong><br>
+                ${address.suite ? address.suite + '<br>' : ''}
+                ${address.city}, ${address.state} ${address.zip}<br>
+                ${address.country}
+            `;
+            
+            addressDisplay.innerHTML = addressHtml;
+            existingAddressDiv.style.display = 'block';
+            addressFormContainer.style.display = 'none';
+            noAddressMsg.style.display = 'none';
+            
+            // Pre-fill form with existing address
+            document.getElementById('address').value = address.address || '';
+            document.getElementById('suite').value = address.suite || '';
+            document.getElementById('city').value = address.city || '';
+            document.getElementById('state').value = address.state || '';
+            document.getElementById('zip').value = address.zip || '';
+            document.getElementById('country').value = address.country || 'US';
+        }
+        
+        function toggleAddressForm() {
+            const existingAddressDiv = document.getElementById('existing-address');
+            const addressFormContainer = document.getElementById('address-form-container');
+            
+            if (addressFormContainer.style.display === 'none') {
+                existingAddressDiv.style.display = 'none';
+                addressFormContainer.style.display = 'block';
+            } else {
+                existingAddressDiv.style.display = 'block';
+                addressFormContainer.style.display = 'none';
+            }
+        }
+        
+        async function initialize() {
+            try {
+                
+                // Verify Stripe is loaded
+                if (typeof Stripe === 'undefined') {
+                    throw new Error('Stripe.js failed to load - check internet connection');
+                }
+                
+                // Initialize Stripe with publishable key
+                const stripePublishableKey = '{{ config.STRIPE_PUBLISHABLE_KEY }}';
+                
+                if (!stripePublishableKey || stripePublishableKey === 'None' || stripePublishableKey === '') {
+                    throw new Error('Stripe publishable key not configured');
+                }
+                
+                const stripe = Stripe(stripePublishableKey);
+                
+                // Create checkout session with better error handling
+                const response = await fetch('/create-checkout-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({})
+                });
+
+                
+                if (!response.ok) {
+                    let errorMessage = `HTTP ${response.status}: Failed to create checkout session`;
+                    try {
+                        const errorData = await response.json();
+                        errorMessage = errorData.error || errorMessage;
+                    } catch (parseError) {
+                        const errorText = await response.text();
+                        errorMessage = `${errorMessage} - ${errorText}`;
+                    }
+                    throw new Error(errorMessage);
+                }
+
+                const responseData = await response.json();
+                
+                const clientSecret = responseData.clientSecret;
+                
+                if (!clientSecret) {
+                    throw new Error('No client secret received from server');
+                }
+
+                
+                // Initialize embedded checkout
+                const checkout = await stripe.initEmbeddedCheckout({
+                    clientSecret: clientSecret
+                });
+
+                
+                // Hide loading and show checkout
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('checkout').style.display = 'block';
+                
+                // Mount checkout
+                checkout.mount('#checkout');
+                
+                
+            } catch (error) {
+                
+                // Hide loading and show error
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('error-message').innerHTML = `
+                    <strong>Payment System Error:</strong><br>
+                    ${error.message}<br><br>
+                    <button onclick="location.reload()" class="edit-address-btn primary">Retry</button>
+                `;
+            }
+        }
+        
+        function updateCartCount() {
+            fetch('/api/cart/count')
+                .then(response => response.json())
+                .then(data => {
+                    const cartCountElement = document.getElementById('cartCount');
+                    if (cartCountElement) {
+                        cartCountElement.textContent = data.count;
+                        cartCountElement.style.display = data.count > 0 ? 'inline-block' : 'none';
+                    }
+                })
+                .catch(error => {
+                });
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartCount();
+            loadCheckoutData();
+            initialize();
+        });
+        
+        function toggleAddressForm() {
+            const existingAddressDiv = document.getElementById('existing-address');
+            const addressFormContainer = document.getElementById('address-form-container');
+            
+            if (addressFormContainer.style.display === 'none') {
+                existingAddressDiv.style.display = 'none';
+                addressFormContainer.style.display = 'block';
+            } else {
+                existingAddressDiv.style.display = 'block';
+                addressFormContainer.style.display = 'none';
+            }
+        }
+        
+        // Make toggleAddressForm available globally
+        window.toggleAddressForm = toggleAddressForm;
+    </script>
+</body>
+</html>

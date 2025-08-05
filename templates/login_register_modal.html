@@ -1,0 +1,72 @@
+<!-- ================= AUTH MODAL OVERLAY ================= -->
+
+
+
+<div class="auth-overlay" id="authOverlay" role="dialog" aria-modal="true" aria-labelledby="authModalTitle" hidden onclick="if(event.target === this) closeAuthModal()">
+  <div class="auth-modal">
+    <button type="button" class="auth-close" aria-label="Close" data-close-auth onclick="closeAuthModal()">&times;</button>
+    <div class="auth-panels">
+      <!-- Register Panel -->
+      <section class="auth-panel register-panel" aria-labelledby="registerTitle">
+        <h2 id="registerTitle" class="auth-title">Register</h2>
+
+        
+        <div class="error-message" id="registerError" style="display: none;"></div>
+        <div class="success-message" id="registerSuccess" style="display: none;"></div>
+        
+        <form class="auth-form" id="registerForm" method="post" action="/auth/register">
+          <!-- <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/> -->
+          <div class="auth-field-group two-col">
+            <div class="auth-field">
+              <label for="regFirst">First Name</label>
+              <input type="text" id="regFirst" name="first_name" required />
+            </div>
+            <div class="auth-field">
+              <label for="regLast">Last Name</label>
+              <input type="text" id="regLast" name="last_name" required />
+            </div>
+          </div>
+          <div class="auth-field">
+            <label for="regEmail">Email Address</label>
+            <input type="email" id="regEmail" name="email" autocomplete="email" required />
+          </div>
+          <div class="auth-field">
+            <label for="regPassword">Password</label>
+            <input type="password" id="regPassword" name="password" autocomplete="new-password" required />
+            <i class="fas fa-eye-slash password-eye-icon" onclick="togglePasswordVisibility('regPassword', this)"></i>
+          </div>
+          <div class="auth-field">
+            <label for="regPassword2">Verify Password</label>
+            <input type="password" id="regPassword2" name="passwordCon" autocomplete="new-password" required />
+            <i class="fas fa-eye-slash password-eye-icon" onclick="togglePasswordVisibility('regPassword2', this)"></i>
+          </div>
+          <button class="auth-btn primary" type="submit">Register</button>
+        </form>
+      </section>
+      <!-- Login Panel -->
+      <section class="auth-panel login-panel" aria-labelledby="loginTitle">
+        <h2 id="loginTitle" class="auth-title">Login</h2>
+
+
+        
+        <div class="error-message" id="loginError" style="display: none;"></div>
+        <div class="success-message" id="loginSuccess" style="display: none;"></div>
+        
+        <form class="auth-form" id="loginForm" method="post" action="/auth/login">
+          <!-- <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/> -->
+          <div class="auth-field">
+            <label for="loginEmail">Email Address</label>
+            <input type="email" id="loginEmail" name="email" autocomplete="email" required />
+          </div>
+          <div class="auth-field">
+            <label for="loginPassword">Password</label>
+            <input type="password" id="loginPassword" name="password" autocomplete="current-password" required />
+            <i class="fas fa-eye-slash password-eye-icon" onclick="togglePasswordVisibility('loginPassword', this)"></i>
+          </div>
+          <button class="auth-btn primary" type="submit">Login</button>
+        </form>
+      </section>
+    </div> <!-- /.auth-panels -->
+  </div> <!-- /.auth-modal -->
+</div> <!-- /.auth-overlay -->
+

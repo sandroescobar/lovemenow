@@ -1,0 +1,373 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="About LoveMeNow - Your premier destination for intimate wellness products">
+    <title>About Us · LoveMeNow</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <!-- Site CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+    
+    <!-- CSRF Protection -->
+    {% include 'csrf_meta.html' %}</head>
+<body>
+
+{% include "navbar.html" %}
+
+<!-- Hero Section -->
+<section class="hero-minimal">
+    <div class="container">
+        <div class="hero-content fade-in-up text-center">
+            <h1>About LoveMeNow</h1>
+            <p class="lead">Empowering intimate wellness with premium products and exceptional service</p>
+        </div>
+    </div>
+</section>
+
+<!-- About Content -->
+<section class="about-section">
+    <div class="container">
+        <!-- Our Story -->
+        <div class="about-content-block">
+            <div class="content-grid">
+                <div class="content-text">
+                    <h2>Our Story</h2>
+                    <p>Founded with a vision to normalize conversations around intimate wellness, LoveMeNow has been serving the Miami community with premium adult products since our inception. We believe that everyone deserves access to high-quality, body-safe products that enhance their personal experiences.</p>
+                    <p>What started as a small local business has grown into Miami's most trusted destination for intimate wellness products, serving customers across Miami-Dade and Broward counties with discretion and care.</p>
+                </div>
+                <div class="content-visual">
+                    <div class="about-image-placeholder">
+                        <i class="fas fa-heart" style="font-size: 4rem; color: hsl(var(--accent-color));"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Our Mission -->
+        <div class="about-content-block reverse">
+            <div class="content-grid">
+                <div class="content-visual">
+                    <div class="about-image-placeholder">
+                        <i class="fas fa-shield-alt" style="font-size: 4rem; color: hsl(var(--primary-color));"></i>
+                    </div>
+                </div>
+                <div class="content-text">
+                    <h2>Our Mission</h2>
+                    <p>At LoveMeNow, our mission is to provide a safe, judgment-free environment where individuals and couples can explore and enhance their intimate wellness. We're committed to:</p>
+                    <ul class="mission-list">
+                        <li><i class="fas fa-check"></i> Offering only body-safe, premium quality products</li>
+                        <li><i class="fas fa-check"></i> Ensuring complete privacy and discretion</li>
+                        <li><i class="fas fa-check"></i> Breaking down stigmas around intimate wellness</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Our Values -->
+        <div class="values-section">
+            <div class="text-center mb-4">
+                <h2>Our Core Values</h2>
+                <p>The principles that guide everything we do</p>
+            </div>
+            <div class="values-grid">
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <h3>Privacy First</h3>
+                    <p>Your privacy is our top priority. From discreet packaging to secure transactions, we ensure your personal information remains confidential.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h3>Quality Assured</h3>
+                    <p>We carefully curate our products, partnering only with reputable brands that meet our strict quality and safety standards.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-hands-helping"></i>
+                    </div>
+                    <h3>Inclusive Community</h3>
+                    <p>We welcome everyone, regardless of gender, orientation, or experience level. Our space is safe and judgment-free for all.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Miami Focus -->
+        <div class="miami-focus-section">
+            <div class="content-grid">
+                <div class="content-text">
+                    <h2>Proud to Serve Miami</h2>
+                    <p>As a Miami-based business, we understand the unique needs of our diverse community. From the vibrant nightlife of South Beach to the family neighborhoods of Kendall, we provide discreet, reliable service throughout the Greater Miami area.</p>
+                    <div class="service-highlights">
+                        <div class="highlight-item">
+                            <strong>Same-Day Delivery</strong>
+                            <span>Available throughout Miami-Dade</span>
+                        </div>
+                        <div class="highlight-item">
+                            <strong>Store Location</strong>
+                            <span>351 NE 79th St, Miami, FL 33138</span>
+                        </div>
+                        <div class="highlight-item">
+                            <strong>Community Support</strong>
+                            <span>Active in local wellness initiatives</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="content-visual">
+                    <div class="about-video-container miami-themed">
+                        <video 
+                            autoplay 
+                            muted 
+                            playsinline
+                            class="miami-video"
+                            id="miamiVideo"
+                            onloadstart="this.style.display='block'; this.nextElementSibling.style.display='none';"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                            onloadedmetadata="setupVideoLoop(this);"
+                            ontimeupdate="checkVideoTime(this);">
+                            <source src="{{ url_for('static', filename='VIDEOS/motionPictureForLoveMeNowMiami.mp4') }}" type="video/mp4">
+                            <!-- Fallback content if video fails -->
+                        </video>
+                        <!-- Fallback icon (hidden when video loads successfully) -->
+                        <div class="video-fallback" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+                            <i class="fas fa-building" style="font-size: 4rem; color: hsl(var(--accent-color));"></i>
+                            <p style="margin-top: 1rem; color: hsl(var(--muted-color));">Miami Skyline</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Store Location Section -->
+        <div class="store-location-section">
+            <div class="content-grid">
+                <div class="content-text">
+                    <h2>Visit Our Store</h2>
+                    <p>Place your order online and choose our Miami pick‑up counter at checkout. Your items will be packed discreetly and ready when you arrive.Simply show your confirmation email and we’ll hand over the sealed package. Fast, private, and hassle‑free.</p>
+                    <div class="location-details">
+                        <div class="location-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <div>
+                                <strong>Address</strong>
+                                <span>351 NE 79th Street<br>Miami, Florida 33138<br>United States</span>
+                            </div>
+                        </div>
+                        <div class="location-item">
+                            <i class="fas fa-clock"></i>
+                            <div>
+                                <strong>Store Hours</strong>
+                                <span>Monday - Thursday: 10AM - 10PM<br>Friday-Saturday: 10pm-12AM <br>Sunday: 11AM-8PM</span>
+                            </div>
+                        </div>
+                        <div class="location-item">
+                            <i class="fas fa-car"></i>
+                            <div>
+                                <strong>Parking</strong>
+                                <span>Free parking available</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="location-actions">
+                        <a href="https://maps.google.com/?q=351+NE+79th+Street,+Miami,+FL+33138" target="_blank" class="btn btn-primary">
+                            <i class="fas fa-directions"></i>
+                            Get Directions
+                        </a>
+                        <a href="tel:+1-305-555-0123" class="btn btn-outline">
+                            <i class="fas fa-phone"></i>
+                            Call Store
+                        </a>
+                    </div>
+                </div>
+                <div class="content-visual">
+                    <div class="location-map-placeholder">
+                        <i class="fas fa-map" style="font-size: 4rem; color: hsl(var(--primary-color));"></i>
+                        <p style="margin-top: 1rem; color: hsl(var(--muted-color));">Interactive Map</p>
+                        <small style="color: hsl(var(--muted-color));">Click "Get Directions" for navigation</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="container text-center">
+        <h2>Ready to Explore?</h2>
+        <p>Discover our carefully curated collection of premium intimate wellness products</p>
+        <div class="cta-buttons">
+            <a href="{{url_for('main.products')}}" class="btn btn-primary btn-lg">
+                <i class="fas fa-shopping-bag"></i>
+                Shop Now
+            </a>
+            <a href="{{url_for('main.support')}}" class="btn btn-outline btn-lg">
+                <i class="fas fa-question-circle"></i>
+                Get Support
+            </a>
+        </div>
+    </div>
+</section>
+
+
+{% include "wishlist_modal.html" %}
+
+{# ░░░ CART MODAL ░░░ #}
+{% include "cart_modal.html" %}
+
+{# ░░░ AUTH MODALS ░░░ #}
+{% include "login_register_modal.html" %}
+{% include "logged_in_modal.html" %}
+
+<script src="{{ url_for('static', filename='js/index.js') }}?v=20241220c"></script>
+
+<style>
+/* Store Location Section Styles */
+.store-location-section {
+    margin-top: 4rem;
+    padding: 3rem 0;
+    background: linear-gradient(135deg, hsla(var(--primary-color), 0.05), hsla(var(--accent-color), 0.05));
+    border-radius: 20px;
+    border: 1px solid hsla(var(--primary-color), 0.1);
+}
+
+.location-details {
+    margin: 2rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.location-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    background: hsla(var(--background-color), 0.8);
+    border-radius: 12px;
+    border: 1px solid hsla(var(--primary-color), 0.1);
+}
+
+.location-item i {
+    color: hsl(var(--primary-color));
+    font-size: 1.2rem;
+    margin-top: 0.2rem;
+    min-width: 20px;
+}
+
+.location-item div {
+    flex: 1;
+}
+
+.location-item strong {
+    display: block;
+    color: hsl(var(--text-color));
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.location-item span {
+    color: hsla(var(--text-color), 0.8);
+    line-height: 1.5;
+}
+
+.location-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.location-actions .btn {
+    flex: 1;
+    text-align: center;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.location-map-placeholder {
+    background: hsla(var(--dark-color), 0.3);
+    border-radius: 16px;
+    padding: 3rem;
+    text-align: center;
+    border: 2px dashed hsla(var(--primary-color), 0.3);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+}
+
+@media (max-width: 768px) {
+    .location-actions {
+        flex-direction: column;
+    }
+    
+    .location-details {
+        gap: 1rem;
+    }
+    
+    .location-item {
+        padding: 0.75rem;
+    }
+}
+</style>
+
+<script>
+// Custom video loop to cut off last 2 seconds
+let videoEndTime = null;
+
+function setupVideoLoop(video) {
+    // Set the end time to 2 seconds before the actual end
+    videoEndTime = video.duration - 2;
+}
+
+function checkVideoTime(video) {
+    // If we're within 2 seconds of the end, restart the video immediately
+    if (video.currentTime >= videoEndTime) {
+        video.currentTime = 0;
+        video.play();
+    }
+}
+
+// Additional safety: Monitor video more frequently
+document.addEventListener('DOMContentLoaded', function() {
+    const miamiVideo = document.getElementById('miamiVideo');
+    if (miamiVideo) {
+        // Fallback event listener
+        miamiVideo.addEventListener('ended', function() {
+            this.currentTime = 0;
+            this.play();
+        });
+        
+        // More frequent time checking (every 100ms)
+        setInterval(function() {
+            if (miamiVideo && videoEndTime && miamiVideo.currentTime >= videoEndTime) {
+                miamiVideo.currentTime = 0;
+                miamiVideo.play();
+            }
+        }, 100);
+    }
+});
+</script>
+
+</body>
+</html>

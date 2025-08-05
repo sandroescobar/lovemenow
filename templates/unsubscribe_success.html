@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unsubscribed Successfully - LoveMeNow</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f8fafc;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            margin: 50px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .success-icon {
+            font-size: 4em;
+            color: #10b981;
+            margin-bottom: 20px;
+        }
+        .header {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .message {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        .back-link {
+            margin-top: 20px;
+        }
+        .back-link a {
+            color: #a855f7;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+        .resubscribe {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 5px;
+            border-left: 4px solid #a855f7;
+        }
+        .resubscribe h3 {
+            color: #a855f7;
+            margin-bottom: 10px;
+        }
+        .resubscribe p {
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+    
+    <!-- CSRF Protection -->
+    {% include 'csrf_meta.html' %}
+
+</head>
+<body>
+    <div class="container">
+        <div class="success-icon">✅</div>
+        
+        <div class="header">
+            <h1>Successfully Unsubscribed</h1>
+        </div>
+
+        <div class="message">
+            <p>Hi {{ user.full_name }},</p>
+            <p>You have been successfully unsubscribed from our marketing emails. You will no longer receive promotional emails, newsletters, or sale announcements from LoveMeNow.</p>
+            <p>You may still receive important account-related emails such as order confirmations and shipping updates.</p>
+        </div>
+
+        <div class="resubscribe">
+            <h3>Changed your mind?</h3>
+            <p>You can always re-subscribe to our marketing emails by logging into your account and updating your email preferences in your profile settings.</p>
+        </div>
+
+        <div class="back-link">
+            <a href="{{ url_for('main.index') }}">← Back to LoveMeNow</a>
+        </div>
+    </div>
+</body>
+</html>

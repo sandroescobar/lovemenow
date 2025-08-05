@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ sale_title }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #fff; padding: 30px; border: 1px solid #ddd; }
+        .footer { background: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 10px 10px; font-size: 12px; color: #666; }
+        .btn { display: inline-block; background: #ef4444; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; margin: 10px 0; }
+        .discount-badge { background: #fbbf24; color: white; padding: 10px 20px; border-radius: 25px; font-size: 18px; font-weight: bold; display: inline-block; margin: 10px 0; }
+        .products-grid { display: flex; flex-wrap: wrap; gap: 15px; margin: 20px 0; }
+        .product-item { flex: 1; min-width: 150px; border: 1px solid #ddd; border-radius: 8px; padding: 15px; text-align: center; }
+        .product-image { width: 100%; height: 120px; object-fit: cover; border-radius: 5px; }
+        .urgency { background: #fef3c7; border-left: 4px solid #fbbf24; padding: 15px; margin: 15px 0; }
+    </style>
+    
+    <!-- CSRF Protection -->
+    {% include 'csrf_meta.html' %}
+
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔥 {{ sale_title }}</h1>
+            {% if discount_percent %}
+            <div class="discount-badge">{{ discount_percent }}% OFF</div>
+            {% endif %}
+            <p>Limited Time Offer - Don't Miss Out!</p>
+        </div>
+        
+        <div class="content">
+            <h2>Hi {{ user.full_name }}! 👋</h2>
+            
+            <p>{{ sale_description }}</p>
+            
+            {% if discount_percent %}
+            <div class="urgency">
+                <h3>⏰ Limited Time Only!</h3>
+                <p>Save <strong>{{ discount_percent }}%</strong> on selected items. This exclusive offer won't last long!</p>
+            </div>
+            {% endif %}
+            
+            {% if products %}
+            <h3>Featured Sale Items:</h3>
+            <div class="products-grid">
+                {% for product in products[:4] %}
+                <div class="product-item">
+                    {% if product.image_url %}
+                    <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-image">
+                    {% endif %}
+                    <h4>{{ product.name }}</h4>
+                    <p style="color: #ef4444; font-weight: bold;">
+                        {% if discount_percent %}
+                        <span style="text-decoration: line-through; color: #666;">${{ "%.2f"|format(product.price) }}</span><br>
+                        <span style="font-size: 18px;">${{ "%.2f"|format(product.price * (100 - discount_percent) / 100) }}</span>
+                        {% else %}
+                        ${{ "%.2f"|format(product.price) }}
+                        {% endif %}
+                    </p>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <p><strong>VIP Exclusive:</strong> This sale is available exclusively to our VIP members before going public!</p>
+            
+            <a href="https://lovemenowmiami.com/products" class="btn">Shop Sale Now</a>
+            
+            <div class="urgency">
+                <p><strong>⚡ Act Fast!</strong> Sale ends soon and quantities are limited. Don't miss your chance to save!</p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>LoveMeNow - Miami's Premier Adult Lifestyle Store</p>
+            <p>You're receiving this because you opted into our marketing emails.</p>
+            <p><a href="https://lovemenowmiami.com/unsubscribe/{{ user.id }}" style="color: #666;">Unsubscribe</a> | <a href="https://lovemenowmiami.com/user_profile" style="color: #666;">Update Preferences</a></p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,11 +1,11 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}">
 
 <!-- Logged In Success Modal -->
-<div class="modal-overlay" id="loggedModal">
+<div class="modal-overlay" id="loggedModal" onclick="if(event.target === this) closeAccountModal()" style="display: none;">
     <div class="logged-modal">
         <!-- Header -->
         <div class="logged-header">
-            <button class="modal-close" >
+            <button class="modal-close" onclick="closeAccountModal()">
                 <i class="fas fa-times"></i>
             </button>
 
@@ -20,15 +20,21 @@
                 <a href="#" class="action-btn primary" onclick="viewLikedItems()">
                     <i class="fas fa-heart"></i>
                     <span>Liked Items</span>
-                    <span class="action-badge">3</span>
+                    <span class="action-badge" id="accountWishlistCount">0</span>
                 </a>
 
-                <a href="{{url_for('user_profile_button')}}" class="action-btn secondary" >
+                <a href="#" class="action-btn secondary" onclick="viewCart()">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Shopping Cart</span>
+                    <span class="action-badge" id="accountCartCount">0</span>
+                </a>
+
+                <a href="{{url_for('main.user_profile')}}" class="action-btn secondary" >
                     <i class="fas fa-user-cog"></i>
                     <span>User Profile</span>
                 </a>
 
-                <a href="#" class="action-btn secondary" onclick="viewSettings()">
+                <a href="{{ url_for('auth.settings') }}" class="action-btn secondary" onclick="closeAccountModal()">
                     <i class="fas fa-cog"></i>
                     <span>Settings</span>
                 </a>
@@ -36,10 +42,10 @@
                 <a href="#" class="action-btn secondary" onclick="viewOrders()">
                     <i class="fas fa-shopping-bag"></i>
                     <span>Previous Orders</span>
-                    <span class="action-badge">2</span>
+                    <span class="action-badge">0</span>
                 </a>
 
-                <a href="{{url_for('logout')}}" class="action-btn danger">
+                <a href="#" class="action-btn danger" onclick="handleLogout()">
                     <i class="fas fa-sign-out-alt"></i>
                     <span>Logout</span>
                 </a>

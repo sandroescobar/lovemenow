@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="LoveMeNow - Account Settings">
+    <title>Account Settings - LoveMeNow</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    
+    <!-- CSRF Protection -->
+    {% include 'csrf_meta.html' %}
+</head>
+<body>
+    <!-- Navigation -->
+    {% include "navbar.html" %}
+
+    <!-- Settings Header -->
+    <section class="profile-header">
+        <div class="container">
+            <div class="profile-header-content">
+                <div class="profile-avatar">
+                    <div class="avatar-circle">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                </div>
+                <div class="profile-info">
+                    <h1>Account Settings</h1>
+                    <p class="profile-email">{{ current_user.email }}</p>
+                    <p class="profile-member-since">Manage your security and preferences</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Settings Content -->
+    <div class="container profile-container">
+        <div class="profile-layout">
+            <!-- Navigation Breadcrumb -->
+            <div class="settings-breadcrumb">
+
+
+
+            </div>
+
+            <!-- Security Section -->
+            <section class="profile-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-shield-alt"></i> Security</h2>
+                    <p class="section-description">Trust & control</p>
+                </div>
+                <div class="section-content">
+                    <div class="security-options">
+                        <div class="security-item">
+                            <div class="security-info">
+                                <h3>Change Password</h3>
+                                <p>Update your account password</p>
+                            </div>
+                            <button class="btn btn-outline" id="changePassword">Change</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+
+            <!-- Danger Zone Section -->
+            <section class="profile-section danger-zone">
+                <div class="section-header">
+                    <h2><i class="fas fa-exclamation-triangle"></i> Danger Zone</h2>
+                    <p class="section-description">Data-privacy norms</p>
+                </div>
+                <div class="section-content">
+                    <div class="danger-actions">
+                        <div class="danger-item">
+                            <div class="danger-info">
+                                <h3>Delete Account & Data Export</h3>
+                                <p>Permanently delete your account and download your data (GDPR-style)</p>
+                            </div>
+                            <div class="danger-buttons">
+                                <a href="{{ url_for('auth.delete_account') }}">
+                                    <button class="btn btn-danger">Delete Account</button>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    {% include "change_password_modal.html" %}
+    
+    {# ░░░ AUTH MODALS ░░░ #}
+    {% include "login_register_modal.html" %}
+    
+    {# ░░░ WISHLIST MODAL ░░░ #}
+    {% include "wishlist_modal.html" %}
+
+    <!-- Global JS bundle -->
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+</body>
+</html>

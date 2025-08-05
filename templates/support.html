@@ -1,0 +1,510 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Support Center - LoveMeNow Customer Service and Help">
+    <title>Support Center · LoveMeNow</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <!-- Site CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+    
+    <!-- CSRF Protection -->
+    {% include 'csrf_meta.html' %}</head>
+<body>
+
+{% include "navbar.html" %}
+
+<!-- Hero Section -->
+<section class="hero-minimal">
+    <div class="container">
+        <div class="hero-content fade-in-up text-center">
+            <h1>Support Center</h1>
+            <p class="lead">We're here to help with any questions or concerns</p>
+        </div>
+    </div>
+</section>
+
+<!-- Support Content -->
+<section class="support-section">
+    <div class="container">
+
+        <!-- Quick Help Options -->
+        <div class="quick-help-section">
+            <h2 class="text-center mb-4">How Can We Help You?</h2>
+            <div class="help-options-grid">
+                <div class="help-option-card">
+                    <div class="help-icon">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <h3>Shipping & Delivery</h3>
+                    <p>Track orders, delivery times, and shipping options</p>
+                    <a href="#shipping" class="btn btn-outline">Learn More</a>
+                </div>
+                <div class="help-option-card">
+                    <div class="help-icon">
+                        <i class="fas fa-undo"></i>
+                    </div>
+                    <h3>Returns & Exchanges</h3>
+                    <p>Return policy, exchanges, and refund information</p>
+                    <a href="#returns" class="btn btn-outline">Learn More</a>
+                </div>
+                <div class="help-option-card">
+                    <div class="help-icon">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <h3>Account Help</h3>
+                    <p>Password reset, account settings, and profile management</p>
+                    <a href="#account" class="btn btn-outline">Learn More</a>
+                </div>
+                <div class="help-option-card">
+                    <div class="help-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Privacy & Security</h3>
+                    <p>Data protection, secure shopping, and privacy policy</p>
+                    <a href="#privacy" class="btn btn-outline">Learn More</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="faq-section" id="faq">
+            <h2 class="text-center mb-4">Frequently Asked Questions</h2>
+            <div class="faq-container">
+
+                <!-- Shipping FAQ -->
+                <div class="faq-category" id="shipping">
+                    <h3><i class="fas fa-truck"></i> Shipping & Delivery</h3>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>What are your delivery areas in Miami?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>We deliver throughout Miami-Dade and Broward counties, including Miami Beach, Coral Gables, Kendall, Hialeah, Fort Lauderdale, Hollywood, and Pembroke Pines. Same-day delivery is available for orders placed before 2 PM.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>How discreet is your packaging?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>All orders are shipped in plain, unmarked packaging with no indication of the contents or our company name. Your privacy is our top priority.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>What are your delivery fees?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Standard delivery is $9.99. Same-day delivery is $19.99. Free delivery on orders over $75 within Miami-Dade County.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>Do you offer in-store pickup?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Yes! You can pick up your order at our Miami store location: <strong>351 NE 79th Street, Miami, FL 33138</strong>. Store pickup is free and available during our business hours: Monday-Saturday 10AM-8PM, Sunday 12PM-6PM. We'll notify you when your order is ready for pickup.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>Where is your store located?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Our store is located at <strong>351 NE 79th Street, Miami, Florida 33138, United States</strong>. We offer free parking and a discreet entrance for your privacy. You can visit us to browse our products in person or pick up online orders.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Returns FAQ -->
+                <div class="faq-category" id="returns">
+                    <h3><i class="fas fa-undo"></i> Returns & Exchanges</h3>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>What is your return policy?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Due to the intimate nature of our products, we only accept returns for defective items within 30 days of purchase. All items must be in original, unopened packaging.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>How do I initiate a return?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Contact our support team with your order number and reason for return. We'll provide a return authorization and instructions.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account FAQ -->
+                <div class="faq-category" id="account">
+                    <h3><i class="fas fa-user-circle"></i> Account Help</h3>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>How do I reset my password?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Click "Sign In" and then "Forgot Password" to receive a password reset link via email. If you continue having issues, contact our support team.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>Can I save multiple delivery addresses?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Yes! You can save multiple addresses in your account profile for easy checkout and delivery to different locations.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Privacy FAQ -->
+                <div class="faq-category" id="privacy">
+                    <h3><i class="fas fa-shield-alt"></i> Privacy & Security</h3>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>How do you protect my personal information?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>We use SSL encryption for all transactions and never store your payment information. Your personal data is protected according to industry standards and privacy regulations.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>Do you share customer information with third parties?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Never. We do not sell, share, or distribute your personal information to any third parties except as required for order fulfillment and delivery.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Section -->
+        <div class="contact-section">
+            <h2 class="text-center mb-4">Still Need Help?</h2>
+            <div class="contact-options">
+                <div class="contact-card">
+                    <div class="contact-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <h3>Email Support</h3>
+                    <p>Get detailed help via email</p>
+                    <a href="mailto:support@lovemenow.com" class="btn btn-primary">Email Us</a>
+                    <small>Response within 24 hours</small>
+                </div>
+                <div class="contact-card">
+                    <div class="contact-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <h3>Phone Support</h3>
+                    <p>Speak with our support team</p>
+                    <a href="tel:+1-305-555-0123" class="btn btn-primary">Call Now</a>
+                    <small>Mon-Fri 9AM-7PM EST</small>
+                </div>
+                <div class="contact-card">
+                    <div class="contact-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3>Live Chat</h3>
+                    <p>Instant help and support</p>
+                    <button class="btn btn-primary" onclick="startLiveChat()">Start Chat</button>
+                    <small>Available 24/7</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Store Location Section -->
+        <div class="store-location-section">
+            <h2 class="text-center mb-4">Visit Our Store</h2>
+            <div class="location-card">
+                <div class="location-header">
+                    <i class="fas fa-store"></i>
+                    <h3>LoveMeNow Miami Store</h3>
+                </div>
+                <div class="location-info">
+                    <div class="location-detail">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            <strong>Address</strong>
+                            <span>351 NE 79th Street<br>Miami, Florida 33138<br>United States</span>
+                        </div>
+                    </div>
+                    <div class="location-detail">
+                        <i class="fas fa-clock"></i>
+                        <div>
+                            <strong>Store Hours</strong>
+                            <span>Monday - Saturday: 10AM - 8PM<br>Sunday: 12PM - 6PM</span>
+                        </div>
+                    </div>
+                    <div class="location-detail">
+                        <i class="fas fa-phone"></i>
+                        <div>
+                            <strong>Store Phone</strong>
+                            <span>(305) 555-0123</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="location-features">
+                    <div class="feature">
+                        <i class="fas fa-car"></i>
+                        <span>Free Parking</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Discreet Entrance</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-box"></i>
+                        <span>Order Pickup Available</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-eye"></i>
+                        <span>Browse Products In-Person</span>
+                    </div>
+                </div>
+                <div class="location-actions">
+                    <a href="https://maps.google.com/?q=351+NE+79th+Street,+Miami,+FL+33138" target="_blank" class="btn btn-primary">
+                        <i class="fas fa-directions"></i>
+                        Get Directions
+                    </a>
+                    <a href="tel:+1-305-555-0123" class="btn btn-outline">
+                        <i class="fas fa-phone"></i>
+                        Call Store
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+{% include "wishlist_modal.html" %}
+
+{# ░░░ CART MODAL ░░░ #}
+{% include "cart_modal.html" %}
+
+{# ░░░ AUTH MODALS ░░░ #}
+{% include "login_register_modal.html" %}
+{% include "logged_in_modal.html" %}
+
+<script src="{{ url_for('static', filename='js/index.js') }}?v=20241220c"></script>
+
+<style>
+/* Store Location Section Styles */
+.store-location-section {
+    margin-top: 4rem;
+    padding: 3rem 0;
+}
+
+.location-card {
+    max-width: 800px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, hsla(var(--primary-color), 0.05), hsla(var(--accent-color), 0.05));
+    border-radius: 20px;
+    padding: 2.5rem;
+    border: 1px solid hsla(var(--primary-color), 0.1);
+    box-shadow: 0 8px 32px hsla(var(--dark-color), 0.1);
+}
+
+.location-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.location-header i {
+    font-size: 3rem;
+    color: hsl(var(--primary-color));
+}
+
+.location-header h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: hsl(var(--text-color));
+    margin: 0;
+}
+
+.location-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.location-detail {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: hsla(var(--background-color), 0.8);
+    border-radius: 12px;
+    border: 1px solid hsla(var(--primary-color), 0.1);
+}
+
+.location-detail i {
+    color: hsl(var(--primary-color));
+    font-size: 1.2rem;
+    margin-top: 0.2rem;
+    min-width: 20px;
+}
+
+.location-detail div {
+    flex: 1;
+}
+
+.location-detail strong {
+    display: block;
+    color: hsl(var(--text-color));
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.location-detail span {
+    color: hsla(var(--text-color), 0.8);
+    line-height: 1.5;
+}
+
+.location-features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.feature {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: hsla(var(--dark-color), 0.2);
+    border-radius: 10px;
+    border: 1px solid hsla(var(--primary-color), 0.1);
+}
+
+.feature i {
+    color: hsl(var(--accent-color));
+    font-size: 1.1rem;
+    min-width: 18px;
+}
+
+.feature span {
+    color: hsl(var(--text-color));
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.location-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.location-actions .btn {
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-width: 150px;
+}
+
+@media (max-width: 768px) {
+    .location-card {
+        padding: 1.5rem;
+    }
+    
+    .location-info {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .location-features {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .location-actions {
+        flex-direction: column;
+    }
+    
+    .location-detail {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .location-features {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+// FAQ functionality
+function toggleFAQ(element) {
+    const faqItem = element.parentElement;
+    const answer = faqItem.querySelector('.faq-answer');
+    const icon = element.querySelector('.fas');
+
+    faqItem.classList.toggle('active');
+
+    if (faqItem.classList.contains('active')) {
+        answer.style.maxHeight = answer.scrollHeight + 'px';
+        icon.classList.remove('fa-chevron-down');
+        icon.classList.add('fa-chevron-up');
+    } else {
+        answer.style.maxHeight = '0';
+        icon.classList.remove('fa-chevron-up');
+        icon.classList.add('fa-chevron-down');
+    }
+}
+
+// Live chat placeholder
+function startLiveChat() {
+    alert('Live chat feature coming soon! Please use email or phone support for immediate assistance.');
+}
+</script>
+
+</body>
+</html>

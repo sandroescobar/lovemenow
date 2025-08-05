@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uber Direct Delivery Tracking - LoveMeNow</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}">
+    
+    
+    
+    <!-- CSRF Protection -->
+    {% include 'csrf_meta.html' %}<style>
+        .tracking-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .tracking-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            border-radius: var(--radius-lg);
+            color: white;
+        }
+        
+        .tracking-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #00d4ff, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .uber-logo {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #00d4ff;
+        }
+        
+        .robocourier-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-top: 1rem;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .tracking-layout {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
+            align-items: start;
+        }
+        
+        .delivery-status {
+            background: hsl(var(--surface-color));
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid hsl(var(--border-color));
+        }
+        
+        .status-timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+        
+        .status-timeline::before {
+            content: '';
+            position: absolute;
+            left: 0.75rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, #00d4ff, #ff6b6b);
+        }
+        
+        .status-item {
+            position: relative;
+            margin-bottom: 2rem;
+            padding-left: 1rem;
+        }
+        
+        .status-item::before {
+            content: '';
+            position: absolute;
+            left: -0.5rem;
+            top: 0.5rem;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            background: #00d4ff;
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px #00d4ff;
+        }
+        
+        .status-item.completed::before {
+            background: #4CAF50;
+            box-shadow: 0 0 0 2px #4CAF50;
+        }
+        
+        .status-item.active::before {
+            background: #ff6b6b;
+            box-shadow: 0 0 0 2px #ff6b6b;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-title {
+            font-weight: 600;
+            color: hsl(var(--text-color));
+            margin-bottom: 0.25rem;
+        }
+        
+        .status-time {
+            color: hsl(var(--muted-color));
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .status-description {
+            color: hsl(var(--muted-color));
+            font-size: 0.9rem;
+        }
+        
+        .robocourier-panel {
+            background: hsl(var(--surface-color));
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid hsl(var(--border-color));
+            position: sticky;
+            top: 2rem;
+        }
+        
+        .robocourier-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .robocourier-icon {
+            font-size: 3rem;
+            color: #ff6b6b;
+            margin-bottom: 1rem;
+        }
+        
+        .robocourier-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: hsl(var(--text-color));
+            margin-bottom: 0.5rem;
+        }
+        
+        .robocourier-subtitle {
+            color: hsl(var(--muted-color));
+            font-size: 0.9rem;
+        }
+        
+        .test-controls {
+            margin-top: 1.5rem;
+        }
+        
+        .test-button {
+            width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 0.75rem;
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .test-button.pickup {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+        }
+        
+        .test-button.transit {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            color: white;
+        }
+        
+        .test-button.delivered {
+            background: linear-gradient(135deg, #FF9800, #F57C00);
+            color: white;
+        }
+        
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .test-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .delivery-info {
+            background: hsl(var(--background-color));
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid hsl(var(--border-color));
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid hsl(var(--border-color));
+        }
+        
+        .info-row:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: hsl(var(--text-color));
+        }
+        
+        .info-value {
+            color: hsl(var(--muted-color));
+            text-align: right;
+        }
+        
+        .courier-info {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin-top: 1rem;
+            text-align: center;
+        }
+        
+        .courier-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00d4ff, #ff6b6b);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.5rem;
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .auto-progress {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            margin-top: 1rem;
+            text-align: center;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: white;
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+        
+        @media (max-width: 1024px) {
+            .tracking-layout {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .robocourier-panel {
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% include "navbar.html" %}
+    
+    <div class="tracking-container">
+        <div class="tracking-header">
+            <div class="uber-logo">
+                <i class="fas fa-car"></i>
+            </div>
+            <h1>Uber Direct Delivery</h1>
+            <p>Your order is being delivered with Uber Direct</p>
+            <div class="robocourier-badge">
+                <i class="fas fa-robot"></i> Robocourier Testing Mode
+            </div>
+        </div>
+        
+        <div class="tracking-layout">
+            <!-- Delivery Status Timeline -->
+            <div class="delivery-status">
+                <h2 style="margin-bottom: 1.5rem; color: hsl(var(--text-color));">
+                    <i class="fas fa-route"></i> Delivery Progress
+                </h2>
+                
+                <div class="delivery-info">
+                    <div class="info-row">
+                        <span class="info-label">Order Number:</span>
+                        <span class="info-value">{{ order_number or 'LMN-TEST-001' }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Delivery ID:</span>
+                        <span class="info-value">{{ delivery_id or 'uber-test-delivery-001' }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Estimated Delivery:</span>
+                        <span class="info-value" id="estimated-time">30-45 minutes</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Delivery Fee:</span>
+                        <span class="info-value">${{ delivery_fee or '9.99' }}</span>
+                    </div>
+                </div>
+                
+                <div class="status-timeline" id="status-timeline">
+                    <div class="status-item completed" id="status-confirmed">
+                        <div class="status-title">Order Confirmed</div>
+                        <div class="status-time" id="time-confirmed">Just now</div>
+                        <div class="status-description">Your order has been confirmed and is being prepared for pickup.</div>
+                    </div>
+                    
+                    <div class="status-item active" id="status-preparing">
+                        <div class="status-title">Preparing for Pickup</div>
+                        <div class="status-time" id="time-preparing">In progress</div>
+                        <div class="status-description">Store is preparing your order for courier pickup.</div>
+                    </div>
+                    
+                    <div class="status-item" id="status-pickup">
+                        <div class="status-title">Courier Pickup</div>
+                        <div class="status-time" id="time-pickup">Pending</div>
+                        <div class="status-description">Courier will pick up your order from the store.</div>
+                    </div>
+                    
+                    <div class="status-item" id="status-transit">
+                        <div class="status-title">In Transit</div>
+                        <div class="status-time" id="time-transit">Pending</div>
+                        <div class="status-description">Your order is on the way to your delivery address.</div>
+                    </div>
+                    
+                    <div class="status-item" id="status-delivered">
+                        <div class="status-title">Delivered</div>
+                        <div class="status-time" id="time-delivered">Pending</div>
+                        <div class="status-description">Your order has been successfully delivered.</div>
+                    </div>
+                </div>
+                
+                <div class="courier-info" id="courier-info" style="display: none;">
+                    <div class="courier-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div style="font-weight: 600; margin-bottom: 0.25rem;" id="courier-name">Alex R.</div>
+                    <div style="color: #666; font-size: 0.9rem;" id="courier-phone">+1 (555) 123-4567</div>
+                    <div style="color: #666; font-size: 0.9rem; margin-top: 0.5rem;">
+                        <i class="fas fa-car"></i> Toyota Camry - ABC123
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Robocourier Testing Panel -->
+            <div class="robocourier-panel">
+                <div class="robocourier-header">
+                    <div class="robocourier-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="robocourier-title">Robocourier</div>
+                    <div class="robocourier-subtitle">Automated Delivery Testing Tool</div>
+                </div>
+                
+                <p style="color: hsl(var(--muted-color)); font-size: 0.9rem; margin-bottom: 1.5rem; text-align: center;">
+                    Robocourier simulates various delivery statuses at predefined intervals for thorough testing and validation of Uber Direct integrations.
+                </p>
+                
+                <div class="auto-progress" id="auto-progress">
+                    <div style="font-weight: 600; margin-bottom: 0.5rem;">
+                        <i class="fas fa-play"></i> Auto-Testing Active
+                    </div>
+                    <div style="font-size: 0.9rem; margin-bottom: 0.5rem;">
+                        Next status update in: <span id="countdown">2:30</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill" style="width: 20%;"></div>
+                    </div>
+                </div>
+                
+                <div class="test-controls">
+                    <h4 style="margin-bottom: 1rem; color: hsl(var(--text-color));">Manual Test Controls</h4>
+                    
+                    <button class="test-button pickup" onclick="simulateStatus('pickup')" id="btn-pickup">
+                        <i class="fas fa-box"></i>
+                        Simulate Pickup
+                    </button>
+                    
+                    <button class="test-button transit" onclick="simulateStatus('transit')" id="btn-transit" disabled>
+                        <i class="fas fa-truck"></i>
+                        Simulate In Transit
+                    </button>
+                    
+                    <button class="test-button delivered" onclick="simulateStatus('delivered')" id="btn-delivered" disabled>
+                        <i class="fas fa-check-circle"></i>
+                        Simulate Delivered
+                    </button>
+                </div>
+                
+                <div style="margin-top: 1.5rem; padding: 1rem; background: hsl(var(--background-color)); border-radius: var(--radius-md); border: 1px solid hsl(var(--border-color));">
+                    <h5 style="margin-bottom: 0.75rem; color: hsl(var(--text-color));">
+                        <i class="fas fa-info-circle"></i> Testing Features
+                    </h5>
+                    <ul style="margin: 0; padding-left: 1.5rem; color: hsl(var(--muted-color)); font-size: 0.9rem;">
+                        <li>Automated status progression</li>
+                        <li>Real-time tracking simulation</li>
+                        <li>Courier assignment testing</li>
+                        <li>ETA calculation validation</li>
+                        <li>Webhook event simulation</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentStatus = 'preparing';
+        let autoTestingActive = true;
+        let countdownTimer;
+        let progressTimer;
+        let statusProgression = ['preparing', 'pickup', 'transit', 'delivered'];
+        let currentStatusIndex = 0;
+        let timeRemaining = 150; // 2:30 in seconds
+        
+        // Initialize the tracking page
+        document.addEventListener('DOMContentLoaded', function() {
+            startAutoTesting();
+            updateButtonStates();
+        });
+        
+        function startAutoTesting() {
+            if (!autoTestingActive) return;
+            
+            // Start countdown timer
+            countdownTimer = setInterval(updateCountdown, 1000);
+            
+            // Start progress bar animation
+            animateProgress();
+            
+            // Schedule next status update
+            setTimeout(() => {
+                if (currentStatusIndex < statusProgression.length - 1) {
+                    currentStatusIndex++;
+                    simulateStatus(statusProgression[currentStatusIndex]);
+                    
+                    if (currentStatusIndex < statusProgression.length - 1) {
+                        timeRemaining = 150; // Reset timer for next status
+                        startAutoTesting();
+                    } else {
+                        // All statuses completed
+                        document.getElementById('auto-progress').innerHTML = `
+                            <div style="font-weight: 600; margin-bottom: 0.5rem;">
+                                <i class="fas fa-check-circle"></i> Testing Complete
+                            </div>
+                            <div style="font-size: 0.9rem;">
+                                All delivery statuses have been simulated successfully.
+                            </div>
+                        `;
+                        autoTestingActive = false;
+                    }
+                }
+            }, timeRemaining * 1000);
+        }
+        
+        function updateCountdown() {
+            if (timeRemaining <= 0) {
+                clearInterval(countdownTimer);
+                return;
+            }
+            
+            timeRemaining--;
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            document.getElementById('countdown').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        function animateProgress() {
+            const progressFill = document.getElementById('progress-fill');
+            const totalTime = 150;
+            
+            progressTimer = setInterval(() => {
+                const elapsed = totalTime - timeRemaining;
+                const percentage = (elapsed / totalTime) * 100;
+                progressFill.style.width = `${Math.min(percentage, 100)}%`;
+                
+                if (timeRemaining <= 0) {
+                    clearInterval(progressTimer);
+                }
+            }, 1000);
+        }
+        
+        function simulateStatus(status) {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+            
+            // Update current status
+            currentStatus = status;
+            
+            // Clear all active states
+            document.querySelectorAll('.status-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Update status items
+            switch(status) {
+                case 'pickup':
+                    updateStatusItem('status-pickup', 'active', timeString, 'Courier Alex R. has picked up your order.');
+                    updateStatusItem('status-preparing', 'completed', timeString);
+                    showCourierInfo();
+                    updateEstimatedTime('15-25 minutes');
+                    break;
+                    
+                case 'transit':
+                    updateStatusItem('status-transit', 'active', timeString, 'Your order is on the way! ETA: 10-15 minutes.');
+                    updateStatusItem('status-pickup', 'completed', timeString);
+                    updateEstimatedTime('10-15 minutes');
+                    break;
+                    
+                case 'delivered':
+                    updateStatusItem('status-delivered', 'completed', timeString, 'Your order has been delivered successfully!');
+                    updateStatusItem('status-transit', 'completed', timeString);
+                    updateEstimatedTime('Delivered');
+                    showDeliveryComplete();
+                    break;
+            }
+            
+            updateButtonStates();
+        }
+        
+        function updateStatusItem(itemId, className, time, description = null) {
+            const item = document.getElementById(itemId);
+            const timeEl = item.querySelector('.status-time');
+            const descEl = item.querySelector('.status-description');
+            
+            if (className) {
+                item.className = `status-item ${className}`;
+            }
+            
+            if (time) {
+                timeEl.textContent = time;
+            }
+            
+            if (description) {
+                descEl.textContent = description;
+            }
+        }
+        
+        function showCourierInfo() {
+            document.getElementById('courier-info').style.display = 'block';
+        }
+        
+        function updateEstimatedTime(time) {
+            document.getElementById('estimated-time').textContent = time;
+        }
+        
+        function updateButtonStates() {
+            const pickupBtn = document.getElementById('btn-pickup');
+            const transitBtn = document.getElementById('btn-transit');
+            const deliveredBtn = document.getElementById('btn-delivered');
+            
+            // Reset all buttons
+            [pickupBtn, transitBtn, deliveredBtn].forEach(btn => {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            });
+            
+            // Disable based on current status
+            switch(currentStatus) {
+                case 'preparing':
+                    transitBtn.disabled = true;
+                    deliveredBtn.disabled = true;
+                    break;
+                case 'pickup':
+                    pickupBtn.disabled = true;
+                    deliveredBtn.disabled = true;
+                    break;
+                case 'transit':
+                    pickupBtn.disabled = true;
+                    transitBtn.disabled = true;
+                    break;
+                case 'delivered':
+                    pickupBtn.disabled = true;
+                    transitBtn.disabled = true;
+                    deliveredBtn.disabled = true;
+                    break;
+            }
+        }
+        
+        function showDeliveryComplete() {
+            // Add celebration effect
+            const header = document.querySelector('.tracking-header');
+            header.style.background = 'linear-gradient(135deg, #4CAF50, #45a049)';
+            
+            // Update header text
+            header.querySelector('h1').textContent = 'Delivery Complete!';
+            header.querySelector('p').textContent = 'Your order has been successfully delivered. Thank you for choosing LoveMeNow!';
+            
+            // Show completion message
+            setTimeout(() => {
+                alert('🎉 Delivery Complete! This was a Robocourier test simulation. In a real scenario, your order would now be delivered to your address.');
+            }, 1000);
+        }
+        
+        // Simulate real-time updates
+        setInterval(() => {
+            if (currentStatus === 'transit') {
+                // Simulate courier location updates
+                const courierInfo = document.getElementById('courier-info');
+                if (courierInfo && courierInfo.style.display !== 'none') {
+                    const locations = [
+                        '0.5 miles away',
+                        '0.3 miles away', 
+                        '0.1 miles away',
+                        'Arriving now'
+                    ];
+                    const randomLocation = locations[Math.floor(Math.random() * locations.length)];
+                    // Could update courier location here
+                }
+            }
+        }, 10000); // Update every 10 seconds
+    </script>
+</body>
+</html>

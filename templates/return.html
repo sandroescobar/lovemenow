@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Status - LoveMeNow</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    
+    
+    
+    <!-- CSRF Protection -->
+    {% include 'csrf_meta.html' %}<style>
+        .return-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            text-align: center;
+        }
+        
+        .status-card {
+            background: hsl(var(--surface-color));
+            border-radius: var(--radius-lg);
+            padding: 3rem 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid hsl(var(--border-color));
+        }
+        
+        .loading {
+            font-size: 1.2rem;
+            color: hsl(var(--muted-color));
+        }
+        
+        .spinner {
+            font-size: 2rem;
+            color: hsl(var(--primary-color));
+            margin-bottom: 1rem;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .success {
+            color: hsl(var(--primary-color));
+        }
+        
+        .error {
+            color: #dc3545;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a class="navbar-brand" href="{{url_for('main.index')}}">
+                <svg class="logo-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+                LoveMeNow
+            </a>
+
+            <div class="navbar-center">
+                <ul class="nav-links">
+                    <li><a class="nav-link" href="{{url_for('main.index')}}">Home</a></li>
+                    <li><a class="nav-link" href="{{url_for('main.products')}}">Shop</a></li>
+                    <li><a class="nav-link" href="{{url_for('main.about')}}">About</a></li>
+                    <li><a class="nav-link" href="{{url_for('main.support')}}">Support</a></li>
+                </ul>
+            </div>
+
+            <div class="navbar-actions">
+                <div class="nav-buttons">
+                    <button type="button" onclick="openWishlistModal()" class="nav-icon-btn" title="Wishlist">
+                        <i class="fas fa-heart"></i>
+                        <span class="icon-badge" id="wishlistCount">0</span>
+                    </button>
+                    <a href="{{ url_for('main.cart_page') }}" class="nav-icon-btn" title="Cart">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span class="icon-badge" id="cartCount">0</span>
+                    </a>
+                    {% if current_user.is_authenticated %}
+                        <button class="btn btn-primary" id="userMenuButton">Account</button>
+                    {% else %}
+                        <button class="btn btn-primary" id="authButton">Sign In</button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="return-container">
+        <div class="status-card">
+            <div id="loading" class="loading">
+                <div class="spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </div>
+                <p>Processing your payment...</p>
+            </div>
+            
+            <div id="success" class="hidden">
+                <div class="success">
+                    <i class="fas fa-check-circle" style="font-size: 4rem; margin-bottom: 1rem;"></i>
+                    <h2>Payment Successful!</h2>
+                    <p>Thank you for your order. Your payment has been processed successfully.</p>
+                    <p>Customer email: <span id="customer-email"></span></p>
+                    <div style="margin-top: 2rem;">
+                        <a href="{{ url_for('main.products') }}" class="btn btn-primary">Continue Shopping</a>
+                        <a href="{{ url_for('main.index') }}" class="btn" style="background: hsl(var(--muted-color)); color: white; margin-left: 1rem;">Back to Home</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="error" class="hidden">
+                <div class="error">
+                    <i class="fas fa-times-circle" style="font-size: 4rem; margin-bottom: 1rem;"></i>
+                    <h2>Payment Failed</h2>
+                    <p>There was an issue processing your payment. Please try again.</p>
+                    <div style="margin-top: 2rem;">
+                        <a href="{{ url_for('main.checkout') }}" class="btn btn-primary">Try Again</a>
+                        <a href="{{ url_for('main.cart_page') }}" class="btn" style="background: hsl(var(--muted-color)); color: white; margin-left: 1rem;">Back to Cart</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include modals -->
+    {% include 'login_register_modal.html' %}
+    {% include 'logged_in_modal.html' %}
+    {% include 'wishlist_modal.html' %}
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+    
+    <script>
+        async function initialize() {
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            const sessionId = urlParams.get('session_id');
+            
+            if (!sessionId) {
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('error').classList.remove('hidden');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/session-status?session_id=${sessionId}`);
+                const session = await response.json();
+                
+                document.getElementById('loading').classList.add('hidden');
+                
+                if (session.status === 'complete') {
+                    document.getElementById('success').classList.remove('hidden');
+                    document.getElementById('customer-email').textContent = session.customer_email || 'N/A';
+                    
+                    // Process the order on the backend
+                    await processOrder(sessionId);
+                } else if (session.status === 'open') {
+                    // Payment failed or was canceled, redirect back to checkout
+                    window.location.replace('/checkout');
+                } else {
+                    document.getElementById('error').classList.remove('hidden');
+                }
+            } catch (error) {
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('error').classList.remove('hidden');
+            }
+        }
+        
+        async function processOrder(sessionId) {
+            try {
+                const response = await fetch('/process-order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        session_id: sessionId
+                    })
+                });
+                
+                if (response.ok) {
+                    // Update cart count since cart should be cleared
+                    updateCartCount();
+                } else {
+                }
+            } catch (error) {
+            }
+        }
+        
+        function updateCartCount() {
+            fetch('/api/cart/count')
+                .then(response => response.json())
+                .then(data => {
+                    const cartCountElement = document.getElementById('cartCount');
+                    if (cartCountElement) {
+                        cartCountElement.textContent = data.count;
+                        // Always show the cart count, even when it's 0
+                        cartCountElement.style.display = 'inline-block';
+                    }
+                })
+                .catch(error => {
+                });
+        }
+        
+        // Initialize when page loads
+        initialize();
+    </script>
+</body>
+</html>

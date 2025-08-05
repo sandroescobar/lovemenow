@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Age Verification - LoveMeNow</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    
+    <!-- CSRF Protection -->
+    {% include 'csrf_meta.html' %}
+    
+    <style>
+        .age-verification-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+        
+        .age-verification-modal {
+            background: hsl(var(--surface-color));
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid hsl(var(--border-color));
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+        }
+        
+        .age-verification-icon {
+            font-size: 2.5rem;
+            color: hsl(var(--primary-color));
+            margin-bottom: 1rem;
+        }
+        
+        .age-verification-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: hsl(var(--text-color));
+        }
+        
+        .age-verification-text {
+            color: hsl(var(--muted-color));
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+        
+        .age-verification-warning {
+            background: hsla(var(--primary-color), 0.1);
+            color: hsl(var(--text-color));
+            padding: 0.75rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1.5rem;
+            border: 1px solid hsla(var(--primary-color), 0.2);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .age-verification-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .age-btn {
+            padding: 0.875rem 2rem;
+            border: none;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            width: 150px;
+            height: 50px;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        
+        .age-btn-yes {
+            background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+            color: white;
+        }
+        
+        .age-btn-yes:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .age-btn-no {
+            background: hsl(var(--background-color));
+            color: hsl(var(--muted-color));
+            border: 2px solid hsl(var(--border-color));
+            text-decoration: none;
+        }
+        
+        .age-btn-no:hover {
+            background: hsl(var(--error-bg, 354 70% 94%));
+            border-color: hsl(var(--error-border, 354 70% 85%));
+            color: hsl(var(--error-text, 354 70% 25%));
+            text-decoration: none;
+        }
+        
+        .age-btn-no:visited,
+        .age-btn-no:link {
+            color: hsl(var(--muted-color));
+            text-decoration: none;
+        }
+        
+        .age-btn i {
+            font-size: 0.9rem;
+            margin-right: 0.5rem;
+        }
+        
+        .age-btn {
+            white-space: nowrap;
+            letter-spacing: 0.025em;
+        }
+        
+        .legal-notice {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid hsl(var(--border-color));
+            font-size: 0.8rem;
+            color: hsl(var(--muted-color));
+            line-height: 1.4;
+        }
+        
+        @media (max-width: 768px) {
+            .age-verification-modal {
+                padding: 1.5rem;
+                margin: 1rem;
+                max-width: 350px;
+            }
+            
+            .age-verification-buttons {
+                flex-direction: column;
+            }
+            
+            .age-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Include navbar for consistency -->
+    {% include "navbar.html" %}
+    
+    <div class="age-verification-overlay">
+        <div class="age-verification-modal">
+            <div class="age-verification-icon">
+                <i class="fas fa-id-card"></i>
+            </div>
+            
+            <h1 class="age-verification-title">Age Verification</h1>
+            
+            <p class="age-verification-text">
+                You must be 18 or older to access this content.
+            </p>
+            
+            <div class="age-verification-warning">
+                <i class="fas fa-info-circle"></i>
+                This site contains adult content
+            </div>
+            
+            <div class="age-verification-buttons">
+                <form method="POST" action="{{ url_for('auth.verify_age') }}" class="overAgeButton">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="verified" value="true">
+                    <input type="hidden" name="next" value="{{ request.args.get('next', url_for('main.index')) }}">
+                    <button type="submit" class="age-btn age-btn-yes">
+                        <i class="fas fa-check"></i>
+                        I am 18+
+                    </button>
+                </form>
+                
+                <a href="https://www.google.com" class="age-btn age-btn-no">
+                    <i class="fas fa-times"></i>
+                    Under 18
+                </a>
+            </div>
+            
+            <div class="legal-notice">
+                By proceeding, you confirm you are of legal age to view adult content in your jurisdiction.
+            </div>
+        </div>
+    </div>
+</body>
+</html>

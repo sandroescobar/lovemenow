@@ -1,0 +1,175 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Wishlist - LoveMeNow</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+    
+    <!-- CSRF Protection -->
+    {% include 'csrf_meta.html' %}</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container d-flex justify-content-between align-items-center" style="padding: 1rem;">
+            <a class="navbar-brand" href="{{ url_for('main.index') }}">
+                <svg class="logo-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+                LoveMeNow
+            </a>
+
+            <div class="navbar-center">
+                <ul class="nav-links">
+                    <li><a class="nav-link" href="{{url_for('main.index')}}">Home</a></li>
+                    <li><a class="nav-link" href="{{url_for('main.products')}}">Shop</a></li>
+                    <li><a class="nav-link" href="{{url_for('main.about')}}">About</a></li>
+                    <li><a class="nav-link" href="{{url_for('main.support')}}">Support</a></li>
+                </ul>
+            </div>
+
+            <div class="navbar-actions">
+                <div class="nav-buttons">
+                    <a href="{{ url_for('main.wishlist_page') }}" class="nav-icon-btn active" title="Wishlist">
+                        <i class="fas fa-heart"></i>
+                        <span class="icon-badge" id="wishlistCount">{{ products|length }}</span>
+                    </a>
+                    <a href="#" class="nav-icon-btn" title="Cart">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="icon-badge">0</span>
+                    </a>
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('user_profile') }}" class="btn btn-primary">Profile</a>
+                    {% else %}
+                        <button class="btn btn-primary" id="authButton">Sign In</button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Wishlist Section -->
+    <section class="wishlist-section">
+        <div class="container">
+            <div class="wishlist-header">
+                <h1><i class="fas fa-heart"></i> My Wishlist</h1>
+                <p>{{ products|length }} item{{ 's' if products|length != 1 else '' }} saved</p>
+            </div>
+
+            {% if products %}
+                <div class="wishlist-grid" id="wishlistGrid">
+                    {% for product in products %}
+                    <div class="wishlist-card" data-product-id="{{ product.id }}">
+                        <div class="wishlist-image">
+                            {% if product.image_url %}
+                                <img src="{{ product.image_url if product.image_url.startswith('http') else url_for('static', filename=product.image_url.lstrip('/')) }}" alt="{{ product.name }}">
+                            {% else %}
+                                <div class="placeholder-image">
+                                    <i class="fas fa-image"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="wishlist-info">
+                            <h3><a href="/product/{{ product.id }}">{{ product.name }}</a></h3>
+                            <div class="wishlist-price">${{ '%.2f'|format(product.price) }}</div>
+                            {% if product.in_stock %}
+                                <span class="stock-status in-stock">
+                                    <i class="fas fa-check-circle"></i>
+                                    In Stock
+                                </span>
+                            {% else %}
+                                <span class="stock-status out-of-stock">
+                                    <i class="fas fa-times-circle"></i>
+                                    Out of Stock
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        <div class="wishlist-actions">
+                            <button class="btn-add-to-cart" 
+                                    data-product-id="{{ product.id }}"
+                                    data-product-name="{{ product.name|e }}"
+                                    data-product-price="{{ product.price }}">
+                                <i class="fas fa-shopping-cart"></i>
+                                Add to Cart
+                            </button>
+                            <button class="btn-remove-wishlist" 
+                                    data-product-id="{{ product.id }}"
+                                    data-product-name="{{ product.name|e }}">
+                                <i class="fas fa-trash"></i>
+                                Remove
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-wishlist">
+                    <div class="empty-state">
+                        <i class="fas fa-heart-broken"></i>
+                        <h2>Your wishlist is empty</h2>
+                        <p>Save items you love by clicking the heart icon on any product.</p>
+                        <a href="{{ url_for('main.products') }}" class="btn btn-primary">
+                            <i class="fas fa-shopping-bag"></i>
+                            Start Shopping
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+    
+
+    {# ░░░ AUTH MODALS ░░░ #}
+    {% include "login_register_modal.html" %}
+    
+    {# ░░░ CART MODAL ░░░ #}
+    {% include "cart_modal.html" %}
+    
+    {# ░░░ WISHLIST MODAL ░░░ #}
+    {% include "wishlist_modal.html" %}
+
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+    <script>
+        function addToCart(productId, productName, price) {
+            alert(`Added "${productName}" to cart!`);
+        }
+
+        function removeFromWishlist(productId) {
+            fetch('/api/wishlist/remove', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ product_id: productId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    // Remove the card from DOM
+                    const card = document.querySelector(`[data-product-id="${productId}"]`);
+                    if (card) {
+                        card.remove();
+                    }
+
+                    // Update wishlist count
+                    updateWishlistCount(data.count);
+
+                    // Show empty state if no items left
+                    if (data.count === 0) {
+                        location.reload();
+                    }
+
+                    // Update other wishlist buttons on the page
+                    updateWishlistButtons();
+                }
+            })
+        }
+    </script>
+</body>
+</html>

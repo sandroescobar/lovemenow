@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Checkout - LoveMeNow</title>
+    
+    <!-- Stripe.js -->
+    <script src="https://js.stripe.com/v3/"></script>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .checkout-container {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        #checkout {
+            min-height: 400px;
+            display: none;
+        }
+        
+        .debug-info {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+    
+    <!-- CSRF Protection -->
+    {% include 'csrf_meta.html' %}
+
+</head>
+<body>
+    <h1>Simple Stripe Checkout Test</h1>
+    
+    <div class="debug-info">
+        <strong>Debug Info:</strong><br>
+        Stripe Publishable Key: {{ config.STRIPE_PUBLISHABLE_KEY[:20] if config.STRIPE_PUBLISHABLE_KEY else 'NOT SET' }}...<br>
+        Config Keys: {{ config.keys() | list | length }} keys loaded
+    </div>
+    
+    <div class="checkout-container">
+        <!-- Loading State -->
+        <div id="loading" class="loading">
+            <h3>Setting up secure payment...</h3>
+            <p>Please wait while we initialize the checkout form.</p>
+        </div>
+        
+        <!-- Error State -->
+        <div id="error" class="error">
+            <h3>Unable to Load Checkout</h3>
+            <p id="error-message">There was an error setting up the payment form.</p>
+        </div>
+        
+        <!-- Stripe Checkout -->
+        <div id="checkout"></div>
+    </div>
+    
+    <div class="debug-info">
+        <strong>Console Output:</strong><br>
+        <div id="console-output"></div>
+    </div>
+    
+    <script>
+        // Debug console override
+        const consoleOutput = document.getElementById('console-output');
+        
+        function addToConsole(message, type = 'log') {
+            const div = document.createElement('div');
+            div.style.color = type === 'error' ? 'red' : 'black';
+            div.textContent = `[${type.toUpperCase()}] ${message}`;
+            consoleOutput.appendChild(div);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+        
+            originalLog.apply(console, args);
+            addToConsole(args.join(' '), 'log');
+        };
+        
+            originalError.apply(console, args);
+            addToConsole(args.join(' '), 'error');
+        };
+        
+        // Initialize Stripe
+        
+        const stripePublishableKey = '{{ config.STRIPE_PUBLISHABLE_KEY }}';
+        
+        if (!stripePublishableKey || stripePublishableKey === 'None') {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('error-message').textContent = 'Stripe configuration error: Publishable key not found';
+        } else {
+            const stripe = Stripe(stripePublishableKey);
+            
+            // Initialize checkout
+            async function initializeCheckout() {
+                try {
+                    
+                    const response = await fetch('/create-checkout-session', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({})
+                    });
+                    
+                    
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`HTTP ${response.status}: ${errorText}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    const { clientSecret } = data;
+                    
+                    if (!clientSecret) {
+                        throw new Error('No client secret received');
+                    }
+                    
+                    
+                    // Initialize embedded checkout
+                    const checkout = await stripe.initEmbeddedCheckout({
+                        clientSecret: clientSecret
+                    });
+                    
+                    
+                    // Hide loading and show checkout
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('checkout').style.display = 'block';
+                    
+                    // Mount checkout
+                    checkout.mount('#checkout');
+                    
+                    
+                } catch (error) {
+                    
+                    // Hide loading and show error
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('error').style.display = 'block';
+                    document.getElementById('error-message').textContent = error.message;
+                }
+            }
+            
+            // Start initialization when page loads
+            document.addEventListener('DOMContentLoaded', initializeCheckout);
+        }
+    </script>
+</body>
+</html>

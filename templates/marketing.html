@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+  <body style="font-family:'Inter',sans-serif">
+    <p>Hi {{ user.first_name or 'there' }},</p>
+
+    <p><strong>20 % off</strong> everything this weekend – use code <b>HOTSUMMER</b>.</p>
+
+    <a href="{{ url_for('shop', _external=True) }}"
+       style="background:#ec4899;color:#fff;padding:12px 24px;border-radius:6px;
+              text-decoration:none;display:inline-block">
+       Shop now →
+    </a>
+
+    <p style="margin-top:32px;font-size:12px;color:#555">
+      You’re receiving this because you opted-in to marketing e-mails.<br>
+      <a href="{{ url_for('unsubscribe', token=user.unsubscribe_token, _external=True) }}">
+        Unsubscribe
+      </a>
+    </p>
+  </body>
+</html>

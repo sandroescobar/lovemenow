@@ -1,0 +1,56 @@
+<div class="saved-addresses-container">
+    <h4 class="saved-addresses-title">
+        <i class="fas fa-map-marker-alt"></i>
+        Saved Addresses
+    </h4>
+<form action="{{ url_for('auth.save_address') }}" method="POST">
+
+    <div class="saved-addresses-list">
+        {% if saved_addresses %}
+            {% for addr in saved_addresses %}
+                <div class="saved-address-item" data-address-id="{{ addr.id }}">
+                    <div class="address-content">
+                        <div class="address-main">
+                            <span class="address-label">Home</span>
+                            {% if addr.is_default %}
+                                <span class="address-badge default">Default</span>
+                            {% endif %}
+                        </div>
+                        <div class="address-details">
+                            <p class="address-line" data-field="address">{{ addr.address }}</p>
+                            {% if addr.suite %}
+                                <p class="address-line" data-field="suite">Suite {{ addr.suite }}</p>
+                            {% endif %}
+                            <p class="address-line" data-field="city-state-zip">{{ addr.city }}, {{ addr.state }} {{ addr.zip }}</p>
+                            <p class="address-line" data-field="country">{{ addr.country }}</p>
+                        </div>
+                    </div>
+                    <div class="address-item-actions">
+                        <button class="btn-address-action edit" type="button" onclick="editAddress({{ addr.id }})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-address-action delete" type="button" onclick="deleteAddress({{ addr.id }})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <button class="btn-address-action save" type="button" onclick="saveAddress({{ addr.id }})" style="display: none;">
+                            Save
+                        </button>
+                        <button class="btn-address-action cancel" type="button" onclick="cancelEdit({{ addr.id }})" style="display: none;">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-addresses-placeholder">
+                <div class="placeholder-content">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <p>No saved addresses yet</p>
+                    <small>Add your first address above to get started</small>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+</form>

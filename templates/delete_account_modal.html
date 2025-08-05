@@ -1,0 +1,82 @@
+
+<!-- Delete Account Confirmation Modal -->
+<div class="modal-overlay hidden" id="deleteAccountModal">
+    <div class="modal">
+        <div class="modal-header">
+            <button class="modal-close">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 class="modal-title">
+                <i class="fas fa-exclamation-triangle"></i>
+                Delete Account
+            </h2>
+            <p class="modal-subtitle">This action cannot be undone</p>
+        </div>
+        <div class="modal-body">
+            <div class="error-message" id="deleteError"></div>
+            <div class="success-message" id="deleteSuccess"></div>
+
+            <!-- Warning Section -->
+            <div class="delete-warning">
+                <div class="warning-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="warning-content">
+                    <h3>Are you absolutely sure?</h3>
+                    <p>This will permanently delete your LoveMeNow account and all associated data including:</p>
+                    <ul class="warning-list">
+                        <li><i class="fas fa-user"></i> Your profile information</li>
+                        <li><i class="fas fa-shopping-bag"></i> Order history</li>
+                        <li><i class="fas fa-heart"></i> Saved items and preferences</li>
+                        <li><i class="fas fa-map-marker-alt"></i> Shipping addresses</li>
+                        <li><i class="fas fa-credit-card"></i> Payment methods</li>
+                    </ul>
+                </div>
+            </div>
+
+            <form class="auth-form" id="deleteAccountForm" method="POST" action="{{ url_for('auth.delete_account') }}">
+                <!-- <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/> -->
+                <div class="form-group">
+                    <label class="form-label" for="deleteConfirmEmail">Confirm your email address</label>
+                    <i class="fas fa-envelope"></i>
+                    <input name="confirm_email" type="email" id="deleteConfirmEmail" class="form-input" placeholder="Enter your email to confirm" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="deletePassword">Enter your password</label>
+                    <i class="fas fa-lock"></i>
+                    <input name="password" type="password" id="deletePassword" class="form-input" placeholder="Enter your password" required>
+                    <span class="password-toggle" onclick="togglePassword('deletePassword')">
+                        <i class="fas fa-eye"></i>
+                    </span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="deleteTypeConfirm">Type "DELETE" to confirm</label>
+                    <i class="fas fa-keyboard"></i>
+                    <input name="type_confirm" type="text" id="deleteTypeConfirm" class="form-input" placeholder="Type DELETE in capital letters" required>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="dataExportAck" name="data_export_ack" class="checkbox-input" required>
+                    <label for="dataExportAck" class="checkbox-label">
+                        I understand that I can export my data before deletion using the "Export Data" button
+                    </label>
+                </div>
+
+                <div class="delete-modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeDeleteModal()">
+                        <i class="fas fa-arrow-left"></i>
+                        Keep My Account
+                    </button>
+                    <button type="submit" class="btn-delete-confirm">
+                        <i class="fas fa-trash-alt"></i>
+                        Delete Forever
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>

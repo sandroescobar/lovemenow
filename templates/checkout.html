@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Checkout - LoveMeNow</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Stripe.js -->
+    <script src="https://js.stripe.com/v3/"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    
+    <!-- CSRF Protection -->
+    {% include 'csrf_meta.html' %}
+    
+    <style>
+        .checkout-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .checkout-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            background: hsl(var(--surface-color));
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid hsl(var(--border-color));
+        }
+        
+        .checkout-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: hsl(var(--text-color));
+        }
+        
+        .checkout-header p {
+            color: hsl(var(--muted-color));
+            margin-bottom: 1rem;
+        }
+        
+        .security-badges {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .security-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: hsl(var(--primary-color));
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .checkout-content {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 3rem;
+            align-items: start;
+        }
+        
+        .checkout-form {
+            background: hsl(var(--surface-color));
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid hsl(var(--border-color));
+        }
+        
+        .form-section {
+            margin-bottom: 2rem;
+        }
+        
+        .form-section h3 {
+            margin-bottom: 1rem;
+            color: hsl(var(--text-color));
+            font-size: 1.2rem;
+            border-bottom: 2px solid hsl(var(--primary-color));
+            padding-bottom: 0.5rem;
+            font-weight: 700;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .form-row.triple {
+            grid-template-columns: 2fr 1fr 1fr;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: hsl(var(--text-color));
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid hsl(var(--border-color));
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            background: hsl(var(--background-color));
+            color: hsl(var(--text-color));
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: hsl(var(--primary-color));
+            box-shadow: 0 0 0 3px hsla(var(--primary-color), 0.1);
+        }
+        
+        .card-input-group {
+            position: relative;
+        }
+        
+        .card-input-group i {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: hsl(var(--muted-color));
+        }
+        
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .payment-method {
+            padding: 1rem;
+            border: 2px solid hsl(var(--border-color));
+            border-radius: var(--radius-md);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: hsl(var(--background-color));
+            color: hsl(var(--text-color));
+        }
+        
+        .payment-method:hover {
+            border-color: hsl(var(--primary-color));
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .payment-method.active {
+            border-color: hsl(var(--primary-color));
+            background: hsla(var(--primary-color), 0.1);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .payment-method i {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: hsl(var(--muted-color));
+        }
+        
+        .payment-method.active i {
+            color: hsl(var(--primary-color));
+        }
+        
+        .payment-method-text {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .shop-pay-method {
+            background: #5a31f4;
+            color: white;
+            border-color: #5a31f4;
+        }
+        
+        .shop-pay-method:hover {
+            background: #4c28d4;
+            border-color: #4c28d4;
+        }
+        
+        .shop-pay-method.active {
+            background: #4c28d4;
+            border-color: #4c28d4;
+        }
+        
+        .shop-pay-method i {
+            color: white;
+        }
+        
+        .stripe-checkout-container {
+            margin: 1rem 0;
+            padding: 1rem;
+            border: 2px solid hsl(var(--border-color));
+            border-radius: var(--radius-md);
+            background: hsl(var(--background-color));
+        }
+        
+        #checkout {
+            min-height: 400px;
+        }
+        
+        .loading-container {
+            text-align: center;
+            padding: 3rem 2rem;
+        }
+        
+        .loading-spinner {
+            font-size: 2rem;
+            color: hsl(var(--primary-color));
+            margin-bottom: 1rem;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            color: hsl(var(--muted-color));
+            font-size: 1.1rem;
+        }
+        
+        .error-container {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #dc3545;
+        }
+        
+        .error-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .back-to-cart {
+            margin-top: 2rem;
+            text-align: center;
+        }
+        
+        .security-notice {
+            background: hsl(var(--background-color));
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin-top: 1rem;
+            border: 1px solid hsl(var(--border-color));
+            text-align: center;
+            font-size: 0.9rem;
+            color: hsl(var(--muted-color));
+        }
+        
+        .security-notice i {
+            color: hsl(var(--primary-color));
+            margin-right: 0.5rem;
+        }
+        
+        .order-summary {
+            background: hsl(var(--surface-color));
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            height: fit-content;
+            position: sticky;
+            top: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid hsl(var(--border-color));
+        }
+        
+        .order-summary h3 {
+            margin-bottom: 1.5rem;
+            color: hsl(var(--text-color));
+            border-bottom: 2px solid hsl(var(--primary-color));
+            padding-bottom: 0.5rem;
+            font-weight: 700;
+        }
+        
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid hsl(var(--border-color));
+        }
+        
+        .order-item:last-child {
+            border-bottom: none;
+        }
+        
+        .item-details {
+            flex: 1;
+        }
+        
+        .item-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: hsl(var(--text-color));
+        }
+        
+        .item-quantity {
+            color: hsl(var(--muted-color));
+            font-size: 0.9rem;
+        }
+        
+        .item-price {
+            font-weight: 600;
+            color: hsl(var(--text-color));
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            color: hsl(var(--text-color));
+        }
+        
+        .summary-row.total {
+            border-top: 2px solid hsl(var(--border-color));
+            padding-top: 1rem;
+            font-weight: 600;
+            font-size: 1.2rem;
+            color: hsl(var(--text-color));
+        }
+        
+        .place-order-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 1rem;
+        }
+        
+        .place-order-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .place-order-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading-spinner {
+            display: none;
+            margin-right: 0.5rem;
+        }
+        
+        .error-message {
+            background: hsl(var(--error-bg, 354 70% 94%));
+            color: hsl(var(--error-text, 354 70% 25%));
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1rem;
+            border: 1px solid hsl(var(--error-border, 354 70% 85%));
+        }
+        
+        .success-message {
+            background: hsl(var(--success-bg, 142 76% 94%));
+            color: hsl(var(--success-text, 142 76% 25%));
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1rem;
+            border: 1px solid hsl(var(--success-border, 142 76% 85%));
+        }
+        
+        @media (max-width: 768px) {
+            .checkout-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row.triple {
+                grid-template-columns: 1fr;
+            }
+            
+            .payment-methods {
+                grid-template-columns: 1fr;
+            }
+            
+            .security-badges {
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+ <div >
+        <!-- Checkout will insert the payment form here -->
+      </div>
+    <!-- Navigation -->
+    {% include "navbar.html" %}
+
+    <div class="checkout-container">
+        <div class="checkout-header">
+            <h1><i class="fas fa-lock"></i> Secure Checkout</h1>
+            <p>Your information is protected with 256-bit SSL encryption</p>
+            <div class="security-badges">
+                <div class="security-badge">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>SSL Secured</span>
+                </div>
+                <div class="security-badge">
+                    <i class="fas fa-user-shield"></i>
+                    <span>Privacy Protected</span>
+                </div>
+                <div class="security-badge">
+                    <i class="fas fa-box"></i>
+                    <span>Discreet Packaging</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="checkoutContent">
+            <!-- Checkout content will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Include modals -->
+    {% include 'login_register_modal.html' %}
+    {% include 'logged_in_modal.html' %}
+    {% include 'wishlist_modal.html' %}
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+    
+    <script>
+        let orderData = {};
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCheckout();
+            updateCartCount();
+            updateWishlistCount();
+        });
+
+        function loadCheckout() {
+            fetch('/api/cart/')
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.items || data.items.length === 0) {
+                        window.location.href = '/cart';
+                        return;
+                    }
+                    displayCheckout(data);
+                })
+                .catch(error => {
+                });
+        }
+
+        function displayCheckout(cartData) {
+            const subtotal = cartData.total;
+            const taxRate = 0.0875;
+            const taxAmount = subtotal * taxRate;
+            const shippingAmount = subtotal > 50 ? 0 : 9.99;
+            const total = subtotal + taxAmount + shippingAmount;
+
+            orderData = {
+                items: cartData.items,
+                subtotal: subtotal,
+                tax: taxAmount,
+                shipping: shippingAmount,
+                total: total
+            };
+
+            const checkoutContent = document.getElementById('checkoutContent');
+            checkoutContent.innerHTML = `
+                <div class="checkout-content">
+                    <div class="stripe-only-checkout">
+                        <!-- Loading State -->
+                        <div id="loading" class="loading-container">
+                            <div class="loading-spinner">
+                                <i class="fas fa-spinner fa-spin"></i>
+                            </div>
+                            <div class="loading-text">Setting up secure payment...</div>
+                        </div>
+                        
+                        <!-- Error State -->
+                        <div id="error" class="error-container" style="display: none;">
+                            <div class="error-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <h3>Unable to Load Checkout</h3>
+                            <p id="error-message">There was an error setting up the payment form. Please try again.</p>
+                            <div class="back-to-cart">
+                                <a href="/cart" class="btn btn-primary">Back to Cart</a>
+                            </div>
+                        </div>
+                        
+                        <!-- Stripe Embedded Checkout -->
+                        <div id="stripe-container" style="display: none;">
+                            <div class="form-section">
+                                <h3><i class="fas fa-credit-card"></i> Secure Payment with Stripe</h3>
+                                <p style="color: hsl(var(--muted-color)); margin-bottom: 1rem;">
+                                    Complete your purchase securely. Stripe will collect your payment and shipping information.
+                                </p>
+                                
+                                <div class="stripe-checkout-container">
+                                    <div id="checkout">
+                                        <!-- Stripe Checkout will be mounted here -->
+                                    </div>
+                                </div>
+                                
+                                <div class="security-notice">
+                                    <i class="fas fa-shield-alt"></i>
+                                    Your payment information is processed securely by Stripe. We never store your card details.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="order-summary">
+                        <h3>Order Summary</h3>
+                        ${cartData.items.map(item => `
+                            <div class="order-item">
+                                <div class="item-details">
+                                    <div class="item-name">${item.name}</div>
+                                    <div class="item-quantity">Qty: ${item.quantity}</div>
+                                </div>
+                                <div class="item-price">$${item.item_total.toFixed(2)}</div>
+                            </div>
+                        `).join('')}
+                        
+                        <div class="summary-row">
+                            <span>Subtotal:</span>
+                            <span>$${subtotal.toFixed(2)}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Tax (8.75%):</span>
+                            <span>$${taxAmount.toFixed(2)}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Shipping:</span>
+                            <span>${shippingAmount === 0 ? 'FREE' : '$' + shippingAmount.toFixed(2)}</span>
+                        </div>
+                        <div class="summary-row total">
+                            <span>Total:</span>
+                            <span>$${total.toFixed(2)}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Initialize Stripe checkout
+            initializeStripeCheckout();
+        }
+
+        function selectPaymentMethod(method) {
+            document.querySelectorAll('.payment-method').forEach(el => el.classList.remove('active'));
+            event.target.closest('.payment-method').classList.add('active');
+            
+            // Hide all payment sections
+            document.getElementById('stripePayment').style.display = 'none';
+            document.getElementById('cardPayment').style.display = 'none';
+            
+            // Show the selected payment method
+            if (method === 'stripe') {
+                document.getElementById('stripePayment').style.display = 'block';
+                // Initialize Stripe checkout if not already done
+                if (!window.stripeCheckoutInitialized) {
+                    initializeStripeCheckout();
+                }
+            } else if (method === 'manual') {
+                document.getElementById('cardPayment').style.display = 'block';
+            }
+            // For shoppay, we'll handle it later
+        }
+
+        function formatCardNumber(input) {
+            let value = input.value.replace(/\s/g, '').replace(/[^0-9]/gi, '');
+            let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+            input.value = formattedValue;
+        }
+
+        function formatExpiryDate(input) {
+            let value = input.value.replace(/\D/g, '');
+            if (value.length >= 2) {
+                value = value.substring(0, 2) + '/' + value.substring(2, 4);
+            }
+            input.value = value;
+        }
+
+        function handleCheckoutSubmit(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+            
+            // Combine first and last name
+            data.full_name = `${data.firstName} ${data.lastName}`;
+            data.shipping_address = data.address;
+            data.shipping_suite = data.suite;
+            data.shipping_city = data.city;
+            data.shipping_state = data.state;
+            data.shipping_zip = data.zip;
+            
+            // Show loading state
+            const submitBtn = document.getElementById('placeOrderBtn');
+            const spinner = submitBtn.querySelector('.loading-spinner');
+            submitBtn.disabled = true;
+            spinner.style.display = 'inline-block';
+            
+            // Hide any previous error messages
+            document.getElementById('errorMessage').style.display = 'none';
+            
+            // Process checkout
+            fetch('/api/checkout/process', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    // Check if this is an Uber Direct delivery with tracking URL
+                    if (result.tracking_url) {
+                        // Redirect to Uber tracking page for delivery orders
+                        window.location.href = result.tracking_url;
+                    } else {
+                        // Show success page for pickup orders
+                        showSuccessMessage(result.order_number, result.total);
+                    }
+                } else {
+                    throw new Error(result.error || 'Checkout failed');
+                }
+            })
+            .catch(error => {
+                showErrorMessage(error.message);
+            })
+            .finally(() => {
+                // Hide loading state
+                submitBtn.disabled = false;
+                spinner.style.display = 'none';
+            });
+        }
+
+        function showErrorMessage(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            errorDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showSuccessMessage(orderNumber, total) {
+            const checkoutContent = document.getElementById('checkoutContent');
+            checkoutContent.innerHTML = `
+                <div style="text-align: center; padding: 4rem 2rem; background: white; border-radius: 1rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                    <div style="font-size: 4rem; color: #28a745; margin-bottom: 1rem;">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h2 style="color: #333; margin-bottom: 1rem;">Order Confirmed!</h2>
+                    <p style="font-size: 1.1rem; color: #666; margin-bottom: 2rem;">
+                        Thank you for your order. Your order number is <strong>${orderNumber}</strong>
+                    </p>
+                    <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 2rem;">
+                        <h3 style="color: #333; margin-bottom: 0.5rem;">Order Total: $${total.toFixed(2)}</h3>
+                        <p style="color: #666;">You'll receive a confirmation email shortly</p>
+                        <p style="color: #666;">Your order will be ready for pickup within 1-2 business days</p>
+                        <p style="color: #666;">We'll notify you when it's ready</p>
+                    </div>
+                    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                        <a href="/products" class="btn btn-primary">Continue Shopping</a>
+                        <a href="/" class="btn" style="background: #6c757d; color: white;">Back to Home</a>
+                    </div>
+                </div>
+            `;
+            
+            // Update cart count
+            updateCartCount();
+        }
+
+        // updateCartCount() is now available globally from index.js
+
+        // Stripe Integration
+        const stripe = Stripe('{{ config.STRIPE_PUBLISHABLE_KEY }}');
+        let stripeCheckout = null;
+
+        async function initializeStripeCheckout() {
+            try {
+                
+                const response = await fetch('/create-checkout-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({})
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to create checkout session');
+                }
+
+                const { clientSecret } = await response.json();
+                
+                if (!clientSecret) {
+                    throw new Error('No client secret received');
+                }
+
+                stripeCheckout = await stripe.initEmbeddedCheckout({
+                    clientSecret: clientSecret
+                });
+
+                // Hide loading and show Stripe container
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('stripe-container').style.display = 'block';
+                
+                // Mount Stripe Checkout
+                stripeCheckout.mount('#checkout');
+                
+                
+            } catch (error) {
+                
+                // Hide loading and show error
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('error-message').textContent = error.message;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+# Video Files Directory
+
+This directory should contain:
+- motionPictureForLoveMeNowMiami.mp4
+
+The video file is missing and needs to be added for the about page to work properly.

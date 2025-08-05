@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to LoveMeNow VIP Club</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #a855f7, #ec4899); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+        .content { background: #fff; padding: 30px; border: 1px solid #ddd; }
+        .footer { background: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 10px 10px; font-size: 12px; color: #666; }
+        .btn { display: inline-block; background: #a855f7; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; margin: 10px 0; }
+        .highlight { background: #fef3c7; padding: 15px; border-radius: 5px; margin: 15px 0; }
+    </style>
+    
+    <!-- CSRF Protection -->
+    {% include 'csrf_meta.html' %}
+
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎉 Welcome to LoveMeNow VIP Club!</h1>
+            <p>You're now part of our exclusive community</p>
+        </div>
+        
+        <div class="content">
+            <h2>Hi {{ user.full_name }}! 👋</h2>
+            
+            <p>Thank you for joining our VIP email list! You've just unlocked exclusive access to:</p>
+            
+            <ul>
+                <li>🆕 <strong>First access</strong> to new product launches</li>
+                <li>🔥 <strong>Exclusive sales</strong> and special discounts</li>
+                <li>💝 <strong>VIP-only offers</strong> you won't find anywhere else</li>
+                <li>📰 <strong>Weekly newsletters</strong> with tips and recommendations</li>
+            </ul>
+            
+            <div class="highlight">
+                <h3>🎁 Welcome Gift!</h3>
+                <p>As a thank you for joining, use code <strong>WELCOME10</strong> for 10% off your next order!</p>
+            </div>
+            
+            <p>We're excited to have you as part of the LoveMeNow family. Get ready for some amazing deals and exclusive content!</p>
+            
+            <a href="https://lovemenowmiami.com/products" class="btn">Start Shopping</a>
+        </div>
+        
+        <div class="footer">
+            <p>LoveMeNow - Miami's Premier Adult Lifestyle Store</p>
+            <p>You're receiving this because you opted into our marketing emails.</p>
+            <p><a href="https://lovemenowmiami.com/unsubscribe/{{ user.id }}" style="color: #666;">Unsubscribe</a> | <a href="https://lovemenowmiami.com/user_profile" style="color: #666;">Update Preferences</a></p>
+        </div>
+    </div>
+</body>
+</html>

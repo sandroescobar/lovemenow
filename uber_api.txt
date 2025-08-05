@@ -1,0 +1,1240 @@
+Download OpenAPI specification:Download
+
+Table of contents
+Create Quote
+Create Delivery
+List Deliveries
+Update Delivery
+Get Delivery
+Cancel Delivery
+Proof of Delivery
+Find Stores
+Quotes
+Create Quote
+Create a quote to check deliverability, validity and cost for delivery between two addresses.
+
+Authorizations:
+direct_auth
+path Parameters
+customer_id
+required
+string
+Example: a11e6f29-6850-4d8d-b88d-0ae69cec1111
+Unique identifier for the organization. Either UUID or starts with cus_.
+
+Request Body schema: application/json
+required
+pickup_address
+required
+string
+JSON string containing pickup address details.
+
+Note: Please note the escaping of the quotes ( \ " ). This is not the simplest format of expression addresses, however, the benefit comes with the corresponding parsing and accuracy when it is received by our booking engine. Please refer to our FAQ section for more information on how to format addresses.
+
+dropoff_address
+required
+string
+JSON string containing dropoff address details.
+
+Note: Please note the escaping of the quotes ( \ " ). This is not the simplest format of expression addresses, however, the benefit comes with the corresponding parsing and accuracy when it is received by our booking engine. Please refer to our FAQ section for more information on how to format addresses.
+
+pickup_latitude
+number
+Pickup latitude coordinate.
+
+pickup_longitude
+number
+Pickup longitude coordinate.
+
+dropoff_latitude
+number
+Dropoff latitude coordinate.
+
+dropoff_longitude
+number
+Dropoff longitude coordinate.
+
+pickup_ready_dt
+string <timestamp>
+(RFC 3339) Beginning of the window when an order must be picked up. Must be less than 30 days in the future.
+
+pickup_deadline_dt
+string <timestamp>
+(RFC 3339) End of the window when an order may be picked up. Must be at least 10 mins later than pickup_ready_dt and at least 20 minutes in the future from now.
+
+dropoff_ready_dt
+string <timestamp>
+(RFC 3339) Beginning of the window when an order must be dropped off. Must be less than or equal to pickup_deadline_dt.
+
+dropoff_deadline_dt
+string <timestamp>
+(RFC 3339) End of the window when an order must be dropped off. Must be at least 20 mins later than dropoff_ready_dt and must be greater than or equal to pickup_deadline_dt.
+
+pickup_phone_number
+string^\+[0-9]+$
+Phone number for the pickup location, usually the store's contact. This number allows the courier to call before heading to the dropoff location.
+
+dropoff_phone_number
+string^\+[0-9]+$
+Phone number for the dropoff location, usually belonging to the end-user (recipient). This number enables the courier to make calls after en route to the dropoff and before completing the trip.
+
+manifest_total_value
+integer
+Value in cents ( ¹/₁₀₀ of currency unit ) of the items in the delivery. i.e.: $10.99 => 1099.
+
+external_store_id
+string
+Unique identifier used by our Partners to reference a store or location.
+
+Note: Please be aware that if you utilize external_store_id in the Create Delivery process, you MUST also include this field in your Create Quote API calls.
+
+Responses
+200 Successfully created a delivery quote
+400 Invalid request
+401 unauthorized
+402 customer_suspended
+403 customer_blocked
+404 customer_not_found
+408 request_timeout
+429 customer_limited
+500 internal_server_error
+
+post
+/customers/{customer_id}/delivery_quotes
+Request samples
+PayloadPythonJavaScriptcURL
+Content type
+application/json
+
+Copy
+{
+"pickup_address": "{\"street_address\":[\"100 Maiden Ln\"],\"city\":\"New York\",\"state\":\"NY\",\"zip_code\":\"10023\",\"country\":\"US\"}",
+"dropoff_address": "{\"street_address\":[\"30 Lincoln Center Plaza\"],\"city\":\"New York\",\"state\":\"NY\",\"zip_code\":\"10023\",\"country\":\"US\"}",
+"pickup_latitude": 40.7066581,
+"pickup_longitude": -74.0071868,
+"dropoff_latitude": 38.9298375,
+"dropoff_longitude": -77.0582303,
+"pickup_ready_dt": "2024-12-12T14:00:00.000Z",
+"pickup_deadline_dt": "2024-12-12T14:30:00.000Z",
+"dropoff_ready_dt": "2024-12-12T14:30:00.000Z",
+"dropoff_deadline_dt": "2024-12-12T16:00:00.000Z",
+"pickup_phone_number": "+15555555555",
+"dropoff_phone_number": "+15555555555",
+"manifest_total_value": 1000,
+"external_store_id": "my_store_123"
+}
+Response samples
+200400401402403404408429500
+Content type
+application/json
+
+Copy
+{
+"kind": "delivery_quote",
+"id": "dqt_6gQ2dt31TjiOPfwux-NCXg",
+"created": "2023-04-06T19:00:37.887Z",
+"expires": "2023-04-06T19:15:37.887Z",
+"fee": 600,
+"currency": "usd",
+"currency_type": "USD",
+"dropoff_eta": "2023-04-06T19:34:22.000Z",
+"duration": 33,
+"pickup_duration": 24,
+"dropoff_deadline": "2023-04-06T20:09:20.000Z"
+}
+Delivery
+Create Delivery
+Create a delivery between two addresses.
+
+Authorizations:
+direct_auth
+path Parameters
+customer_id
+required
+string
+Example: a11e6f29-6850-4d8d-b88d-0ae69cec1111
+Unique identifier for the organization. Either UUID or starts with cus_.
+
+Request Body schema: application/json
+required
+pickup_name
+required
+string
+Designation of the location where the courier will make the pickup. This information will be visible within the courier app.
+
+Note: The app will prioritize the utilization of the pickup_business_name if this parameter is provided.
+
+pickup_address
+required
+string
+JSON string containing pickup address details.
+
+Note: Please note the escaping of the quotes ( \ " ). This is not the simplest format of expression addresses, however, the benefit comes with the corresponding parsing and accuracy when it is received by our booking engine. Please refer to our FAQ section for more information on how to format addresses.
+
+pickup_phone_number
+required
+string^\+[0-9]+$
+Phone number for the pickup location, usually the store's contact. This number allows the courier to call before heading to the dropoff location.
+
+dropoff_name
+required
+string
+Name of the place where the courier will make the dropoff. This information will be visible in the courier app.
+
+dropoff_address
+required
+string
+JSON string containing dropoff address details.
+
+Note: Please note the escaping of the quotes ( \ " ). This is not the simplest format of expression addresses, however, the benefit comes with the corresponding parsing and accuracy when it is received by our booking engine. Please refer to our FAQ section for more information on how to format addresses.
+
+dropoff_phone_number
+required
+string^\+[0-9]+$
+Phone number for the dropoff location, usually belonging to the end-user (recipient). This number enables the courier to make calls after en route to the dropoff and before completing the trip.
+
+manifest_items
+required
+Array of objects (ManifestItemRequest)
+List of items being delivered. This information will be visible in the courier app.
+
+pickup_business_name
+string
+Business name of the pickup location. This information will be visible in the courier app and will override the pickup_name if provided.
+
+pickup_latitude
+number
+Pickup latitude coordinate.
+
+pickup_longitude
+number
+Pickup longitude coordinate.
+
+pickup_notes
+string <= 280 characters
+Additional instructions for the courier at the pickup location. Max 280 characters.
+
+pickup_verification
+object (PickupVerificationRequirement)
+Verification steps (e.g. Picture, Barcode scanning) that must be taken before the pickup can be completed.
+
+dropoff_business_name
+string
+Business name of the dropoff location.
+
+dropoff_latitude
+number
+Dropoff latitude coordinate. This field adds precision to dropoff_address field. For example, if the dropoff address is "JFK Airport Queens, NY 11430", it would be highly recommended to use coordinates to locate the precise location of the dropoff
+
+dropoff_longitude
+number
+Dropoff longitude coordinate. This field adds precision to dropoff_address field. For example, if the dropoff address is "JFK Airport Queens, NY 11430", it would be highly recommended to use coordinates to locate the precise location of the dropoff.
+
+dropoff_notes
+string <= 280 characters
+accessible after the courier accepts the trip and before heading to the dropoff location. Limited to 280 characters.
+
+dropoff_seller_notes
+string <= 280 characters
+Merchant's extra dropoff instructions, accessible after the courier accepts the trip and before heading to the dropoff location. Limited to 280 characters.
+
+dropoff_verification
+object (DropoffVerificationRequest)
+Verification steps (e.g. Picture, Barcode scanning) that must be taken before the dropoff can be completed.
+
+deliverable_action
+string (DeliverableAction)
+Enum: "deliverable_action_meet_at_door" "deliverable_action_leave_at_door"
+Specify the action for the courier to take on a delivery.
+
+Name	Description
+deliverable_action_meet_at_door	Meet at door delivery. This is the default if DeliverableAction is not set.
+deliverable_action_leave_at_door	The “happy path” action for the courier to take on a delivery. When used, delivery action can be set to “leave at door” for a contactless delivery. Cannot leave at door when signature or ID verification requirements are applied when creating a delivery. Photo confirmation of delivery will be automatically applied as a requirement to complete drop-off.
+manifest_reference
+string
+A reference identifying the manifest. Utilize this to link a delivery with relevant data in your system. This detail will be visible within the courier app.
+Note:
+
+Please be aware that the combination of this field with external_id must be unique; otherwise, the delivery creation will not succeed.
+If you can't ensure uniqueness for the manifest_reference, please include the "idempotency_key" in the request body and make sure it is unique.
+manifest_total_value
+integer
+Value in cents ( ¹/₁₀₀ of currency unit ) of the items in the delivery. i.e.: $10.99 => 1099.
+
+quote_id
+string
+The ID of a previously generated delivery quote.
+
+undeliverable_action
+string (UndeliverableAction)
+Enum: "leave_at_door" "return" "discard"
+If not set then the default value is return
+
+leave_at_door: Once a normal delivery attempt is made and a customer is not available. This action requests the courier to leave the package at dropoff location.
+Note 1: It cannot be set to leave at door when signature or PIN or ID verification requirements are applied when creating a delivery.
+
+Note 2: A photo confirmation of delivery will be automatically applied as a requirement to complete the dropoff.
+
+return: Once a normal delivery attempt is made and a customer is not available. This action requests the courier to return the package back to the pickup location.
+Note: Even if deliverable_action was set as leave at door and courier feels it is not okay then the package can be returned back to the pickup location.
+
+discard: Discard option will allow the courier to keep/throw away the package if they are unable to deliver the package.
+pickup_ready_dt
+string <timestamp>
+(RFC 3339) Beginning of the window when an order must be picked up. Must be less than 30 days in the future.
+
+pickup_deadline_dt
+string <timestamp>
+(RFC 3339) End of the window when an order may be picked up. Must be at least 10 mins later than pickup_ready_dt and at least 20 minutes in the future from now.
+
+dropoff_ready_dt
+string <timestamp>
+(RFC 3339) Beginning of the window when an order must be dropped off. Must be less than or equal to pickup_deadline_dt.
+
+dropoff_deadline_dt
+string <timestamp>
+(RFC 3339) End of the window when an order must be dropped off. Must be at least 20 mins later than dropoff_ready_dt and must be greater than or equal to pickup_deadline_dt.
+
+requires_dropoff_signature
+boolean
+Deprecated
+Flag to indicate this delivery requires signature capture at dropoff.
+
+requires_id
+boolean
+Deprecated
+(Please use "dropoff_verification -> identification" instead). Flag to indicate this delivery requires ID check (minimum age) at dropoff.
+
+tip
+integer >= 0
+Amount in cents ( ¹/₁₀₀ of currency unit ) that will be paid to the courier as a tip. e.g.: $5.00 => 500.
+
+Note: The fee value in the Create Delivery response includes the tip value.
+
+idempotency_key
+string
+A key which is used to avoid duplicate order creation with identical idempotency keys for the same account. The key persists for a set time frame, defaulting to 60 minutes.
+
+external_store_id
+string
+Unique identifier used by our Partners to reference a store or location.
+
+Note: Please be aware that if you utilize external_store_id in the Create Delivery process, you MUST also include this field in your Create Quote API calls.
+
+return_notes
+string
+Additional instructions for the courier for return trips. Max 280 characters.
+
+return_verification
+object (ReturnVerificationRequirement)
+Verification steps (barcode scanning, picture, or signature) that must be taken before the return can be completed.
+
+external_user_info
+object (DeliveryReq_external_user_info)
+End-user's information to help identify users.
+
+external_id
+string
+Additional reference to identify the manifest. To be used by aggregators, POS systems, and other organization structures which have an internal reference in addition to the manifest_reference used by your sub-account. Merchants can search for this value in the dashboard, and it is also visible on the billing details report generated by the dashboard.
+
+user_fees_summary
+Array of objects (UserFeesSummary)
+A breakdown of how the order value is calculated
+
+Responses
+200 Successfully created a delivery
+400 Invalid request
+401 unauthorized
+402 customer_suspended
+403 customer_blocked
+404 customer_not_found
+409 duplicate_delivery
+429 customer_limited
+500 internal_server_error
+
+post
+/customers/{customer_id}/deliveries
+Request samples
+PayloadPythonJavaScriptcURL
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"pickup_name": "Store Name",
+"pickup_address": "{\"street_address\":[\"100 Maiden Ln\"],\"city\":\"New York\",\"state\":\"NY\",\"zip_code\":\"10023\",\"country\":\"US\"}",
+"pickup_phone_number": "+15555555555",
+"dropoff_name": "Gordon Shumway",
+"dropoff_address": "{\"street_address\":[\"30 Lincoln Center Plaza\"],\"city\":\"New York\",\"state\":\"NY\",\"zip_code\":\"10023\",\"country\":\"US\"}",
+"dropoff_phone_number": "+15555555555",
+"manifest_items": [
+{}
+],
+"pickup_business_name": "Store Name",
+"pickup_latitude": 40.7066745,
+"pickup_longitude": -74.0071976,
+"pickup_notes": "Follow big green 'Pickup' signs in the parking lot",
+"pickup_verification": {
+"signature": true,
+"signature_requirement": {},
+"barcodes": [],
+"identification": {},
+"picture": true
+},
+"dropoff_business_name": "House of Luciano",
+"dropoff_latitude": 40.7727076,
+"dropoff_longitude": -73.9839082,
+"dropoff_notes": "Second floor, black door to the right.",
+"dropoff_seller_notes": "Fragile content - please handle the box with care during delivery.",
+"dropoff_verification": {
+"signature": true,
+"signature_requirement": {},
+"barcodes": [],
+"pincode": {},
+"identification": {},
+"picture": true
+},
+"deliverable_action": "deliverable_action_meet_at_door",
+"manifest_reference": "REF0000002",
+"manifest_total_value": 1000,
+"quote_id": "dqt_gpBlJ0nkTFoZ_KcRPUD8Br",
+"undeliverable_action": "leave_at_door",
+"pickup_ready_dt": "2024-12-12T14:00:00.000Z",
+"pickup_deadline_dt": "2024-12-12T14:30:00.000Z",
+"dropoff_ready_dt": "2024-12-12T14:30:00.000Z",
+"dropoff_deadline_dt": "2024-12-12T16:00:00.000Z",
+"requires_dropoff_signature": true,
+"requires_id": false,
+"tip": 500,
+"idempotency_key": "1234567890",
+"external_store_id": "my_store_123",
+"return_notes": "Please meet store members at the counter to scan and verify the return of the order.",
+"return_verification": {
+"signature": true,
+"signature_requirement": {},
+"barcodes": [],
+"picture": true,
+"pincode": {}
+},
+"external_user_info": {
+"merchant_account": {},
+"device": {}
+},
+"external_id": "1234567890",
+"user_fees_summary": [
+{}
+]
+}
+Response samples
+200400401402403404409429500
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"id": "del_gDcyfRgyQcyN0obpqqS_1B",
+"quote_id": "dqt_6gQ2dt31TjiOPfwux-NCXg",
+"complete": false,
+"courier": null,
+"courier_imminent": true,
+"created": "2023-05-01T22:15:13.646Z",
+"currency": "usd",
+"deliverable_action": "deliverable_action_meet_at_door",
+"dropoff": {
+"name": "Joan P.",
+"phone_number": "+16283337630",
+"address": "2200 Market St, San Francisco, CA 94114, US",
+"detailed_address": {},
+"notes": "",
+"seller_notes": "",
+"courier_notes": "",
+"location": {},
+"verification_requirements": {},
+"status": "completed",
+"status_timestamp": "2023-05-02T02:30:07.560Z",
+"external_store_id": "my_store_123"
+},
+"dropoff_deadline": "2023-05-01T23:01:37.000Z",
+"dropoff_eta": "2023-05-01T22:30:00.077Z",
+"dropoff_identifier": "",
+"dropoff_ready": "2023-05-01T22:15:13.000Z",
+"external_id": "EI000001",
+"fee": 1099,
+"kind": "delivery",
+"live_mode": true,
+"manifest": {
+"reference": "EI000001",
+"description": "1 x Package 1\n",
+"total_value": 1099
+},
+"manifest_items": {
+"name": "Bow tie",
+"quantity": 1,
+"size": "small",
+"dimensions": {},
+"price": 100,
+"weight": 300,
+"vat_percentage": 1250000
+},
+"pickup": {
+"name": "Joan P.",
+"phone_number": "+16283337630",
+"address": "2200 Market St, San Francisco, CA 94114, US",
+"detailed_address": {},
+"notes": "",
+"seller_notes": "",
+"courier_notes": "",
+"location": {},
+"verification": {},
+"verification_requirements": {},
+"status": "completed",
+"status_timestamp": "2023-05-02T02:30:07.560Z",
+"external_store_id": "my_store_123"
+},
+"pickup_deadline": "2023-05-01T22:35:13.000Z",
+"pickup_eta": "2023-05-01T22:16:21.749Z",
+"pickup_ready": "2023-05-01T22:20:13.000Z",
+"related_deliveries": [
+{}
+],
+"status": "pending",
+"tip": 500,
+"tracking_url": "https://delivery.uber.com/orders/62105936-e413-40d5-aecd-4c335c3cd3c2",
+"undeliverable_action": "",
+"undeliverable_reason": "",
+"updated": "2023-05-01T22:16:20.023Z",
+"uuid": "62105936E41340D5AECD4C335C3CD3C2",
+"return": {
+"name": "Joan P.",
+"phone_number": "+16283337630",
+"address": "2200 Market St, San Francisco, CA 94114, US",
+"detailed_address": {},
+"notes": "",
+"seller_notes": "",
+"courier_notes": "",
+"location": {},
+"verification": {},
+"verification_requirements": {},
+"status": "completed",
+"status_timestamp": "2023-05-02T02:30:07.560Z",
+"external_store_id": "my_store_123"
+},
+"batch_id": "bat_0dtbO9MhUAW6yezXDqQUqQ"
+}
+List Deliveries
+List all deliveries associated with the given customerId
+
+Authorizations:
+direct_auth
+path Parameters
+customer_id
+required
+string
+Example: a11e6f29-6850-4d8d-b88d-0ae69cec1111
+Unique identifier for the organization. Either UUID or starts with cus_.
+
+query Parameters
+filter
+string
+Filter deliveries by delivery state. Valid values are: “pending”, “pickup”, “pickup_complete”, “dropoff”, “delivered”, “canceled”, “returned”, and “ongoing”.
+
+external_store_id
+string
+Filter deliveries by external_store_id.
+
+start_dt
+string <date-time>
+(RFC 3339) Beginning of the filter time range. If left blank, 3 months prior to the current time is used.
+
+end_dt
+string <date-time>
+(RFC 3339) End of the filter time range. If left blank, the current time is used.
+
+limit
+integer
+Maximum number of responses to return.
+
+Offset
+integer
+Offset of response objects for pagination.
+
+Responses
+200 Successfully retrieved deliveries
+400 invalid_params
+401 unauthorized
+404 delivery_not_found
+408 request_timeout
+500 internal_server_error
+503 service_unavailable
+
+get
+/customers/{customer_id}/deliveries
+Request samples
+PythonJavaScriptcURL
+
+Copy
+# Replace {customer_id} and {token} in the code block below with your specific values.
+# Note that this code snippet is a sample and does not include all the fields.
+
+import requests
+
+url = 'https://api.uber.com/v1/customers/{customer_id}/deliveries'
+headers = {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer {token}'
+}
+
+response = requests.get(url, headers=headers)
+Response samples
+200400401404408500503
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"data": [
+{}
+],
+"next_href": "api.uber.com/v1/customers/d553004e-a505-4c48-8887-194e57769172/deliveries?offset=30",
+"total_count": -1
+}
+Get Delivery
+Get the details of an existing delivery, specified by the delivery_id in the URL
+
+Authorizations:
+direct_auth
+path Parameters
+customer_id
+required
+string
+Example: a11e6f29-6850-4d8d-b88d-0ae69cec1111
+Unique identifier for the organization. Either UUID or starts with cus_.
+
+delivery_id
+required
+string
+Example: del_ExLGCyywQ5KlvncU2rUUUd3
+Unique identifier for the delivery. Always starts with del_
+
+Responses
+200 Successfully retrieved delivery
+400 invalid_params
+401 unauthorized
+404 delivery_not_found
+408 request_timeout
+500 internal_server_error
+503 service_unavailable
+
+get
+/customers/{customer_id}/deliveries/{delivery_id}
+Request samples
+PythonJavaScriptcURL
+
+Copy
+# Replace {customer_id}, {token}, and {delivery_id} in the code block below with your specific values.
+# Note that this code snippet is a sample and does not include all the fields.
+
+import requests
+
+url = 'https://api.uber.com/v1/customers/{customer_id}/deliveries/{delivery_id}'
+headers = {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer {token}'
+}
+
+response = requests.get(url, headers=headers)
+Response samples
+200400401404408500503
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"id": "del_gDcyfRgyQcyN0obpqqS_1B",
+"quote_id": "dqt_6gQ2dt31TjiOPfwux-NCXg",
+"complete": false,
+"courier": {
+"name": "Alex I.",
+"rating": 0,
+"vehicle_type": "car",
+"phone_number": "+16283337630",
+"location": {},
+"img_href": "https://d1w2poirtb3as9.cloudfront.net/default.jpeg?Expires=1683022587&Signature=SDlYXhlrNUXVibLEi1veShGrVQqn~5cHlDmKHmirytOvtRPLUzMICPLoLXL8vn7XREKo6XmRjYbE~tMeCqBf3Pjyc4OKqsAyukoUr5ew7S9ipbJ-O0PCp5ThZ4j46yZquza1s~qOQISHopH734F17BaNxod9E9QPJJ3phFcrl4COKYSt3qPsn9Y9PQxyKecJ5Sr0RveI5hGqtQR~u2d3EZgXmJxuGUdk26WX-Ho1h3ziIpnIBu6P6upbOtlnxLqn-dG7tl15pnn~bW1w0qAemFUUdqWzzWfjVGLHonDqE4LM5xE~t1T~1zJCNQ-uzijjI6tnEfIHJ9LgWRRhX3sKXQ__&Key-Pair-Id=K36LFL06Z5BT10",
+"public_phone_info": {}
+},
+"courier_imminent": true,
+"created": "2023-05-01T22:15:13.646Z",
+"currency": "usd",
+"deliverable_action": "deliverable_action_meet_at_door",
+"dropoff": {
+"name": "Joan P.",
+"phone_number": "+16283337630",
+"address": "2200 Market St, San Francisco, CA 94114, US",
+"detailed_address": {},
+"notes": "",
+"seller_notes": "",
+"courier_notes": "",
+"location": {},
+"verification": {},
+"verification_requirements": {},
+"status": "completed",
+"status_timestamp": "2023-05-02T02:30:07.560Z",
+"external_store_id": "my_store_123"
+},
+"dropoff_deadline": "2023-05-01T23:01:37.000Z",
+"dropoff_eta": "2023-05-01T22:30:00.077Z",
+"dropoff_identifier": "",
+"dropoff_ready": "2023-05-01T22:15:13.000Z",
+"external_id": "EI000001",
+"fee": 1099,
+"kind": "delivery",
+"live_mode": true,
+"manifest": {
+"reference": "EI000001",
+"description": "1 x Package 1\n",
+"total_value": 1099
+},
+"manifest_items": {
+"name": "Bow tie",
+"quantity": 1,
+"size": "small",
+"dimensions": {},
+"price": 100,
+"weight": 300,
+"vat_percentage": 1250000
+},
+"pickup": {
+"name": "Joan P.",
+"phone_number": "+16283337630",
+"address": "2200 Market St, San Francisco, CA 94114, US",
+"detailed_address": {},
+"notes": "",
+"seller_notes": "",
+"courier_notes": "",
+"location": {},
+"verification": {},
+"verification_requirements": {},
+"status": "completed",
+"status_timestamp": "2023-05-02T02:30:07.560Z",
+"external_store_id": "my_store_123"
+},
+"pickup_deadline": "2023-05-01T22:35:13.000Z",
+"pickup_eta": "2023-05-01T22:16:21.749Z",
+"pickup_ready": "2023-05-01T22:20:13.000Z",
+"related_deliveries": [
+{}
+],
+"status": "pending",
+"tip": 500,
+"tracking_url": "https://delivery.uber.com/orders/62105936-e413-40d5-aecd-4c335c3cd3c2",
+"undeliverable_action": "",
+"undeliverable_reason": "",
+"updated": "2023-05-01T22:16:20.023Z",
+"uuid": "62105936E41340D5AECD4C335C3CD3C2",
+"return": {
+"name": "Joan P.",
+"phone_number": "+16283337630",
+"address": "2200 Market St, San Francisco, CA 94114, US",
+"detailed_address": {},
+"notes": "",
+"seller_notes": "",
+"courier_notes": "",
+"location": {},
+"verification": {},
+"verification_requirements": {},
+"status": "completed",
+"status_timestamp": "2023-05-02T02:30:07.560Z",
+"external_store_id": "my_store_123"
+},
+"refund": {
+"created_at": "2023-03-24T19:02:05Z",
+"currency_code": "GBP",
+"id": "ffe2c0b4-204f-41ca-9230-2b161b8d6c4b",
+"refund_fees": [],
+"refund_order_items": [],
+"total_partner_refund": "680",
+"total_uber_refund": "680"
+},
+"batch_id": "bat_0dtbO9MhUAW6yezXDqQUqQ",
+"vehicle_license_plate": "\\**W31L"
+}
+Update Delivery
+Update the details of an existing delivery, specified by the delivery_id in the URL. Please refer to the FAQ section for detailed update timings.
+
+Authorizations:
+direct_auth
+path Parameters
+customer_id
+required
+string
+Example: a11e6f29-6850-4d8d-b88d-0ae69cec1111
+Unique identifier for the organization. Either UUID or starts with cus_.
+
+delivery_id
+required
+string
+Example: del_ExLGCyywQ5KlvncU2rUUUd3
+Unique identifier for the delivery. Always starts with del_
+
+Request Body schema: application/json
+required
+dropoff_notes
+string <= 280 characters
+Additional instructions for the courier at the dropoff location, accessible after the courier accepts the trip and before heading to the dropoff location. Limited to 280 characters.
+
+dropoff_verification
+object (UpdateDropoffVerificationRequest)
+Verification steps (e.g. Barcode scanning) that must be taken before the dropoff can be completed.
+
+manifest_reference
+string
+A reference identifying the manifest. Utilize this to link a delivery with relevant data in your system. This detail will be visible within the courier app.
+Note:
+
+Please be aware that the combination of this field with external_id must be unique; otherwise, the delivery creation will not succeed.
+If you can't ensure uniqueness for the manifest_reference, please include the "idempotency_key" in the request body and make sure it is unique.
+pickup_notes
+string <= 280 characters
+Additional instructions for the courier at the pickup location. Max 280 characters.
+
+pickup_verification
+object (UpdatePickupVerificationRequirement)
+Verification steps (e.g. Barcode scanning) that must be taken before the pickup can be completed.
+
+requires_dropoff_signature
+boolean
+Deprecated
+Flag to indicate this delivery requires signature capture at dropoff.
+
+requires_id
+boolean
+Deprecated
+(Please use "dropoff_verification -> identification" instead). Flag to indicate this delivery requires ID verification.
+
+tip_by_customer
+integer
+Amount in cents ( ¹/₁₀₀ of currency unit ) that will be paid to the courier as a tip.
+
+dropoff_latitude
+number
+Dropoff latitude coordinate.
+
+dropoff_longitude
+number
+Dropoff longitude coordinate.
+
+pickup_ready_dt
+string <timestamp>
+(RFC 3339) Beginning of the window when an order must be picked up. Must be less than 30 days in the future.
+
+pickup_deadline_dt
+string <timestamp>
+(RFC 3339) End of the window when an order may be picked up. Must be at least 10 mins later than pickup_ready_dt and at least 20 minutes in the future from now.
+
+dropoff_ready_dt
+string <timestamp>
+(RFC 3339) Beginning of the window when an order must be dropped off. Must be less than or equal to pickup_deadline_dt.
+
+dropoff_deadline_dt
+string <timestamp>
+(RFC 3339) End of the window when an order must be dropped off. Must be at least 20 mins later than dropoff_ready_dt and must be greater than or equal to pickup_deadline_dt.
+
+Responses
+200 Successfully updated a delivery.
+400 invalid_params
+401 unauthorized
+404 delivery_not_found
+408 request_timeout
+500 internal_server_error
+503 service_unavailable
+
+post
+/customers/{customer_id}/deliveries/{delivery_id}
+Request samples
+PayloadPythonJavaScriptcURL
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"dropoff_notes": "Second floor, black door to the right.",
+"dropoff_verification": {
+"barcodes": []
+},
+"manifest_reference": "REF0000002",
+"pickup_notes": "Follow big green 'Pickup' signs in the parking lot",
+"pickup_verification": {
+"barcodes": []
+},
+"requires_dropoff_signature": true,
+"requires_id": false,
+"tip_by_customer": 500,
+"dropoff_latitude": 40.7727076,
+"dropoff_longitude": -73.9839082,
+"pickup_ready_dt": "2024-12-12T14:00:00.000Z",
+"pickup_deadline_dt": "2024-12-12T14:30:00.000Z",
+"dropoff_ready_dt": "2024-12-12T14:30:00.000Z",
+"dropoff_deadline_dt": "2024-12-12T16:00:00.000Z"
+}
+Response samples
+200400401404408500503
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"id": "del_gDcyfRgyQcyN0obpqqS_1B",
+"quote_id": "dqt_6gQ2dt31TjiOPfwux-NCXg",
+"complete": false,
+"courier": {
+"name": "Alex I.",
+"rating": 0,
+"vehicle_type": "car",
+"phone_number": "+16283337630",
+"location": {},
+"img_href": "https://d1w2poirtb3as9.cloudfront.net/default.jpeg?Expires=1683022587&Signature=SDlYXhlrNUXVibLEi1veShGrVQqn~5cHlDmKHmirytOvtRPLUzMICPLoLXL8vn7XREKo6XmRjYbE~tMeCqBf3Pjyc4OKqsAyukoUr5ew7S9ipbJ-O0PCp5ThZ4j46yZquza1s~qOQISHopH734F17BaNxod9E9QPJJ3phFcrl4COKYSt3qPsn9Y9PQxyKecJ5Sr0RveI5hGqtQR~u2d3EZgXmJxuGUdk26WX-Ho1h3ziIpnIBu6P6upbOtlnxLqn-dG7tl15pnn~bW1w0qAemFUUdqWzzWfjVGLHonDqE4LM5xE~t1T~1zJCNQ-uzijjI6tnEfIHJ9LgWRRhX3sKXQ__&Key-Pair-Id=K36LFL06Z5BT10",
+"public_phone_info": {}
+},
+"courier_imminent": true,
+"created": "2023-05-01T22:15:13.646Z",
+"currency": "usd",
+"deliverable_action": "deliverable_action_meet_at_door",
+"dropoff": {
+"name": "Joan P.",
+"phone_number": "+16283337630",
+"address": "2200 Market St, San Francisco, CA 94114, US",
+"detailed_address": {},
+"notes": "",
+"seller_notes": "",
+"courier_notes": "",
+"location": {},
+"verification": {},
+"verification_requirements": {},
+"status": "completed",
+"status_timestamp": "2023-05-02T02:30:07.560Z",
+"external_store_id": "my_store_123"
+},
+"dropoff_deadline": "2023-05-01T23:01:37.000Z",
+"dropoff_eta": "2023-05-01T22:30:00.077Z",
+"dropoff_identifier": "",
+"dropoff_ready": "2023-05-01T22:15:13.000Z",
+"external_id": "EI000001",
+"fee": 1099,
+"kind": "delivery",
+"live_mode": true,
+"manifest": {
+"reference": "EI000001",
+"description": "1 x Package 1\n",
+"total_value": 1099
+},
+"manifest_items": {
+"name": "Bow tie",
+"quantity": 1,
+"size": "small",
+"dimensions": {},
+"price": 100,
+"weight": 300,
+"vat_percentage": 1250000
+},
+"pickup": {
+"name": "Joan P.",
+"phone_number": "+16283337630",
+"address": "2200 Market St, San Francisco, CA 94114, US",
+"detailed_address": {},
+"notes": "",
+"seller_notes": "",
+"courier_notes": "",
+"location": {},
+"verification": {},
+"verification_requirements": {},
+"status": "completed",
+"status_timestamp": "2023-05-02T02:30:07.560Z",
+"external_store_id": "my_store_123"
+},
+"pickup_deadline": "2023-05-01T22:35:13.000Z",
+"pickup_eta": "2023-05-01T22:16:21.749Z",
+"pickup_ready": "2023-05-01T22:20:13.000Z",
+"related_deliveries": [
+{}
+],
+"status": "pending",
+"tip": 500,
+"tracking_url": "https://delivery.uber.com/orders/62105936-e413-40d5-aecd-4c335c3cd3c2",
+"undeliverable_action": "",
+"undeliverable_reason": "",
+"updated": "2023-05-01T22:16:20.023Z",
+"uuid": "62105936E41340D5AECD4C335C3CD3C2",
+"return": {
+"name": "Joan P.",
+"phone_number": "+16283337630",
+"address": "2200 Market St, San Francisco, CA 94114, US",
+"detailed_address": {},
+"notes": "",
+"seller_notes": "",
+"courier_notes": "",
+"location": {},
+"verification": {},
+"verification_requirements": {},
+"status": "completed",
+"status_timestamp": "2023-05-02T02:30:07.560Z",
+"external_store_id": "my_store_123"
+}
+}
+Cancel Delivery
+Cancel an ongoing or previously scheduled delivery.
+
+Authorizations:
+direct_auth
+path Parameters
+customer_id
+required
+string
+Example: a11e6f29-6850-4d8d-b88d-0ae69cec1111
+Unique identifier for the organization. Either UUID or starts with cus_.
+
+delivery_id
+required
+string
+Example: del_ExLGCyywQ5KlvncU2rUUUd3
+Unique identifier for the delivery. Always starts with del_
+
+Responses
+200 Returns the canceled delivery.
+400 invalid_params
+401 unauthorized
+404 delivery_not_found
+408 request_timeout
+500 internal_server_error
+503 service_unavailable
+
+post
+/customers/{customer_id}/deliveries/{delivery_id}/cancel
+Request samples
+PythonJavaScriptcURL
+
+Copy
+# Replace {customer_id}, {token}, and {delivery_id} in the code block below with your specific values.
+# Note that this code snippet is a sample and does not include all the fields.
+
+import requests
+
+url = 'https://api.uber.com/v1/customers/{customer_id}/deliveries/{delivery_id}/cancel'
+headers = {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer {token}'
+}
+
+response = requests.post(url, headers=headers)
+Response samples
+200400401404408500503
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"id": "del_gDcyfRgyQcyN0obpqqS_1B",
+"quote_id": "dqt_6gQ2dt31TjiOPfwux-NCXg",
+"complete": false,
+"courier": {
+"name": "Alex I.",
+"rating": 0,
+"vehicle_type": "car",
+"phone_number": "+16283337630",
+"location": {},
+"img_href": "https://d1w2poirtb3as9.cloudfront.net/default.jpeg?Expires=1683022587&Signature=SDlYXhlrNUXVibLEi1veShGrVQqn~5cHlDmKHmirytOvtRPLUzMICPLoLXL8vn7XREKo6XmRjYbE~tMeCqBf3Pjyc4OKqsAyukoUr5ew7S9ipbJ-O0PCp5ThZ4j46yZquza1s~qOQISHopH734F17BaNxod9E9QPJJ3phFcrl4COKYSt3qPsn9Y9PQxyKecJ5Sr0RveI5hGqtQR~u2d3EZgXmJxuGUdk26WX-Ho1h3ziIpnIBu6P6upbOtlnxLqn-dG7tl15pnn~bW1w0qAemFUUdqWzzWfjVGLHonDqE4LM5xE~t1T~1zJCNQ-uzijjI6tnEfIHJ9LgWRRhX3sKXQ__&Key-Pair-Id=K36LFL06Z5BT10",
+"public_phone_info": {}
+},
+"courier_imminent": true,
+"created": "2023-05-01T22:15:13.646Z",
+"currency": "usd",
+"deliverable_action": "deliverable_action_meet_at_door",
+"dropoff": {
+"name": "Joan P.",
+"phone_number": "+16283337630",
+"address": "2200 Market St, San Francisco, CA 94114, US",
+"detailed_address": {},
+"notes": "",
+"seller_notes": "",
+"courier_notes": "",
+"location": {},
+"verification": {},
+"verification_requirements": {},
+"status": "completed",
+"status_timestamp": "2023-05-02T02:30:07.560Z",
+"external_store_id": "my_store_123"
+},
+"dropoff_deadline": "2023-05-01T23:01:37.000Z",
+"dropoff_eta": "2023-05-01T22:30:00.077Z",
+"dropoff_identifier": "",
+"dropoff_ready": "2023-05-01T22:15:13.000Z",
+"external_id": "EI000001",
+"fee": 1099,
+"kind": "delivery",
+"live_mode": true,
+"manifest": {
+"reference": "EI000001",
+"description": "1 x Package 1\n",
+"total_value": 1099
+},
+"manifest_items": {
+"name": "Bow tie",
+"quantity": 1,
+"size": "small",
+"dimensions": {},
+"price": 100,
+"weight": 300,
+"vat_percentage": 1250000
+},
+"pickup": {
+"name": "Joan P.",
+"phone_number": "+16283337630",
+"address": "2200 Market St, San Francisco, CA 94114, US",
+"detailed_address": {},
+"notes": "",
+"seller_notes": "",
+"courier_notes": "",
+"location": {},
+"verification": {},
+"verification_requirements": {},
+"status": "completed",
+"status_timestamp": "2023-05-02T02:30:07.560Z",
+"external_store_id": "my_store_123"
+},
+"pickup_deadline": "2023-05-01T22:35:13.000Z",
+"pickup_eta": "2023-05-01T22:16:21.749Z",
+"pickup_ready": "2023-05-01T22:20:13.000Z",
+"related_deliveries": [
+{}
+],
+"status": "pending",
+"tip": 500,
+"tracking_url": "https://delivery.uber.com/orders/62105936-e413-40d5-aecd-4c335c3cd3c2",
+"undeliverable_action": "",
+"undeliverable_reason": "",
+"updated": "2023-05-01T22:16:20.023Z",
+"uuid": "62105936E41340D5AECD4C335C3CD3C2",
+"return": {
+"name": "Joan P.",
+"phone_number": "+16283337630",
+"address": "2200 Market St, San Francisco, CA 94114, US",
+"detailed_address": {},
+"notes": "",
+"seller_notes": "",
+"courier_notes": "",
+"location": {},
+"verification": {},
+"verification_requirements": {},
+"status": "completed",
+"status_timestamp": "2023-05-02T02:30:07.560Z",
+"external_store_id": "my_store_123"
+}
+}
+Proof of Delivery
+If a delivery is created with any verification requirements (e.g.: picture, signature or pincode), the resulting image file is made available to you through our proof-of-delivery endpoint. The endpoint will return a Proof-of-Delivery (P.O.D.) File – A long Base64 string that can be converted to a PNG image (Web Converter (External)).
+
+The image will include the following information:
+
+Delivery Status
+Delivery timestamp
+Uber Order ID
+External Order ID
+Proof Type
+Image (Signature image, picture image, or pincode value)
+For the signature verification type, signer name or signer relationship will also be included if it is enabled for a delivery.
+
+Authorizations:
+direct_auth
+path Parameters
+customer_id
+required
+string
+Example: a11e6f29-6850-4d8d-b88d-0ae69cec1111
+Unique identifier for the organization. Either UUID or starts with cus_.
+
+delivery_id
+required
+string
+Example: del_ExLGCyywQ5KlvncU2rUUUd3
+Unique identifier for the delivery. Always starts with del_
+
+Request Body schema: application/json
+required
+waypoint
+required
+string
+Enum: "pickup" "dropoff" "return"
+The waypoint where the verification requirement was taken.
+
+type
+required
+string
+Enum: "picture" "signature" "pincode"
+The type of delivery verification requirement.
+
+Responses
+200 Returns the proof of delivery information.
+400 invalid_params
+404 delivery_not_found
+408 request_timeout
+500 internal_server_error
+503 service_unavailable
+
+post
+/customers/{customer_id}/deliveries/{delivery_id}/proof-of-delivery
+Request samples
+PayloadPythonJavaScriptcURL
+Content type
+application/json
+
+Copy
+{
+"waypoint": "dropoff",
+"type": "picture"
+}
+Response samples
+200400404408500503
+Content type
+application/json
+
+Copy
+{
+"document": "iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII"
+}
+Find Stores
+This endpoint retrieves stores that can deliver to the target location.
+
+Scopes Needed: direct.organizations
+
+Authorizations:
+direct_auth
+path Parameters
+customer_id
+required
+string <uuid>
+Unique identifier for the organization. UUID format
+
+query Parameters
+latitude
+required
+number <double>
+The latitude of the dropoff location.
+
+longitude
+required
+number <double>
+The longitude of the dropoff location
+
+Responses
+200 Successful operation
+400 Invalid parameters
+404 Organization not found
+408 Request timeout
+500 Unknown error
+503 Service unavailable

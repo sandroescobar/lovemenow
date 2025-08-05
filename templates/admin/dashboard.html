@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - LoveMeNow</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    
+    <!-- CSRF Protection -->
+    {% include 'csrf_meta.html' %}<style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: #f8fafc; 
+            color: #333;
+        }
+        
+        .admin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .admin-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .admin-nav h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: background 0.3s;
+        }
+        
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .section-header {
+            background: #f8fafc;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .section-content {
+            padding: 1.5rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .order-item, .log-item {
+            padding: 1rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        .order-item:last-child, .log-item:last-child {
+            border-bottom: none;
+        }
+        
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .order-number {
+            font-weight: 600;
+            color: #667eea;
+        }
+        
+        .order-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-processing { background: #dbeafe; color: #1e40af; }
+        .status-shipped { background: #d1fae5; color: #065f46; }
+        .status-delivered { background: #dcfce7; color: #166534; }
+        
+        .log-action {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .log-details {
+            color: #666;
+            font-size: 0.9rem;
+            margin: 0.25rem 0;
+        }
+        
+        .log-time {
+            color: #999;
+            font-size: 0.8rem;
+        }
+        
+        .status-success { color: #059669; }
+        .status-failed { color: #dc2626; }
+        .status-warning { color: #d97706; }
+        
+        @media (max-width: 768px) {
+            .container { padding: 0 1rem; }
+            .content-grid { grid-template-columns: 1fr; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <header class="admin-header">
+        <nav class="admin-nav">
+            <h1><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h1>
+            <ul class="nav-links">
+                <li><a href="/admin/dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="/admin/users"><i class="fas fa-users"></i> Users</a></li>
+                <li><a href="/admin/orders"><i class="fas fa-shopping-cart"></i> Orders</a></li>
+                <li><a href="/admin/audit-logs"><i class="fas fa-clipboard-list"></i> Audit Logs</a></li>
+                <li><a href="/"><i class="fas fa-external-link-alt"></i> View Site</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">{{ total_users }}</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ total_products }}</div>
+                <div class="stat-label">Total Products</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ total_orders }}</div>
+                <div class="stat-label">Total Orders</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ new_users_count }}</div>
+                <div class="stat-label">New Users (30 days)</div>
+            </div>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="content-grid">
+            <!-- Recent Orders -->
+            <div class="section">
+                <div class="section-header">
+                    <i class="fas fa-shopping-cart"></i> Recent Orders
+                </div>
+                <div class="section-content">
+                    {% if recent_orders %}
+                        {% for order in recent_orders %}
+                        <div class="order-item">
+                            <div class="order-header">
+                                <span class="order-number">#{{ order.order_number }}</span>
+                                <span class="order-status status-{{ order.status }}">{{ order.status.title() }}</span>
+                            </div>
+                            <div class="order-details">
+                                <strong>{{ order.full_name }}</strong> - ${{ "%.2f"|format(order.total_amount) }}
+                            </div>
+                            <div class="log-time">{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p style="color: #666; text-align: center; padding: 2rem;">No orders yet</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recent Audit Logs -->
+            <div class="section">
+                <div class="section-header">
+                    <i class="fas fa-clipboard-list"></i> Recent Activity
+                </div>
+                <div class="section-content">
+                    {% if recent_logs %}
+                        {% for log in recent_logs %}
+                        <div class="log-item">
+                            <div class="log-action">
+                                <span class="status-{{ log.status }}">{{ log.action.replace('_', ' ').title() }}</span>
+                            </div>
+                            {% if log.details %}
+                            <div class="log-details">{{ log.details }}</div>
+                            {% endif %}
+                            <div class="log-time">
+                                {{ log.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+                                {% if log.ip_address %} - {{ log.ip_address }}{% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p style="color: #666; text-align: center; padding: 2rem;">No activity logs yet</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auto-refresh dashboard every 30 seconds
+        setTimeout(() => {
+            window.location.reload();
+        }, 30000);
+    </script>
+</body>
+</html>
