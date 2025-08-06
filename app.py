@@ -153,6 +153,8 @@ def create_app(config_name=None):
             'connect-src': [
                 "'self'",
                 'https://api.stripe.com',
+                'https://js.stripe.com',
+                'https://hooks.stripe.com',
                 'https://api.mapbox.com',
                 'https://events.mapbox.com'
             ],
@@ -161,7 +163,9 @@ def create_app(config_name=None):
                 'blob:'
             ],
             'frame-src': [
-                "'self'"
+                "'self'",
+                'https://js.stripe.com',
+                'https://hooks.stripe.com'
             ]
         }
         

@@ -878,7 +878,21 @@
             errorMessage.style.display = 'none';
         }
         
-        // updateCartCount() is now available globally from index.js
+        // Update cart count in navbar
+        function updateCartCount() {
+            fetch('/api/cart/count')
+                .then(response => response.json())
+                .then(data => {
+                    const cartCountElement = document.getElementById('cartCount');
+                    if (cartCountElement) {
+                        cartCountElement.textContent = data.count;
+                        cartCountElement.style.display = data.count > 0 ? 'inline-block' : 'none';
+                    }
+                })
+                .catch(error => {
+                    console.log('Could not update cart count:', error);
+                });
+        }
         
         // Update wishlist count in navbar
         function updateWishlistCount() {
