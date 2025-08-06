@@ -159,6 +159,9 @@ def create_app(config_name=None):
             'worker-src': [
                 "'self'",
                 'blob:'
+            ],
+            'frame-src': [
+                "'self'"
             ]
         }
         
@@ -166,7 +169,8 @@ def create_app(config_name=None):
                 content_security_policy=csp,
                 force_https=True,
                 strict_transport_security=True,
-                content_security_policy_nonce_in=['script-src', 'style-src'])
+                content_security_policy_nonce_in=['script-src', 'style-src'],
+                frame_options='SAMEORIGIN')  # Allow same-origin framing for map iframe
     
     # Configure logging
     if not app.debug:

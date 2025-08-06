@@ -183,7 +183,10 @@ def miami_map():
         
         # Return the map as HTML
         from flask import Response
-        return Response(m._repr_html_(), mimetype='text/html')
+        response = Response(m._repr_html_(), mimetype='text/html')
+        # Allow this route to be embedded in iframes from same origin
+        response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+        return response
         
     except ImportError:
         # If folium is not installed, return a simple message
