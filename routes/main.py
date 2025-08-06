@@ -474,12 +474,63 @@ def checkout():
     cart_data['count'] = len(cart_data['items'])
     
     # Use enhanced checkout template with delivery options
-    return render_template('checkout_enhanced.html', config=current_app.config, cart_data=cart_data)
+    try:
+        current_app.logger.info("Attempting to render checkout_enhanced.html template")
+        current_app.logger.info(f"Cart data: {cart_data}")
+        current_app.logger.info(f"Config keys: {list(current_app.config.keys())}")
+        return render_template('checkout_enhanced.html', config=current_app.config, cart_data=cart_data)
+    except Exception as e:
+        current_app.logger.error(f"Error rendering checkout template: {str(e)}")
+        # Fallback to a simple error page
+        return f"""
+        <h1>Checkout Template Error</h1>
+        <p>Error: {str(e)}</p>
+        <p>Template folder: {current_app.template_folder}</p>
+        <p><a href="/template-debug">Check Available Templates</a></p>
+        <p><a href="/checkout-simple">Try Simple Checkout</a></p>
+        """
 
 @main_bp.route('/checkout-simple')
 def checkout_simple():
     """Simple checkout page for debugging"""
     return render_template('checkout_simple.html', config=current_app.config)
+
+@main_bp.route('/stripe-debug')
+def stripe_debug():
+    """Stripe configuration debug page"""
+    return render_template('stripe_debug.html', config=current_app.config)
+
+@main_bp.route('/template-debug')
+def template_debug():
+    """Debug which templates are available"""
+    import os
+    from flask import current_app
+    
+    template_folder = current_app.template_folder
+    templates = []
+    
+    if os.path.exists(template_folder):
+        for root, dirs, files in os.walk(template_folder):
+            for file in files:
+                if file.endswith('.html'):
+                    rel_path = os.path.relpath(os.path.join(root, file), template_folder)
+                    templates.append(rel_path)
+    
+    return f"""
+    <h1>Template Debug</h1>
+    <h2>Template Folder: {template_folder}</h2>
+    <h2>Available Templates:</h2>
+    <ul>
+        {''.join([f'<li>{template}</li>' for template in sorted(templates)])}
+    </ul>
+    <h2>Looking for:</h2>
+    <ul>
+        <li>checkout_enhanced.html - {'✅ Found' if 'checkout_enhanced.html' in templates else '❌ Missing'}</li>
+        <li>stripe_debug.html - {'✅ Found' if 'stripe_debug.html' in templates else '❌ Missing'}</li>
+        <li>checkout_simple.html - {'✅ Found' if 'checkout_simple.html' in templates else '❌ Missing'}</li>
+    </ul>
+    <p><a href="/checkout">Test Checkout</a> | <a href="/stripe-debug">Stripe Debug</a> | <a href="/checkout-simple">Simple Checkout</a></p>
+    """
 
 @main_bp.route('/test-config')
 def test_config():

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stripe Debug - LoveMeNow</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .debug-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .debug-section h2 {
+            color: #333;
+            border-bottom: 2px solid #007cba;
+            padding-bottom: 10px;
+        }
+        .key-value {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .key {
+            font-weight: bold;
+            color: #555;
+        }
+        .value {
+            color: #333;
+            font-family: monospace;
+        }
+        .error {
+            color: red;
+            background: #ffe6e6;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .success {
+            color: green;
+            background: #e6ffe6;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .test-button {
+            background: #007cba;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        .test-button:hover {
+            background: #005a8b;
+        }
+        #test-results {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Stripe Configuration Debug</h1>
+    
+    <div class="debug-section">
+        <h2>Configuration Values</h2>
+        <div class="key-value">
+            <span class="key">Stripe Publishable Key:</span>
+            <span class="value">{{ config.STRIPE_PUBLISHABLE_KEY or 'NOT SET' }}</span>
+        </div>
+        <div class="key-value">
+            <span class="key">Stripe Secret Key Set:</span>
+            <span class="value">{{ 'YES' if config.STRIPE_SECRET_KEY else 'NO' }}</span>
+        </div>
+        <div class="key-value">
+            <span class="key">Flask Environment:</span>
+            <span class="value">{{ config.get('FLASK_ENV', 'NOT SET') }}</span>
+        </div>
+        <div class="key-value">
+            <span class="key">Debug Mode:</span>
+            <span class="value">{{ config.DEBUG }}</span>
+        </div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>Stripe Initialization Test</h2>
+        <div id="stripe-test-container">
+            <p>Testing Stripe initialization...</p>
+        </div>
+        
+        <button class="test-button" onclick="testStripeInit()">Test Stripe Initialization</button>
+        <button class="test-button" onclick="testConfigEndpoint()">Test Config Endpoint</button>
+        <button class="test-button" onclick="testCheckoutSession()">Test Checkout Session</button>
+        
+        <div id="test-results"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>Quick Actions</h2>
+        <a href="/checkout" class="test-button" style="text-decoration: none; display: inline-block;">Go to Checkout</a>
+        <a href="/" class="test-button" style="text-decoration: none; display: inline-block;">Go to Home</a>
+        <a href="/template-debug" class="test-button" style="text-decoration: none; display: inline-block;">Template Debug</a>
+    </div>
+
+    <!-- Stripe.js -->
+    <script src="https://js.stripe.com/v3/"></script>
+    
+    <script>
+        function testStripeInit() {
+            const resultsDiv = document.getElementById('test-results');
+            const stripeKey = '{{ config.STRIPE_PUBLISHABLE_KEY }}';
+            
+            resultsDiv.innerHTML = '<h3>Stripe Initialization Test Results:</h3>';
+            
+            // Test 1: Check if key exists
+            if (!stripeKey || stripeKey === 'None' || stripeKey === '') {
+                resultsDiv.innerHTML += '<div class="error">❌ Stripe publishable key is not set or empty</div>';
+                resultsDiv.innerHTML += '<div>Key value: "' + stripeKey + '"</div>';
+                return;
+            }
+            
+            resultsDiv.innerHTML += '<div class="success">✅ Stripe publishable key is set</div>';
+            resultsDiv.innerHTML += '<div>Key: ' + stripeKey.substring(0, 20) + '...</div>';
+            
+            // Test 2: Try to initialize Stripe
+            try {
+                const stripe = Stripe(stripeKey);
+                resultsDiv.innerHTML += '<div class="success">✅ Stripe initialized successfully</div>';
+                
+                // Test 3: Try to create elements
+                try {
+                    const elements = stripe.elements();
+                    resultsDiv.innerHTML += '<div class="success">✅ Stripe Elements created successfully</div>';
+                } catch (elementsError) {
+                    resultsDiv.innerHTML += '<div class="error">❌ Failed to create Stripe Elements: ' + elementsError.message + '</div>';
+                }
+                
+            } catch (stripeError) {
+                resultsDiv.innerHTML += '<div class="error">❌ Failed to initialize Stripe: ' + stripeError.message + '</div>';
+            }
+        }
+        
+        async function testConfigEndpoint() {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = '<h3>Config Endpoint Test Results:</h3>';
+            
+            try {
+                const response = await fetch('/test-config');
+                const data = await response.json();
+                
+                resultsDiv.innerHTML += '<div class="success">✅ Config endpoint accessible</div>';
+                resultsDiv.innerHTML += '<pre style="background: #f0f0f0; padding: 10px; border-radius: 4px; overflow-x: auto;">' + 
+                    JSON.stringify(data, null, 2) + '</pre>';
+                    
+            } catch (error) {
+                resultsDiv.innerHTML += '<div class="error">❌ Failed to fetch config: ' + error.message + '</div>';
+            }
+        }
+        
+        async function testCheckoutSession() {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = '<h3>Checkout Session Test Results:</h3>';
+            
+            try {
+                const response = await fetch('/create-checkout-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        delivery_type: 'pickup',
+                        delivery_quote: null
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultsDiv.innerHTML += '<div class="success">✅ Checkout session created successfully</div>';
+                    resultsDiv.innerHTML += '<div>Client Secret: ' + (data.clientSecret ? data.clientSecret.substring(0, 20) + '...' : 'Not found') + '</div>';
+                } else {
+                    resultsDiv.innerHTML += '<div class="error">❌ Failed to create checkout session</div>';
+                    resultsDiv.innerHTML += '<div>Error: ' + (data.error || 'Unknown error') + '</div>';
+                }
+                
+            } catch (error) {
+                resultsDiv.innerHTML += '<div class="error">❌ Failed to test checkout session: ' + error.message + '</div>';
+            }
+        }
+        
+        // Auto-run the Stripe test on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            testStripeInit();
+        });
+    </script>
+</body>
+</html>
