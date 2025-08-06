@@ -1012,11 +1012,18 @@ def miami_map():
         """
     except Exception as e:
         current_app.logger.error(f"Error generating Miami map: {str(e)}")
-        return """
+        return f"""
         <div style="display: flex; align-items: center; justify-content: center; height: 100%; font-family: Arial, sans-serif;">
             <div style="text-align: center;">
                 <h3>Miami Coverage Map</h3>
                 <p>We deliver throughout Miami-Dade and Broward counties!</p>
+                <div style="margin-top: 2rem; padding: 1.5rem; background: #667eea; color: white; border-radius: 8px;">
+                    <h4>🏬 Pickup Location</h4>
+                    <p><strong>Miami Vape Smoke Shop</strong></p>
+                    <p>351 NE 79th St<br>Miami, FL 33138</p>
+                    <p><em>LoveMeNow Pickup Location</em></p>
+                </div>
+                <p style="color: #666; font-size: 0.9em; margin-top: 1rem;"><em>Error: {str(e)}</em></p>
             </div>
         </div>
         """

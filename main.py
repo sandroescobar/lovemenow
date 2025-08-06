@@ -37,7 +37,22 @@ def load_user(user_id: str):
 # ── routes (very trimmed) ─────────────────────────────────────
 @app.route("/")
 def index():
-    return render_template("index.html")
+    try:
+        # Import models here to avoid circular imports
+        from models import Product, Category
+        
+        # Get featured products (limit to 3)
+        featured_products = (
+            Product.query
+            .filter(Product.in_stock == True, Product.quantity_on_hand > 0)
+            .limit(3)
+            .all()
+        )
+        
+        return render_template("index.html", featured_products=featured_products)
+    except Exception as e:
+        # If there's any error, return template with empty products
+        return render_template("index.html", featured_products=[])
 
 @app.route("/products", methods = ['GET', 'POST'])
 def products():
@@ -107,6 +122,102 @@ def logout():
 def user_profile_button():
 
     return redirect(url_for('user_profile'))
+
+@app.route("/miami-map")
+def miami_map():
+    """Generate and serve Miami coverage map"""
+    try:
+        import folium
+        
+        # Create map centered on Miami
+        m = folium.Map(
+            location=[25.756, -80.26],      # roughly Doral / middle of the metro
+            zoom_start=9,                   # shows Homestead ↔ Fort Lauderdale in one view
+            control_scale=True,             # little km / mi ruler bottom-left
+            tiles="cartodbpositron"         # clean, grey OSM basemap
+        )
+        
+        # Add coverage area markers
+        cities = {
+            # Miami-Dade
+            "Downtown Miami":   (25.7743, -80.1937),
+            "Brickell":        (25.7601, -80.1951),
+            "Wynwood":         (25.8005, -80.1990),
+            "Little Haiti":    (25.8259, -80.2003),
+            "Coral Gables":    (25.7215, -80.2684),
+            "West Miami":      (25.7587, -80.2978),
+            "Sweetwater":      (25.7631, -80.3720),
+            "Doral":           (25.8195, -80.3553),
+            "Miami Beach":     (25.7906, -80.1300),
+            "North Miami":     (25.8901, -80.1867),
+            "Miami Gardens":   (25.9420, -80.2456),
+            "Hialeah":         (25.8576, -80.2781),
+            "Kendall":         (25.6793, -80.3173),
+            "South Miami":     (25.7079, -80.2939),
+            "Homestead":       (25.4687, -80.4776),
+            
+            # Broward
+            "Pembroke Pines":  (26.0086, -80.3570),
+            "Miramar":         (25.9826, -80.3431),
+            "Davie":           (26.0814, -80.2806),
+            "Hollywood":       (26.0112, -80.1495),
+            "Aventura":        (25.9565, -80.1429),
+            "Fort Lauderdale": (26.1224, -80.1373)
+        }
+        
+        for name, (lat, lng) in cities.items():
+            folium.Marker(
+                location=(lat, lng),
+                tooltip=name,
+                popup=f"We deliver to {name}!"
+            ).add_to(m)
+        
+        # Add store location - Miami Vape Smoke Shop (pickup location)
+        store_lat, store_lng = 25.70816, -80.407   # 351 NE 79th St, Miami FL 33138
+        folium.Marker(
+            location=(store_lat, store_lng),
+            tooltip="🏬 Miami Vape Smoke Shop - LoveMeNow Pickup",
+            popup="<b>Miami Vape Smoke Shop</b><br>351 NE 79th St<br>Miami, FL 33138<br><em>LoveMeNow Pickup Location</em>",
+            icon=folium.Icon(color="red", icon="shopping-cart", prefix="fa")
+        ).add_to(m)
+        
+        # Return the map as HTML
+        from flask import Response
+        return Response(m._repr_html_(), mimetype='text/html')
+        
+    except ImportError:
+        # If folium is not installed, return a simple message
+        return """
+        <div style="display: flex; align-items: center; justify-content: center; height: 100%; font-family: Arial, sans-serif;">
+            <div style="text-align: center;">
+                <h3>Miami Coverage Map</h3>
+                <p>We deliver throughout Miami-Dade and Broward counties!</p>
+                <div style="margin-top: 2rem; padding: 1.5rem; background: #667eea; color: white; border-radius: 8px;">
+                    <h4>🏬 Pickup Location</h4>
+                    <p><strong>Miami Vape Smoke Shop</strong></p>
+                    <p>351 NE 79th St<br>Miami, FL 33138</p>
+                    <p><em>LoveMeNow Pickup Location</em></p>
+                </div>
+                <p><em>Install folium to see the interactive map</em></p>
+            </div>
+        </div>
+        """
+    except Exception as e:
+        return f"""
+        <div style="display: flex; align-items: center; justify-content: center; height: 100%; font-family: Arial, sans-serif;">
+            <div style="text-align: center;">
+                <h3>Miami Coverage Map</h3>
+                <p>We deliver throughout Miami-Dade and Broward counties!</p>
+                <div style="margin-top: 2rem; padding: 1.5rem; background: #667eea; color: white; border-radius: 8px;">
+                    <h4>🏬 Pickup Location</h4>
+                    <p><strong>Miami Vape Smoke Shop</strong></p>
+                    <p>351 NE 79th St<br>Miami, FL 33138</p>
+                    <p><em>LoveMeNow Pickup Location</em></p>
+                </div>
+                <p><em>Error: {str(e)}</em></p>
+            </div>
+        </div>
+        """
 
 
 
