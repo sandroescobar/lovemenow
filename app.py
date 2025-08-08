@@ -123,18 +123,42 @@ def create_app(config_name=None):
     
     # Security headers - ONLY for production
     if config_name == 'production':
-        csp = {
-            'default-src': "'self'",
+        # Use ChatGPT's recommended Stripe-compatible CSP format
+        stripe_domains = {
+            'default-src': ["'self'"],
             'script-src': [
-                "'self'",
-                "'nonce-{nonce}'",  # Use nonce for inline scripts instead of unsafe-inline
+                "'self'", 
                 'https://js.stripe.com',
                 'https://checkout.stripe.com',
                 'https://api.mapbox.com'
             ],
+            'frame-src': [
+                "'self'", 
+                'https://js.stripe.com', 
+                'https://hooks.stripe.com',
+                'https://checkout.stripe.com'
+            ],
+            'connect-src': [
+                "'self'", 
+                'https://api.stripe.com', 
+                'https://m.stripe.network', 
+                'https://q.stripe.com', 
+                'https://r.stripe.com',
+                'https://js.stripe.com',
+                'https://hooks.stripe.com',
+                'https://api.mapbox.com',
+                'https://events.mapbox.com'
+            ],
+            'img-src': [
+                "'self'", 
+                'data:', 
+                'https://q.stripe.com', 
+                'https://m.stripe.network',
+                'https:'
+            ],
             'style-src': [
-                "'self'",
-                "'nonce-{nonce}'",  # Use nonce for inline styles
+                "'self'", 
+                "'unsafe-inline'",  # Elements injects inline styles
                 'https://fonts.googleapis.com',
                 'https://cdnjs.cloudflare.com',
                 'https://api.mapbox.com'
@@ -144,45 +168,18 @@ def create_app(config_name=None):
                 'https://fonts.gstatic.com',
                 'https://cdnjs.cloudflare.com'
             ],
-            'img-src': [
-                "'self'",
-                'data:',
-                'https:',
-                'blob:'
-            ],
-            'connect-src': [
-                "'self'",
-                'https://api.stripe.com',
-                'https://js.stripe.com',
-                'https://hooks.stripe.com',
-                'https://api.mapbox.com',
-                'https://events.mapbox.com'
-            ],
+            'base-uri': ["'self'"],
+            'form-action': ["'self'"],
             'worker-src': [
                 "'self'",
                 'blob:'
-            ],
-            'frame-src': [
-                "'self'",
-                'https://js.stripe.com',
-                'https://hooks.stripe.com',
-                'https://checkout.stripe.com',
-                'https://*.stripe.com'
-            ],
-            'child-src': [
-                "'self'",
-                'https://js.stripe.com',
-                'https://hooks.stripe.com',
-                'https://checkout.stripe.com',
-                'https://*.stripe.com'
             ]
         }
         
         Talisman(app, 
-                content_security_policy=csp,
+                content_security_policy=stripe_domains,
                 force_https=True,
                 strict_transport_security=True,
-                content_security_policy_nonce_in=['script-src', 'style-src'],
                 frame_options='SAMEORIGIN')  # Allow same-origin framing for map iframe
     
     # Configure logging
