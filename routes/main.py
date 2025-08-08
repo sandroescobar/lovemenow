@@ -535,13 +535,19 @@ def template_debug():
 @main_bp.route('/test-config')
 def test_config():
     """Test configuration endpoint"""
+    import os
     return jsonify({
         'stripe_publishable_key': current_app.config.get('STRIPE_PUBLISHABLE_KEY', 'NOT SET'),
         'stripe_secret_key_set': bool(current_app.config.get('STRIPE_SECRET_KEY')),
         'stripe_secret_key_preview': current_app.config.get('STRIPE_SECRET_KEY', 'NOT SET')[:10] + '...' if current_app.config.get('STRIPE_SECRET_KEY') else 'NOT SET',
         'flask_env': current_app.config.get('FLASK_ENV', 'NOT SET'),
         'debug_mode': current_app.debug,
-        'config_keys': list(current_app.config.keys())
+        'config_keys': list(current_app.config.keys()),
+        'environment_vars': {
+            'FLASK_ENV': os.environ.get('FLASK_ENV', 'NOT SET'),
+            'STRIPE_PUBLISHABLE_KEY': os.environ.get('STRIPE_PUBLISHABLE_KEY', 'NOT SET')[:20] + '...' if os.environ.get('STRIPE_PUBLISHABLE_KEY') else 'NOT SET',
+            'STRIPE_SECRET_KEY': os.environ.get('STRIPE_SECRET_KEY', 'NOT SET')[:10] + '...' if os.environ.get('STRIPE_SECRET_KEY') else 'NOT SET'
+        }
     })
 
 @main_bp.route('/test-stripe')
