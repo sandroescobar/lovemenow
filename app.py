@@ -56,22 +56,12 @@ def create_app(config_name=None):
         # Don't exit, but log the error
         app.logger.error(f"Configuration validation failed: {e}")
     
-    # Explicitly load Stripe environment variables for deployment
-    import os
-    app.config['STRIPE_PUBLISHABLE_KEY'] = os.getenv('STRIPE_PUBLISHABLE_KEY')
-    app.config['STRIPE_SECRET_KEY'] = os.getenv('STRIPE_SECRET_KEY')
-    
     # Configure Stripe with better error handling
     stripe_secret_key = app.config.get('STRIPE_SECRET_KEY')
     if stripe_secret_key:
         stripe.api_key = stripe_secret_key
-        app.logger.info(f"Stripe configured with key: {stripe_secret_key[:10]}...")
     else:
         app.logger.warning("Stripe API key not configured")
-    
-    # Log Stripe configuration for debugging
-    app.logger.info(f"Stripe Publishable Key loaded: {'YES' if app.config.get('STRIPE_PUBLISHABLE_KEY') else 'NO'}")
-    app.logger.info(f"Stripe Secret Key loaded: {'YES' if app.config.get('STRIPE_SECRET_KEY') else 'NO'}")
     
     # Initialize extensions
     db.init_app(app)
@@ -131,8 +121,8 @@ def create_app(config_name=None):
     # Initialize Uber Direct service
     init_uber_service(app)
     
-    # Security headers - TEMPORARILY DISABLED FOR STRIPE TESTING
-    if False and config_name == 'production':
+    # Security headers - ONLY for production
+    if config_name == 'production':
         csp = {
             'default-src': "'self'",
             'script-src': [
@@ -175,7 +165,16 @@ def create_app(config_name=None):
             'frame-src': [
                 "'self'",
                 'https://js.stripe.com',
-                'https://hooks.stripe.com'
+                'https://hooks.stripe.com',
+                'https://checkout.stripe.com',
+                'https://*.stripe.com'
+            ],
+            'child-src': [
+                "'self'",
+                'https://js.stripe.com',
+                'https://hooks.stripe.com',
+                'https://checkout.stripe.com',
+                'https://*.stripe.com'
             ]
         }
         
