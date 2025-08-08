@@ -121,8 +121,12 @@ def create_app(config_name=None):
     # Initialize Uber Direct service
     init_uber_service(app)
     
-    # Security headers - ONLY for production
-    if config_name == 'production':
+    # Security headers - Apply CSP for testing (temporarily for all environments)
+    app.logger.info(f"Current config_name: {config_name}")
+    app.logger.info(f"FLASK_ENV: {os.getenv('FLASK_ENV', 'NOT SET')}")
+    
+    # Apply CSP regardless of environment for debugging
+    if True:  # Temporarily always apply CSP
         # Use ChatGPT's recommended Stripe-compatible CSP format
         stripe_domains = {
             'default-src': ["'self'"],
@@ -176,11 +180,16 @@ def create_app(config_name=None):
             ]
         }
         
+        app.logger.info("Applying Talisman CSP with Stripe domains...")
+        app.logger.info(f"CSP frame-src: {stripe_domains.get('frame-src')}")
+        
         Talisman(app, 
                 content_security_policy=stripe_domains,
                 force_https=True,
                 strict_transport_security=True,
                 frame_options='SAMEORIGIN')  # Allow same-origin framing for map iframe
+        
+        app.logger.info("Talisman CSP applied successfully")
     
     # Configure logging
     if not app.debug:
