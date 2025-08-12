@@ -23,49 +23,10 @@ app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
 )
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-# ── CSP Configuration for Stripe ─────────────────────────────
-print("🔧 Applying CSP configuration for Stripe...")
-stripe_domains = {
-    'default-src': ["'self'"],
-    'script-src': [
-        "'self'", 
-        'https://js.stripe.com',
-        'https://checkout.stripe.com'
-    ],
-    'frame-src': [
-        "'self'", 
-        'https://js.stripe.com', 
-        'https://hooks.stripe.com',
-        'https://checkout.stripe.com'
-    ],
-    'connect-src': [
-        "'self'", 
-        'https://api.stripe.com', 
-        'https://m.stripe.network', 
-        'https://q.stripe.com', 
-        'https://r.stripe.com',
-        'https://js.stripe.com',
-        'https://hooks.stripe.com'
-    ],
-    'img-src': [
-        "'self'", 
-        'data:', 
-        'https://q.stripe.com', 
-        'https://m.stripe.network',
-        'https:'
-    ],
-    'style-src': [
-        "'self'", 
-        "'unsafe-inline'"  # Required for Stripe Elements inline styles
-    ],
-    'font-src': ["'self'"],
-    'base-uri': ["'self'"],
-    'form-action': ["'self'"]
-}
-
-print(f"🔧 CSP frame-src: {stripe_domains.get('frame-src')}")
-Talisman(app, content_security_policy=stripe_domains)
-print("✅ CSP applied successfully!")
+# ── DISABLE CSP TEMPORARILY TO TEST STRIPE ─────────────────────────────
+print("🚫 DISABLING CSP TEMPORARILY TO TEST STRIPE")
+print("🚫 This will allow Stripe frames to load without CSP blocking")
+# CSP disabled - no Talisman configuration applied
 
 # ── plug extensions into this single app ─────────────────────
 db.init_app(app)
