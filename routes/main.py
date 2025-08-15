@@ -1,7 +1,7 @@
 """
 Main application routes
 """
-from flask import Blueprint, render_template, request, jsonify, current_app, redirect, url_for, session
+from flask import Blueprint, render_template, request, jsonify, current_app, redirect, url_for, session, flash
 from flask_login import current_user, login_required
 from sqlalchemy.orm import joinedload
 from sqlalchemy import func, desc
@@ -535,19 +535,13 @@ def template_debug():
 @main_bp.route('/test-config')
 def test_config():
     """Test configuration endpoint"""
-    import os
     return jsonify({
         'stripe_publishable_key': current_app.config.get('STRIPE_PUBLISHABLE_KEY', 'NOT SET'),
         'stripe_secret_key_set': bool(current_app.config.get('STRIPE_SECRET_KEY')),
         'stripe_secret_key_preview': current_app.config.get('STRIPE_SECRET_KEY', 'NOT SET')[:10] + '...' if current_app.config.get('STRIPE_SECRET_KEY') else 'NOT SET',
         'flask_env': current_app.config.get('FLASK_ENV', 'NOT SET'),
         'debug_mode': current_app.debug,
-        'config_keys': list(current_app.config.keys()),
-        'environment_vars': {
-            'FLASK_ENV': os.environ.get('FLASK_ENV', 'NOT SET'),
-            'STRIPE_PUBLISHABLE_KEY': os.environ.get('STRIPE_PUBLISHABLE_KEY', 'NOT SET')[:20] + '...' if os.environ.get('STRIPE_PUBLISHABLE_KEY') else 'NOT SET',
-            'STRIPE_SECRET_KEY': os.environ.get('STRIPE_SECRET_KEY', 'NOT SET')[:10] + '...' if os.environ.get('STRIPE_SECRET_KEY') else 'NOT SET'
-        }
+        'config_keys': list(current_app.config.keys())
     })
 
 @main_bp.route('/test-stripe')
@@ -890,34 +884,36 @@ def create_checkout_session():
         current_app.logger.info(f"Total amount in cents: {total_amount}")
         
         try:
-            # Create Payment Intent for Stripe Elements
-            current_app.logger.info("Creating Stripe Payment Intent...")
+            # Create Stripe Checkout Session for Embedded Checkout
+            current_app.logger.info("Creating Stripe Checkout Session for Embedded Checkout...")
             
-            payment_intent = stripe.PaymentIntent.create(
-                amount=total_amount,
-                currency='usd',
+            checkout_session = stripe.checkout.Session.create(
+                ui_mode='embedded',
+                line_items=line_items,
+                mode='payment',
+                return_url=request.url_root + 'checkout/return?session_id={CHECKOUT_SESSION_ID}',
                 metadata=cart_metadata,
-                automatic_payment_methods={
-                    'enabled': True,
-                },
+                automatic_tax={'enabled': True},
+                shipping_address_collection={'allowed_countries': ['US']},
+                billing_address_collection='required',
             )
             
-            current_app.logger.info(f"Payment Intent created successfully: {payment_intent.id}")
+            current_app.logger.info(f"Checkout Session created successfully: {checkout_session.id}")
             
             # Return the client secret
-            client_secret = payment_intent.client_secret
+            client_secret = checkout_session.client_secret
             if client_secret:
                 current_app.logger.info(f"Client secret obtained successfully: {client_secret[:20]}...")
                 return jsonify({'clientSecret': client_secret})
             else:
-                current_app.logger.error("No client secret found in Payment Intent")
-                return jsonify({'error': 'No client secret found in Payment Intent'}), 500
+                current_app.logger.error("No client secret found in Checkout Session")
+                return jsonify({'error': 'No client secret found in Checkout Session'}), 500
             
-        except Exception as payment_intent_error:
-            current_app.logger.error(f"Error creating Payment Intent: {payment_intent_error}")
+        except Exception as checkout_error:
+            current_app.logger.error(f"Error creating Checkout Session: {checkout_error}")
             import traceback
-            current_app.logger.error(f"Payment Intent error traceback: {traceback.format_exc()}")
-            return jsonify({'error': f'Failed to create Payment Intent: {str(payment_intent_error)}'}), 500
+            current_app.logger.error(f"Checkout Session error traceback: {traceback.format_exc()}")
+            return jsonify({'error': f'Failed to create Checkout Session: {str(checkout_error)}'}), 500
     
     except Exception as e:
         import traceback
@@ -934,6 +930,43 @@ def create_checkout_session():
             # Don't return here, let it fall through to see the actual error
         
         return jsonify({'error': f'Failed to create checkout session: {str(e)}'}), 500
+
+@main_bp.route('/checkout/return')
+def checkout_return():
+    """Handle return from Stripe embedded checkout"""
+    session_id = request.args.get('session_id')
+    
+    if not session_id:
+        flash('Invalid checkout session', 'error')
+        return redirect(url_for('main.index'))
+    
+    try:
+        # Retrieve the checkout session
+        stripe.api_key = current_app.config['STRIPE_SECRET_KEY']
+        checkout_session = stripe.checkout.Session.retrieve(session_id)
+        
+        if checkout_session.payment_status == 'paid':
+            # Payment successful
+            flash('Payment successful! Your order has been confirmed.', 'success')
+            
+            # Clear the cart
+            if current_user.is_authenticated:
+                Cart.query.filter_by(user_id=current_user.id).delete()
+                db.session.commit()
+            else:
+                session.pop('cart', None)
+            
+            return render_template('checkout_success.html', 
+                                 session_id=session_id,
+                                 checkout_session=checkout_session)
+        else:
+            flash('Payment was not completed. Please try again.', 'error')
+            return redirect(url_for('main.checkout'))
+            
+    except Exception as e:
+        current_app.logger.error(f"Error handling checkout return: {str(e)}")
+        flash('An error occurred processing your payment. Please contact support.', 'error')
+        return redirect(url_for('main.index'))
 
 @main_bp.route('/process-payment-success', methods=['POST'])
 def process_payment_success():

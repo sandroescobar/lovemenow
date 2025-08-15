@@ -127,20 +127,31 @@ def create_app(config_name=None):
     
     # Apply CSP regardless of environment for debugging
     if True:  # Temporarily always apply CSP
-        # Use ChatGPT's recommended Stripe-compatible CSP format
+        # Enhanced Stripe-compatible CSP format with proper frame-src configuration
         stripe_domains = {
             'default-src': ["'self'"],
             'script-src': [
                 "'self'", 
+                "'unsafe-inline'",  # Required for Stripe embedded checkout
                 'https://js.stripe.com',
                 'https://checkout.stripe.com',
+                'https://*.stripe.com',  # Wildcard for all Stripe subdomains
                 'https://api.mapbox.com'
             ],
             'frame-src': [
                 "'self'", 
                 'https://js.stripe.com', 
                 'https://hooks.stripe.com',
-                'https://checkout.stripe.com'
+                'https://checkout.stripe.com',
+                'https://*.stripe.com',  # Wildcard for all Stripe subdomains
+                'https://m.stripe.network'
+            ],
+            'child-src': [
+                "'self'", 
+                'https://js.stripe.com', 
+                'https://hooks.stripe.com',
+                'https://checkout.stripe.com',
+                'https://*.stripe.com'
             ],
             'connect-src': [
                 "'self'", 
@@ -150,6 +161,8 @@ def create_app(config_name=None):
                 'https://r.stripe.com',
                 'https://js.stripe.com',
                 'https://hooks.stripe.com',
+                'https://checkout.stripe.com',
+                'https://*.stripe.com',
                 'https://api.mapbox.com',
                 'https://events.mapbox.com'
             ],
@@ -158,38 +171,46 @@ def create_app(config_name=None):
                 'data:', 
                 'https://q.stripe.com', 
                 'https://m.stripe.network',
+                'https://*.stripe.com',
                 'https:'
             ],
             'style-src': [
                 "'self'", 
-                "'unsafe-inline'",  # Elements injects inline styles
+                "'unsafe-inline'",  # Required for Stripe Elements and embedded checkout
                 'https://fonts.googleapis.com',
                 'https://cdnjs.cloudflare.com',
-                'https://api.mapbox.com'
+                'https://api.mapbox.com',
+                'https://*.stripe.com'
             ],
             'font-src': [
                 "'self'",
                 'https://fonts.gstatic.com',
-                'https://cdnjs.cloudflare.com'
+                'https://cdnjs.cloudflare.com',
+                'https://*.stripe.com'
             ],
             'base-uri': ["'self'"],
-            'form-action': ["'self'"],
+            'form-action': [
+                "'self'",
+                'https://*.stripe.com'  # Allow form submissions to Stripe
+            ],
             'worker-src': [
                 "'self'",
-                'blob:'
+                'blob:',
+                'https://*.stripe.com'
             ]
         }
         
-        app.logger.info("Applying Talisman CSP with Stripe domains...")
+        app.logger.info("Applying Talisman CSP with enhanced Stripe domains...")
         app.logger.info(f"CSP frame-src: {stripe_domains.get('frame-src')}")
+        app.logger.info(f"CSP child-src: {stripe_domains.get('child-src')}")
         
         Talisman(app, 
                 content_security_policy=stripe_domains,
-                force_https=True,
-                strict_transport_security=True,
+                force_https=False if config_name == 'development' else True,  # Don't force HTTPS in development
+                strict_transport_security=False if config_name == 'development' else True,
                 frame_options='SAMEORIGIN')  # Allow same-origin framing for map iframe
         
-        app.logger.info("Talisman CSP applied successfully")
+        app.logger.info("Talisman CSP applied successfully with enhanced Stripe support")
     
     # Configure logging
     if not app.debug:
