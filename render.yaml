@@ -3,7 +3,7 @@ services:
     name: lovemenow
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn wsgi:app --workers 2 --timeout 120 --bind 0.0.0.0:$PORT
+    startCommand: gunicorn wsgi:app --workers 2 --timeout 120 --bind 0.0.0.0:$PORT --max-requests 1000 --max-requests-jitter 100
     envVars:
       - key: FLASK_ENV
         value: production

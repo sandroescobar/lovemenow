@@ -669,6 +669,10 @@
                 
                 const responseData = await response.json();
                 
+                // Debug: Log the response data
+                console.log('Response data:', responseData);
+                console.log('Response headers:', response.headers);
+                
                 // Check for errors in the response
                 if (!response.ok || responseData.error) {
                     throw new Error(responseData.error || 'Failed to create checkout session');
@@ -677,9 +681,38 @@
                 // Extract client secret (backend returns 'clientSecret' in camelCase)
                 clientSecret = responseData.clientSecret;
                 
+                // Debug: Log the client secret details
+                console.log('Client secret received:', clientSecret);
+                console.log('Client secret type:', typeof clientSecret);
+                console.log('Client secret length:', clientSecret ? clientSecret.length : 'null');
+                
                 if (!clientSecret) {
                     throw new Error('No client secret received from server');
                 }
+                
+                // Check if client secret is URL encoded and decode if necessary
+                if (clientSecret.includes('%')) {
+                    console.warn('⚠️ Client secret appears to be URL encoded, attempting to decode...');
+                    try {
+                        const originalLength = clientSecret.length;
+                        clientSecret = decodeURIComponent(clientSecret);
+                        console.log('✅ Successfully decoded client secret');
+                        console.log(`Length: ${originalLength} → ${clientSecret.length}`);
+                    } catch (decodeError) {
+                        console.error('❌ Failed to decode client secret:', decodeError);
+                        throw new Error('Client secret is corrupted (URL encoding issue)');
+                    }
+                } else {
+                    console.log('✅ Client secret looks clean (no URL encoding detected)');
+                }
+                
+                // Validate client secret format before using it
+                if (!clientSecret.startsWith('cs_') || !clientSecret.includes('_secret_')) {
+                    console.error('❌ Invalid client secret format:', clientSecret.substring(0, 50));
+                    throw new Error('Invalid client secret format received from server');
+                }
+                
+                console.log('✅ Client secret format is valid, proceeding with Stripe Elements initialization');
                 
                 // Initialize Elements
                 elements = stripe.elements({

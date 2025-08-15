@@ -39,13 +39,20 @@ def create_app(config_name=None):
     # Load configuration
     app.config.from_object(config[config_name])
     
-    # Ensure session configuration is properly set for development
+    # Configure session settings based on environment
     if config_name == 'development':
         app.config['SESSION_COOKIE_SECURE'] = False
         app.config['REMEMBER_COOKIE_SECURE'] = False
         app.config['SESSION_PERMANENT'] = False  # Sessions expire when browser closes
         app.config['SESSION_COOKIE_HTTPONLY'] = True
         app.logger.info("Development mode: Session cookies set to non-secure and expire on browser close")
+    elif config_name == 'production':
+        # Production security settings
+        app.config['SESSION_COOKIE_SECURE'] = True
+        app.config['REMEMBER_COOKIE_SECURE'] = True
+        app.config['SESSION_COOKIE_HTTPONLY'] = True
+        app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+        app.logger.info("Production mode: Enhanced security settings applied")
     
 
     

@@ -9,7 +9,7 @@ from sqlalchemy.exc import OperationalError, DisconnectionError
 import stripe
 import stripe.checkout
 
-from routes import db
+from routes import db, csrf
 from models import Product, Category, Color, Wishlist, Cart, Order, OrderItem, UberDelivery
 from security import validate_input
 from database_utils import retry_db_operation, test_database_connection, get_fallback_data
@@ -719,6 +719,7 @@ def my_orders():
     return render_template('order_status.html', orders=orders)
 
 @main_bp.route('/create-checkout-session', methods=['POST'])
+@csrf.exempt
 def create_checkout_session():
     """Create Stripe checkout session"""
     try:
@@ -904,6 +905,34 @@ def create_checkout_session():
             client_secret = checkout_session.client_secret
             if client_secret:
                 current_app.logger.info(f"Client secret obtained successfully: {client_secret[:20]}...")
+                
+                # Debug: Log the full client secret to check for encoding issues
+                current_app.logger.info(f"Full client secret (first 50 chars): {client_secret[:50]}")
+                current_app.logger.info(f"Client secret type: {type(client_secret)}")
+                
+                # Check for URL encoding and decode if necessary
+                import urllib.parse
+                original_secret = client_secret
+                
+                if '%' in client_secret:
+                    current_app.logger.warning("⚠️  Client secret contains % characters - attempting URL decode")
+                    try:
+                        decoded_secret = urllib.parse.unquote(client_secret)
+                        current_app.logger.info(f"✅ Successfully decoded client secret")
+                        current_app.logger.info(f"Original length: {len(client_secret)}, Decoded length: {len(decoded_secret)}")
+                        client_secret = decoded_secret
+                    except Exception as decode_error:
+                        current_app.logger.error(f"❌ Failed to decode client secret: {decode_error}")
+                        # Continue with original secret
+                
+                # Validate client secret format
+                if not (client_secret.startswith('cs_') and '_secret_' in client_secret):
+                    current_app.logger.error(f"❌ Invalid client secret format: {client_secret[:50]}...")
+                    return jsonify({'error': 'Invalid client secret format'}), 500
+                
+                current_app.logger.info("✅ Client secret format is valid")
+                
+                # Return clean response
                 return jsonify({'clientSecret': client_secret})
             else:
                 current_app.logger.error("No client secret found in Checkout Session")
