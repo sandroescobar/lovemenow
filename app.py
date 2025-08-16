@@ -132,8 +132,8 @@ def create_app(config_name=None):
     app.logger.info(f"Current config_name: {config_name}")
     app.logger.info(f"FLASK_ENV: {os.getenv('FLASK_ENV', 'NOT SET')}")
     
-    # Apply CSP regardless of environment for debugging
-    if True:  # Temporarily always apply CSP
+    # Apply CSP with proper Stripe domains for Payment Elements
+    if True:  # Enable CSP with Payment Elements support
         # Enhanced Stripe-compatible CSP format with proper frame-src configuration
         stripe_domains = {
             'default-src': ["'self'"],

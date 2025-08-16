@@ -714,9 +714,9 @@
                             break;
                         }
                         
-                        // If it looks like a valid client secret, we're done
-                        if (decodedSecret.startsWith('cs_') && decodedSecret.includes('_secret_') && !decodedSecret.includes('%')) {
-                            console.log('✅ Valid client secret format achieved');
+                        // If it looks like a valid Payment Intent client secret, we're done
+                        if (decodedSecret.startsWith('pi_') && decodedSecret.includes('_secret_') && !decodedSecret.includes('%')) {
+                            console.log('✅ Valid Payment Intent client secret format achieved');
                             break;
                         }
                         
@@ -729,10 +729,10 @@
                 clientSecret = decodedSecret;
                 console.log('🎯 Final client secret:', clientSecret.substring(0, 50) + '...');
                 
-                // Validate client secret format
-                if (!clientSecret.startsWith('cs_') || !clientSecret.includes('_secret_')) {
-                    console.error('❌ Invalid client secret format after decoding:', clientSecret.substring(0, 100));
-                    throw new Error('Invalid client secret format - unable to decode properly');
+                // Validate Payment Intent client secret format
+                if (!clientSecret.startsWith('pi_') || !clientSecret.includes('_secret_')) {
+                    console.error('❌ Invalid Payment Intent client secret format after decoding:', clientSecret.substring(0, 100));
+                    throw new Error('Invalid Payment Intent client secret format - unable to decode properly');
                 }
                 
                 console.log('✅ Client secret format is valid, proceeding with Stripe Elements initialization');

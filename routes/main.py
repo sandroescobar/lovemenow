@@ -885,24 +885,27 @@ def create_checkout_session():
         current_app.logger.info(f"Total amount in cents: {total_amount}")
         
         try:
-            # Create Stripe Checkout Session for Embedded Checkout
-            current_app.logger.info("Creating Stripe Checkout Session for Embedded Checkout...")
+            # Create Stripe Payment Intent for Elements integration
+            current_app.logger.info("Creating Stripe Payment Intent for Elements integration...")
             
-            checkout_session = stripe.checkout.Session.create(
-                ui_mode='embedded',
-                line_items=line_items,
-                mode='payment',
-                return_url=request.url_root + 'checkout/return?session_id={CHECKOUT_SESSION_ID}',
+            # Calculate total amount in cents
+            total_amount_cents = int(total_amount)
+            
+            payment_intent = stripe.PaymentIntent.create(
+                amount=total_amount_cents,
+                currency='usd',
                 metadata=cart_metadata,
-                automatic_tax={'enabled': True},
-                shipping_address_collection={'allowed_countries': ['US']},
-                billing_address_collection='required',
+                automatic_payment_methods={
+                    'enabled': True,
+                },
+                # Add shipping and billing info if available
+                description=f"LoveMeNow order - {len(line_items)} items"
             )
             
-            current_app.logger.info(f"Checkout Session created successfully: {checkout_session.id}")
+            current_app.logger.info(f"Payment Intent created successfully: {payment_intent.id}")
             
             # Return the client secret
-            client_secret = checkout_session.client_secret
+            client_secret = payment_intent.client_secret
             if client_secret:
                 current_app.logger.info(f"Client secret obtained successfully: {client_secret[:20]}...")
                 
@@ -948,10 +951,10 @@ def create_checkout_session():
                 client_secret = decoded_secret
                 current_app.logger.info(f"🎯 Final client secret: {client_secret[:50]}...")
                 
-                # Validate client secret format
-                if not (client_secret.startswith('cs_') and '_secret_' in client_secret):
-                    current_app.logger.error(f"❌ Invalid client secret format: {client_secret[:50]}...")
-                    return jsonify({'error': 'Invalid client secret format'}), 500
+                # Validate client secret format (Payment Intent client secrets start with 'pi_')
+                if not (client_secret.startswith('pi_') and '_secret_' in client_secret):
+                    current_app.logger.error(f"❌ Invalid Payment Intent client secret format: {client_secret[:50]}...")
+                    return jsonify({'error': 'Invalid Payment Intent client secret format'}), 500
                 
                 current_app.logger.info("✅ Client secret format is valid")
                 
@@ -972,14 +975,14 @@ def create_checkout_session():
                 current_app.logger.info(f"📤 Sending response: {json.dumps(response_data)[:100]}...")
                 return response
             else:
-                current_app.logger.error("No client secret found in Checkout Session")
-                return jsonify({'error': 'No client secret found in Checkout Session'}), 500
+                current_app.logger.error("No client secret found in Payment Intent")
+                return jsonify({'error': 'No client secret found in Payment Intent'}), 500
             
-        except Exception as checkout_error:
-            current_app.logger.error(f"Error creating Checkout Session: {checkout_error}")
+        except Exception as payment_error:
+            current_app.logger.error(f"Error creating Payment Intent: {payment_error}")
             import traceback
-            current_app.logger.error(f"Checkout Session error traceback: {traceback.format_exc()}")
-            return jsonify({'error': f'Failed to create Checkout Session: {str(checkout_error)}'}), 500
+            current_app.logger.error(f"Payment Intent error traceback: {traceback.format_exc()}")
+            return jsonify({'error': f'Failed to create Payment Intent: {str(payment_error)}'}), 500
     
     except Exception as e:
         import traceback
