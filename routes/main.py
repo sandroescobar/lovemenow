@@ -910,20 +910,43 @@ def create_checkout_session():
                 current_app.logger.info(f"Full client secret (first 50 chars): {client_secret[:50]}")
                 current_app.logger.info(f"Client secret type: {type(client_secret)}")
                 
-                # Check for URL encoding and decode if necessary
+                # Aggressively decode the client secret (it's getting encoded somewhere)
                 import urllib.parse
-                original_secret = client_secret
+                import json
                 
-                if '%' in client_secret:
-                    current_app.logger.warning("⚠️  Client secret contains % characters - attempting URL decode")
+                current_app.logger.info(f"🔍 Raw client secret from Stripe: {repr(client_secret)}")
+                
+                # Try multiple decoding attempts
+                decoded_secret = client_secret
+                decode_attempts = 0
+                max_attempts = 3
+                
+                while decode_attempts < max_attempts:
                     try:
-                        decoded_secret = urllib.parse.unquote(client_secret)
-                        current_app.logger.info(f"✅ Successfully decoded client secret")
-                        current_app.logger.info(f"Original length: {len(client_secret)}, Decoded length: {len(decoded_secret)}")
-                        client_secret = decoded_secret
+                        before_decode = decoded_secret
+                        decoded_secret = urllib.parse.unquote(decoded_secret)
+                        decode_attempts += 1
+                        
+                        current_app.logger.info(f"🔄 Decode attempt {decode_attempts}:")
+                        current_app.logger.info(f"   Before: {before_decode[:50]}...")
+                        current_app.logger.info(f"   After:  {decoded_secret[:50]}...")
+                        
+                        # If no change, we're done
+                        if before_decode == decoded_secret:
+                            current_app.logger.info("✅ No more decoding needed")
+                            break
+                            
+                        # If it looks valid and has no encoding, we're done
+                        if decoded_secret.startswith('cs_') and '_secret_' in decoded_secret and '%' not in decoded_secret:
+                            current_app.logger.info("✅ Valid client secret format achieved")
+                            break
+                            
                     except Exception as decode_error:
-                        current_app.logger.error(f"❌ Failed to decode client secret: {decode_error}")
-                        # Continue with original secret
+                        current_app.logger.error(f"❌ Decode attempt {decode_attempts + 1} failed: {decode_error}")
+                        break
+                
+                client_secret = decoded_secret
+                current_app.logger.info(f"🎯 Final client secret: {client_secret[:50]}...")
                 
                 # Validate client secret format
                 if not (client_secret.startswith('cs_') and '_secret_' in client_secret):
@@ -932,8 +955,22 @@ def create_checkout_session():
                 
                 current_app.logger.info("✅ Client secret format is valid")
                 
-                # Return clean response
-                return jsonify({'clientSecret': client_secret})
+                # Create response with explicit JSON encoding to prevent further encoding
+                response_data = {'clientSecret': client_secret}
+                
+                # Use explicit JSON response to avoid any middleware encoding
+                from flask import Response
+                response = Response(
+                    json.dumps(response_data, ensure_ascii=False),
+                    mimetype='application/json',
+                    headers={
+                        'Content-Type': 'application/json; charset=utf-8',
+                        'Cache-Control': 'no-cache, no-store, must-revalidate'
+                    }
+                )
+                
+                current_app.logger.info(f"📤 Sending response: {json.dumps(response_data)[:100]}...")
+                return response
             else:
                 current_app.logger.error("No client secret found in Checkout Session")
                 return jsonify({'error': 'No client secret found in Checkout Session'}), 500

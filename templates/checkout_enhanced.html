@@ -690,26 +690,49 @@
                     throw new Error('No client secret received from server');
                 }
                 
-                // Check if client secret is URL encoded and decode if necessary
-                if (clientSecret.includes('%')) {
-                    console.warn('⚠️ Client secret appears to be URL encoded, attempting to decode...');
+                // Force URL decode the client secret (it's definitely getting encoded somewhere)
+                console.log('🔍 Original client secret:', clientSecret.substring(0, 50) + '...');
+                
+                // Always try to decode, even if % isn't visible (might be double-encoded)
+                let decodedSecret = clientSecret;
+                let decodeAttempts = 0;
+                const maxDecodeAttempts = 3;
+                
+                while (decodeAttempts < maxDecodeAttempts) {
                     try {
-                        const originalLength = clientSecret.length;
-                        clientSecret = decodeURIComponent(clientSecret);
-                        console.log('✅ Successfully decoded client secret');
-                        console.log(`Length: ${originalLength} → ${clientSecret.length}`);
+                        const beforeDecode = decodedSecret;
+                        decodedSecret = decodeURIComponent(decodedSecret);
+                        decodeAttempts++;
+                        
+                        console.log(`🔄 Decode attempt ${decodeAttempts}:`);
+                        console.log(`   Before: ${beforeDecode.substring(0, 50)}...`);
+                        console.log(`   After:  ${decodedSecret.substring(0, 50)}...`);
+                        
+                        // If no change occurred, we're done
+                        if (beforeDecode === decodedSecret) {
+                            console.log('✅ No more decoding needed');
+                            break;
+                        }
+                        
+                        // If it looks like a valid client secret, we're done
+                        if (decodedSecret.startsWith('cs_') && decodedSecret.includes('_secret_') && !decodedSecret.includes('%')) {
+                            console.log('✅ Valid client secret format achieved');
+                            break;
+                        }
+                        
                     } catch (decodeError) {
-                        console.error('❌ Failed to decode client secret:', decodeError);
-                        throw new Error('Client secret is corrupted (URL encoding issue)');
+                        console.error(`❌ Decode attempt ${decodeAttempts + 1} failed:`, decodeError);
+                        break;
                     }
-                } else {
-                    console.log('✅ Client secret looks clean (no URL encoding detected)');
                 }
                 
-                // Validate client secret format before using it
+                clientSecret = decodedSecret;
+                console.log('🎯 Final client secret:', clientSecret.substring(0, 50) + '...');
+                
+                // Validate client secret format
                 if (!clientSecret.startsWith('cs_') || !clientSecret.includes('_secret_')) {
-                    console.error('❌ Invalid client secret format:', clientSecret.substring(0, 50));
-                    throw new Error('Invalid client secret format received from server');
+                    console.error('❌ Invalid client secret format after decoding:', clientSecret.substring(0, 100));
+                    throw new Error('Invalid client secret format - unable to decode properly');
                 }
                 
                 console.log('✅ Client secret format is valid, proceeding with Stripe Elements initialization');
