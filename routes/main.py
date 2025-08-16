@@ -885,8 +885,8 @@ def create_checkout_session():
         current_app.logger.info(f"Total amount in cents: {total_amount}")
         
         try:
-            # Create Stripe Payment Intent for Elements integration
-            current_app.logger.info("Creating Stripe Payment Intent for Elements integration...")
+            # Create Stripe Payment Intent for Elements integration (NOT Checkout Session!)
+            current_app.logger.info("🚀 CREATING PAYMENT INTENT (NOT CHECKOUT SESSION) FOR ELEMENTS INTEGRATION...")
             
             # Calculate total amount in cents
             total_amount_cents = int(total_amount)
@@ -902,12 +902,12 @@ def create_checkout_session():
                 description=f"LoveMeNow order - {len(line_items)} items"
             )
             
-            current_app.logger.info(f"Payment Intent created successfully: {payment_intent.id}")
+            current_app.logger.info(f"🎉 PAYMENT INTENT CREATED SUCCESSFULLY: {payment_intent.id} (NOT CHECKOUT SESSION!)")
             
             # Return the client secret
             client_secret = payment_intent.client_secret
             if client_secret:
-                current_app.logger.info(f"Client secret obtained successfully: {client_secret[:20]}...")
+                current_app.logger.info(f"🔑 PAYMENT INTENT CLIENT SECRET OBTAINED: {client_secret[:20]}... (SHOULD START WITH 'pi_')")
                 
                 # Debug: Log the full client secret to check for encoding issues
                 current_app.logger.info(f"Full client secret (first 50 chars): {client_secret[:50]}")
