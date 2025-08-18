@@ -30,8 +30,13 @@ load_dotenv()
 
 # --- Final CSP middleware that runs AFTER everything else (wins last) ---
 class FinalCSPMiddleware:
+    """
+    Ensures one final, permissive-enough CSP is applied for Stripe Elements.
+    Also strips any CSP-Report-Only header to avoid additive intersections.
+    """
     def __init__(self, app):
         self.app = app
+        # Final/effective policy
         self.csp = (
             "default-src 'self'; "
             "script-src 'self' 'unsafe-inline' https://js.stripe.com https://api.mapbox.com; "
@@ -39,9 +44,12 @@ class FinalCSPMiddleware:
             "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; "
             "img-src 'self' data: https:; "
             "media-src 'self'; "
-            "frame-src https://js.stripe.com https://hooks.stripe.com; "
-            "child-src https://js.stripe.com https://hooks.stripe.com; "
-            "connect-src 'self' https://api.stripe.com https://r.stripe.com https://api.mapbox.com; "
+            # ✅ allow Stripe iframes (add a couple safe extras used in some flows)
+            "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://m.stripe.com https://pay.google.com; "
+            # CSP2 fallback some browsers still consult
+            "child-src https://js.stripe.com https://hooks.stripe.com https://m.stripe.com https://pay.google.com; "
+            # APIs/telemetry used by Stripe + Mapbox calls you had
+            "connect-src 'self' https://api.stripe.com https://r.stripe.com https://m.stripe.network https://api.mapbox.com; "
             "object-src 'none'; "
             "base-uri 'self'; "
             "frame-ancestors 'self'"
@@ -49,11 +57,19 @@ class FinalCSPMiddleware:
 
     def __call__(self, environ, start_response):
         def sr(status, headers, exc_info=None):
-            # Remove any prior CSP so we set the final one
-            headers = [(k, v) for (k, v) in headers if k.lower() != 'content-security-policy']
-            headers.append(('Content-Security-Policy', self.csp))
-            headers.append(('X-Debug-CSP', 'final_wsgi_mw'))
-            return start_response(status, headers, exc_info)
+            # Remove any prior CSP headers so we don't get additive intersection
+            filtered = []
+            for (k, v) in headers:
+                kl = k.lower()
+                if kl in ("content-security-policy", "content-security-policy-report-only"):
+                    continue
+                filtered.append((k, v))
+
+            # Set our final CSP and a debug marker
+            filtered.append(("Content-Security-Policy", self.csp))
+            filtered.append(("X-Debug-CSP", "final_wsgi_mw_v2"))
+
+            return start_response(status, filtered, exc_info)
         return self.app(environ, sr)
 # -----------------------------------------------------------------------
 
@@ -118,8 +134,8 @@ def create_app(config_name=None):
 
             # Skip validation for static files and API endpoints that don't need sessions
             if request.endpoint and (
-                    request.endpoint.startswith('static') or
-                    request.endpoint in ['api.health', 'webhooks.stripe_webhook']
+                request.endpoint.startswith('static') or
+                request.endpoint in ['api.health', 'webhooks.stripe_webhook']
             ):
                 return
 
