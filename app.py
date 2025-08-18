@@ -28,6 +28,36 @@ from uber_service import init_uber_service
 load_dotenv()
 
 
+# --- Final CSP middleware that runs AFTER everything else (wins last) ---
+class FinalCSPMiddleware:
+    def __init__(self, app):
+        self.app = app
+        self.csp = (
+            "default-src 'self'; "
+            "script-src 'self' 'unsafe-inline' https://js.stripe.com https://api.mapbox.com; "
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://api.mapbox.com; "
+            "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; "
+            "img-src 'self' data: https:; "
+            "media-src 'self'; "
+            "frame-src https://js.stripe.com https://hooks.stripe.com; "
+            "child-src https://js.stripe.com https://hooks.stripe.com; "
+            "connect-src 'self' https://api.stripe.com https://r.stripe.com https://api.mapbox.com; "
+            "object-src 'none'; "
+            "base-uri 'self'; "
+            "frame-ancestors 'self'"
+        )
+
+    def __call__(self, environ, start_response):
+        def sr(status, headers, exc_info=None):
+            # Remove any prior CSP so we set the final one
+            headers = [(k, v) for (k, v) in headers if k.lower() != 'content-security-policy']
+            headers.append(('Content-Security-Policy', self.csp))
+            headers.append(('X-Debug-CSP', 'final_wsgi_mw'))
+            return start_response(status, headers, exc_info)
+        return self.app(environ, sr)
+# -----------------------------------------------------------------------
+
+
 def create_app(config_name=None):
     """Application factory pattern for creating Flask app"""
     app = Flask(__name__)
@@ -130,8 +160,8 @@ def create_app(config_name=None):
     app.logger.info(f"Current config_name: {config_name}")
     app.logger.info(f"FLASK_ENV: {os.getenv('FLASK_ENV', 'NOT SET')}")
 
-    # ── Stripe-friendly CSP via Flask-Talisman ─────────────────────────────
-    # Allow Stripe's scripts, iframes, API, telemetry; keep sane defaults.
+    # ── Stripe-friendly CSP via Flask-Talisman (ok if SecurityMiddleware also sets CSP;
+    # our FinalCSPMiddleware below will override everything at the very end) ──
     STRIPE_JS = "https://js.stripe.com"
     STRIPE_API = "https://api.stripe.com"
     STRIPE_HOOKS = "https://hooks.stripe.com"
@@ -169,39 +199,8 @@ def create_app(config_name=None):
     # Register error handlers
     register_error_handlers(app)
 
-    # ========= FINAL CSP OVERRIDE (guaranteed last) =========
-    @app.after_request
-    def enforce_csp(response):
-        # help you confirm this function is active
-        response.headers['X-Debug-CSP'] = 'enforce_csp'
-
-        # remove any prior CSP header set by other middlewares
-        response.headers.pop('Content-Security-Policy', None)
-
-        # Stripe + your existing allowances + Mapbox
-        response.headers['Content-Security-Policy'] = (
-            "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline' https://js.stripe.com https://api.mapbox.com; "
-            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://api.mapbox.com; "
-            "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; "
-            "img-src 'self' data: https:; "
-            "media-src 'self'; "
-            "frame-src https://js.stripe.com https://hooks.stripe.com; "
-            "child-src https://js.stripe.com https://hooks.stripe.com; "
-            "connect-src 'self' https://api.stripe.com https://r.stripe.com https://api.mapbox.com; "
-            "object-src 'none'; "
-            "base-uri 'self'; "
-            "frame-ancestors 'self'"
-        )
-        return response
-
-    # ensure our enforce_csp truly runs last
-    try:
-        app.after_request_funcs.setdefault(None, []).append(enforce_csp)
-    except Exception as e:
-        app.logger.warning(f"Could not append enforce_csp to after_request_funcs: {e}")
-
-    # ========= /FINAL CSP OVERRIDE =========
+    # Install the final CSP middleware LAST so it wins over everything else
+    app.wsgi_app = FinalCSPMiddleware(app.wsgi_app)
 
     return app
 
