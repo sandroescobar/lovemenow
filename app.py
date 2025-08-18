@@ -139,17 +139,10 @@ def create_app(config_name=None):
 
     csp = {
         "default-src": ["'self'"],
-        # If you keep inline <script> blocks, either add nonces in templates using {{ csp_nonce() }}
-        # or temporarily include "'unsafe-inline'" here. We prefer nonces; see note below.
         "script-src": ["'self'", STRIPE_JS],
-        # Stripe's injected styles inside its iframe are isolated; allowing inline styles here
-        # is for your page's own inline styles if any.
         "style-src": ["'self'", "'unsafe-inline'"],
-        # Stripe Elements/Payment Request Button iframes
         "frame-src": [STRIPE_JS, STRIPE_HOOKS],
-        # XHR/fetch targets
         "connect-src": ["'self'", STRIPE_API, STRIPE_R],
-        # Images & data URIs (Stripe may load assets or use data:)
         "img-src": ["'self'", "data:", "*.stripe.com"],
         "font-src": ["'self'", "data:"],
         "object-src": ["'none'"],
@@ -157,8 +150,6 @@ def create_app(config_name=None):
         "frame-ancestors": ["'self'"],
     }
 
-    # If you have inline <script> in templates, enable nonces and use:
-    # <script nonce="{{ csp_nonce() }}"> ... </script>
     talisman = Talisman(
         app,
         content_security_policy=csp,
@@ -178,9 +169,16 @@ def create_app(config_name=None):
     # Register error handlers
     register_error_handlers(app)
 
+    # ========= FINAL CSP OVERRIDE (guaranteed last) =========
     @app.after_request
     def enforce_csp(response):
+        # help you confirm this function is active
+        response.headers['X-Debug-CSP'] = 'enforce_csp'
+
+        # remove any prior CSP header set by other middlewares
         response.headers.pop('Content-Security-Policy', None)
+
+        # Stripe + your existing allowances + Mapbox
         response.headers['Content-Security-Policy'] = (
             "default-src 'self'; "
             "script-src 'self' 'unsafe-inline' https://js.stripe.com https://api.mapbox.com; "
@@ -196,6 +194,14 @@ def create_app(config_name=None):
             "frame-ancestors 'self'"
         )
         return response
+
+    # ensure our enforce_csp truly runs last
+    try:
+        app.after_request_funcs.setdefault(None, []).append(enforce_csp)
+    except Exception as e:
+        app.logger.warning(f"Could not append enforce_csp to after_request_funcs: {e}")
+
+    # ========= /FINAL CSP OVERRIDE =========
 
     return app
 
