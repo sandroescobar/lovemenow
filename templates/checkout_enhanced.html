@@ -4,31 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout - LoveMeNow</title>
-    
-    <!-- Font Awesome -->
+
+    <!-- Font Awesome (be sure CSP allows cdnjs or self-host this) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
+
     <!-- Stripe.js -->
-    <script src="https://js.stripe.com/v3/"></script>
-    
+    <script src="https://js.stripe.com/v3/" nonce="{{ csp_nonce() }}"></script>
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}">
-    
-    
-    
+
     <!-- CSRF Protection -->
-    {% include 'csrf_meta.html' %}<style>
+    {% include 'csrf_meta.html' %}
+    <style>
         .checkout-container {
             max-width: 1400px;
             margin: 2rem auto;
             padding: 0 1rem;
         }
-        
+
         .checkout-header {
             text-align: center;
             margin-bottom: 2rem;
         }
-        
+
         .checkout-header h1 {
             font-size: 2rem;
             margin-bottom: 0.5rem;
@@ -36,14 +35,14 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        
+
         .checkout-layout {
             display: grid;
             grid-template-columns: 1fr 500px;
             gap: 3rem;
             align-items: start;
         }
-        
+
         .checkout-form {
             background: hsl(var(--surface-color));
             border-radius: var(--radius-lg);
@@ -51,11 +50,11 @@
             box-shadow: var(--shadow-lg);
             border: 1px solid hsl(var(--border-color));
         }
-        
+
         .form-section {
             margin-bottom: 1.5rem;
         }
-        
+
         .form-section h3 {
             margin-bottom: 0.75rem;
             color: hsl(var(--text-color));
@@ -64,14 +63,14 @@
             padding-bottom: 0.4rem;
             font-weight: 600;
         }
-        
+
         .delivery-options {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 0.75rem;
             margin-bottom: 1rem;
         }
-        
+
         .delivery-option {
             padding: 0.75rem;
             border: 1px solid hsl(var(--border-color));
@@ -81,45 +80,45 @@
             background: hsl(var(--background-color));
             text-align: center;
         }
-        
+
         .delivery-option:hover {
             border-color: hsl(var(--primary-color));
             transform: translateY(-2px);
             box-shadow: var(--shadow-md);
         }
-        
+
         .delivery-option.active {
             border-color: hsl(var(--primary-color));
             background: hsla(var(--primary-color), 0.1);
             transform: translateY(-2px);
             box-shadow: var(--shadow-md);
         }
-        
+
         .delivery-option i {
             font-size: 1.5rem;
             margin-bottom: 0.5rem;
             color: hsl(var(--muted-color));
         }
-        
+
         .delivery-option.active i {
             color: hsl(var(--primary-color));
         }
-        
+
         .delivery-option-title {
             font-weight: 600;
             margin-bottom: 0.25rem;
             color: hsl(var(--text-color));
         }
-        
+
         .delivery-option.active .delivery-option-title {
             color: hsl(var(--primary-color));
         }
-        
+
         .delivery-option-desc {
             font-size: 0.9rem;
             color: hsl(var(--muted-color));
         }
-        
+
         .delivery-quote {
             background: hsla(var(--primary-color), 0.1);
             border: 1px solid hsl(var(--primary-color));
@@ -128,45 +127,45 @@
             margin-top: 1rem;
             display: none;
         }
-        
+
         .delivery-quote.show {
             display: block;
         }
-        
+
         .quote-info {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 0.5rem;
         }
-        
+
         .quote-fee {
             font-weight: 600;
             color: hsl(var(--primary-color));
         }
-        
+
         .quote-time {
             font-size: 0.9rem;
             color: hsl(var(--muted-color));
         }
-        
+
         .form-group {
             margin-bottom: 0.75rem;
         }
-        
+
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 1rem;
         }
-        
+
         label {
             display: block;
             margin-bottom: 0.5rem;
             font-weight: 600;
             color: hsl(var(--text-color));
         }
-        
+
         input, select {
             width: 100%;
             padding: 0.75rem;
@@ -177,13 +176,13 @@
             background: hsl(var(--background-color));
             color: hsl(var(--text-color));
         }
-        
+
         input:focus, select:focus {
             outline: none;
             border-color: hsl(var(--primary-color));
             box-shadow: 0 0 0 3px hsla(var(--primary-color), 0.1);
         }
-        
+
         .order-summary {
             background: hsl(var(--surface-color));
             border-radius: var(--radius-lg);
@@ -194,7 +193,7 @@
             box-shadow: var(--shadow-lg);
             border: 1px solid hsl(var(--border-color));
         }
-        
+
         .order-summary h3 {
             margin-bottom: 1.5rem;
             color: hsl(var(--text-color));
@@ -202,7 +201,7 @@
             padding-bottom: 0.5rem;
             font-weight: 700;
         }
-        
+
         .order-item {
             display: flex;
             justify-content: space-between;
@@ -210,27 +209,27 @@
             padding: 1rem 0;
             border-bottom: 1px solid hsl(var(--border-color));
         }
-        
+
         .item-details {
             flex: 1;
         }
-        
+
         .item-name {
             font-weight: 600;
             margin-bottom: 0.25rem;
             color: hsl(var(--text-color));
         }
-        
+
         .item-quantity {
             color: hsl(var(--muted-color));
             font-size: 0.9rem;
         }
-        
+
         .item-price {
             font-weight: 600;
             color: hsl(var(--text-color));
         }
-        
+
         .summary-row {
             display: flex;
             justify-content: space-between;
@@ -238,7 +237,7 @@
             padding-bottom: 1rem;
             color: hsl(var(--text-color));
         }
-        
+
         .summary-row.total {
             border-top: 2px solid hsl(var(--border-color));
             padding-top: 1rem;
@@ -246,7 +245,7 @@
             font-size: 1.2rem;
             color: hsl(var(--text-color));
         }
-        
+
         .checkout-btn {
             width: 100%;
             padding: 1rem;
@@ -260,23 +259,23 @@
             transition: all 0.2s ease;
             margin-top: 1rem;
         }
-        
+
         .checkout-btn:hover {
             transform: translateY(-2px);
             box-shadow: var(--shadow-lg);
         }
-        
+
         .checkout-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
         }
-        
+
         .loading-spinner {
             display: none;
             margin-right: 0.5rem;
         }
-        
+
         .error-message {
             background: hsl(var(--error-bg, 354 70% 94%));
             color: hsl(var(--error-text, 354 70% 25%));
@@ -285,7 +284,7 @@
             margin-bottom: 1rem;
             border: 1px solid hsl(var(--error-border, 354 70% 85%));
         }
-        
+
         .success-message {
             background: hsl(var(--success-bg, 142 76% 94%));
             color: hsl(var(--success-text, 142 76% 25%));
@@ -294,7 +293,7 @@
             margin-bottom: 1rem;
             border: 1px solid hsl(var(--success-border, 142 76% 85%));
         }
-        
+
         #stripe-checkout {
             min-height: 200px;
             padding: 1rem;
@@ -302,17 +301,17 @@
             border-radius: var(--radius-md);
             background: hsl(var(--background-color));
         }
-        
+
         @media (max-width: 1024px) {
             .checkout-layout {
                 grid-template-columns: 1fr;
                 gap: 2rem;
             }
-            
+
             .delivery-options {
                 grid-template-columns: 1fr;
             }
-            
+
             .form-row {
                 grid-template-columns: 1fr;
             }
@@ -321,13 +320,13 @@
 </head>
 <body>
     {% include "navbar.html" %}
-    
+
     <div class="checkout-container">
         <div class="checkout-header">
             <h1>Secure Checkout</h1>
             <p>Complete your order with our secure payment system</p>
         </div>
-        
+
         <div class="checkout-layout">
             <!-- Checkout Form -->
             <div class="checkout-form">
@@ -346,7 +345,7 @@
                             <div class="delivery-option-desc">Fast delivery to your door</div>
                         </div>
                     </div>
-                    
+
                     <div class="delivery-quote" id="delivery-quote">
                         <div class="quote-info">
                             <span>Delivery Fee:</span>
@@ -355,7 +354,7 @@
                         <div class="quote-time" id="quote-time">Estimated delivery: 30-45 minutes</div>
                     </div>
                 </div>
-                
+
                 <!-- Customer Information -->
                 <div class="form-section">
                     <h3><i class="fas fa-user"></i> Contact Information</h3>
@@ -378,7 +377,7 @@
                         <input type="tel" id="phone" name="phone" required>
                     </div>
                 </div>
-                
+
                 <!-- Delivery Address (shown only for delivery) -->
                 <div class="form-section" id="delivery-address-section" style="display: none;">
                     <h3><i class="fas fa-map-marker-alt"></i> Delivery Address</h3>
@@ -407,7 +406,7 @@
                         <input type="text" id="zip" name="zip">
                     </div>
                 </div>
-                
+
                 <!-- Payment -->
                 <div class="form-section">
                     <h3><i class="fas fa-credit-card"></i> Payment Information</h3>
@@ -415,34 +414,34 @@
                         <!-- Stripe Elements will be inserted here -->
                     </div>
                 </div>
-                
+
                 <div id="error-message" class="error-message" style="display: none;"></div>
                 <div id="success-message" class="success-message" style="display: none;"></div>
             </div>
-            
+
             <!-- Order Summary -->
             <div class="order-summary">
                 <h3>Order Summary</h3>
-                
+
                 <div id="cart-items">
                     <!-- Cart items will be loaded here -->
                 </div>
-                
+
                 <div class="summary-row">
                     <span>Subtotal:</span>
                     <span id="subtotal">$0.00</span>
                 </div>
-                
+
                 <div class="summary-row" id="delivery-fee-row" style="display: none;">
                     <span>Delivery Fee:</span>
                     <span id="delivery-fee">$9.99</span>
                 </div>
-                
+
                 <div class="summary-row total">
                     <span>Total:</span>
                     <span id="total">$0.00</span>
                 </div>
-                
+
                 <button id="checkout-button" class="checkout-btn" disabled>
                     <i class="loading-spinner fas fa-spinner fa-spin"></i>
                     Complete Order
@@ -450,8 +449,8 @@
             </div>
         </div>
     </div>
-    
-    <script>
+
+    <script nonce="{{ csp_nonce() }}">
         // Initialize Stripe
         const stripe = Stripe('{{ config.STRIPE_PUBLISHABLE_KEY }}');
         let elements;
@@ -459,7 +458,7 @@
         let selectedDeliveryType = 'pickup';
         let cartData = null;
         let deliveryQuote = null;
-        
+
         // DOM elements
         const deliveryOptions = document.querySelectorAll('.delivery-option');
         const deliveryQuoteEl = document.getElementById('delivery-quote');
@@ -468,7 +467,7 @@
         const checkoutButton = document.getElementById('checkout-button');
         const errorMessage = document.getElementById('error-message');
         const successMessage = document.getElementById('success-message');
-        
+
         // Initialize checkout
         document.addEventListener('DOMContentLoaded', function() {
             // Reset button state in case user returned from external page
@@ -479,7 +478,7 @@
             updateCartCount();
             updateWishlistCount();
         });
-        
+
         // Reset checkout button state
         function resetCheckoutButton() {
             if (checkoutButton) {
@@ -490,28 +489,28 @@
                 }
             }
         }
-        
+
         // Load cart data from server-provided data
         function loadCart() {
             try {
                 // Use cart data provided by the server
                 cartData = {{ cart_data | tojson }};
-                
-                
+
+
                 // Display cart items and update summary
                 displayCartItems(cartData.items);
                 updateOrderSummary();
-                
+
             } catch (error) {
                 showError('Failed to load cart');
             }
         }
-        
+
         // Display cart items
         function displayCartItems(items) {
             const cartItemsEl = document.getElementById('cart-items');
             cartItemsEl.innerHTML = '';
-            
+
             items.forEach(item => {
                 const itemEl = document.createElement('div');
                 itemEl.className = 'order-item';
@@ -525,73 +524,73 @@
                 cartItemsEl.appendChild(itemEl);
             });
         }
-        
+
         // Setup delivery options
         function setupDeliveryOptions() {
             deliveryOptions.forEach(option => {
                 option.addEventListener('click', function() {
                     // Remove active class from all options
                     deliveryOptions.forEach(opt => opt.classList.remove('active'));
-                    
+
                     // Add active class to clicked option
                     this.classList.add('active');
-                    
+
                     selectedDeliveryType = this.dataset.type;
-                    
+
                     if (selectedDeliveryType === 'delivery') {
                         deliveryAddressSection.style.display = 'block';
                         deliveryQuoteEl.classList.add('show');
                         deliveryFeeRow.style.display = 'flex';
-                        
+
                         // Make address fields required
                         document.getElementById('address').required = true;
                         document.getElementById('city').required = true;
                         document.getElementById('zip').required = true;
-                        
+
                         // Get delivery quote when address is filled
                         setupAddressValidation();
                     } else {
                         deliveryAddressSection.style.display = 'none';
                         deliveryQuoteEl.classList.remove('show');
                         deliveryFeeRow.style.display = 'none';
-                        
+
                         // Remove required from address fields
                         document.getElementById('address').required = false;
                         document.getElementById('city').required = false;
                         document.getElementById('zip').required = false;
-                        
+
                         deliveryQuote = null;
                     }
-                    
+
                     updateOrderSummary();
                 });
             });
-            
+
             // Set default to pickup
             document.querySelector('[data-type="pickup"]').click();
         }
-        
+
         // Setup address validation for delivery quotes
         function setupAddressValidation() {
             const addressFields = ['address', 'city', 'zip'];
-            
+
             addressFields.forEach(fieldId => {
                 const field = document.getElementById(fieldId);
                 field.addEventListener('blur', getDeliveryQuote);
             });
         }
-        
+
         // Get delivery quote from Uber
         async function getDeliveryQuote() {
             if (selectedDeliveryType !== 'delivery') return;
-            
+
             const address = document.getElementById('address').value;
             const city = document.getElementById('city').value;
             const zip = document.getElementById('zip').value;
             const state = document.getElementById('state').value;
-            
+
             if (!address || !city || !zip) return;
-            
+
             try {
                 const response = await fetch('/api/uber/quote', {
                     method: 'POST',
@@ -608,35 +607,35 @@
                         }
                     })
                 });
-                
+
                 const data = await response.json();
-                
+
                 if (data.success) {
                     deliveryQuote = data.quote;
                     document.getElementById('quote-fee').textContent = `$${data.quote.fee_dollars.toFixed(2)}`;
-                    
+
                     if (data.quote.duration) {
                         const minutes = data.quote.duration;
                         document.getElementById('quote-time').textContent = `Estimated delivery: ${minutes} minutes`;
                     }
-                    
+
                     updateOrderSummary();
                 } else {
                     showError('Unable to get delivery quote: ' + data.error);
                 }
-                
+
             } catch (error) {
                 showError('Failed to get delivery quote');
             }
         }
-        
+
         // Update order summary
         function updateOrderSummary() {
             if (!cartData) return;
-            
+
             let subtotal = cartData.subtotal;
             let deliveryFee = 0;
-            
+
             if (selectedDeliveryType === 'delivery') {
                 if (deliveryQuote) {
                     deliveryFee = deliveryQuote.fee_dollars;
@@ -644,14 +643,14 @@
                     deliveryFee = 9.99; // Default delivery fee
                 }
             }
-            
+
             const total = subtotal + deliveryFee;
-            
+
             document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
             document.getElementById('delivery-fee').textContent = `$${deliveryFee.toFixed(2)}`;
             document.getElementById('total').textContent = `$${total.toFixed(2)}`;
         }
-        
+
         // Initialize Stripe Elements
         async function initializeStripe() {
             try {
@@ -666,77 +665,77 @@
                         delivery_quote: deliveryQuote
                     })
                 });
-                
+
                 const responseData = await response.json();
-                
+
                 // Debug: Log the response data
                 console.log('Response data:', responseData);
                 console.log('Response headers:', response.headers);
-                
+
                 // Check for errors in the response
                 if (!response.ok || responseData.error) {
                     throw new Error(responseData.error || 'Failed to create checkout session');
                 }
-                
+
                 // Extract client secret (backend returns 'clientSecret' in camelCase)
                 clientSecret = responseData.clientSecret;
-                
+
                 // Debug: Log the client secret details
                 console.log('Client secret received:', clientSecret);
                 console.log('Client secret type:', typeof clientSecret);
                 console.log('Client secret length:', clientSecret ? clientSecret.length : 'null');
-                
+
                 if (!clientSecret) {
                     throw new Error('No client secret received from server');
                 }
-                
+
                 // Force URL decode the client secret (it's definitely getting encoded somewhere)
                 console.log('🔍 Original client secret:', clientSecret.substring(0, 50) + '...');
-                
+
                 // Always try to decode, even if % isn't visible (might be double-encoded)
                 let decodedSecret = clientSecret;
                 let decodeAttempts = 0;
                 const maxDecodeAttempts = 3;
-                
+
                 while (decodeAttempts < maxDecodeAttempts) {
                     try {
                         const beforeDecode = decodedSecret;
                         decodedSecret = decodeURIComponent(decodedSecret);
                         decodeAttempts++;
-                        
+
                         console.log(`🔄 Decode attempt ${decodeAttempts}:`);
                         console.log(`   Before: ${beforeDecode.substring(0, 50)}...`);
                         console.log(`   After:  ${decodedSecret.substring(0, 50)}...`);
-                        
+
                         // If no change occurred, we're done
                         if (beforeDecode === decodedSecret) {
                             console.log('✅ No more decoding needed');
                             break;
                         }
-                        
+
                         // If it looks like a valid Payment Intent client secret, we're done
                         if (decodedSecret.startsWith('pi_') && decodedSecret.includes('_secret_') && !decodedSecret.includes('%')) {
                             console.log('✅ Valid Payment Intent client secret format achieved');
                             break;
                         }
-                        
+
                     } catch (decodeError) {
                         console.error(`❌ Decode attempt ${decodeAttempts + 1} failed:`, decodeError);
                         break;
                     }
                 }
-                
+
                 clientSecret = decodedSecret;
                 console.log('🎯 Final client secret:', clientSecret.substring(0, 50) + '...');
-                
+
                 // Validate Payment Intent client secret format
                 if (!clientSecret.startsWith('pi_') || !clientSecret.includes('_secret_')) {
                     console.error('❌ Invalid Payment Intent client secret format after decoding:', clientSecret.substring(0, 100));
                     throw new Error('Invalid Payment Intent client secret format - unable to decode properly');
                 }
-                
+
                 console.log('✅ Client secret format is valid, proceeding with Stripe Elements initialization');
-                
+
                 // Initialize Elements
                 elements = stripe.elements({
                     clientSecret: clientSecret,
@@ -747,40 +746,40 @@
                         }
                     }
                 });
-                
+
                 // Create and mount payment element
                 const paymentElement = elements.create('payment');
                 paymentElement.mount('#stripe-checkout');
-                
+
                 checkoutButton.disabled = false;
-                
+
             } catch (error) {
                 showError('Failed to initialize payment system: ' + error.message);
                 // Show the actual error message in the stripe-checkout div
-                document.getElementById('stripe-checkout').innerHTML = 
+                document.getElementById('stripe-checkout').innerHTML =
                     '<div style="color: red; text-align: center; padding: 20px;">' +
                     'Failed to initialize payment system<br>' +
                     '<small>' + error.message + '</small>' +
                     '</div>';
             }
         }
-        
+
         // Handle checkout
         checkoutButton.addEventListener('click', async function() {
             if (!elements || !clientSecret) {
                 showError('Payment system not ready');
                 return;
             }
-            
+
             // Validate form
             if (!validateForm()) {
                 return;
             }
-            
+
             // Show loading
             checkoutButton.disabled = true;
             document.querySelector('.loading-spinner').style.display = 'inline-block';
-            
+
             try {
                 // Confirm payment
                 const { error, paymentIntent } = await stripe.confirmPayment({
@@ -797,7 +796,7 @@
                     },
                     redirect: 'if_required'
                 });
-                
+
                 if (error) {
                     showError(error.message);
                     checkoutButton.disabled = false;
@@ -811,14 +810,14 @@
                     checkoutButton.disabled = false;
                     document.querySelector('.loading-spinner').style.display = 'none';
                 }
-                
+
             } catch (error) {
                 showError('Payment processing failed');
                 checkoutButton.disabled = false;
                 document.querySelector('.loading-spinner').style.display = 'none';
             }
         });
-        
+
         // Create order after successful payment
         async function createOrder(paymentIntentId) {
             try {
@@ -832,7 +831,7 @@
                         phone: document.getElementById('phone').value,
                     }
                 };
-                
+
                 if (selectedDeliveryType === 'delivery') {
                     orderData.delivery_address = {
                         address: document.getElementById('address').value,
@@ -842,12 +841,12 @@
                         zip: document.getElementById('zip').value,
                         country: 'US'
                     };
-                    
+
                     if (deliveryQuote) {
                         orderData.delivery_quote = deliveryQuote;
                     }
                 }
-                
+
                 const response = await fetch('/api/create-order', {
                     method: 'POST',
                     headers: {
@@ -855,10 +854,10 @@
                     },
                     body: JSON.stringify(orderData)
                 });
-                
+
                 const result = await response.json();
-                
-                
+
+
                 if (result.success) {
                     // Check if this is an Uber Direct delivery with tracking URL
                     if (result.tracking_url) {
@@ -874,7 +873,7 @@
                     checkoutButton.disabled = false;
                     document.querySelector('.loading-spinner').style.display = 'none';
                 }
-                
+
             } catch (error) {
                 showError('Failed to create order');
                 // Reset button state on error
@@ -882,15 +881,15 @@
                 document.querySelector('.loading-spinner').style.display = 'none';
             }
         }
-        
+
         // Validate form
         function validateForm() {
             const requiredFields = ['email', 'firstName', 'lastName', 'phone'];
-            
+
             if (selectedDeliveryType === 'delivery') {
                 requiredFields.push('address', 'city', 'zip');
             }
-            
+
             for (const fieldId of requiredFields) {
                 const field = document.getElementById(fieldId);
                 if (!field.value.trim()) {
@@ -899,7 +898,7 @@
                     return false;
                 }
             }
-            
+
             // Validate email
             const email = document.getElementById('email').value;
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -908,32 +907,32 @@
                 document.getElementById('email').focus();
                 return false;
             }
-            
+
             return true;
         }
-        
+
         // Show error message
         function showError(message) {
             errorMessage.textContent = message;
             errorMessage.style.display = 'block';
             successMessage.style.display = 'none';
-            
+
             // Scroll to error
             errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            
+
             // Hide after 5 seconds
             setTimeout(() => {
                 errorMessage.style.display = 'none';
             }, 5000);
         }
-        
+
         // Show success message
         function showSuccess(message) {
             successMessage.textContent = message;
             successMessage.style.display = 'block';
             errorMessage.style.display = 'none';
         }
-        
+
         // Update cart count in navbar
         function updateCartCount() {
             fetch('/api/cart/count')
@@ -949,7 +948,7 @@
                     console.log('Could not update cart count:', error);
                 });
         }
-        
+
         // Update wishlist count in navbar
         function updateWishlistCount() {
             fetch('/api/wishlist/count')

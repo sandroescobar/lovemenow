@@ -1,442 +1,192 @@
 <!--
 
-2025-08-16T18:48:10.236829427Z Using cached wrapt-1.17.3-cp313-cp313-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (88 kB)
-2025-08-16T18:48:10.238098198Z Using cached markdown_it_py-4.0.0-py3-none-any.whl (87 kB)
-2025-08-16T18:48:10.239281466Z Using cached mdurl-0.1.2-py3-none-any.whl (10.0 kB)
-2025-08-16T18:48:10.240460175Z Using cached MarkupSafe-3.0.2-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (23 kB)
-2025-08-16T18:48:10.241611242Z Using cached packaging-25.0-py3-none-any.whl (66 kB)
-2025-08-16T18:48:10.242808181Z Using cached typing_extensions-4.14.1-py3-none-any.whl (43 kB)
-2025-08-16T18:48:10.244058261Z Using cached werkzeug-3.1.3-py3-none-any.whl (224 kB)
-2025-08-16T18:48:10.245380293Z Using cached mako-1.3.10-py3-none-any.whl (78 kB)
-2025-08-16T18:48:10.246570092Z Using cached numpy-2.3.2-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (16.6 MB)
-2025-08-16T18:48:10.261770897Z Using cached pycparser-2.22-py3-none-any.whl (117 kB)
-2025-08-16T18:48:10.263019037Z Using cached wtforms-3.2.1-py3-none-any.whl (152 kB)
-2025-08-16T18:48:10.264265447Z Using cached xyzservices-2025.4.0-py3-none-any.whl (90 kB)
-2025-08-16T18:48:10.408140367Z Installing collected packages: python-decouple, Flask-Talisman, xyzservices, wrapt, urllib3, typing-extensions, python-dotenv, PyMySQL, pygments, pycparser, packaging, ordered-set, numpy, mdurl, markupsafe, itsdangerous, idna, click, charset-normalizer, certifi, blinker, bcrypt, wtforms, Werkzeug, SQLAlchemy, sentry-sdk, requests, markdown-it-py, Mako, Jinja2, gunicorn, deprecated, cffi, stripe, rich, limits, Flask, cryptography, branca, alembic, folium, Flask-WTF, Flask-SQLAlchemy, Flask-Login, Flask-Limiter, Flask-Bcrypt, Flask-Migrate
-2025-08-16T18:48:20.070794799Z
-2025-08-16T18:48:20.076466235Z Successfully installed Flask-3.0.3 Flask-Bcrypt-1.0.1 Flask-Limiter-3.8.0 Flask-Login-0.6.3 Flask-Migrate-4.0.7 Flask-SQLAlchemy-3.1.1 Flask-Talisman-1.1.0 Flask-WTF-1.2.1 Jinja2-3.1.6 Mako-1.3.10 PyMySQL-1.1.1 SQLAlchemy-2.0.35 Werkzeug-3.1.3 alembic-1.16.4 bcrypt-4.3.0 blinker-1.9.0 branca-0.8.1 certifi-2025.8.3 cffi-1.17.1 charset-normalizer-3.4.3 click-8.2.1 cryptography-45.0.6 deprecated-1.2.18 folium-0.15.1 gunicorn-23.0.0 idna-3.10 itsdangerous-2.2.0 limits-5.5.0 markdown-it-py-4.0.0 markupsafe-3.0.2 mdurl-0.1.2 numpy-2.3.2 ordered-set-4.1.0 packaging-25.0 pycparser-2.22 pygments-2.19.2 python-decouple-3.8 python-dotenv-1.0.1 requests-2.32.3 rich-13.9.4 sentry-sdk-2.17.0 stripe-10.12.0 typing-extensions-4.14.1 urllib3-2.5.0 wrapt-1.17.3 wtforms-3.2.1 xyzservices-2025.4.0
-2025-08-16T18:48:20.083477674Z
-2025-08-16T18:48:20.083488614Z [notice] A new release of pip is available: 25.1.1 -> 25.2
-2025-08-16T18:48:20.083491354Z [notice] To update, run: pip install --upgrade pip
-2025-08-16T18:48:30.017873125Z ==> Uploading build...
-2025-08-16T18:48:39.120131581Z ==> Uploaded in 6.8s. Compression took 2.3s
-2025-08-16T18:48:39.160771418Z ==> Build successful 🎉
-2025-08-16T18:48:41.325806117Z ==> Deploying...
-2025-08-16T18:48:53.934893844Z ==> Running 'gunicorn app:app'
-2025-08-16T18:48:57.078656822Z Uber Direct service not configured - missing credentials
-2025-08-16T18:48:57.078675132Z UBER_CLIENT_ID: ✗
-2025-08-16T18:48:57.078684722Z UBER_CLIENT_SECRET: ✗
-2025-08-16T18:48:57.078691532Z UBER_CUSTOMER_ID: ✗
-2025-08-16T18:48:57.078835336Z [2025-08-16 18:48:57,078] INFO in app: LoveMeNow application started
-2025-08-16T18:48:57.078842456Z INFO:app:LoveMeNow application started
-2025-08-16T18:48:57.131145729Z [2025-08-16 18:48:57 +0000] [48] [INFO] Starting gunicorn 23.0.0
-2025-08-16T18:48:57.131538748Z [2025-08-16 18:48:57 +0000] [48] [INFO] Listening at: http://0.0.0.0:10000 (48)
-2025-08-16T18:48:57.131577539Z [2025-08-16 18:48:57 +0000] [48] [INFO] Using worker: sync
-2025-08-16T18:48:57.136150663Z [2025-08-16 18:48:57 +0000] [73] [INFO] Booting worker with pid: 73
-2025-08-16T18:48:59.249151952Z 127.0.0.1 - - [16/Aug/2025:18:48:59 +0000] "HEAD / HTTP/1.1" 200 0 "-" "Go-http-client/1.1"
-2025-08-16T18:49:02.512400444Z ==> Your service is live 🎉
-2025-08-16T18:49:02.554828908Z ==>
-2025-08-16T18:49:02.577860635Z ==> ///////////////////////////////////////////////////////////
-2025-08-16T18:49:02.599924602Z ==>
-2025-08-16T18:49:02.624745859Z ==> Available at your primary URL https://lovemenowmiami.com + 2 more domains
-2025-08-16T18:49:02.648537606Z ==>
-2025-08-16T18:49:02.671119633Z ==> ///////////////////////////////////////////////////////////
-2025-08-16T18:49:11.081697635Z 10.223.130.170 - - [16/Aug/2025:18:49:11 +0000] "GET / HTTP/1.1" 200 36380 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:49:11.646054958Z 10.223.246.169 - - [16/Aug/2025:18:49:11 +0000] "GET /static/IMG/imagesForLovMeNow/SKU-0002/MalePowerBunnyMaskMainImage.jpeg HTTP/1.1" 404 2273 "https://lovemenowmiami.com/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:49:11.647365641Z 10.223.246.169 - - [16/Aug/2025:18:49:11 +0000] "GET /api/wishlist/check/1 HTTP/1.1" 200 32 "https://lovemenowmiami.com/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:49:11.656639792Z 10.223.100.190 - - [16/Aug/2025:18:49:11 +0000] "GET /api/wishlist/check/2 HTTP/1.1" 200 32 "https://lovemenowmiami.com/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:49:11.94893078Z 10.223.80.89 - - [16/Aug/2025:18:49:11 +0000] "GET /api/wishlist/check/1 HTTP/1.1" 200 32 "https://lovemenowmiami.com/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:49:11.951503144Z 10.223.224.220 - - [16/Aug/2025:18:49:11 +0000] "GET /api/cart/count HTTP/1.1" 200 12 "https://lovemenowmiami.com/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:49:12.402406193Z 10.223.246.169 - - [16/Aug/2025:18:49:12 +0000] "GET /api/wishlist/count HTTP/1.1" 200 12 "https://lovemenowmiami.com/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:49:12.40351225Z 10.223.100.190 - - [16/Aug/2025:18:49:12 +0000] "GET /api/wishlist/check/3 HTTP/1.1" 200 32 "https://lovemenowmiami.com/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:49:13.958110012Z 10.223.130.170 - - [16/Aug/2025:18:49:13 +0000] "GET /sw.js HTTP/1.1" 404 2273 "https://lovemenowmiami.com/sw.js" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:49:44.043309839Z 10.223.5.98 - - [16/Aug/2025:18:49:44 +0000] "GET /sw.js HTTP/1.1" 404 2273 "https://lovemenowmiami.com/sw.js" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:50:50.668067399Z 10.223.246.169 - - [16/Aug/2025:18:50:50 +0000] "GET /cart HTTP/1.1" 200 28508 "https://lovemenowmiami.com/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:50:51.446379556Z 10.223.131.70 - - [16/Aug/2025:18:50:51 +0000] "GET /static/css/styles.css HTTP/1.1" 404 2273 "https://lovemenowmiami.com/cart" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:50:51.766996159Z 10.223.131.70 - - [16/Aug/2025:18:50:51 +0000] "GET /api/cart/count HTTP/1.1" 200 12 "https://lovemenowmiami.com/cart" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:50:51.786946675Z 10.223.131.70 - - [16/Aug/2025:18:50:51 +0000] "GET /api/wishlist/count HTTP/1.1" 200 12 "https://lovemenowmiami.com/cart" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:50:52.075464389Z 10.223.80.89 - - [16/Aug/2025:18:50:52 +0000] "GET /api/cart/ HTTP/1.1" 200 736 "https://lovemenowmiami.com/cart" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:50:52.07751674Z 10.223.249.99 - - [16/Aug/2025:18:50:52 +0000] "GET /api/cart/debug HTTP/1.1" 200 208 "https://lovemenowmiami.com/cart" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:50:52.11405227Z 10.223.249.99 - - [16/Aug/2025:18:50:52 +0000] "GET /api/wishlist/count HTTP/1.1" 200 12 "https://lovemenowmiami.com/cart" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:50:52.352037035Z 10.223.178.124 - - [16/Aug/2025:18:50:52 +0000] "GET /api/wishlist/count HTTP/1.1" 200 12 "https://lovemenowmiami.com/cart" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:50:53.88416545Z 10.223.131.70 - - [16/Aug/2025:18:50:53 +0000] "GET /sw.js HTTP/1.1" 404 2273 "https://lovemenowmiami.com/sw.js" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:50:54.461994427Z [2025-08-16 18:50:54,461] INFO in main: Stripe publishable key: pk_test_51RTFZ106MZhkBN1wxVwjSMerbhAp1tmiHvrPtRqMKoxcFOsadC21AXB5qFsh4Yi5FdR00o59OpDBT
-2025-08-16T18:50:54.462025877Z INFO:app:Stripe publishable key: pk_test_51RTFZ106MZhkBN1wxVwjSMerbhAp1tmiHvrPtRqMKoxcFOsadC21AXB5qFsh4Yi5FdR00o59OpDBT
-2025-08-16T18:50:54.462050588Z [2025-08-16 18:50:54,461] INFO in main: Stripe secret key: sk_test_51...
-2025-08-16T18:50:54.462068138Z INFO:app:Stripe secret key: sk_test_51...
-2025-08-16T18:50:54.538302147Z [2025-08-16 18:50:54,538] INFO in main: Attempting to render checkout_enhanced.html template
-2025-08-16T18:50:54.538328627Z INFO:app:Attempting to render checkout_enhanced.html template
-2025-08-16T18:50:54.538340507Z [2025-08-16 18:50:54,538] INFO in main: Cart data: {'items': [{'id': 23, 'name': 'Fetish Fantasy Series Spandex 3-Hole Hood Black', 'price': 27.99, 'quantity': 1, 'image_url': '/static/IMG/imagesForLovMeNow/SKU_0020/fetish_Fantasy_Series_Spandex_3Hole_hood_Main_Image.jpeg', 'description': 'Keep your submissive incognito with this Spandex 3-Hole Hood…', 'in_stock': True, 'max_quantity': 1, 'item_total': 27.99}], 'subtotal': 27.99, 'shipping': 9.99, 'total': 37.98, 'count': 1}
-2025-08-16T18:50:54.538369098Z INFO:app:Cart data: {'items': [{'id': 23, 'name': 'Fetish Fantasy Series Spandex 3-Hole Hood Black', 'price': 27.99, 'quantity': 1, 'image_url': '/static/IMG/imagesForLovMeNow/SKU_0020/fetish_Fantasy_Series_Spandex_3Hole_hood_Main_Image.jpeg', 'description': 'Keep your submissive incognito with this Spandex 3-Hole Hood…', 'in_stock': True, 'max_quantity': 1, 'item_total': 27.99}], 'subtotal': 27.99, 'shipping': 9.99, 'total': 37.98, 'count': 1}
-2025-08-16T18:50:54.53846219Z [2025-08-16 18:50:54,538] INFO in main: Config keys: ['DEBUG', 'TESTING', 'PROPAGATE_EXCEPTIONS', 'SECRET_KEY', 'PERMANENT_SESSION_LIFETIME', 'USE_X_SENDFILE', 'SERVER_NAME', 'APPLICATION_ROOT', 'SESSION_COOKIE_NAME', 'SESSION_COOKIE_DOMAIN', 'SESSION_COOKIE_PATH', 'SESSION_COOKIE_HTTPONLY', 'SESSION_COOKIE_SECURE', 'SESSION_COOKIE_SAMESITE', 'SESSION_REFRESH_EACH_REQUEST', 'MAX_CONTENT_LENGTH', 'SEND_FILE_MAX_AGE_DEFAULT', 'TRAP_BAD_REQUEST_ERRORS', 'TRAP_HTTP_EXCEPTIONS', 'EXPLAIN_TEMPLATE_LOADING', 'PREFERRED_URL_SCHEME', 'TEMPLATES_AUTO_RELOAD', 'MAX_COOKIE_SIZE', 'DOMAIN', 'RATELIMIT_STORAGE_URL', 'REMEMBER_COOKIE_DURATION', 'REMEMBER_COOKIE_HTTPONLY', 'REMEMBER_COOKIE_SECURE', 'SECURITY_HEADERS', 'SENDLAYER_API_KEY', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_ENGINE_OPTIONS', 'SQLALCHEMY_TRACK_MODIFICATIONS', 'STORE_ADDRESS', 'STORE_CITY', 'STORE_LATITUDE', 'STORE_LONGITUDE', 'STORE_NAME', 'STORE_PHONE', 'STORE_STATE', 'STORE_SUITE', 'STORE_ZIP', 'STRIPE_PUBLISHABLE_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'UBER_CLIENT_ID', 'UBER_CLIENT_SECRET', 'UBER_CUSTOMER_ID', 'UBER_SANDBOX', 'WTF_CSRF_ENABLED', 'WTF_CSRF_SSL_STRICT', 'WTF_CSRF_TIME_LIMIT', 'SQLALCHEMY_ECHO', 'SQLALCHEMY_BINDS', 'SQLALCHEMY_RECORD_QUERIES', 'WTF_CSRF_CHECK_DEFAULT', 'WTF_CSRF_METHODS', 'WTF_CSRF_FIELD_NAME', 'WTF_CSRF_HEADERS']
-2025-08-16T18:50:54.53846668Z INFO:app:Config keys: ['DEBUG', 'TESTING', 'PROPAGATE_EXCEPTIONS', 'SECRET_KEY', 'PERMANENT_SESSION_LIFETIME', 'USE_X_SENDFILE', 'SERVER_NAME', 'APPLICATION_ROOT', 'SESSION_COOKIE_NAME', 'SESSION_COOKIE_DOMAIN', 'SESSION_COOKIE_PATH', 'SESSION_COOKIE_HTTPONLY', 'SESSION_COOKIE_SECURE', 'SESSION_COOKIE_SAMESITE', 'SESSION_REFRESH_EACH_REQUEST', 'MAX_CONTENT_LENGTH', 'SEND_FILE_MAX_AGE_DEFAULT', 'TRAP_BAD_REQUEST_ERRORS', 'TRAP_HTTP_EXCEPTIONS', 'EXPLAIN_TEMPLATE_LOADING', 'PREFERRED_URL_SCHEME', 'TEMPLATES_AUTO_RELOAD', 'MAX_COOKIE_SIZE', 'DOMAIN', 'RATELIMIT_STORAGE_URL', 'REMEMBER_COOKIE_DURATION', 'REMEMBER_COOKIE_HTTPONLY', 'REMEMBER_COOKIE_SECURE', 'SECURITY_HEADERS', 'SENDLAYER_API_KEY', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_ENGINE_OPTIONS', 'SQLALCHEMY_TRACK_MODIFICATIONS', 'STORE_ADDRESS', 'STORE_CITY', 'STORE_LATITUDE', 'STORE_LONGITUDE', 'STORE_NAME', 'STORE_PHONE', 'STORE_STATE', 'STORE_SUITE', 'STORE_ZIP', 'STRIPE_PUBLISHABLE_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'UBER_CLIENT_ID', 'UBER_CLIENT_SECRET', 'UBER_CUSTOMER_ID', 'UBER_SANDBOX', 'WTF_CSRF_ENABLED', 'WTF_CSRF_SSL_STRICT', 'WTF_CSRF_TIME_LIMIT', 'SQLALCHEMY_ECHO', 'SQLALCHEMY_BINDS', 'SQLALCHEMY_RECORD_QUERIES', 'WTF_CSRF_CHECK_DEFAULT', 'WTF_CSRF_METHODS', 'WTF_CSRF_FIELD_NAME', 'WTF_CSRF_HEADERS']
-2025-08-16T18:50:54.687427969Z 10.223.246.169 - - [16/Aug/2025:18:50:54 +0000] "GET /checkout HTTP/1.1" 200 41589 "https://lovemenowmiami.com/cart" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:50:55.053161585Z 10.223.178.124 - - [16/Aug/2025:18:50:55 +0000] "GET /api/cart/count HTTP/1.1" 200 12 "https://lovemenowmiami.com/checkout" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:50:55.345605766Z [2025-08-16 18:50:55,345] INFO in main: Config keys available: ['DEBUG', 'TESTING', 'PROPAGATE_EXCEPTIONS', 'SECRET_KEY', 'PERMANENT_SESSION_LIFETIME', 'USE_X_SENDFILE', 'SERVER_NAME', 'APPLICATION_ROOT', 'SESSION_COOKIE_NAME', 'SESSION_COOKIE_DOMAIN', 'SESSION_COOKIE_PATH', 'SESSION_COOKIE_HTTPONLY', 'SESSION_COOKIE_SECURE', 'SESSION_COOKIE_SAMESITE', 'SESSION_REFRESH_EACH_REQUEST', 'MAX_CONTENT_LENGTH', 'SEND_FILE_MAX_AGE_DEFAULT', 'TRAP_BAD_REQUEST_ERRORS', 'TRAP_HTTP_EXCEPTIONS', 'EXPLAIN_TEMPLATE_LOADING', 'PREFERRED_URL_SCHEME', 'TEMPLATES_AUTO_RELOAD', 'MAX_COOKIE_SIZE', 'DOMAIN', 'RATELIMIT_STORAGE_URL', 'REMEMBER_COOKIE_DURATION', 'REMEMBER_COOKIE_HTTPONLY', 'REMEMBER_COOKIE_SECURE', 'SECURITY_HEADERS', 'SENDLAYER_API_KEY', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_ENGINE_OPTIONS', 'SQLALCHEMY_TRACK_MODIFICATIONS', 'STORE_ADDRESS', 'STORE_CITY', 'STORE_LATITUDE', 'STORE_LONGITUDE', 'STORE_NAME', 'STORE_PHONE', 'STORE_STATE', 'STORE_SUITE', 'STORE_ZIP', 'STRIPE_PUBLISHABLE_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'UBER_CLIENT_ID', 'UBER_CLIENT_SECRET', 'UBER_CUSTOMER_ID', 'UBER_SANDBOX', 'WTF_CSRF_ENABLED', 'WTF_CSRF_SSL_STRICT', 'WTF_CSRF_TIME_LIMIT', 'SQLALCHEMY_ECHO', 'SQLALCHEMY_BINDS', 'SQLALCHEMY_RECORD_QUERIES', 'WTF_CSRF_CHECK_DEFAULT', 'WTF_CSRF_METHODS', 'WTF_CSRF_FIELD_NAME', 'WTF_CSRF_HEADERS']
-2025-08-16T18:50:55.345652867Z INFO:app:Config keys available: ['DEBUG', 'TESTING', 'PROPAGATE_EXCEPTIONS', 'SECRET_KEY', 'PERMANENT_SESSION_LIFETIME', 'USE_X_SENDFILE', 'SERVER_NAME', 'APPLICATION_ROOT', 'SESSION_COOKIE_NAME', 'SESSION_COOKIE_DOMAIN', 'SESSION_COOKIE_PATH', 'SESSION_COOKIE_HTTPONLY', 'SESSION_COOKIE_SECURE', 'SESSION_COOKIE_SAMESITE', 'SESSION_REFRESH_EACH_REQUEST', 'MAX_CONTENT_LENGTH', 'SEND_FILE_MAX_AGE_DEFAULT', 'TRAP_BAD_REQUEST_ERRORS', 'TRAP_HTTP_EXCEPTIONS', 'EXPLAIN_TEMPLATE_LOADING', 'PREFERRED_URL_SCHEME', 'TEMPLATES_AUTO_RELOAD', 'MAX_COOKIE_SIZE', 'DOMAIN', 'RATELIMIT_STORAGE_URL', 'REMEMBER_COOKIE_DURATION', 'REMEMBER_COOKIE_HTTPONLY', 'REMEMBER_COOKIE_SECURE', 'SECURITY_HEADERS', 'SENDLAYER_API_KEY', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_ENGINE_OPTIONS', 'SQLALCHEMY_TRACK_MODIFICATIONS', 'STORE_ADDRESS', 'STORE_CITY', 'STORE_LATITUDE', 'STORE_LONGITUDE', 'STORE_NAME', 'STORE_PHONE', 'STORE_STATE', 'STORE_SUITE', 'STORE_ZIP', 'STRIPE_PUBLISHABLE_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'UBER_CLIENT_ID', 'UBER_CLIENT_SECRET', 'UBER_CUSTOMER_ID', 'UBER_SANDBOX', 'WTF_CSRF_ENABLED', 'WTF_CSRF_SSL_STRICT', 'WTF_CSRF_TIME_LIMIT', 'SQLALCHEMY_ECHO', 'SQLALCHEMY_BINDS', 'SQLALCHEMY_RECORD_QUERIES', 'WTF_CSRF_CHECK_DEFAULT', 'WTF_CSRF_METHODS', 'WTF_CSRF_FIELD_NAME', 'WTF_CSRF_HEADERS']
-2025-08-16T18:50:55.345666567Z [2025-08-16 18:50:55,345] INFO in main: Stripe secret key from config: sk_test_51...
-2025-08-16T18:50:55.345670257Z INFO:app:Stripe secret key from config: sk_test_51...
-2025-08-16T18:50:55.345673457Z [2025-08-16 18:50:55,345] INFO in main: Testing Stripe import...
-2025-08-16T18:50:55.345677288Z INFO:app:Testing Stripe import...
-2025-08-16T18:50:55.34576488Z [2025-08-16 18:50:55,345] INFO in main: Stripe checkout.Session is available
-2025-08-16T18:50:55.34577451Z INFO:app:Stripe checkout.Session is available
-2025-08-16T18:50:55.345819891Z [2025-08-16 18:50:55,345] INFO in main: Loading cart data...
-2025-08-16T18:50:55.345826831Z INFO:app:Loading cart data...
-2025-08-16T18:50:55.345896263Z [2025-08-16 18:50:55,345] INFO in main: Session cart data: {'23': 1}
-2025-08-16T18:50:55.345902353Z INFO:app:Session cart data: {'23': 1}
-2025-08-16T18:50:55.487298854Z [2025-08-16 18:50:55,487] INFO in main: Found 1 items in session cart
-2025-08-16T18:50:55.487321634Z INFO:app:Found 1 items in session cart
-2025-08-16T18:50:55.487368015Z [2025-08-16 18:50:55,487] INFO in main: Calculating totals and creating line items...
-2025-08-16T18:50:55.487372805Z INFO:app:Calculating totals and creating line items...
-2025-08-16T18:50:55.487462748Z [2025-08-16 18:50:55,487] INFO in main: Creating Stripe checkout session...
-2025-08-16T18:50:55.487468288Z INFO:app:Creating Stripe checkout session...
-2025-08-16T18:50:55.48754914Z [2025-08-16 18:50:55,487] INFO in main: Line items: [{'price_data': {'currency': 'usd', 'product_data': {'name': 'Fetish Fantasy Series Spandex 3-Hole Hood Black', 'description': 'Keep your submissive incognito with this Spandex 3-Hole Hood…'}, 'unit_amount': 2799}, 'quantity': 1}, {'price_data': {'currency': 'usd', 'product_data': {'name': 'Shipping', 'description': 'Standard shipping'}, 'unit_amount': 999}, 'quantity': 1}]
-2025-08-16T18:50:55.48755484Z INFO:app:Line items: [{'price_data': {'currency': 'usd', 'product_data': {'name': 'Fetish Fantasy Series Spandex 3-Hole Hood Black', 'description': 'Keep your submissive incognito with this Spandex 3-Hole Hood…'}, 'unit_amount': 2799}, 'quantity': 1}, {'price_data': {'currency': 'usd', 'product_data': {'name': 'Shipping', 'description': 'Standard shipping'}, 'unit_amount': 999}, 'quantity': 1}]
-2025-08-16T18:50:55.487633072Z [2025-08-16 18:50:55,487] INFO in main: Total amount in cents: 3798
-2025-08-16T18:50:55.487637712Z INFO:app:Total amount in cents: 3798
-2025-08-16T18:50:55.487678163Z [2025-08-16 18:50:55,487] INFO in main: 🚀 CREATING PAYMENT INTENT (NOT CHECKOUT SESSION) FOR ELEMENTS INTEGRATION...
-2025-08-16T18:50:55.487680723Z INFO:app:🚀 CREATING PAYMENT INTENT (NOT CHECKOUT SESSION) FOR ELEMENTS INTEGRATION...
-2025-08-16T18:50:55.49076491Z INFO:stripe:message='Request to Stripe api' method=post url=https://api.stripe.com/v1/payment_intents
-2025-08-16T18:50:55.839484082Z INFO:stripe:message='Stripe API response' path=https://api.stripe.com/v1/payment_intents response_code=200
-2025-08-16T18:50:55.843612185Z [2025-08-16 18:50:55,843] INFO in main: 🎉 PAYMENT INTENT CREATED SUCCESSFULLY: pi_3RwpBr06MZhkBN1w0ZmSXQKV (NOT CHECKOUT SESSION!)
-2025-08-16T18:50:55.843630845Z INFO:app:🎉 PAYMENT INTENT CREATED SUCCESSFULLY: pi_3RwpBr06MZhkBN1w0ZmSXQKV (NOT CHECKOUT SESSION!)
-2025-08-16T18:50:55.843674996Z [2025-08-16 18:50:55,843] INFO in main: 🔑 PAYMENT INTENT CLIENT SECRET OBTAINED: pi_3RwpBr06MZhkBN1w0... (SHOULD START WITH 'pi_')
-2025-08-16T18:50:55.843683787Z INFO:app:🔑 PAYMENT INTENT CLIENT SECRET OBTAINED: pi_3RwpBr06MZhkBN1w0... (SHOULD START WITH 'pi_')
-2025-08-16T18:50:55.843734248Z [2025-08-16 18:50:55,843] INFO in main: Full client secret (first 50 chars): pi_3RwpBr06MZhkBN1w0ZmSXQKV_secret_VzBz3HicbwMQ2DB
-2025-08-16T18:50:55.843737318Z INFO:app:Full client secret (first 50 chars): pi_3RwpBr06MZhkBN1w0ZmSXQKV_secret_VzBz3HicbwMQ2DB
-2025-08-16T18:50:55.843787819Z [2025-08-16 18:50:55,843] INFO in main: Client secret type: <class 'str'>
-2025-08-16T18:50:55.843790879Z INFO:app:Client secret type: <class 'str'>
-2025-08-16T18:50:55.843865591Z [2025-08-16 18:50:55,843] INFO in main: 🔍 Raw client secret from Stripe: 'pi_3RwpBr06MZhkBN1w0ZmSXQKV_secret_VzBz3HicbwMQ2DBjW7fJFU86h'
-2025-08-16T18:50:55.843868271Z INFO:app:🔍 Raw client secret from Stripe: 'pi_3RwpBr06MZhkBN1w0ZmSXQKV_secret_VzBz3HicbwMQ2DBjW7fJFU86h'
-2025-08-16T18:50:55.843918942Z [2025-08-16 18:50:55,843] INFO in main: 🔄 Decode attempt 1:
-2025-08-16T18:50:55.843922012Z INFO:app:🔄 Decode attempt 1:
-2025-08-16T18:50:55.843969683Z [2025-08-16 18:50:55,843] INFO in main:    Before: pi_3RwpBr06MZhkBN1w0ZmSXQKV_secret_VzBz3HicbwMQ2DB...
-2025-08-16T18:50:55.843972094Z INFO:app:   Before: pi_3RwpBr06MZhkBN1w0ZmSXQKV_secret_VzBz3HicbwMQ2DB...
-2025-08-16T18:50:55.844022055Z [2025-08-16 18:50:55,843] INFO in main:    After:  pi_3RwpBr06MZhkBN1w0ZmSXQKV_secret_VzBz3HicbwMQ2DB...
-2025-08-16T18:50:55.844025415Z INFO:app:   After:  pi_3RwpBr06MZhkBN1w0ZmSXQKV_secret_VzBz3HicbwMQ2DB...
-2025-08-16T18:50:55.844084986Z [2025-08-16 18:50:55,844] INFO in main: ✅ No more decoding needed
-2025-08-16T18:50:55.844088097Z INFO:app:✅ No more decoding needed
-2025-08-16T18:50:55.844131388Z [2025-08-16 18:50:55,844] INFO in main: 🎯 Final client secret: pi_3RwpBr06MZhkBN1w0ZmSXQKV_secret_VzBz3HicbwMQ2DB...
-2025-08-16T18:50:55.844136298Z INFO:app:🎯 Final client secret: pi_3RwpBr06MZhkBN1w0ZmSXQKV_secret_VzBz3HicbwMQ2DB...
-2025-08-16T18:50:55.84421377Z [2025-08-16 18:50:55,844] INFO in main: ✅ Client secret format is valid
-2025-08-16T18:50:55.84422237Z INFO:app:✅ Client secret format is valid
-2025-08-16T18:50:55.844376344Z [2025-08-16 18:50:55,844] INFO in main: 📤 Sending response: {"clientSecret": "pi_3RwpBr06MZhkBN1w0ZmSXQKV_secret_VzBz3HicbwMQ2DBjW7fJFU86h"}...
-2025-08-16T18:50:55.844389064Z INFO:app:📤 Sending response: {"clientSecret": "pi_3RwpBr06MZhkBN1w0ZmSXQKV_secret_VzBz3HicbwMQ2DBjW7fJFU86h"}...
-2025-08-16T18:50:55.984131593Z 10.223.249.99 - - [16/Aug/2025:18:50:55 +0000] "POST /create-checkout-session HTTP/1.1" 200 80 "https://lovemenowmiami.com/checkout" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:50:55.985957299Z 10.223.246.169 - - [16/Aug/2025:18:50:55 +0000] "GET /api/wishlist/count HTTP/1.1" 200 12 "https://lovemenowmiami.com/checkout" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:50:56.835967091Z 10.223.246.169 - - [16/Aug/2025:18:50:56 +0000] "GET /sw.js HTTP/1.1" 404 2273 "https://lovemenowmiami.com/sw.js" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:51:03.565570697Z [2025-08-16 18:51:03,565] INFO in main: Stripe publishable key: pk_test_51RTFZ106MZhkBN1wxVwjSMerbhAp1tmiHvrPtRqMKoxcFOsadC21AXB5qFsh4Yi5FdR00o59OpDBT
-2025-08-16T18:51:03.565587558Z INFO:app:Stripe publishable key: pk_test_51RTFZ106MZhkBN1wxVwjSMerbhAp1tmiHvrPtRqMKoxcFOsadC21AXB5qFsh4Yi5FdR00o59OpDBT
-2025-08-16T18:51:03.565596228Z [2025-08-16 18:51:03,565] INFO in main: Stripe secret key: sk_test_51...
-2025-08-16T18:51:03.565610308Z INFO:app:Stripe secret key: sk_test_51...
-2025-08-16T18:51:03.636967965Z [2025-08-16 18:51:03,636] INFO in main: Attempting to render checkout_enhanced.html template
-2025-08-16T18:51:03.636988995Z INFO:app:Attempting to render checkout_enhanced.html template
-2025-08-16T18:51:03.637004376Z [2025-08-16 18:51:03,636] INFO in main: Cart data: {'items': [{'id': 23, 'name': 'Fetish Fantasy Series Spandex 3-Hole Hood Black', 'price': 27.99, 'quantity': 1, 'image_url': '/static/IMG/imagesForLovMeNow/SKU_0020/fetish_Fantasy_Series_Spandex_3Hole_hood_Main_Image.jpeg', 'description': 'Keep your submissive incognito with this Spandex 3-Hole Hood…', 'in_stock': True, 'max_quantity': 1, 'item_total': 27.99}], 'subtotal': 27.99, 'shipping': 9.99, 'total': 37.98, 'count': 1}
-2025-08-16T18:51:03.637019206Z INFO:app:Cart data: {'items': [{'id': 23, 'name': 'Fetish Fantasy Series Spandex 3-Hole Hood Black', 'price': 27.99, 'quantity': 1, 'image_url': '/static/IMG/imagesForLovMeNow/SKU_0020/fetish_Fantasy_Series_Spandex_3Hole_hood_Main_Image.jpeg', 'description': 'Keep your submissive incognito with this Spandex 3-Hole Hood…', 'in_stock': True, 'max_quantity': 1, 'item_total': 27.99}], 'subtotal': 27.99, 'shipping': 9.99, 'total': 37.98, 'count': 1}
-2025-08-16T18:51:03.637065537Z [2025-08-16 18:51:03,636] INFO in main: Config keys: ['DEBUG', 'TESTING', 'PROPAGATE_EXCEPTIONS', 'SECRET_KEY', 'PERMANENT_SESSION_LIFETIME', 'USE_X_SENDFILE', 'SERVER_NAME', 'APPLICATION_ROOT', 'SESSION_COOKIE_NAME', 'SESSION_COOKIE_DOMAIN', 'SESSION_COOKIE_PATH', 'SESSION_COOKIE_HTTPONLY', 'SESSION_COOKIE_SECURE', 'SESSION_COOKIE_SAMESITE', 'SESSION_REFRESH_EACH_REQUEST', 'MAX_CONTENT_LENGTH', 'SEND_FILE_MAX_AGE_DEFAULT', 'TRAP_BAD_REQUEST_ERRORS', 'TRAP_HTTP_EXCEPTIONS', 'EXPLAIN_TEMPLATE_LOADING', 'PREFERRED_URL_SCHEME', 'TEMPLATES_AUTO_RELOAD', 'MAX_COOKIE_SIZE', 'DOMAIN', 'RATELIMIT_STORAGE_URL', 'REMEMBER_COOKIE_DURATION', 'REMEMBER_COOKIE_HTTPONLY', 'REMEMBER_COOKIE_SECURE', 'SECURITY_HEADERS', 'SENDLAYER_API_KEY', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_ENGINE_OPTIONS', 'SQLALCHEMY_TRACK_MODIFICATIONS', 'STORE_ADDRESS', 'STORE_CITY', 'STORE_LATITUDE', 'STORE_LONGITUDE', 'STORE_NAME', 'STORE_PHONE', 'STORE_STATE', 'STORE_SUITE', 'STORE_ZIP', 'STRIPE_PUBLISHABLE_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'UBER_CLIENT_ID', 'UBER_CLIENT_SECRET', 'UBER_CUSTOMER_ID', 'UBER_SANDBOX', 'WTF_CSRF_ENABLED', 'WTF_CSRF_SSL_STRICT', 'WTF_CSRF_TIME_LIMIT', 'SQLALCHEMY_ECHO', 'SQLALCHEMY_BINDS', 'SQLALCHEMY_RECORD_QUERIES', 'WTF_CSRF_CHECK_DEFAULT', 'WTF_CSRF_METHODS', 'WTF_CSRF_FIELD_NAME', 'WTF_CSRF_HEADERS']
-2025-08-16T18:51:03.637085748Z INFO:app:Config keys: ['DEBUG', 'TESTING', 'PROPAGATE_EXCEPTIONS', 'SECRET_KEY', 'PERMANENT_SESSION_LIFETIME', 'USE_X_SENDFILE', 'SERVER_NAME', 'APPLICATION_ROOT', 'SESSION_COOKIE_NAME', 'SESSION_COOKIE_DOMAIN', 'SESSION_COOKIE_PATH', 'SESSION_COOKIE_HTTPONLY', 'SESSION_COOKIE_SECURE', 'SESSION_COOKIE_SAMESITE', 'SESSION_REFRESH_EACH_REQUEST', 'MAX_CONTENT_LENGTH', 'SEND_FILE_MAX_AGE_DEFAULT', 'TRAP_BAD_REQUEST_ERRORS', 'TRAP_HTTP_EXCEPTIONS', 'EXPLAIN_TEMPLATE_LOADING', 'PREFERRED_URL_SCHEME', 'TEMPLATES_AUTO_RELOAD', 'MAX_COOKIE_SIZE', 'DOMAIN', 'RATELIMIT_STORAGE_URL', 'REMEMBER_COOKIE_DURATION', 'REMEMBER_COOKIE_HTTPONLY', 'REMEMBER_COOKIE_SECURE', 'SECURITY_HEADERS', 'SENDLAYER_API_KEY', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_ENGINE_OPTIONS', 'SQLALCHEMY_TRACK_MODIFICATIONS', 'STORE_ADDRESS', 'STORE_CITY', 'STORE_LATITUDE', 'STORE_LONGITUDE', 'STORE_NAME', 'STORE_PHONE', 'STORE_STATE', 'STORE_SUITE', 'STORE_ZIP', 'STRIPE_PUBLISHABLE_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'UBER_CLIENT_ID', 'UBER_CLIENT_SECRET', 'UBER_CUSTOMER_ID', 'UBER_SANDBOX', 'WTF_CSRF_ENABLED', 'WTF_CSRF_SSL_STRICT', 'WTF_CSRF_TIME_LIMIT', 'SQLALCHEMY_ECHO', 'SQLALCHEMY_BINDS', 'SQLALCHEMY_RECORD_QUERIES', 'WTF_CSRF_CHECK_DEFAULT', 'WTF_CSRF_METHODS', 'WTF_CSRF_FIELD_NAME', 'WTF_CSRF_HEADERS']
-2025-08-16T18:51:03.77694723Z 10.223.249.99 - - [16/Aug/2025:18:51:03 +0000] "GET /checkout HTTP/1.1" 200 41589 "https://lovemenowmiami.com/cart" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:52:50.728640467Z [2025-08-16 18:52:50,728] INFO in main: Stripe publishable key: pk_test_51RTFZ106MZhkBN1wxVwjSMerbhAp1tmiHvrPtRqMKoxcFOsadC21AXB5qFsh4Yi5FdR00o59OpDBT
-2025-08-16T18:52:50.728661628Z INFO:app:Stripe publishable key: pk_test_51RTFZ106MZhkBN1wxVwjSMerbhAp1tmiHvrPtRqMKoxcFOsadC21AXB5qFsh4Yi5FdR00o59OpDBT
-2025-08-16T18:52:50.728669948Z [2025-08-16 18:52:50,728] INFO in main: Stripe secret key: sk_test_51...
-2025-08-16T18:52:50.728673648Z INFO:app:Stripe secret key: sk_test_51...
-2025-08-16T18:52:50.799162623Z [2025-08-16 18:52:50,799] INFO in main: Attempting to render checkout_enhanced.html template
-2025-08-16T18:52:50.799181703Z INFO:app:Attempting to render checkout_enhanced.html template
-2025-08-16T18:52:50.799228864Z [2025-08-16 18:52:50,799] INFO in main: Cart data: {'items': [{'id': 23, 'name': 'Fetish Fantasy Series Spandex 3-Hole Hood Black', 'price': 27.99, 'quantity': 1, 'image_url': '/static/IMG/imagesForLovMeNow/SKU_0020/fetish_Fantasy_Series_Spandex_3Hole_hood_Main_Image.jpeg', 'description': 'Keep your submissive incognito with this Spandex 3-Hole Hood…', 'in_stock': True, 'max_quantity': 1, 'item_total': 27.99}], 'subtotal': 27.99, 'shipping': 9.99, 'total': 37.98, 'count': 1}
-2025-08-16T18:52:50.799248625Z INFO:app:Cart data: {'items': [{'id': 23, 'name': 'Fetish Fantasy Series Spandex 3-Hole Hood Black', 'price': 27.99, 'quantity': 1, 'image_url': '/static/IMG/imagesForLovMeNow/SKU_0020/fetish_Fantasy_Series_Spandex_3Hole_hood_Main_Image.jpeg', 'description': 'Keep your submissive incognito with this Spandex 3-Hole Hood…', 'in_stock': True, 'max_quantity': 1, 'item_total': 27.99}], 'subtotal': 27.99, 'shipping': 9.99, 'total': 37.98, 'count': 1}
-2025-08-16T18:52:50.799326937Z [2025-08-16 18:52:50,799] INFO in main: Config keys: ['DEBUG', 'TESTING', 'PROPAGATE_EXCEPTIONS', 'SECRET_KEY', 'PERMANENT_SESSION_LIFETIME', 'USE_X_SENDFILE', 'SERVER_NAME', 'APPLICATION_ROOT', 'SESSION_COOKIE_NAME', 'SESSION_COOKIE_DOMAIN', 'SESSION_COOKIE_PATH', 'SESSION_COOKIE_HTTPONLY', 'SESSION_COOKIE_SECURE', 'SESSION_COOKIE_SAMESITE', 'SESSION_REFRESH_EACH_REQUEST', 'MAX_CONTENT_LENGTH', 'SEND_FILE_MAX_AGE_DEFAULT', 'TRAP_BAD_REQUEST_ERRORS', 'TRAP_HTTP_EXCEPTIONS', 'EXPLAIN_TEMPLATE_LOADING', 'PREFERRED_URL_SCHEME', 'TEMPLATES_AUTO_RELOAD', 'MAX_COOKIE_SIZE', 'DOMAIN', 'RATELIMIT_STORAGE_URL', 'REMEMBER_COOKIE_DURATION', 'REMEMBER_COOKIE_HTTPONLY', 'REMEMBER_COOKIE_SECURE', 'SECURITY_HEADERS', 'SENDLAYER_API_KEY', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_ENGINE_OPTIONS', 'SQLALCHEMY_TRACK_MODIFICATIONS', 'STORE_ADDRESS', 'STORE_CITY', 'STORE_LATITUDE', 'STORE_LONGITUDE', 'STORE_NAME', 'STORE_PHONE', 'STORE_STATE', 'STORE_SUITE', 'STORE_ZIP', 'STRIPE_PUBLISHABLE_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'UBER_CLIENT_ID', 'UBER_CLIENT_SECRET', 'UBER_CUSTOMER_ID', 'UBER_SANDBOX', 'WTF_CSRF_ENABLED', 'WTF_CSRF_SSL_STRICT', 'WTF_CSRF_TIME_LIMIT', 'SQLALCHEMY_ECHO', 'SQLALCHEMY_BINDS', 'SQLALCHEMY_RECORD_QUERIES', 'WTF_CSRF_CHECK_DEFAULT', 'WTF_CSRF_METHODS', 'WTF_CSRF_FIELD_NAME', 'WTF_CSRF_HEADERS']
-2025-08-16T18:52:50.799348117Z INFO:app:Config keys: ['DEBUG', 'TESTING', 'PROPAGATE_EXCEPTIONS', 'SECRET_KEY', 'PERMANENT_SESSION_LIFETIME', 'USE_X_SENDFILE', 'SERVER_NAME', 'APPLICATION_ROOT', 'SESSION_COOKIE_NAME', 'SESSION_COOKIE_DOMAIN', 'SESSION_COOKIE_PATH', 'SESSION_COOKIE_HTTPONLY', 'SESSION_COOKIE_SECURE', 'SESSION_COOKIE_SAMESITE', 'SESSION_REFRESH_EACH_REQUEST', 'MAX_CONTENT_LENGTH', 'SEND_FILE_MAX_AGE_DEFAULT', 'TRAP_BAD_REQUEST_ERRORS', 'TRAP_HTTP_EXCEPTIONS', 'EXPLAIN_TEMPLATE_LOADING', 'PREFERRED_URL_SCHEME', 'TEMPLATES_AUTO_RELOAD', 'MAX_COOKIE_SIZE', 'DOMAIN', 'RATELIMIT_STORAGE_URL', 'REMEMBER_COOKIE_DURATION', 'REMEMBER_COOKIE_HTTPONLY', 'REMEMBER_COOKIE_SECURE', 'SECURITY_HEADERS', 'SENDLAYER_API_KEY', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_ENGINE_OPTIONS', 'SQLALCHEMY_TRACK_MODIFICATIONS', 'STORE_ADDRESS', 'STORE_CITY', 'STORE_LATITUDE', 'STORE_LONGITUDE', 'STORE_NAME', 'STORE_PHONE', 'STORE_STATE', 'STORE_SUITE', 'STORE_ZIP', 'STRIPE_PUBLISHABLE_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'UBER_CLIENT_ID', 'UBER_CLIENT_SECRET', 'UBER_CUSTOMER_ID', 'UBER_SANDBOX', 'WTF_CSRF_ENABLED', 'WTF_CSRF_SSL_STRICT', 'WTF_CSRF_TIME_LIMIT', 'SQLALCHEMY_ECHO', 'SQLALCHEMY_BINDS', 'SQLALCHEMY_RECORD_QUERIES', 'WTF_CSRF_CHECK_DEFAULT', 'WTF_CSRF_METHODS', 'WTF_CSRF_FIELD_NAME', 'WTF_CSRF_HEADERS']
-2025-08-16T18:52:50.938324287Z 10.223.80.89 - - [16/Aug/2025:18:52:50 +0000] "GET /checkout HTTP/1.1" 200 41589 "https://lovemenowmiami.com/cart" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:52:51.256898947Z 10.223.131.70 - - [16/Aug/2025:18:52:51 +0000] "GET /static/js/csrf-handler.js HTTP/1.1" 200 0 "https://lovemenowmiami.com/checkout" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:52:51.258596279Z 10.223.224.220 - - [16/Aug/2025:18:52:51 +0000] "GET /static/CSS/styles.css HTTP/1.1" 200 0 "https://lovemenowmiami.com/checkout" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:52:51.642556906Z 10.223.246.169 - - [16/Aug/2025:18:52:51 +0000] "GET /api/cart/count HTTP/1.1" 200 12 "https://lovemenowmiami.com/checkout" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:52:51.739653443Z 10.223.246.169 - - [16/Aug/2025:18:52:51 +0000] "GET /api/wishlist/count HTTP/1.1" 200 12 "https://lovemenowmiami.com/checkout" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:52:52.259996795Z [2025-08-16 18:52:52,259] INFO in main: Config keys available: ['DEBUG', 'TESTING', 'PROPAGATE_EXCEPTIONS', 'SECRET_KEY', 'PERMANENT_SESSION_LIFETIME', 'USE_X_SENDFILE', 'SERVER_NAME', 'APPLICATION_ROOT', 'SESSION_COOKIE_NAME', 'SESSION_COOKIE_DOMAIN', 'SESSION_COOKIE_PATH', 'SESSION_COOKIE_HTTPONLY', 'SESSION_COOKIE_SECURE', 'SESSION_COOKIE_SAMESITE', 'SESSION_REFRESH_EACH_REQUEST', 'MAX_CONTENT_LENGTH', 'SEND_FILE_MAX_AGE_DEFAULT', 'TRAP_BAD_REQUEST_ERRORS', 'TRAP_HTTP_EXCEPTIONS', 'EXPLAIN_TEMPLATE_LOADING', 'PREFERRED_URL_SCHEME', 'TEMPLATES_AUTO_RELOAD', 'MAX_COOKIE_SIZE', 'DOMAIN', 'RATELIMIT_STORAGE_URL', 'REMEMBER_COOKIE_DURATION', 'REMEMBER_COOKIE_HTTPONLY', 'REMEMBER_COOKIE_SECURE', 'SECURITY_HEADERS', 'SENDLAYER_API_KEY', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_ENGINE_OPTIONS', 'SQLALCHEMY_TRACK_MODIFICATIONS', 'STORE_ADDRESS', 'STORE_CITY', 'STORE_LATITUDE', 'STORE_LONGITUDE', 'STORE_NAME', 'STORE_PHONE', 'STORE_STATE', 'STORE_SUITE', 'STORE_ZIP', 'STRIPE_PUBLISHABLE_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'UBER_CLIENT_ID', 'UBER_CLIENT_SECRET', 'UBER_CUSTOMER_ID', 'UBER_SANDBOX', 'WTF_CSRF_ENABLED', 'WTF_CSRF_SSL_STRICT', 'WTF_CSRF_TIME_LIMIT', 'SQLALCHEMY_ECHO', 'SQLALCHEMY_BINDS', 'SQLALCHEMY_RECORD_QUERIES', 'WTF_CSRF_CHECK_DEFAULT', 'WTF_CSRF_METHODS', 'WTF_CSRF_FIELD_NAME', 'WTF_CSRF_HEADERS']
-2025-08-16T18:52:52.260036616Z INFO:app:Config keys available: ['DEBUG', 'TESTING', 'PROPAGATE_EXCEPTIONS', 'SECRET_KEY', 'PERMANENT_SESSION_LIFETIME', 'USE_X_SENDFILE', 'SERVER_NAME', 'APPLICATION_ROOT', 'SESSION_COOKIE_NAME', 'SESSION_COOKIE_DOMAIN', 'SESSION_COOKIE_PATH', 'SESSION_COOKIE_HTTPONLY', 'SESSION_COOKIE_SECURE', 'SESSION_COOKIE_SAMESITE', 'SESSION_REFRESH_EACH_REQUEST', 'MAX_CONTENT_LENGTH', 'SEND_FILE_MAX_AGE_DEFAULT', 'TRAP_BAD_REQUEST_ERRORS', 'TRAP_HTTP_EXCEPTIONS', 'EXPLAIN_TEMPLATE_LOADING', 'PREFERRED_URL_SCHEME', 'TEMPLATES_AUTO_RELOAD', 'MAX_COOKIE_SIZE', 'DOMAIN', 'RATELIMIT_STORAGE_URL', 'REMEMBER_COOKIE_DURATION', 'REMEMBER_COOKIE_HTTPONLY', 'REMEMBER_COOKIE_SECURE', 'SECURITY_HEADERS', 'SENDLAYER_API_KEY', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_ENGINE_OPTIONS', 'SQLALCHEMY_TRACK_MODIFICATIONS', 'STORE_ADDRESS', 'STORE_CITY', 'STORE_LATITUDE', 'STORE_LONGITUDE', 'STORE_NAME', 'STORE_PHONE', 'STORE_STATE', 'STORE_SUITE', 'STORE_ZIP', 'STRIPE_PUBLISHABLE_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'UBER_CLIENT_ID', 'UBER_CLIENT_SECRET', 'UBER_CUSTOMER_ID', 'UBER_SANDBOX', 'WTF_CSRF_ENABLED', 'WTF_CSRF_SSL_STRICT', 'WTF_CSRF_TIME_LIMIT', 'SQLALCHEMY_ECHO', 'SQLALCHEMY_BINDS', 'SQLALCHEMY_RECORD_QUERIES', 'WTF_CSRF_CHECK_DEFAULT', 'WTF_CSRF_METHODS', 'WTF_CSRF_FIELD_NAME', 'WTF_CSRF_HEADERS']
-2025-08-16T18:52:52.260047187Z [2025-08-16 18:52:52,259] INFO in main: Stripe secret key from config: sk_test_51...
-2025-08-16T18:52:52.260051167Z INFO:app:Stripe secret key from config: sk_test_51...
-2025-08-16T18:52:52.260054887Z [2025-08-16 18:52:52,259] INFO in main: Testing Stripe import...
-2025-08-16T18:52:52.260059427Z INFO:app:Testing Stripe import...
-2025-08-16T18:52:52.260135959Z [2025-08-16 18:52:52,260] INFO in main: Stripe checkout.Session is available
-2025-08-16T18:52:52.260142379Z INFO:app:Stripe checkout.Session is available
-2025-08-16T18:52:52.2601875Z [2025-08-16 18:52:52,260] INFO in main: Loading cart data...
-2025-08-16T18:52:52.26019196Z INFO:app:Loading cart data...
-2025-08-16T18:52:52.260304943Z [2025-08-16 18:52:52,260] INFO in main: Session cart data: {'23': 1}
-2025-08-16T18:52:52.260315943Z INFO:app:Session cart data: {'23': 1}
-2025-08-16T18:52:52.404021Z [2025-08-16 18:52:52,403] INFO in main: Found 1 items in session cart
-2025-08-16T18:52:52.404047651Z INFO:app:Found 1 items in session cart
-2025-08-16T18:52:52.404058712Z [2025-08-16 18:52:52,403] INFO in main: Calculating totals and creating line items...
-2025-08-16T18:52:52.404066852Z INFO:app:Calculating totals and creating line items...
-2025-08-16T18:52:52.404125303Z [2025-08-16 18:52:52,404] INFO in main: Creating Stripe checkout session...
-2025-08-16T18:52:52.404129653Z INFO:app:Creating Stripe checkout session...
-2025-08-16T18:52:52.404194755Z [2025-08-16 18:52:52,404] INFO in main: Line items: [{'price_data': {'currency': 'usd', 'product_data': {'name': 'Fetish Fantasy Series Spandex 3-Hole Hood Black', 'description': 'Keep your submissive incognito with this Spandex 3-Hole Hood…'}, 'unit_amount': 2799}, 'quantity': 1}, {'price_data': {'currency': 'usd', 'product_data': {'name': 'Shipping', 'description': 'Standard shipping'}, 'unit_amount': 999}, 'quantity': 1}]
-2025-08-16T18:52:52.404241116Z INFO:app:Line items: [{'price_data': {'currency': 'usd', 'product_data': {'name': 'Fetish Fantasy Series Spandex 3-Hole Hood Black', 'description': 'Keep your submissive incognito with this Spandex 3-Hole Hood…'}, 'unit_amount': 2799}, 'quantity': 1}, {'price_data': {'currency': 'usd', 'product_data': {'name': 'Shipping', 'description': 'Standard shipping'}, 'unit_amount': 999}, 'quantity': 1}]
-2025-08-16T18:52:52.404321388Z [2025-08-16 18:52:52,404] INFO in main: Total amount in cents: 3798
-2025-08-16T18:52:52.404327168Z INFO:app:Total amount in cents: 3798
-2025-08-16T18:52:52.404363699Z [2025-08-16 18:52:52,404] INFO in main: 🚀 CREATING PAYMENT INTENT (NOT CHECKOUT SESSION) FOR ELEMENTS INTEGRATION...
-2025-08-16T18:52:52.404367249Z INFO:app:🚀 CREATING PAYMENT INTENT (NOT CHECKOUT SESSION) FOR ELEMENTS INTEGRATION...
-2025-08-16T18:52:52.404679237Z INFO:stripe:message='Request to Stripe api' method=post url=https://api.stripe.com/v1/payment_intents
-2025-08-16T18:52:52.733099102Z INFO:stripe:message='Stripe API response' path=https://api.stripe.com/v1/payment_intents response_code=200
-2025-08-16T18:52:52.734374124Z [2025-08-16 18:52:52,733] INFO in main: 🎉 PAYMENT INTENT CREATED SUCCESSFULLY: pi_3RwpDk06MZhkBN1w1s1C8pBO (NOT CHECKOUT SESSION!)
-2025-08-16T18:52:52.734459706Z INFO:app:🎉 PAYMENT INTENT CREATED SUCCESSFULLY: pi_3RwpDk06MZhkBN1w1s1C8pBO (NOT CHECKOUT SESSION!)
-2025-08-16T18:52:52.734466256Z [2025-08-16 18:52:52,733] INFO in main: 🔑 PAYMENT INTENT CLIENT SECRET OBTAINED: pi_3RwpDk06MZhkBN1w1... (SHOULD START WITH 'pi_')
-2025-08-16T18:52:52.734471036Z INFO:app:🔑 PAYMENT INTENT CLIENT SECRET OBTAINED: pi_3RwpDk06MZhkBN1w1... (SHOULD START WITH 'pi_')
-2025-08-16T18:52:52.734475856Z [2025-08-16 18:52:52,733] INFO in main: Full client secret (first 50 chars): pi_3RwpDk06MZhkBN1w1s1C8pBO_secret_2LeqdLBeNZNKdsY
-2025-08-16T18:52:52.734481106Z INFO:app:Full client secret (first 50 chars): pi_3RwpDk06MZhkBN1w1s1C8pBO_secret_2LeqdLBeNZNKdsY
-2025-08-16T18:52:52.734486337Z [2025-08-16 18:52:52,734] INFO in main: Client secret type: <class 'str'>
-2025-08-16T18:52:52.734491367Z INFO:app:Client secret type: <class 'str'>
-2025-08-16T18:52:52.734496127Z [2025-08-16 18:52:52,734] INFO in main: 🔍 Raw client secret from Stripe: 'pi_3RwpDk06MZhkBN1w1s1C8pBO_secret_2LeqdLBeNZNKdsYTlx9ghT3YX'
-2025-08-16T18:52:52.734522547Z INFO:app:🔍 Raw client secret from Stripe: 'pi_3RwpDk06MZhkBN1w1s1C8pBO_secret_2LeqdLBeNZNKdsYTlx9ghT3YX'
-2025-08-16T18:52:52.734528238Z [2025-08-16 18:52:52,734] INFO in main: 🔄 Decode attempt 1:
-2025-08-16T18:52:52.734533448Z INFO:app:🔄 Decode attempt 1:
-2025-08-16T18:52:52.734537838Z [2025-08-16 18:52:52,734] INFO in main:    Before: pi_3RwpDk06MZhkBN1w1s1C8pBO_secret_2LeqdLBeNZNKdsY...
-2025-08-16T18:52:52.734542358Z INFO:app:   Before: pi_3RwpDk06MZhkBN1w1s1C8pBO_secret_2LeqdLBeNZNKdsY...
-2025-08-16T18:52:52.734546718Z [2025-08-16 18:52:52,734] INFO in main:    After:  pi_3RwpDk06MZhkBN1w1s1C8pBO_secret_2LeqdLBeNZNKdsY...
-2025-08-16T18:52:52.734551048Z INFO:app:   After:  pi_3RwpDk06MZhkBN1w1s1C8pBO_secret_2LeqdLBeNZNKdsY...
-2025-08-16T18:52:52.735269596Z [2025-08-16 18:52:52,734] INFO in main: ✅ No more decoding needed
-2025-08-16T18:52:52.735283006Z INFO:app:✅ No more decoding needed
-2025-08-16T18:52:52.735288417Z [2025-08-16 18:52:52,734] INFO in main: 🎯 Final client secret: pi_3RwpDk06MZhkBN1w1s1C8pBO_secret_2LeqdLBeNZNKdsY...
-2025-08-16T18:52:52.735293417Z INFO:app:🎯 Final client secret: pi_3RwpDk06MZhkBN1w1s1C8pBO_secret_2LeqdLBeNZNKdsY...
-2025-08-16T18:52:52.735297667Z [2025-08-16 18:52:52,734] INFO in main: ✅ Client secret format is valid
-2025-08-16T18:52:52.735301847Z INFO:app:✅ Client secret format is valid
-2025-08-16T18:52:52.735324787Z [2025-08-16 18:52:52,734] INFO in main: 📤 Sending response: {"clientSecret": "pi_3RwpDk06MZhkBN1w1s1C8pBO_secret_2LeqdLBeNZNKdsYTlx9ghT3YX"}...
-2025-08-16T18:52:52.735327887Z INFO:app:📤 Sending response: {"clientSecret": "pi_3RwpDk06MZhkBN1w1s1C8pBO_secret_2LeqdLBeNZNKdsYTlx9ghT3YX"}...
-2025-08-16T18:52:52.872181534Z 10.223.193.75 - - [16/Aug/2025:18:52:52 +0000] "POST /create-checkout-session HTTP/1.1" 200 80 "https://lovemenowmiami.com/checkout" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:52:53.387635325Z 10.223.193.75 - - [16/Aug/2025:18:52:53 +0000] "GET /sw.js HTTP/1.1" 404 2273 "https://lovemenowmiami.com/sw.js" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:53:23.518836517Z [2025-08-16 18:53:23,518] INFO in main: Stripe publishable key: pk_test_51RTFZ106MZhkBN1wxVwjSMerbhAp1tmiHvrPtRqMKoxcFOsadC21AXB5qFsh4Yi5FdR00o59OpDBT
-2025-08-16T18:53:23.518869438Z INFO:app:Stripe publishable key: pk_test_51RTFZ106MZhkBN1wxVwjSMerbhAp1tmiHvrPtRqMKoxcFOsadC21AXB5qFsh4Yi5FdR00o59OpDBT
-2025-08-16T18:53:23.518884598Z [2025-08-16 18:53:23,518] INFO in main: Stripe secret key: sk_test_51...
-2025-08-16T18:53:23.518892368Z INFO:app:Stripe secret key: sk_test_51...
-2025-08-16T18:53:23.589476295Z [2025-08-16 18:53:23,589] INFO in main: Attempting to render checkout_enhanced.html template
-2025-08-16T18:53:23.589491516Z INFO:app:Attempting to render checkout_enhanced.html template
-2025-08-16T18:53:23.589546067Z [2025-08-16 18:53:23,589] INFO in main: Cart data: {'items': [{'id': 23, 'name': 'Fetish Fantasy Series Spandex 3-Hole Hood Black', 'price': 27.99, 'quantity': 1, 'image_url': '/static/IMG/imagesForLovMeNow/SKU_0020/fetish_Fantasy_Series_Spandex_3Hole_hood_Main_Image.jpeg', 'description': 'Keep your submissive incognito with this Spandex 3-Hole Hood…', 'in_stock': True, 'max_quantity': 1, 'item_total': 27.99}], 'subtotal': 27.99, 'shipping': 9.99, 'total': 37.98, 'count': 1}
-2025-08-16T18:53:23.589555077Z INFO:app:Cart data: {'items': [{'id': 23, 'name': 'Fetish Fantasy Series Spandex 3-Hole Hood Black', 'price': 27.99, 'quantity': 1, 'image_url': '/static/IMG/imagesForLovMeNow/SKU_0020/fetish_Fantasy_Series_Spandex_3Hole_hood_Main_Image.jpeg', 'description': 'Keep your submissive incognito with this Spandex 3-Hole Hood…', 'in_stock': True, 'max_quantity': 1, 'item_total': 27.99}], 'subtotal': 27.99, 'shipping': 9.99, 'total': 37.98, 'count': 1}
-2025-08-16T18:53:23.589638299Z [2025-08-16 18:53:23,589] INFO in main: Config keys: ['DEBUG', 'TESTING', 'PROPAGATE_EXCEPTIONS', 'SECRET_KEY', 'PERMANENT_SESSION_LIFETIME', 'USE_X_SENDFILE', 'SERVER_NAME', 'APPLICATION_ROOT', 'SESSION_COOKIE_NAME', 'SESSION_COOKIE_DOMAIN', 'SESSION_COOKIE_PATH', 'SESSION_COOKIE_HTTPONLY', 'SESSION_COOKIE_SECURE', 'SESSION_COOKIE_SAMESITE', 'SESSION_REFRESH_EACH_REQUEST', 'MAX_CONTENT_LENGTH', 'SEND_FILE_MAX_AGE_DEFAULT', 'TRAP_BAD_REQUEST_ERRORS', 'TRAP_HTTP_EXCEPTIONS', 'EXPLAIN_TEMPLATE_LOADING', 'PREFERRED_URL_SCHEME', 'TEMPLATES_AUTO_RELOAD', 'MAX_COOKIE_SIZE', 'DOMAIN', 'RATELIMIT_STORAGE_URL', 'REMEMBER_COOKIE_DURATION', 'REMEMBER_COOKIE_HTTPONLY', 'REMEMBER_COOKIE_SECURE', 'SECURITY_HEADERS', 'SENDLAYER_API_KEY', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_ENGINE_OPTIONS', 'SQLALCHEMY_TRACK_MODIFICATIONS', 'STORE_ADDRESS', 'STORE_CITY', 'STORE_LATITUDE', 'STORE_LONGITUDE', 'STORE_NAME', 'STORE_PHONE', 'STORE_STATE', 'STORE_SUITE', 'STORE_ZIP', 'STRIPE_PUBLISHABLE_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'UBER_CLIENT_ID', 'UBER_CLIENT_SECRET', 'UBER_CUSTOMER_ID', 'UBER_SANDBOX', 'WTF_CSRF_ENABLED', 'WTF_CSRF_SSL_STRICT', 'WTF_CSRF_TIME_LIMIT', 'SQLALCHEMY_ECHO', 'SQLALCHEMY_BINDS', 'SQLALCHEMY_RECORD_QUERIES', 'WTF_CSRF_CHECK_DEFAULT', 'WTF_CSRF_METHODS', 'WTF_CSRF_FIELD_NAME', 'WTF_CSRF_HEADERS']
-2025-08-16T18:53:23.58967708Z INFO:app:Config keys: ['DEBUG', 'TESTING', 'PROPAGATE_EXCEPTIONS', 'SECRET_KEY', 'PERMANENT_SESSION_LIFETIME', 'USE_X_SENDFILE', 'SERVER_NAME', 'APPLICATION_ROOT', 'SESSION_COOKIE_NAME', 'SESSION_COOKIE_DOMAIN', 'SESSION_COOKIE_PATH', 'SESSION_COOKIE_HTTPONLY', 'SESSION_COOKIE_SECURE', 'SESSION_COOKIE_SAMESITE', 'SESSION_REFRESH_EACH_REQUEST', 'MAX_CONTENT_LENGTH', 'SEND_FILE_MAX_AGE_DEFAULT', 'TRAP_BAD_REQUEST_ERRORS', 'TRAP_HTTP_EXCEPTIONS', 'EXPLAIN_TEMPLATE_LOADING', 'PREFERRED_URL_SCHEME', 'TEMPLATES_AUTO_RELOAD', 'MAX_COOKIE_SIZE', 'DOMAIN', 'RATELIMIT_STORAGE_URL', 'REMEMBER_COOKIE_DURATION', 'REMEMBER_COOKIE_HTTPONLY', 'REMEMBER_COOKIE_SECURE', 'SECURITY_HEADERS', 'SENDLAYER_API_KEY', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_ENGINE_OPTIONS', 'SQLALCHEMY_TRACK_MODIFICATIONS', 'STORE_ADDRESS', 'STORE_CITY', 'STORE_LATITUDE', 'STORE_LONGITUDE', 'STORE_NAME', 'STORE_PHONE', 'STORE_STATE', 'STORE_SUITE', 'STORE_ZIP', 'STRIPE_PUBLISHABLE_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'UBER_CLIENT_ID', 'UBER_CLIENT_SECRET', 'UBER_CUSTOMER_ID', 'UBER_SANDBOX', 'WTF_CSRF_ENABLED', 'WTF_CSRF_SSL_STRICT', 'WTF_CSRF_TIME_LIMIT', 'SQLALCHEMY_ECHO', 'SQLALCHEMY_BINDS', 'SQLALCHEMY_RECORD_QUERIES', 'WTF_CSRF_CHECK_DEFAULT', 'WTF_CSRF_METHODS', 'WTF_CSRF_FIELD_NAME', 'WTF_CSRF_HEADERS']
-2025-08-16T18:53:23.727735777Z 10.223.130.170 - - [16/Aug/2025:18:53:23 +0000] "GET /checkout HTTP/1.1" 200 41589 "https://lovemenowmiami.com/cart" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:53:24.006829313Z 10.223.178.124 - - [16/Aug/2025:18:53:24 +0000] "GET /static/CSS/styles.css HTTP/1.1" 200 0 "https://lovemenowmiami.com/checkout" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:53:24.011736426Z 10.223.246.169 - - [16/Aug/2025:18:53:24 +0000] "GET /static/js/csrf-handler.js HTTP/1.1" 200 0 "https://lovemenowmiami.com/checkout" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:53:24.280478045Z 10.223.131.70 - - [16/Aug/2025:18:53:24 +0000] "GET /api/cart/count HTTP/1.1" 200 12 "https://lovemenowmiami.com/checkout" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:53:24.559463689Z [2025-08-16 18:53:24,559] INFO in main: Config keys available: ['DEBUG', 'TESTING', 'PROPAGATE_EXCEPTIONS', 'SECRET_KEY', 'PERMANENT_SESSION_LIFETIME', 'USE_X_SENDFILE', 'SERVER_NAME', 'APPLICATION_ROOT', 'SESSION_COOKIE_NAME', 'SESSION_COOKIE_DOMAIN', 'SESSION_COOKIE_PATH', 'SESSION_COOKIE_HTTPONLY', 'SESSION_COOKIE_SECURE', 'SESSION_COOKIE_SAMESITE', 'SESSION_REFRESH_EACH_REQUEST', 'MAX_CONTENT_LENGTH', 'SEND_FILE_MAX_AGE_DEFAULT', 'TRAP_BAD_REQUEST_ERRORS', 'TRAP_HTTP_EXCEPTIONS', 'EXPLAIN_TEMPLATE_LOADING', 'PREFERRED_URL_SCHEME', 'TEMPLATES_AUTO_RELOAD', 'MAX_COOKIE_SIZE', 'DOMAIN', 'RATELIMIT_STORAGE_URL', 'REMEMBER_COOKIE_DURATION', 'REMEMBER_COOKIE_HTTPONLY', 'REMEMBER_COOKIE_SECURE', 'SECURITY_HEADERS', 'SENDLAYER_API_KEY', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_ENGINE_OPTIONS', 'SQLALCHEMY_TRACK_MODIFICATIONS', 'STORE_ADDRESS', 'STORE_CITY', 'STORE_LATITUDE', 'STORE_LONGITUDE', 'STORE_NAME', 'STORE_PHONE', 'STORE_STATE', 'STORE_SUITE', 'STORE_ZIP', 'STRIPE_PUBLISHABLE_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'UBER_CLIENT_ID', 'UBER_CLIENT_SECRET', 'UBER_CUSTOMER_ID', 'UBER_SANDBOX', 'WTF_CSRF_ENABLED', 'WTF_CSRF_SSL_STRICT', 'WTF_CSRF_TIME_LIMIT', 'SQLALCHEMY_ECHO', 'SQLALCHEMY_BINDS', 'SQLALCHEMY_RECORD_QUERIES', 'WTF_CSRF_CHECK_DEFAULT', 'WTF_CSRF_METHODS', 'WTF_CSRF_FIELD_NAME', 'WTF_CSRF_HEADERS']
-2025-08-16T18:53:24.559485369Z INFO:app:Config keys available: ['DEBUG', 'TESTING', 'PROPAGATE_EXCEPTIONS', 'SECRET_KEY', 'PERMANENT_SESSION_LIFETIME', 'USE_X_SENDFILE', 'SERVER_NAME', 'APPLICATION_ROOT', 'SESSION_COOKIE_NAME', 'SESSION_COOKIE_DOMAIN', 'SESSION_COOKIE_PATH', 'SESSION_COOKIE_HTTPONLY', 'SESSION_COOKIE_SECURE', 'SESSION_COOKIE_SAMESITE', 'SESSION_REFRESH_EACH_REQUEST', 'MAX_CONTENT_LENGTH', 'SEND_FILE_MAX_AGE_DEFAULT', 'TRAP_BAD_REQUEST_ERRORS', 'TRAP_HTTP_EXCEPTIONS', 'EXPLAIN_TEMPLATE_LOADING', 'PREFERRED_URL_SCHEME', 'TEMPLATES_AUTO_RELOAD', 'MAX_COOKIE_SIZE', 'DOMAIN', 'RATELIMIT_STORAGE_URL', 'REMEMBER_COOKIE_DURATION', 'REMEMBER_COOKIE_HTTPONLY', 'REMEMBER_COOKIE_SECURE', 'SECURITY_HEADERS', 'SENDLAYER_API_KEY', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_ENGINE_OPTIONS', 'SQLALCHEMY_TRACK_MODIFICATIONS', 'STORE_ADDRESS', 'STORE_CITY', 'STORE_LATITUDE', 'STORE_LONGITUDE', 'STORE_NAME', 'STORE_PHONE', 'STORE_STATE', 'STORE_SUITE', 'STORE_ZIP', 'STRIPE_PUBLISHABLE_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'UBER_CLIENT_ID', 'UBER_CLIENT_SECRET', 'UBER_CUSTOMER_ID', 'UBER_SANDBOX', 'WTF_CSRF_ENABLED', 'WTF_CSRF_SSL_STRICT', 'WTF_CSRF_TIME_LIMIT', 'SQLALCHEMY_ECHO', 'SQLALCHEMY_BINDS', 'SQLALCHEMY_RECORD_QUERIES', 'WTF_CSRF_CHECK_DEFAULT', 'WTF_CSRF_METHODS', 'WTF_CSRF_FIELD_NAME', 'WTF_CSRF_HEADERS']
-2025-08-16T18:53:24.55951285Z [2025-08-16 18:53:24,559] INFO in main: Stripe secret key from config: sk_test_51...
-2025-08-16T18:53:24.55951716Z INFO:app:Stripe secret key from config: sk_test_51...
-2025-08-16T18:53:24.559582512Z [2025-08-16 18:53:24,559] INFO in main: Testing Stripe import...
-2025-08-16T18:53:24.559588782Z INFO:app:Testing Stripe import...
-2025-08-16T18:53:24.559640123Z [2025-08-16 18:53:24,559] INFO in main: Stripe checkout.Session is available
-2025-08-16T18:53:24.559659534Z INFO:app:Stripe checkout.Session is available
-2025-08-16T18:53:24.559703975Z [2025-08-16 18:53:24,559] INFO in main: Loading cart data...
-2025-08-16T18:53:24.559709385Z INFO:app:Loading cart data...
-2025-08-16T18:53:24.559805717Z [2025-08-16 18:53:24,559] INFO in main: Session cart data: {'23': 1}
-2025-08-16T18:53:24.559810177Z INFO:app:Session cart data: {'23': 1}
-2025-08-16T18:53:24.699008322Z [2025-08-16 18:53:24,698] INFO in main: Found 1 items in session cart
-2025-08-16T18:53:24.699025433Z INFO:app:Found 1 items in session cart
-2025-08-16T18:53:24.699033183Z [2025-08-16 18:53:24,698] INFO in main: Calculating totals and creating line items...
-2025-08-16T18:53:24.699037863Z INFO:app:Calculating totals and creating line items...
-2025-08-16T18:53:24.699135555Z [2025-08-16 18:53:24,699] INFO in main: Creating Stripe checkout session...
-2025-08-16T18:53:24.699140045Z INFO:app:Creating Stripe checkout session...
-2025-08-16T18:53:24.699197777Z [2025-08-16 18:53:24,699] INFO in main: Line items: [{'price_data': {'currency': 'usd', 'product_data': {'name': 'Fetish Fantasy Series Spandex 3-Hole Hood Black', 'description': 'Keep your submissive incognito with this Spandex 3-Hole Hood…'}, 'unit_amount': 2799}, 'quantity': 1}, {'price_data': {'currency': 'usd', 'product_data': {'name': 'Shipping', 'description': 'Standard shipping'}, 'unit_amount': 999}, 'quantity': 1}]
-2025-08-16T18:53:24.699234638Z INFO:app:Line items: [{'price_data': {'currency': 'usd', 'product_data': {'name': 'Fetish Fantasy Series Spandex 3-Hole Hood Black', 'description': 'Keep your submissive incognito with this Spandex 3-Hole Hood…'}, 'unit_amount': 2799}, 'quantity': 1}, {'price_data': {'currency': 'usd', 'product_data': {'name': 'Shipping', 'description': 'Standard shipping'}, 'unit_amount': 999}, 'quantity': 1}]
-2025-08-16T18:53:24.69932166Z [2025-08-16 18:53:24,699] INFO in main: Total amount in cents: 3798
-2025-08-16T18:53:24.69932934Z INFO:app:Total amount in cents: 3798
-2025-08-16T18:53:24.699378971Z [2025-08-16 18:53:24,699] INFO in main: 🚀 CREATING PAYMENT INTENT (NOT CHECKOUT SESSION) FOR ELEMENTS INTEGRATION...
-2025-08-16T18:53:24.699392382Z INFO:app:🚀 CREATING PAYMENT INTENT (NOT CHECKOUT SESSION) FOR ELEMENTS INTEGRATION...
-2025-08-16T18:53:24.699654758Z INFO:stripe:message='Request to Stripe api' method=post url=https://api.stripe.com/v1/payment_intents
-2025-08-16T18:53:24.988668632Z INFO:stripe:message='Stripe API response' path=https://api.stripe.com/v1/payment_intents response_code=200
-2025-08-16T18:53:24.989249226Z [2025-08-16 18:53:24,989] INFO in main: 🎉 PAYMENT INTENT CREATED SUCCESSFULLY: pi_3RwpEG06MZhkBN1w0hbSYD6W (NOT CHECKOUT SESSION!)
-2025-08-16T18:53:24.989265417Z INFO:app:🎉 PAYMENT INTENT CREATED SUCCESSFULLY: pi_3RwpEG06MZhkBN1w0hbSYD6W (NOT CHECKOUT SESSION!)
-2025-08-16T18:53:24.989276027Z [2025-08-16 18:53:24,989] INFO in main: 🔑 PAYMENT INTENT CLIENT SECRET OBTAINED: pi_3RwpEG06MZhkBN1w0... (SHOULD START WITH 'pi_')
-2025-08-16T18:53:24.989299718Z INFO:app:🔑 PAYMENT INTENT CLIENT SECRET OBTAINED: pi_3RwpEG06MZhkBN1w0... (SHOULD START WITH 'pi_')
-2025-08-16T18:53:24.989358479Z [2025-08-16 18:53:24,989] INFO in main: Full client secret (first 50 chars): pi_3RwpEG06MZhkBN1w0hbSYD6W_secret_JaIwlTeVP8n5yEs
-2025-08-16T18:53:24.989368239Z INFO:app:Full client secret (first 50 chars): pi_3RwpEG06MZhkBN1w0hbSYD6W_secret_JaIwlTeVP8n5yEs
-2025-08-16T18:53:24.989417991Z [2025-08-16 18:53:24,989] INFO in main: Client secret type: <class 'str'>
-2025-08-16T18:53:24.989424611Z INFO:app:Client secret type: <class 'str'>
-2025-08-16T18:53:24.989464212Z [2025-08-16 18:53:24,989] INFO in main: 🔍 Raw client secret from Stripe: 'pi_3RwpEG06MZhkBN1w0hbSYD6W_secret_JaIwlTeVP8n5yEse3Ef5z8bI3'
-2025-08-16T18:53:24.989468862Z INFO:app:🔍 Raw client secret from Stripe: 'pi_3RwpEG06MZhkBN1w0hbSYD6W_secret_JaIwlTeVP8n5yEse3Ef5z8bI3'
-2025-08-16T18:53:24.989518343Z [2025-08-16 18:53:24,989] INFO in main: 🔄 Decode attempt 1:
-2025-08-16T18:53:24.989525363Z INFO:app:🔄 Decode attempt 1:
-2025-08-16T18:53:24.989555444Z [2025-08-16 18:53:24,989] INFO in main:    Before: pi_3RwpEG06MZhkBN1w0hbSYD6W_secret_JaIwlTeVP8n5yEs...
-2025-08-16T18:53:24.989559564Z INFO:app:   Before: pi_3RwpEG06MZhkBN1w0hbSYD6W_secret_JaIwlTeVP8n5yEs...
-2025-08-16T18:53:24.989603185Z [2025-08-16 18:53:24,989] INFO in main:    After:  pi_3RwpEG06MZhkBN1w0hbSYD6W_secret_JaIwlTeVP8n5yEs...
-2025-08-16T18:53:24.989608885Z INFO:app:   After:  pi_3RwpEG06MZhkBN1w0hbSYD6W_secret_JaIwlTeVP8n5yEs...
-2025-08-16T18:53:24.989639546Z [2025-08-16 18:53:24,989] INFO in main: ✅ No more decoding needed
-2025-08-16T18:53:24.989646366Z INFO:app:✅ No more decoding needed
-2025-08-16T18:53:24.989692057Z [2025-08-16 18:53:24,989] INFO in main: 🎯 Final client secret: pi_3RwpEG06MZhkBN1w0hbSYD6W_secret_JaIwlTeVP8n5yEs...
-2025-08-16T18:53:24.989698328Z INFO:app:🎯 Final client secret: pi_3RwpEG06MZhkBN1w0hbSYD6W_secret_JaIwlTeVP8n5yEs...
-2025-08-16T18:53:24.989736238Z [2025-08-16 18:53:24,989] INFO in main: ✅ Client secret format is valid
-2025-08-16T18:53:24.989742299Z INFO:app:✅ Client secret format is valid
-2025-08-16T18:53:24.989867252Z [2025-08-16 18:53:24,989] INFO in main: 📤 Sending response: {"clientSecret": "pi_3RwpEG06MZhkBN1w0hbSYD6W_secret_JaIwlTeVP8n5yEse3Ef5z8bI3"}...
-2025-08-16T18:53:24.989873552Z INFO:app:📤 Sending response: {"clientSecret": "pi_3RwpEG06MZhkBN1w0hbSYD6W_secret_JaIwlTeVP8n5yEse3Ef5z8bI3"}...
-2025-08-16T18:53:25.127353334Z 10.223.224.220 - - [16/Aug/2025:18:53:25 +0000] "POST /create-checkout-session HTTP/1.1" 200 80 "https://lovemenowmiami.com/checkout" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:53:25.128861931Z 10.223.130.170 - - [16/Aug/2025:18:53:25 +0000] "GET /api/wishlist/count HTTP/1.1" 200 12 "https://lovemenowmiami.com/checkout" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:53:26.080358585Z 10.223.253.194 - - [16/Aug/2025:18:53:26 +0000] "GET /sw.js HTTP/1.1" 404 2273 "https://lovemenowmiami.com/sw.js" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:54:01.413183405Z ==> Detected service running on port 10000
-2025-08-16T18:54:01.535624228Z ==> Docs on specifying a port: https://render.com/docs/web-services#port-binding
-2025-08-16T18:52:52.404327168Z INFO:app:Total amount in cents: 3798
-2025-08-16T18:52:52.404363699Z [2025-08-16 18:52:52,404] INFO in main: 🚀 CREATING PAYMENT INTENT (NOT CHECKOUT SESSION) FOR ELEMENTS INTEGRATION...
-2025-08-16T18:52:52.404367249Z INFO:app:🚀 CREATING PAYMENT INTENT (NOT CHECKOUT SESSION) FOR ELEMENTS INTEGRATION...
-2025-08-16T18:52:52.404679237Z INFO:stripe:message='Request to Stripe api' method=post url=https://api.stripe.com/v1/payment_intents
-2025-08-16T18:52:52.733099102Z INFO:stripe:message='Stripe API response' path=https://api.stripe.com/v1/payment_intents response_code=200
-2025-08-16T18:52:52.734374124Z [2025-08-16 18:52:52,733] INFO in main: 🎉 PAYMENT INTENT CREATED SUCCESSFULLY: pi_3RwpDk06MZhkBN1w1s1C8pBO (NOT CHECKOUT SESSION!)
-2025-08-16T18:52:52.734459706Z INFO:app:🎉 PAYMENT INTENT CREATED SUCCESSFULLY: pi_3RwpDk06MZhkBN1w1s1C8pBO (NOT CHECKOUT SESSION!)
-2025-08-16T18:52:52.734466256Z [2025-08-16 18:52:52,733] INFO in main: 🔑 PAYMENT INTENT CLIENT SECRET OBTAINED: pi_3RwpDk06MZhkBN1w1... (SHOULD START WITH 'pi_')
-2025-08-16T18:52:52.734471036Z INFO:app:🔑 PAYMENT INTENT CLIENT SECRET OBTAINED: pi_3RwpDk06MZhkBN1w1... (SHOULD START WITH 'pi_')
-2025-08-16T18:52:52.734475856Z [2025-08-16 18:52:52,733] INFO in main: Full client secret (first 50 chars): pi_3RwpDk06MZhkBN1w1s1C8pBO_secret_2LeqdLBeNZNKdsY
-2025-08-16T18:52:52.734481106Z INFO:app:Full client secret (first 50 chars): pi_3RwpDk06MZhkBN1w1s1C8pBO_secret_2LeqdLBeNZNKdsY
-2025-08-16T18:52:52.734486337Z [2025-08-16 18:52:52,734] INFO in main: Client secret type: <class 'str'>
-2025-08-16T18:52:52.734491367Z INFO:app:Client secret type: <class 'str'>
-2025-08-16T18:52:52.734496127Z [2025-08-16 18:52:52,734] INFO in main: 🔍 Raw client secret from Stripe: 'pi_3RwpDk06MZhkBN1w1s1C8pBO_secret_2LeqdLBeNZNKdsYTlx9ghT3YX'
-2025-08-16T18:52:52.734522547Z INFO:app:🔍 Raw client secret from Stripe: 'pi_3RwpDk06MZhkBN1w1s1C8pBO_secret_2LeqdLBeNZNKdsYTlx9ghT3YX'
-2025-08-16T18:52:52.734528238Z [2025-08-16 18:52:52,734] INFO in main: 🔄 Decode attempt 1:
-2025-08-16T18:52:52.734533448Z INFO:app:🔄 Decode attempt 1:
-2025-08-16T18:52:52.734537838Z [2025-08-16 18:52:52,734] INFO in main:    Before: pi_3RwpDk06MZhkBN1w1s1C8pBO_secret_2LeqdLBeNZNKdsY...
-2025-08-16T18:52:52.734542358Z INFO:app:   Before: pi_3RwpDk06MZhkBN1w1s1C8pBO_secret_2LeqdLBeNZNKdsY...
-2025-08-16T18:52:52.734546718Z [2025-08-16 18:52:52,734] INFO in main:    After:  pi_3RwpDk06MZhkBN1w1s1C8pBO_secret_2LeqdLBeNZNKdsY...
-2025-08-16T18:52:52.734551048Z INFO:app:   After:  pi_3RwpDk06MZhkBN1w1s1C8pBO_secret_2LeqdLBeNZNKdsY...
-2025-08-16T18:52:52.735269596Z [2025-08-16 18:52:52,734] INFO in main: ✅ No more decoding needed
-2025-08-16T18:52:52.735283006Z INFO:app:✅ No more decoding needed
-2025-08-16T18:52:52.735288417Z [2025-08-16 18:52:52,734] INFO in main: 🎯 Final client secret: pi_3RwpDk06MZhkBN1w1s1C8pBO_secret_2LeqdLBeNZNKdsY...
-2025-08-16T18:52:52.735293417Z INFO:app:🎯 Final client secret: pi_3RwpDk06MZhkBN1w1s1C8pBO_secret_2LeqdLBeNZNKdsY...
-2025-08-16T18:52:52.735297667Z [2025-08-16 18:52:52,734] INFO in main: ✅ Client secret format is valid
-2025-08-16T18:52:52.735301847Z INFO:app:✅ Client secret format is valid
-2025-08-16T18:52:52.735324787Z [2025-08-16 18:52:52,734] INFO in main: 📤 Sending response: {"clientSecret": "pi_3RwpDk06MZhkBN1w1s1C8pBO_secret_2LeqdLBeNZNKdsYTlx9ghT3YX"}...
-2025-08-16T18:52:52.735327887Z INFO:app:📤 Sending response: {"clientSecret": "pi_3RwpDk06MZhkBN1w1s1C8pBO_secret_2LeqdLBeNZNKdsYTlx9ghT3YX"}...
-2025-08-16T18:52:52.872181534Z 10.223.193.75 - - [16/Aug/2025:18:52:52 +0000] "POST /create-checkout-session HTTP/1.1" 200 80 "https://lovemenowmiami.com/checkout" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:52:53.387635325Z 10.223.193.75 - - [16/Aug/2025:18:52:53 +0000] "GET /sw.js HTTP/1.1" 404 2273 "https://lovemenowmiami.com/sw.js" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:53:23.518836517Z [2025-08-16 18:53:23,518] INFO in main: Stripe publishable key: pk_test_51RTFZ106MZhkBN1wxVwjSMerbhAp1tmiHvrPtRqMKoxcFOsadC21AXB5qFsh4Yi5FdR00o59OpDBT
-2025-08-16T18:53:23.518869438Z INFO:app:Stripe publishable key: pk_test_51RTFZ106MZhkBN1wxVwjSMerbhAp1tmiHvrPtRqMKoxcFOsadC21AXB5qFsh4Yi5FdR00o59OpDBT
-2025-08-16T18:53:23.518884598Z [2025-08-16 18:53:23,518] INFO in main: Stripe secret key: sk_test_51...
-2025-08-16T18:53:23.518892368Z INFO:app:Stripe secret key: sk_test_51...
-2025-08-16T18:53:23.589476295Z [2025-08-16 18:53:23,589] INFO in main: Attempting to render checkout_enhanced.html template
-2025-08-16T18:53:23.589491516Z INFO:app:Attempting to render checkout_enhanced.html template
-2025-08-16T18:53:23.589546067Z [2025-08-16 18:53:23,589] INFO in main: Cart data: {'items': [{'id': 23, 'name': 'Fetish Fantasy Series Spandex 3-Hole Hood Black', 'price': 27.99, 'quantity': 1, 'image_url': '/static/IMG/imagesForLovMeNow/SKU_0020/fetish_Fantasy_Series_Spandex_3Hole_hood_Main_Image.jpeg', 'description': 'Keep your submissive incognito with this Spandex 3-Hole Hood…', 'in_stock': True, 'max_quantity': 1, 'item_total': 27.99}], 'subtotal': 27.99, 'shipping': 9.99, 'total': 37.98, 'count': 1}
-2025-08-16T18:53:23.589555077Z INFO:app:Cart data: {'items': [{'id': 23, 'name': 'Fetish Fantasy Series Spandex 3-Hole Hood Black', 'price': 27.99, 'quantity': 1, 'image_url': '/static/IMG/imagesForLovMeNow/SKU_0020/fetish_Fantasy_Series_Spandex_3Hole_hood_Main_Image.jpeg', 'description': 'Keep your submissive incognito with this Spandex 3-Hole Hood…', 'in_stock': True, 'max_quantity': 1, 'item_total': 27.99}], 'subtotal': 27.99, 'shipping': 9.99, 'total': 37.98, 'count': 1}
-2025-08-16T18:53:23.589638299Z [2025-08-16 18:53:23,589] INFO in main: Config keys: ['DEBUG', 'TESTING', 'PROPAGATE_EXCEPTIONS', 'SECRET_KEY', 'PERMANENT_SESSION_LIFETIME', 'USE_X_SENDFILE', 'SERVER_NAME', 'APPLICATION_ROOT', 'SESSION_COOKIE_NAME', 'SESSION_COOKIE_DOMAIN', 'SESSION_COOKIE_PATH', 'SESSION_COOKIE_HTTPONLY', 'SESSION_COOKIE_SECURE', 'SESSION_COOKIE_SAMESITE', 'SESSION_REFRESH_EACH_REQUEST', 'MAX_CONTENT_LENGTH', 'SEND_FILE_MAX_AGE_DEFAULT', 'TRAP_BAD_REQUEST_ERRORS', 'TRAP_HTTP_EXCEPTIONS', 'EXPLAIN_TEMPLATE_LOADING', 'PREFERRED_URL_SCHEME', 'TEMPLATES_AUTO_RELOAD', 'MAX_COOKIE_SIZE', 'DOMAIN', 'RATELIMIT_STORAGE_URL', 'REMEMBER_COOKIE_DURATION', 'REMEMBER_COOKIE_HTTPONLY', 'REMEMBER_COOKIE_SECURE', 'SECURITY_HEADERS', 'SENDLAYER_API_KEY', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_ENGINE_OPTIONS', 'SQLALCHEMY_TRACK_MODIFICATIONS', 'STORE_ADDRESS', 'STORE_CITY', 'STORE_LATITUDE', 'STORE_LONGITUDE', 'STORE_NAME', 'STORE_PHONE', 'STORE_STATE', 'STORE_SUITE', 'STORE_ZIP', 'STRIPE_PUBLISHABLE_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'UBER_CLIENT_ID', 'UBER_CLIENT_SECRET', 'UBER_CUSTOMER_ID', 'UBER_SANDBOX', 'WTF_CSRF_ENABLED', 'WTF_CSRF_SSL_STRICT', 'WTF_CSRF_TIME_LIMIT', 'SQLALCHEMY_ECHO', 'SQLALCHEMY_BINDS', 'SQLALCHEMY_RECORD_QUERIES', 'WTF_CSRF_CHECK_DEFAULT', 'WTF_CSRF_METHODS', 'WTF_CSRF_FIELD_NAME', 'WTF_CSRF_HEADERS']
-2025-08-16T18:53:23.58967708Z INFO:app:Config keys: ['DEBUG', 'TESTING', 'PROPAGATE_EXCEPTIONS', 'SECRET_KEY', 'PERMANENT_SESSION_LIFETIME', 'USE_X_SENDFILE', 'SERVER_NAME', 'APPLICATION_ROOT', 'SESSION_COOKIE_NAME', 'SESSION_COOKIE_DOMAIN', 'SESSION_COOKIE_PATH', 'SESSION_COOKIE_HTTPONLY', 'SESSION_COOKIE_SECURE', 'SESSION_COOKIE_SAMESITE', 'SESSION_REFRESH_EACH_REQUEST', 'MAX_CONTENT_LENGTH', 'SEND_FILE_MAX_AGE_DEFAULT', 'TRAP_BAD_REQUEST_ERRORS', 'TRAP_HTTP_EXCEPTIONS', 'EXPLAIN_TEMPLATE_LOADING', 'PREFERRED_URL_SCHEME', 'TEMPLATES_AUTO_RELOAD', 'MAX_COOKIE_SIZE', 'DOMAIN', 'RATELIMIT_STORAGE_URL', 'REMEMBER_COOKIE_DURATION', 'REMEMBER_COOKIE_HTTPONLY', 'REMEMBER_COOKIE_SECURE', 'SECURITY_HEADERS', 'SENDLAYER_API_KEY', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_ENGINE_OPTIONS', 'SQLALCHEMY_TRACK_MODIFICATIONS', 'STORE_ADDRESS', 'STORE_CITY', 'STORE_LATITUDE', 'STORE_LONGITUDE', 'STORE_NAME', 'STORE_PHONE', 'STORE_STATE', 'STORE_SUITE', 'STORE_ZIP', 'STRIPE_PUBLISHABLE_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'UBER_CLIENT_ID', 'UBER_CLIENT_SECRET', 'UBER_CUSTOMER_ID', 'UBER_SANDBOX', 'WTF_CSRF_ENABLED', 'WTF_CSRF_SSL_STRICT', 'WTF_CSRF_TIME_LIMIT', 'SQLALCHEMY_ECHO', 'SQLALCHEMY_BINDS', 'SQLALCHEMY_RECORD_QUERIES', 'WTF_CSRF_CHECK_DEFAULT', 'WTF_CSRF_METHODS', 'WTF_CSRF_FIELD_NAME', 'WTF_CSRF_HEADERS']
-2025-08-16T18:53:23.727735777Z 10.223.130.170 - - [16/Aug/2025:18:53:23 +0000] "GET /checkout HTTP/1.1" 200 41589 "https://lovemenowmiami.com/cart" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:53:24.006829313Z 10.223.178.124 - - [16/Aug/2025:18:53:24 +0000] "GET /static/CSS/styles.css HTTP/1.1" 200 0 "https://lovemenowmiami.com/checkout" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:53:24.011736426Z 10.223.246.169 - - [16/Aug/2025:18:53:24 +0000] "GET /static/js/csrf-handler.js HTTP/1.1" 200 0 "https://lovemenowmiami.com/checkout" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:53:24.280478045Z 10.223.131.70 - - [16/Aug/2025:18:53:24 +0000] "GET /api/cart/count HTTP/1.1" 200 12 "https://lovemenowmiami.com/checkout" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:53:24.559463689Z [2025-08-16 18:53:24,559] INFO in main: Config keys available: ['DEBUG', 'TESTING', 'PROPAGATE_EXCEPTIONS', 'SECRET_KEY', 'PERMANENT_SESSION_LIFETIME', 'USE_X_SENDFILE', 'SERVER_NAME', 'APPLICATION_ROOT', 'SESSION_COOKIE_NAME', 'SESSION_COOKIE_DOMAIN', 'SESSION_COOKIE_PATH', 'SESSION_COOKIE_HTTPONLY', 'SESSION_COOKIE_SECURE', 'SESSION_COOKIE_SAMESITE', 'SESSION_REFRESH_EACH_REQUEST', 'MAX_CONTENT_LENGTH', 'SEND_FILE_MAX_AGE_DEFAULT', 'TRAP_BAD_REQUEST_ERRORS', 'TRAP_HTTP_EXCEPTIONS', 'EXPLAIN_TEMPLATE_LOADING', 'PREFERRED_URL_SCHEME', 'TEMPLATES_AUTO_RELOAD', 'MAX_COOKIE_SIZE', 'DOMAIN', 'RATELIMIT_STORAGE_URL', 'REMEMBER_COOKIE_DURATION', 'REMEMBER_COOKIE_HTTPONLY', 'REMEMBER_COOKIE_SECURE', 'SECURITY_HEADERS', 'SENDLAYER_API_KEY', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_ENGINE_OPTIONS', 'SQLALCHEMY_TRACK_MODIFICATIONS', 'STORE_ADDRESS', 'STORE_CITY', 'STORE_LATITUDE', 'STORE_LONGITUDE', 'STORE_NAME', 'STORE_PHONE', 'STORE_STATE', 'STORE_SUITE', 'STORE_ZIP', 'STRIPE_PUBLISHABLE_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'UBER_CLIENT_ID', 'UBER_CLIENT_SECRET', 'UBER_CUSTOMER_ID', 'UBER_SANDBOX', 'WTF_CSRF_ENABLED', 'WTF_CSRF_SSL_STRICT', 'WTF_CSRF_TIME_LIMIT', 'SQLALCHEMY_ECHO', 'SQLALCHEMY_BINDS', 'SQLALCHEMY_RECORD_QUERIES', 'WTF_CSRF_CHECK_DEFAULT', 'WTF_CSRF_METHODS', 'WTF_CSRF_FIELD_NAME', 'WTF_CSRF_HEADERS']
-2025-08-16T18:53:24.559485369Z INFO:app:Config keys available: ['DEBUG', 'TESTING', 'PROPAGATE_EXCEPTIONS', 'SECRET_KEY', 'PERMANENT_SESSION_LIFETIME', 'USE_X_SENDFILE', 'SERVER_NAME', 'APPLICATION_ROOT', 'SESSION_COOKIE_NAME', 'SESSION_COOKIE_DOMAIN', 'SESSION_COOKIE_PATH', 'SESSION_COOKIE_HTTPONLY', 'SESSION_COOKIE_SECURE', 'SESSION_COOKIE_SAMESITE', 'SESSION_REFRESH_EACH_REQUEST', 'MAX_CONTENT_LENGTH', 'SEND_FILE_MAX_AGE_DEFAULT', 'TRAP_BAD_REQUEST_ERRORS', 'TRAP_HTTP_EXCEPTIONS', 'EXPLAIN_TEMPLATE_LOADING', 'PREFERRED_URL_SCHEME', 'TEMPLATES_AUTO_RELOAD', 'MAX_COOKIE_SIZE', 'DOMAIN', 'RATELIMIT_STORAGE_URL', 'REMEMBER_COOKIE_DURATION', 'REMEMBER_COOKIE_HTTPONLY', 'REMEMBER_COOKIE_SECURE', 'SECURITY_HEADERS', 'SENDLAYER_API_KEY', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_ENGINE_OPTIONS', 'SQLALCHEMY_TRACK_MODIFICATIONS', 'STORE_ADDRESS', 'STORE_CITY', 'STORE_LATITUDE', 'STORE_LONGITUDE', 'STORE_NAME', 'STORE_PHONE', 'STORE_STATE', 'STORE_SUITE', 'STORE_ZIP', 'STRIPE_PUBLISHABLE_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'UBER_CLIENT_ID', 'UBER_CLIENT_SECRET', 'UBER_CUSTOMER_ID', 'UBER_SANDBOX', 'WTF_CSRF_ENABLED', 'WTF_CSRF_SSL_STRICT', 'WTF_CSRF_TIME_LIMIT', 'SQLALCHEMY_ECHO', 'SQLALCHEMY_BINDS', 'SQLALCHEMY_RECORD_QUERIES', 'WTF_CSRF_CHECK_DEFAULT', 'WTF_CSRF_METHODS', 'WTF_CSRF_FIELD_NAME', 'WTF_CSRF_HEADERS']
-2025-08-16T18:53:24.55951285Z [2025-08-16 18:53:24,559] INFO in main: Stripe secret key from config: sk_test_51...
-2025-08-16T18:53:24.55951716Z INFO:app:Stripe secret key from config: sk_test_51...
-2025-08-16T18:53:24.559582512Z [2025-08-16 18:53:24,559] INFO in main: Testing Stripe import...
-2025-08-16T18:53:24.559588782Z INFO:app:Testing Stripe import...
-2025-08-16T18:53:24.559640123Z [2025-08-16 18:53:24,559] INFO in main: Stripe checkout.Session is available
-2025-08-16T18:53:24.559659534Z INFO:app:Stripe checkout.Session is available
-2025-08-16T18:53:24.559703975Z [2025-08-16 18:53:24,559] INFO in main: Loading cart data...
-2025-08-16T18:53:24.559709385Z INFO:app:Loading cart data...
-2025-08-16T18:53:24.559805717Z [2025-08-16 18:53:24,559] INFO in main: Session cart data: {'23': 1}
-2025-08-16T18:53:24.559810177Z INFO:app:Session cart data: {'23': 1}
-2025-08-16T18:53:24.699008322Z [2025-08-16 18:53:24,698] INFO in main: Found 1 items in session cart
-2025-08-16T18:53:24.699025433Z INFO:app:Found 1 items in session cart
-2025-08-16T18:53:24.699033183Z [2025-08-16 18:53:24,698] INFO in main: Calculating totals and creating line items...
-2025-08-16T18:53:24.699037863Z INFO:app:Calculating totals and creating line items...
-2025-08-16T18:53:24.699135555Z [2025-08-16 18:53:24,699] INFO in main: Creating Stripe checkout session...
-2025-08-16T18:53:24.699140045Z INFO:app:Creating Stripe checkout session...
-2025-08-16T18:53:24.699197777Z [2025-08-16 18:53:24,699] INFO in main: Line items: [{'price_data': {'currency': 'usd', 'product_data': {'name': 'Fetish Fantasy Series Spandex 3-Hole Hood Black', 'description': 'Keep your submissive incognito with this Spandex 3-Hole Hood…'}, 'unit_amount': 2799}, 'quantity': 1}, {'price_data': {'currency': 'usd', 'product_data': {'name': 'Shipping', 'description': 'Standard shipping'}, 'unit_amount': 999}, 'quantity': 1}]
-2025-08-16T18:53:24.699234638Z INFO:app:Line items: [{'price_data': {'currency': 'usd', 'product_data': {'name': 'Fetish Fantasy Series Spandex 3-Hole Hood Black', 'description': 'Keep your submissive incognito with this Spandex 3-Hole Hood…'}, 'unit_amount': 2799}, 'quantity': 1}, {'price_data': {'currency': 'usd', 'product_data': {'name': 'Shipping', 'description': 'Standard shipping'}, 'unit_amount': 999}, 'quantity': 1}]
-2025-08-16T18:53:24.69932166Z [2025-08-16 18:53:24,699] INFO in main: Total amount in cents: 3798
-2025-08-16T18:53:24.69932934Z INFO:app:Total amount in cents: 3798
-2025-08-16T18:53:24.699378971Z [2025-08-16 18:53:24,699] INFO in main: 🚀 CREATING PAYMENT INTENT (NOT CHECKOUT SESSION) FOR ELEMENTS INTEGRATION...
-2025-08-16T18:53:24.699392382Z INFO:app:🚀 CREATING PAYMENT INTENT (NOT CHECKOUT SESSION) FOR ELEMENTS INTEGRATION...
-2025-08-16T18:53:24.699654758Z INFO:stripe:message='Request to Stripe api' method=post url=https://api.stripe.com/v1/payment_intents
-2025-08-16T18:53:24.988668632Z INFO:stripe:message='Stripe API response' path=https://api.stripe.com/v1/payment_intents response_code=200
-2025-08-16T18:53:24.989249226Z [2025-08-16 18:53:24,989] INFO in main: 🎉 PAYMENT INTENT CREATED SUCCESSFULLY: pi_3RwpEG06MZhkBN1w0hbSYD6W (NOT CHECKOUT SESSION!)
-2025-08-16T18:53:24.989265417Z INFO:app:🎉 PAYMENT INTENT CREATED SUCCESSFULLY: pi_3RwpEG06MZhkBN1w0hbSYD6W (NOT CHECKOUT SESSION!)
-2025-08-16T18:53:24.989276027Z [2025-08-16 18:53:24,989] INFO in main: 🔑 PAYMENT INTENT CLIENT SECRET OBTAINED: pi_3RwpEG06MZhkBN1w0... (SHOULD START WITH 'pi_')
-2025-08-16T18:53:24.989299718Z INFO:app:🔑 PAYMENT INTENT CLIENT SECRET OBTAINED: pi_3RwpEG06MZhkBN1w0... (SHOULD START WITH 'pi_')
-2025-08-16T18:53:24.989358479Z [2025-08-16 18:53:24,989] INFO in main: Full client secret (first 50 chars): pi_3RwpEG06MZhkBN1w0hbSYD6W_secret_JaIwlTeVP8n5yEs
-2025-08-16T18:53:24.989368239Z INFO:app:Full client secret (first 50 chars): pi_3RwpEG06MZhkBN1w0hbSYD6W_secret_JaIwlTeVP8n5yEs
-2025-08-16T18:53:24.989417991Z [2025-08-16 18:53:24,989] INFO in main: Client secret type: <class 'str'>
-2025-08-16T18:53:24.989424611Z INFO:app:Client secret type: <class 'str'>
-2025-08-16T18:53:24.989464212Z [2025-08-16 18:53:24,989] INFO in main: 🔍 Raw client secret from Stripe: 'pi_3RwpEG06MZhkBN1w0hbSYD6W_secret_JaIwlTeVP8n5yEse3Ef5z8bI3'
-2025-08-16T18:53:24.989468862Z INFO:app:🔍 Raw client secret from Stripe: 'pi_3RwpEG06MZhkBN1w0hbSYD6W_secret_JaIwlTeVP8n5yEse3Ef5z8bI3'
-2025-08-16T18:53:24.989518343Z [2025-08-16 18:53:24,989] INFO in main: 🔄 Decode attempt 1:
-2025-08-16T18:53:24.989525363Z INFO:app:🔄 Decode attempt 1:
-2025-08-16T18:53:24.989555444Z [2025-08-16 18:53:24,989] INFO in main:    Before: pi_3RwpEG06MZhkBN1w0hbSYD6W_secret_JaIwlTeVP8n5yEs...
-2025-08-16T18:53:24.989559564Z INFO:app:   Before: pi_3RwpEG06MZhkBN1w0hbSYD6W_secret_JaIwlTeVP8n5yEs...
-2025-08-16T18:53:24.989603185Z [2025-08-16 18:53:24,989] INFO in main:    After:  pi_3RwpEG06MZhkBN1w0hbSYD6W_secret_JaIwlTeVP8n5yEs...
-2025-08-16T18:53:24.989608885Z INFO:app:   After:  pi_3RwpEG06MZhkBN1w0hbSYD6W_secret_JaIwlTeVP8n5yEs...
-2025-08-16T18:53:24.989639546Z [2025-08-16 18:53:24,989] INFO in main: ✅ No more decoding needed
-2025-08-16T18:53:24.989646366Z INFO:app:✅ No more decoding needed
-2025-08-16T18:53:24.989692057Z [2025-08-16 18:53:24,989] INFO in main: 🎯 Final client secret: pi_3RwpEG06MZhkBN1w0hbSYD6W_secret_JaIwlTeVP8n5yEs...
-2025-08-16T18:53:24.989698328Z INFO:app:🎯 Final client secret: pi_3RwpEG06MZhkBN1w0hbSYD6W_secret_JaIwlTeVP8n5yEs...
-2025-08-16T18:53:24.989736238Z [2025-08-16 18:53:24,989] INFO in main: ✅ Client secret format is valid
-2025-08-16T18:53:24.989742299Z INFO:app:✅ Client secret format is valid
-2025-08-16T18:53:24.989867252Z [2025-08-16 18:53:24,989] INFO in main: 📤 Sending response: {"clientSecret": "pi_3RwpEG06MZhkBN1w0hbSYD6W_secret_JaIwlTeVP8n5yEse3Ef5z8bI3"}...
-2025-08-16T18:53:24.989873552Z INFO:app:📤 Sending response: {"clientSecret": "pi_3RwpEG06MZhkBN1w0hbSYD6W_secret_JaIwlTeVP8n5yEse3Ef5z8bI3"}...
-2025-08-16T18:53:25.127353334Z 10.223.224.220 - - [16/Aug/2025:18:53:25 +0000] "POST /create-checkout-session HTTP/1.1" 200 80 "https://lovemenowmiami.com/checkout" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:53:25.128861931Z 10.223.130.170 - - [16/Aug/2025:18:53:25 +0000] "GET /api/wishlist/count HTTP/1.1" 200 12 "https://lovemenowmiami.com/checkout" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:53:26.080358585Z 10.223.253.194 - - [16/Aug/2025:18:53:26 +0000] "GET /sw.js HTTP/1.1" 404 2273 "https://lovemenowmiami.com/sw.js" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:54:01.413183405Z ==> Detected service running on port 10000
-2025-08-16T18:54:01.535624228Z ==> Docs on specifying a port: https://render.com/docs/web-services#port-binding
-2025-08-16T18:57:33.745246596Z 10.223.178.124 - - [16/Aug/2025:18:57:33 +0000] "GET /sw.js HTTP/1.1" 404 2273 "https://lovemenowmiami.com/sw.js" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:57:42.335266666Z [2025-08-16 18:57:42,335] INFO in main: Stripe publishable key: pk_test_51RTFZ106MZhkBN1wxVwjSMerbhAp1tmiHvrPtRqMKoxcFOsadC21AXB5qFsh4Yi5FdR00o59OpDBT
-2025-08-16T18:57:42.335295537Z INFO:app:Stripe publishable key: pk_test_51RTFZ106MZhkBN1wxVwjSMerbhAp1tmiHvrPtRqMKoxcFOsadC21AXB5qFsh4Yi5FdR00o59OpDBT
-2025-08-16T18:57:42.335307557Z [2025-08-16 18:57:42,335] INFO in main: Stripe secret key: sk_test_51...
-2025-08-16T18:57:42.335321378Z INFO:app:Stripe secret key: sk_test_51...
-2025-08-16T18:57:42.406340454Z [2025-08-16 18:57:42,406] INFO in main: Attempting to render checkout_enhanced.html template
-2025-08-16T18:57:42.406368465Z INFO:app:Attempting to render checkout_enhanced.html template
-2025-08-16T18:57:42.406381906Z [2025-08-16 18:57:42,406] INFO in main: Cart data: {'items': [{'id': 23, 'name': 'Fetish Fantasy Series Spandex 3-Hole Hood Black', 'price': 27.99, 'quantity': 1, 'image_url': '/static/IMG/imagesForLovMeNow/SKU_0020/fetish_Fantasy_Series_Spandex_3Hole_hood_Main_Image.jpeg', 'description': 'Keep your submissive incognito with this Spandex 3-Hole Hood…', 'in_stock': True, 'max_quantity': 1, 'item_total': 27.99}], 'subtotal': 27.99, 'shipping': 9.99, 'total': 37.98, 'count': 1}
-2025-08-16T18:57:42.406386496Z INFO:app:Cart data: {'items': [{'id': 23, 'name': 'Fetish Fantasy Series Spandex 3-Hole Hood Black', 'price': 27.99, 'quantity': 1, 'image_url': '/static/IMG/imagesForLovMeNow/SKU_0020/fetish_Fantasy_Series_Spandex_3Hole_hood_Main_Image.jpeg', 'description': 'Keep your submissive incognito with this Spandex 3-Hole Hood…', 'in_stock': True, 'max_quantity': 1, 'item_total': 27.99}], 'subtotal': 27.99, 'shipping': 9.99, 'total': 37.98, 'count': 1}
-2025-08-16T18:57:42.406467078Z [2025-08-16 18:57:42,406] INFO in main: Config keys: ['DEBUG', 'TESTING', 'PROPAGATE_EXCEPTIONS', 'SECRET_KEY', 'PERMANENT_SESSION_LIFETIME', 'USE_X_SENDFILE', 'SERVER_NAME', 'APPLICATION_ROOT', 'SESSION_COOKIE_NAME', 'SESSION_COOKIE_DOMAIN', 'SESSION_COOKIE_PATH', 'SESSION_COOKIE_HTTPONLY', 'SESSION_COOKIE_SECURE', 'SESSION_COOKIE_SAMESITE', 'SESSION_REFRESH_EACH_REQUEST', 'MAX_CONTENT_LENGTH', 'SEND_FILE_MAX_AGE_DEFAULT', 'TRAP_BAD_REQUEST_ERRORS', 'TRAP_HTTP_EXCEPTIONS', 'EXPLAIN_TEMPLATE_LOADING', 'PREFERRED_URL_SCHEME', 'TEMPLATES_AUTO_RELOAD', 'MAX_COOKIE_SIZE', 'DOMAIN', 'RATELIMIT_STORAGE_URL', 'REMEMBER_COOKIE_DURATION', 'REMEMBER_COOKIE_HTTPONLY', 'REMEMBER_COOKIE_SECURE', 'SECURITY_HEADERS', 'SENDLAYER_API_KEY', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_ENGINE_OPTIONS', 'SQLALCHEMY_TRACK_MODIFICATIONS', 'STORE_ADDRESS', 'STORE_CITY', 'STORE_LATITUDE', 'STORE_LONGITUDE', 'STORE_NAME', 'STORE_PHONE', 'STORE_STATE', 'STORE_SUITE', 'STORE_ZIP', 'STRIPE_PUBLISHABLE_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'UBER_CLIENT_ID', 'UBER_CLIENT_SECRET', 'UBER_CUSTOMER_ID', 'UBER_SANDBOX', 'WTF_CSRF_ENABLED', 'WTF_CSRF_SSL_STRICT', 'WTF_CSRF_TIME_LIMIT', 'SQLALCHEMY_ECHO', 'SQLALCHEMY_BINDS', 'SQLALCHEMY_RECORD_QUERIES', 'WTF_CSRF_CHECK_DEFAULT', 'WTF_CSRF_METHODS', 'WTF_CSRF_FIELD_NAME', 'WTF_CSRF_HEADERS']
-2025-08-16T18:57:42.406479718Z INFO:app:Config keys: ['DEBUG', 'TESTING', 'PROPAGATE_EXCEPTIONS', 'SECRET_KEY', 'PERMANENT_SESSION_LIFETIME', 'USE_X_SENDFILE', 'SERVER_NAME', 'APPLICATION_ROOT', 'SESSION_COOKIE_NAME', 'SESSION_COOKIE_DOMAIN', 'SESSION_COOKIE_PATH', 'SESSION_COOKIE_HTTPONLY', 'SESSION_COOKIE_SECURE', 'SESSION_COOKIE_SAMESITE', 'SESSION_REFRESH_EACH_REQUEST', 'MAX_CONTENT_LENGTH', 'SEND_FILE_MAX_AGE_DEFAULT', 'TRAP_BAD_REQUEST_ERRORS', 'TRAP_HTTP_EXCEPTIONS', 'EXPLAIN_TEMPLATE_LOADING', 'PREFERRED_URL_SCHEME', 'TEMPLATES_AUTO_RELOAD', 'MAX_COOKIE_SIZE', 'DOMAIN', 'RATELIMIT_STORAGE_URL', 'REMEMBER_COOKIE_DURATION', 'REMEMBER_COOKIE_HTTPONLY', 'REMEMBER_COOKIE_SECURE', 'SECURITY_HEADERS', 'SENDLAYER_API_KEY', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_ENGINE_OPTIONS', 'SQLALCHEMY_TRACK_MODIFICATIONS', 'STORE_ADDRESS', 'STORE_CITY', 'STORE_LATITUDE', 'STORE_LONGITUDE', 'STORE_NAME', 'STORE_PHONE', 'STORE_STATE', 'STORE_SUITE', 'STORE_ZIP', 'STRIPE_PUBLISHABLE_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'UBER_CLIENT_ID', 'UBER_CLIENT_SECRET', 'UBER_CUSTOMER_ID', 'UBER_SANDBOX', 'WTF_CSRF_ENABLED', 'WTF_CSRF_SSL_STRICT', 'WTF_CSRF_TIME_LIMIT', 'SQLALCHEMY_ECHO', 'SQLALCHEMY_BINDS', 'SQLALCHEMY_RECORD_QUERIES', 'WTF_CSRF_CHECK_DEFAULT', 'WTF_CSRF_METHODS', 'WTF_CSRF_FIELD_NAME', 'WTF_CSRF_HEADERS']
-2025-08-16T18:57:42.545905287Z 10.223.193.75 - - [16/Aug/2025:18:57:42 +0000] "GET /checkout HTTP/1.1" 200 41589 "https://lovemenowmiami.com/cart" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:57:43.380685716Z [2025-08-16 18:57:43,380] INFO in main: Config keys available: ['DEBUG', 'TESTING', 'PROPAGATE_EXCEPTIONS', 'SECRET_KEY', 'PERMANENT_SESSION_LIFETIME', 'USE_X_SENDFILE', 'SERVER_NAME', 'APPLICATION_ROOT', 'SESSION_COOKIE_NAME', 'SESSION_COOKIE_DOMAIN', 'SESSION_COOKIE_PATH', 'SESSION_COOKIE_HTTPONLY', 'SESSION_COOKIE_SECURE', 'SESSION_COOKIE_SAMESITE', 'SESSION_REFRESH_EACH_REQUEST', 'MAX_CONTENT_LENGTH', 'SEND_FILE_MAX_AGE_DEFAULT', 'TRAP_BAD_REQUEST_ERRORS', 'TRAP_HTTP_EXCEPTIONS', 'EXPLAIN_TEMPLATE_LOADING', 'PREFERRED_URL_SCHEME', 'TEMPLATES_AUTO_RELOAD', 'MAX_COOKIE_SIZE', 'DOMAIN', 'RATELIMIT_STORAGE_URL', 'REMEMBER_COOKIE_DURATION', 'REMEMBER_COOKIE_HTTPONLY', 'REMEMBER_COOKIE_SECURE', 'SECURITY_HEADERS', 'SENDLAYER_API_KEY', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_ENGINE_OPTIONS', 'SQLALCHEMY_TRACK_MODIFICATIONS', 'STORE_ADDRESS', 'STORE_CITY', 'STORE_LATITUDE', 'STORE_LONGITUDE', 'STORE_NAME', 'STORE_PHONE', 'STORE_STATE', 'STORE_SUITE', 'STORE_ZIP', 'STRIPE_PUBLISHABLE_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'UBER_CLIENT_ID', 'UBER_CLIENT_SECRET', 'UBER_CUSTOMER_ID', 'UBER_SANDBOX', 'WTF_CSRF_ENABLED', 'WTF_CSRF_SSL_STRICT', 'WTF_CSRF_TIME_LIMIT', 'SQLALCHEMY_ECHO', 'SQLALCHEMY_BINDS', 'SQLALCHEMY_RECORD_QUERIES', 'WTF_CSRF_CHECK_DEFAULT', 'WTF_CSRF_METHODS', 'WTF_CSRF_FIELD_NAME', 'WTF_CSRF_HEADERS']
-2025-08-16T18:57:43.380715427Z INFO:app:Config keys available: ['DEBUG', 'TESTING', 'PROPAGATE_EXCEPTIONS', 'SECRET_KEY', 'PERMANENT_SESSION_LIFETIME', 'USE_X_SENDFILE', 'SERVER_NAME', 'APPLICATION_ROOT', 'SESSION_COOKIE_NAME', 'SESSION_COOKIE_DOMAIN', 'SESSION_COOKIE_PATH', 'SESSION_COOKIE_HTTPONLY', 'SESSION_COOKIE_SECURE', 'SESSION_COOKIE_SAMESITE', 'SESSION_REFRESH_EACH_REQUEST', 'MAX_CONTENT_LENGTH', 'SEND_FILE_MAX_AGE_DEFAULT', 'TRAP_BAD_REQUEST_ERRORS', 'TRAP_HTTP_EXCEPTIONS', 'EXPLAIN_TEMPLATE_LOADING', 'PREFERRED_URL_SCHEME', 'TEMPLATES_AUTO_RELOAD', 'MAX_COOKIE_SIZE', 'DOMAIN', 'RATELIMIT_STORAGE_URL', 'REMEMBER_COOKIE_DURATION', 'REMEMBER_COOKIE_HTTPONLY', 'REMEMBER_COOKIE_SECURE', 'SECURITY_HEADERS', 'SENDLAYER_API_KEY', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_ENGINE_OPTIONS', 'SQLALCHEMY_TRACK_MODIFICATIONS', 'STORE_ADDRESS', 'STORE_CITY', 'STORE_LATITUDE', 'STORE_LONGITUDE', 'STORE_NAME', 'STORE_PHONE', 'STORE_STATE', 'STORE_SUITE', 'STORE_ZIP', 'STRIPE_PUBLISHABLE_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'UBER_CLIENT_ID', 'UBER_CLIENT_SECRET', 'UBER_CUSTOMER_ID', 'UBER_SANDBOX', 'WTF_CSRF_ENABLED', 'WTF_CSRF_SSL_STRICT', 'WTF_CSRF_TIME_LIMIT', 'SQLALCHEMY_ECHO', 'SQLALCHEMY_BINDS', 'SQLALCHEMY_RECORD_QUERIES', 'WTF_CSRF_CHECK_DEFAULT', 'WTF_CSRF_METHODS', 'WTF_CSRF_FIELD_NAME', 'WTF_CSRF_HEADERS']
-2025-08-16T18:57:43.380727097Z [2025-08-16 18:57:43,380] INFO in main: Stripe secret key from config: sk_test_51...
-2025-08-16T18:57:43.380737497Z INFO:app:Stripe secret key from config: sk_test_51...
-2025-08-16T18:57:43.380758658Z [2025-08-16 18:57:43,380] INFO in main: Testing Stripe import...
-2025-08-16T18:57:43.380763598Z INFO:app:Testing Stripe import...
-2025-08-16T18:57:43.380772688Z [2025-08-16 18:57:43,380] INFO in main: Stripe checkout.Session is available
-2025-08-16T18:57:43.380775458Z INFO:app:Stripe checkout.Session is available
-2025-08-16T18:57:43.38082072Z [2025-08-16 18:57:43,380] INFO in main: Loading cart data...
-2025-08-16T18:57:43.38082591Z INFO:app:Loading cart data...
-2025-08-16T18:57:43.380916212Z [2025-08-16 18:57:43,380] INFO in main: Session cart data: {'23': 1}
-2025-08-16T18:57:43.380922712Z INFO:app:Session cart data: {'23': 1}
-2025-08-16T18:57:43.521067649Z [2025-08-16 18:57:43,520] INFO in main: Found 1 items in session cart
-2025-08-16T18:57:43.52109104Z INFO:app:Found 1 items in session cart
-2025-08-16T18:57:43.52110115Z [2025-08-16 18:57:43,521] INFO in main: Calculating totals and creating line items...
-2025-08-16T18:57:43.52110901Z INFO:app:Calculating totals and creating line items...
-2025-08-16T18:57:43.521194362Z [2025-08-16 18:57:43,521] INFO in main: Creating Stripe checkout session...
-2025-08-16T18:57:43.521198682Z INFO:app:Creating Stripe checkout session...
-2025-08-16T18:57:43.521312805Z [2025-08-16 18:57:43,521] INFO in main: Line items: [{'price_data': {'currency': 'usd', 'product_data': {'name': 'Fetish Fantasy Series Spandex 3-Hole Hood Black', 'description': 'Keep your submissive incognito with this Spandex 3-Hole Hood…'}, 'unit_amount': 2799}, 'quantity': 1}, {'price_data': {'currency': 'usd', 'product_data': {'name': 'Shipping', 'description': 'Standard shipping'}, 'unit_amount': 999}, 'quantity': 1}]
-2025-08-16T18:57:43.521324455Z INFO:app:Line items: [{'price_data': {'currency': 'usd', 'product_data': {'name': 'Fetish Fantasy Series Spandex 3-Hole Hood Black', 'description': 'Keep your submissive incognito with this Spandex 3-Hole Hood…'}, 'unit_amount': 2799}, 'quantity': 1}, {'price_data': {'currency': 'usd', 'product_data': {'name': 'Shipping', 'description': 'Standard shipping'}, 'unit_amount': 999}, 'quantity': 1}]
-2025-08-16T18:57:43.521414817Z [2025-08-16 18:57:43,521] INFO in main: Total amount in cents: 3798
-2025-08-16T18:57:43.521419528Z INFO:app:Total amount in cents: 3798
-2025-08-16T18:57:43.521468499Z [2025-08-16 18:57:43,521] INFO in main: 🚀 CREATING PAYMENT INTENT (NOT CHECKOUT SESSION) FOR ELEMENTS INTEGRATION...
-2025-08-16T18:57:43.521473119Z INFO:app:🚀 CREATING PAYMENT INTENT (NOT CHECKOUT SESSION) FOR ELEMENTS INTEGRATION...
-2025-08-16T18:57:43.521705445Z INFO:stripe:message='Request to Stripe api' method=post url=https://api.stripe.com/v1/payment_intents
-2025-08-16T18:57:43.866928374Z INFO:stripe:message='Stripe API response' path=https://api.stripe.com/v1/payment_intents response_code=200
-2025-08-16T18:57:43.867479667Z [2025-08-16 18:57:43,867] INFO in main: 🎉 PAYMENT INTENT CREATED SUCCESSFULLY: pi_3RwpIR06MZhkBN1w02UauBtJ (NOT CHECKOUT SESSION!)
-2025-08-16T18:57:43.867497438Z INFO:app:🎉 PAYMENT INTENT CREATED SUCCESSFULLY: pi_3RwpIR06MZhkBN1w02UauBtJ (NOT CHECKOUT SESSION!)
-2025-08-16T18:57:43.867507308Z [2025-08-16 18:57:43,867] INFO in main: 🔑 PAYMENT INTENT CLIENT SECRET OBTAINED: pi_3RwpIR06MZhkBN1w0... (SHOULD START WITH 'pi_')
-2025-08-16T18:57:43.867514128Z INFO:app:🔑 PAYMENT INTENT CLIENT SECRET OBTAINED: pi_3RwpIR06MZhkBN1w0... (SHOULD START WITH 'pi_')
-2025-08-16T18:57:43.86756396Z [2025-08-16 18:57:43,867] INFO in main: Full client secret (first 50 chars): pi_3RwpIR06MZhkBN1w02UauBtJ_secret_MXGpzDfWpw7LlQF
-2025-08-16T18:57:43.86756845Z INFO:app:Full client secret (first 50 chars): pi_3RwpIR06MZhkBN1w02UauBtJ_secret_MXGpzDfWpw7LlQF
-2025-08-16T18:57:43.867602391Z [2025-08-16 18:57:43,867] INFO in main: Client secret type: <class 'str'>
-2025-08-16T18:57:43.867621981Z INFO:app:Client secret type: <class 'str'>
-2025-08-16T18:57:43.867669802Z [2025-08-16 18:57:43,867] INFO in main: 🔍 Raw client secret from Stripe: 'pi_3RwpIR06MZhkBN1w02UauBtJ_secret_MXGpzDfWpw7LlQF96YEkBDmCn'
-2025-08-16T18:57:43.867674732Z INFO:app:🔍 Raw client secret from Stripe: 'pi_3RwpIR06MZhkBN1w02UauBtJ_secret_MXGpzDfWpw7LlQF96YEkBDmCn'
-2025-08-16T18:57:43.867717553Z [2025-08-16 18:57:43,867] INFO in main: 🔄 Decode attempt 1:
-2025-08-16T18:57:43.867721724Z INFO:app:🔄 Decode attempt 1:
-2025-08-16T18:57:43.867767525Z [2025-08-16 18:57:43,867] INFO in main:    Before: pi_3RwpIR06MZhkBN1w02UauBtJ_secret_MXGpzDfWpw7LlQF...
-2025-08-16T18:57:43.867771595Z INFO:app:   Before: pi_3RwpIR06MZhkBN1w02UauBtJ_secret_MXGpzDfWpw7LlQF...
-2025-08-16T18:57:43.867800135Z [2025-08-16 18:57:43,867] INFO in main:    After:  pi_3RwpIR06MZhkBN1w02UauBtJ_secret_MXGpzDfWpw7LlQF...
-2025-08-16T18:57:43.867806876Z INFO:app:   After:  pi_3RwpIR06MZhkBN1w02UauBtJ_secret_MXGpzDfWpw7LlQF...
-2025-08-16T18:57:43.867843227Z [2025-08-16 18:57:43,867] INFO in main: ✅ No more decoding needed
-2025-08-16T18:57:43.867848577Z INFO:app:✅ No more decoding needed
-2025-08-16T18:57:43.867901158Z [2025-08-16 18:57:43,867] INFO in main: 🎯 Final client secret: pi_3RwpIR06MZhkBN1w02UauBtJ_secret_MXGpzDfWpw7LlQF...
-2025-08-16T18:57:43.867905118Z INFO:app:🎯 Final client secret: pi_3RwpIR06MZhkBN1w02UauBtJ_secret_MXGpzDfWpw7LlQF...
-2025-08-16T18:57:43.867955209Z [2025-08-16 18:57:43,867] INFO in main: ✅ Client secret format is valid
-2025-08-16T18:57:43.86795821Z INFO:app:✅ Client secret format is valid
-2025-08-16T18:57:43.868064042Z [2025-08-16 18:57:43,868] INFO in main: 📤 Sending response: {"clientSecret": "pi_3RwpIR06MZhkBN1w02UauBtJ_secret_MXGpzDfWpw7LlQF96YEkBDmCn"}...
-2025-08-16T18:57:43.868068842Z INFO:app:📤 Sending response: {"clientSecret": "pi_3RwpIR06MZhkBN1w02UauBtJ_secret_MXGpzDfWpw7LlQF96YEkBDmCn"}...
-2025-08-16T18:57:44.006540347Z 10.223.80.89 - - [16/Aug/2025:18:57:44 +0000] "POST /create-checkout-session HTTP/1.1" 200 80 "https://lovemenowmiami.com/checkout" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:57:44.008010714Z 10.223.5.98 - - [16/Aug/2025:18:57:44 +0000] "GET /api/wishlist/count HTTP/1.1" 200 12 "https://lovemenowmiami.com/checkout" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:57:44.009085211Z 10.223.193.75 - - [16/Aug/2025:18:57:44 +0000] "GET /api/cart/count HTTP/1.1" 200 12 "https://lovemenowmiami.com/checkout" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
-2025-08-16T18:57:45.771438368Z 10.223.193.75 - - [16/Aug/2025:18:57:45 +0000] "GET /sw.js HTTP/1.1" 404 2273 "https://lovemenowmiami.com/sw.js" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+==> It looks like we don't have access to your repo, but we'll try to clone it anyway.
+==> Cloning from https://github.com/sandroescobar/lovemenow
+==> Checking out commit 8340119d1ebb13c3f06a14b5047bd20e9e619dd6 in branch main
+==> Downloading cache...
+==> Transferred 129MB in 7s. Extraction took 2s.
+==> Using Python version 3.13.4 (default)
+==> Docs on specifying a Python version: https://render.com/docs/python-version
+==> Using Poetry version 2.1.3 (default)
+==> Docs on specifying a Poetry version: https://render.com/docs/poetry-version
+==> Running build command 'pip install -r requirements.txt'...
+Collecting Flask==3.0.3 (from -r requirements.txt (line 2))
+  Using cached flask-3.0.3-py3-none-any.whl.metadata (3.2 kB)
+Collecting Flask-Login==0.6.3 (from -r requirements.txt (line 3))
+  Using cached Flask_Login-0.6.3-py3-none-any.whl.metadata (5.8 kB)
+Collecting Flask-SQLAlchemy==3.1.1 (from -r requirements.txt (line 4))
+  Using cached flask_sqlalchemy-3.1.1-py3-none-any.whl.metadata (3.4 kB)
+Collecting Flask-Bcrypt==1.0.1 (from -r requirements.txt (line 5))
+  Using cached Flask_Bcrypt-1.0.1-py3-none-any.whl.metadata (2.6 kB)
+Collecting Flask-Migrate==4.0.7 (from -r requirements.txt (line 6))
+  Using cached Flask_Migrate-4.0.7-py3-none-any.whl.metadata (3.1 kB)
+Collecting SQLAlchemy==2.0.35 (from -r requirements.txt (line 9))
+  Using cached SQLAlchemy-2.0.35-py3-none-any.whl.metadata (9.6 kB)
+Collecting PyMySQL==1.1.1 (from -r requirements.txt (line 10))
+  Using cached PyMySQL-1.1.1-py3-none-any.whl.metadata (4.4 kB)
+Collecting python-dotenv==1.0.1 (from -r requirements.txt (line 13))
+  Using cached python_dotenv-1.0.1-py3-none-any.whl.metadata (23 kB)
+Collecting stripe==10.12.0 (from -r requirements.txt (line 16))
+  Using cached stripe-10.12.0-py2.py3-none-any.whl.metadata (2.7 kB)
+Collecting requests==2.32.3 (from -r requirements.txt (line 19))
+  Using cached requests-2.32.3-py3-none-any.whl.metadata (4.6 kB)
+Collecting folium==0.15.1 (from -r requirements.txt (line 22))
+  Using cached folium-0.15.1-py2.py3-none-any.whl.metadata (3.4 kB)
+Collecting Flask-Talisman==1.1.0 (from -r requirements.txt (line 25))
+  Using cached flask_talisman-1.1.0-py2.py3-none-any.whl.metadata (18 kB)
+Collecting Flask-WTF==1.2.1 (from -r requirements.txt (line 26))
+  Using cached flask_wtf-1.2.1-py3-none-any.whl.metadata (3.4 kB)
+Collecting cryptography>=42.0.0 (from -r requirements.txt (line 27))
+  Using cached cryptography-45.0.6-cp311-abi3-manylinux_2_34_x86_64.whl.metadata (5.7 kB)
+Collecting Flask-Limiter==3.8.0 (from -r requirements.txt (line 28))
+  Using cached Flask_Limiter-3.8.0-py3-none-any.whl.metadata (6.1 kB)
+Collecting gunicorn==23.0.0 (from -r requirements.txt (line 31))
+  Using cached gunicorn-23.0.0-py3-none-any.whl.metadata (4.4 kB)
+Collecting sentry-sdk==2.17.0 (from sentry-sdk[flask]==2.17.0->-r requirements.txt (line 34))
+  Using cached sentry_sdk-2.17.0-py2.py3-none-any.whl.metadata (9.8 kB)
+Collecting python-decouple==3.8 (from -r requirements.txt (line 37))
+  Using cached python_decouple-3.8-py3-none-any.whl.metadata (14 kB)
+Collecting Werkzeug>=3.0.0 (from Flask==3.0.3->-r requirements.txt (line 2))
+  Using cached werkzeug-3.1.3-py3-none-any.whl.metadata (3.7 kB)
+Collecting Jinja2>=3.1.2 (from Flask==3.0.3->-r requirements.txt (line 2))
+  Using cached jinja2-3.1.6-py3-none-any.whl.metadata (2.9 kB)
+Collecting itsdangerous>=2.1.2 (from Flask==3.0.3->-r requirements.txt (line 2))
+  Using cached itsdangerous-2.2.0-py3-none-any.whl.metadata (1.9 kB)
+Collecting click>=8.1.3 (from Flask==3.0.3->-r requirements.txt (line 2))
+  Using cached click-8.2.1-py3-none-any.whl.metadata (2.5 kB)
+Collecting blinker>=1.6.2 (from Flask==3.0.3->-r requirements.txt (line 2))
+  Using cached blinker-1.9.0-py3-none-any.whl.metadata (1.6 kB)
+Collecting bcrypt>=3.1.1 (from Flask-Bcrypt==1.0.1->-r requirements.txt (line 5))
+  Using cached bcrypt-4.3.0-cp39-abi3-manylinux_2_34_x86_64.whl.metadata (10 kB)
+Collecting alembic>=1.9.0 (from Flask-Migrate==4.0.7->-r requirements.txt (line 6))
+  Using cached alembic-1.16.4-py3-none-any.whl.metadata (7.3 kB)
+Collecting typing-extensions>=4.6.0 (from SQLAlchemy==2.0.35->-r requirements.txt (line 9))
+  Using cached typing_extensions-4.14.1-py3-none-any.whl.metadata (3.0 kB)
+Collecting charset-normalizer<4,>=2 (from requests==2.32.3->-r requirements.txt (line 19))
+  Using cached charset_normalizer-3.4.3-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (36 kB)
+Collecting idna<4,>=2.5 (from requests==2.32.3->-r requirements.txt (line 19))
+  Using cached idna-3.10-py3-none-any.whl.metadata (10 kB)
+Collecting urllib3<3,>=1.21.1 (from requests==2.32.3->-r requirements.txt (line 19))
+  Using cached urllib3-2.5.0-py3-none-any.whl.metadata (6.5 kB)
+Collecting certifi>=2017.4.17 (from requests==2.32.3->-r requirements.txt (line 19))
+  Using cached certifi-2025.8.3-py3-none-any.whl.metadata (2.4 kB)
+Collecting branca>=0.6.0 (from folium==0.15.1->-r requirements.txt (line 22))
+  Using cached branca-0.8.1-py3-none-any.whl.metadata (1.5 kB)
+Collecting numpy (from folium==0.15.1->-r requirements.txt (line 22))
+  Using cached numpy-2.3.2-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (62 kB)
+Collecting xyzservices (from folium==0.15.1->-r requirements.txt (line 22))
+  Using cached xyzservices-2025.4.0-py3-none-any.whl.metadata (4.3 kB)
+Collecting wtforms (from Flask-WTF==1.2.1->-r requirements.txt (line 26))
+  Using cached wtforms-3.2.1-py3-none-any.whl.metadata (5.3 kB)
+Collecting limits>=3.13 (from Flask-Limiter==3.8.0->-r requirements.txt (line 28))
+  Using cached limits-5.5.0-py3-none-any.whl.metadata (10 kB)
+Collecting ordered-set<5,>4 (from Flask-Limiter==3.8.0->-r requirements.txt (line 28))
+  Using cached ordered_set-4.1.0-py3-none-any.whl.metadata (5.3 kB)
+Collecting rich<14,>=12 (from Flask-Limiter==3.8.0->-r requirements.txt (line 28))
+  Using cached rich-13.9.4-py3-none-any.whl.metadata (18 kB)
+Collecting packaging (from gunicorn==23.0.0->-r requirements.txt (line 31))
+  Using cached packaging-25.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting markupsafe (from sentry-sdk[flask]==2.17.0->-r requirements.txt (line 34))
+  Using cached MarkupSafe-3.0.2-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.0 kB)
+Collecting markdown-it-py>=2.2.0 (from rich<14,>=12->Flask-Limiter==3.8.0->-r requirements.txt (line 28))
+  Using cached markdown_it_py-4.0.0-py3-none-any.whl.metadata (7.3 kB)
+Collecting pygments<3.0.0,>=2.13.0 (from rich<14,>=12->Flask-Limiter==3.8.0->-r requirements.txt (line 28))
+  Using cached pygments-2.19.2-py3-none-any.whl.metadata (2.5 kB)
+Collecting cffi>=1.14 (from cryptography>=42.0.0->-r requirements.txt (line 27))
+  Using cached cffi-1.17.1-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (1.5 kB)
+Collecting Mako (from alembic>=1.9.0->Flask-Migrate==4.0.7->-r requirements.txt (line 6))
+  Using cached mako-1.3.10-py3-none-any.whl.metadata (2.9 kB)
+Collecting pycparser (from cffi>=1.14->cryptography>=42.0.0->-r requirements.txt (line 27))
+  Using cached pycparser-2.22-py3-none-any.whl.metadata (943 bytes)
+Collecting deprecated>=1.2 (from limits>=3.13->Flask-Limiter==3.8.0->-r requirements.txt (line 28))
+  Using cached Deprecated-1.2.18-py2.py3-none-any.whl.metadata (5.7 kB)
+Collecting wrapt<2,>=1.10 (from deprecated>=1.2->limits>=3.13->Flask-Limiter==3.8.0->-r requirements.txt (line 28))
+  Using cached wrapt-1.17.3-cp313-cp313-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (6.4 kB)
+Collecting mdurl~=0.1 (from markdown-it-py>=2.2.0->rich<14,>=12->Flask-Limiter==3.8.0->-r requirements.txt (line 28))
+  Using cached mdurl-0.1.2-py3-none-any.whl.metadata (1.6 kB)
+Using cached flask-3.0.3-py3-none-any.whl (101 kB)
+Using cached Flask_Login-0.6.3-py3-none-any.whl (17 kB)
+Using cached flask_sqlalchemy-3.1.1-py3-none-any.whl (25 kB)
+Using cached Flask_Bcrypt-1.0.1-py3-none-any.whl (6.0 kB)
+Using cached Flask_Migrate-4.0.7-py3-none-any.whl (21 kB)
+Using cached SQLAlchemy-2.0.35-py3-none-any.whl (1.9 MB)
+Using cached PyMySQL-1.1.1-py3-none-any.whl (44 kB)
+Using cached python_dotenv-1.0.1-py3-none-any.whl (19 kB)
+Using cached stripe-10.12.0-py2.py3-none-any.whl (1.6 MB)
+Using cached requests-2.32.3-py3-none-any.whl (64 kB)
+Using cached folium-0.15.1-py2.py3-none-any.whl (97 kB)
+Using cached flask_talisman-1.1.0-py2.py3-none-any.whl (18 kB)
+Using cached flask_wtf-1.2.1-py3-none-any.whl (12 kB)
+Using cached Flask_Limiter-3.8.0-py3-none-any.whl (28 kB)
+Using cached gunicorn-23.0.0-py3-none-any.whl (85 kB)
+Using cached sentry_sdk-2.17.0-py2.py3-none-any.whl (314 kB)
+Using cached python_decouple-3.8-py3-none-any.whl (9.9 kB)
+Using cached charset_normalizer-3.4.3-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (151 kB)
+Using cached idna-3.10-py3-none-any.whl (70 kB)
+Using cached ordered_set-4.1.0-py3-none-any.whl (7.6 kB)
+Using cached rich-13.9.4-py3-none-any.whl (242 kB)
+Using cached pygments-2.19.2-py3-none-any.whl (1.2 MB)
+Using cached urllib3-2.5.0-py3-none-any.whl (129 kB)
+Using cached cryptography-45.0.6-cp311-abi3-manylinux_2_34_x86_64.whl (4.5 MB)
+Using cached alembic-1.16.4-py3-none-any.whl (247 kB)
+Using cached bcrypt-4.3.0-cp39-abi3-manylinux_2_34_x86_64.whl (284 kB)
+Using cached blinker-1.9.0-py3-none-any.whl (8.5 kB)
+Using cached branca-0.8.1-py3-none-any.whl (26 kB)
+Using cached certifi-2025.8.3-py3-none-any.whl (161 kB)
+Using cached cffi-1.17.1-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (479 kB)
+Using cached click-8.2.1-py3-none-any.whl (102 kB)
+Using cached itsdangerous-2.2.0-py3-none-any.whl (16 kB)
+Using cached jinja2-3.1.6-py3-none-any.whl (134 kB)
+Using cached limits-5.5.0-py3-none-any.whl (60 kB)
+Using cached Deprecated-1.2.18-py2.py3-none-any.whl (10.0 kB)
+Using cached wrapt-1.17.3-cp313-cp313-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (88 kB)
+Using cached markdown_it_py-4.0.0-py3-none-any.whl (87 kB)
+Using cached mdurl-0.1.2-py3-none-any.whl (10.0 kB)
+Using cached MarkupSafe-3.0.2-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (23 kB)
+Using cached packaging-25.0-py3-none-any.whl (66 kB)
+Using cached typing_extensions-4.14.1-py3-none-any.whl (43 kB)
+Using cached werkzeug-3.1.3-py3-none-any.whl (224 kB)
+Using cached mako-1.3.10-py3-none-any.whl (78 kB)
+Using cached numpy-2.3.2-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (16.6 MB)
+Using cached pycparser-2.22-py3-none-any.whl (117 kB)
+Using cached wtforms-3.2.1-py3-none-any.whl (152 kB)
+Using cached xyzservices-2025.4.0-py3-none-any.whl (90 kB)
+Installing collected packages: python-decouple, Flask-Talisman, xyzservices, wrapt, urllib3, typing-extensions, python-dotenv, PyMySQL, pygments, pycparser, packaging, ordered-set, numpy, mdurl, markupsafe, itsdangerous, idna, click, charset-normalizer, certifi, blinker, bcrypt, wtforms, Werkzeug, SQLAlchemy, sentry-sdk, requests, markdown-it-py, Mako, Jinja2, gunicorn, deprecated, cffi, stripe, rich, limits, Flask, cryptography, branca, alembic, folium, Flask-WTF, Flask-SQLAlchemy, Flask-Login, Flask-Limiter, Flask-Bcrypt, Flask-Migrate
+Successfully installed Flask-3.0.3 Flask-Bcrypt-1.0.1 Flask-Limiter-3.8.0 Flask-Login-0.6.3 Flask-Migrate-4.0.7 Flask-SQLAlchemy-3.1.1 Flask-Talisman-1.1.0 Flask-WTF-1.2.1 Jinja2-3.1.6 Mako-1.3.10 PyMySQL-1.1.1 SQLAlchemy-2.0.35 Werkzeug-3.1.3 alembic-1.16.4 bcrypt-4.3.0 blinker-1.9.0 branca-0.8.1 certifi-2025.8.3 cffi-1.17.1 charset-normalizer-3.4.3 click-8.2.1 cryptography-45.0.6 deprecated-1.2.18 folium-0.15.1 gunicorn-23.0.0 idna-3.10 itsdangerous-2.2.0 limits-5.5.0 markdown-it-py-4.0.0 markupsafe-3.0.2 mdurl-0.1.2 numpy-2.3.2 ordered-set-4.1.0 packaging-25.0 pycparser-2.22 pygments-2.19.2 python-decouple-3.8 python-dotenv-1.0.1 requests-2.32.3 rich-13.9.4 sentry-sdk-2.17.0 stripe-10.12.0 typing-extensions-4.14.1 urllib3-2.5.0 wrapt-1.17.3 wtforms-3.2.1 xyzservices-2025.4.0
+[notice] A new release of pip is available: 25.1.1 -> 25.2
+[notice] To update, run: pip install --upgrade pip
+==> Uploading build...
+==> Uploaded in 6.8s. Compression took 2.3s
+==> Build successful 🎉
+==> Deploying...
+==> Running 'gunicorn app:app'
+Uber Direct service not configured - missing credentials
+UBER_CLIENT_ID: ✗
+UBER_CLIENT_SECRET: ✗
+UBER_CUSTOMER_ID: ✗
+[2025-08-16 18:48:57,078] INFO in app: LoveMeNow application started
+INFO:app:LoveMeNow application started
+[2025-08-16 18:48:57 +0000] [48] [INFO] Starting gunicorn 23.0.0
+[2025-08-16 18:48:57 +0000] [48] [INFO] Listening at: http://0.0.0.0:10000 (48)
+[2025-08-16 18:48:57 +0000] [48] [INFO] Using worker: sync
+[2025-08-16 18:48:57 +0000] [73] [INFO] Booting worker with pid: 73
+127.0.0.1 - - [16/Aug/2025:18:48:59 +0000] "HEAD / HTTP/1.1" 200 0 "-" "Go-http-client/1.1"
+==> Your service is live 🎉
+==>
+==> ///////////////////////////////////////////////////////////
+==>
+==> Available at your primary URL https://lovemenowmiami.com + 2 more domains
+==>
+==> ///////////////////////////////////////////////////////////
+10.223.130.170 - - [16/Aug/2025:18:49:11 +0000] "GET / HTTP/1.1" 200 36380 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+10.223.246.169 - - [16/Aug/2025:18:49:11 +0000] "GET /static/IMG/imagesForLovMeNow/SKU-0002/MalePowerBunnyMaskMainImage.jpeg HTTP/1.1" 404 2273 "https://lovemenowmiami.com/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+10.223.246.169 - - [16/Aug/2025:18:49:11 +0000] "GET /api/wishlist/check/1 HTTP/1.1" 200 32 "https://lovemenowmiami.com/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+10.223.100.190 - - [16/Aug/2025:18:49:11 +0000] "GET /api/wishlist/check/2 HTTP/1.1" 200 32 "https://lovemenowmiami.com/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+10.223.80.89 - - [16/Aug/2025:18:49:11 +0000] "GET /api/wishlist/check/1 HTTP/1.1" 200 32 "https://lovemenowmiami.com/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+10.223.224.220 - - [16/Aug/2025:18:49:11 +0000] "GET /api/cart/count HTTP/1.1" 200 12 "https://lovemenowmiami.com/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+10.223.246.169 - - [16/Aug/2025:18:49:12 +0000] "GET /api/wishlist/count HTTP/1.1" 200 12 "https://lovemenowmiami.com/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+10.223.100.190 - - [16/Aug/2025:18:49:12 +0000] "GET /api/wishlist/check/3 HTTP/1.1" 200 32 "https://lovemenowmiami.com/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+10.223.130.170 - - [16/Aug/2025:18:49:13 +0000] "GET /sw.js HTTP/1.1" 404 2273 "https://lovemenowmiami.com/sw.js" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+10.223.5.98 - - [16/Aug/2025:18:49:44 +0000] "GET /sw.js HTTP/1.1" 404 2273 "https://lovemenowmiami.com/sw.js" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
 
 -->
