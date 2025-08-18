@@ -178,6 +178,25 @@ def create_app(config_name=None):
     # Register error handlers
     register_error_handlers(app)
 
+    @app.after_request
+    def enforce_csp(response):
+        response.headers.pop('Content-Security-Policy', None)
+        response.headers['Content-Security-Policy'] = (
+            "default-src 'self'; "
+            "script-src 'self' 'unsafe-inline' https://js.stripe.com https://api.mapbox.com; "
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://api.mapbox.com; "
+            "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; "
+            "img-src 'self' data: https:; "
+            "media-src 'self'; "
+            "frame-src https://js.stripe.com https://hooks.stripe.com; "
+            "child-src https://js.stripe.com https://hooks.stripe.com; "
+            "connect-src 'self' https://api.stripe.com https://r.stripe.com https://api.mapbox.com; "
+            "object-src 'none'; "
+            "base-uri 'self'; "
+            "frame-ancestors 'self'"
+        )
+        return response
+
     return app
 
 
