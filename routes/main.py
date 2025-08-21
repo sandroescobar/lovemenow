@@ -840,8 +840,11 @@ def create_checkout_session():
                 'quantity': quantity,
             })
         
-        # Add shipping if needed
-        if subtotal < 100:
+        # Add shipping if needed (only for delivery orders under $50)
+        # TODO: Get delivery method from request - for now, don't add shipping for pickup
+        delivery_method = request.form.get('delivery_method', 'pickup')  # Default to pickup
+        
+        if delivery_method == 'delivery' and subtotal < 50:
             line_items.append({
                 'price_data': {
                     'currency': 'usd',
