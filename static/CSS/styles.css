@@ -2246,13 +2246,18 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
     border: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
+    /* Debug: make container visible */
+    min-height: 500px;
 }
 
 .folium-map {
     width: 100%;
     height: 100%;
-    border-radius: 1rem;
     border: none;
+    /* Remove border-radius from iframe to prevent conflicts */
+    border-radius: 0;
+    flex: 1;
+    min-height: 400px;
 }
 
 .map-legend {

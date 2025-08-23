@@ -39,8 +39,10 @@ class FinalCSPMiddleware:
         # Final/effective policy
         self.csp = (
             "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline' https://js.stripe.com https://api.mapbox.com; "
-            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://api.mapbox.com; "
+            "script-src 'self' 'unsafe-inline' https://js.stripe.com https://api.mapbox.com "
+            "https://cdn.jsdelivr.net https://code.jquery.com https://cdnjs.cloudflare.com; "
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com "
+            "https://api.mapbox.com https://cdn.jsdelivr.net https://netdna.bootstrapcdn.com; "
             "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; "
             "img-src 'self' data: https:; "
             "media-src 'self'; "

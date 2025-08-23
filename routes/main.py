@@ -1157,31 +1157,77 @@ def miami_map():
             icon=folium.Icon(color="red", icon="heart", prefix="fa")
         ).add_to(m)
         
+        # Get the map HTML and wrap it properly
+        map_html = m._repr_html_()
+        
+        # Wrap in a proper HTML document with full height
+        full_html = f"""
+        <!DOCTYPE html>
+        <html style="height: 100%; margin: 0; padding: 0;">
+        <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Miami Coverage Map</title>
+            <style>
+                body {{
+                    height: 100vh;
+                    margin: 0;
+                    padding: 0;
+                    font-family: Arial, sans-serif;
+                }}
+                .folium-map {{
+                    height: 100vh !important;
+                    width: 100% !important;
+                }}
+            </style>
+        </head>
+        <body>
+            {map_html}
+        </body>
+        </html>
+        """
+        
         # Return the map as HTML
         from flask import Response
-        response = Response(m._repr_html_(), mimetype='text/html')
+        response = Response(full_html, mimetype='text/html')
         # Allow this route to be embedded in iframes from same origin
         response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+        response.headers['Cache-Control'] = 'public, max-age=3600'  # Cache for 1 hour
         return response
         
     except ImportError:
         # If folium is not installed, return a simple message
         return """
-        <div style="display: flex; align-items: center; justify-content: center; height: 100%; font-family: Arial, sans-serif;">
-            <div style="text-align: center;">
-                <h3>Miami Coverage Map</h3>
-                <p>We deliver throughout Miami-Dade and Broward counties!</p>
-                <p><em>Install folium to see the interactive map</em></p>
+        <!DOCTYPE html>
+        <html style="height: 100%; margin: 0; padding: 0;">
+        <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Miami Coverage Map</title>
+        </head>
+        <body style="height: 100vh; margin: 0; padding: 0; display: flex; align-items: center; justify-content: center; font-family: Arial, sans-serif; background: #f8f9fa;">
+            <div style="text-align: center; padding: 2rem;">
+                <h3 style="color: #667eea; margin-bottom: 1rem;">Miami Coverage Map</h3>
+                <p style="margin-bottom: 1rem;">We deliver throughout Miami-Dade and Broward counties!</p>
+                <p style="color: #666; font-style: italic;">Install folium to see the interactive map</p>
             </div>
-        </div>
+        </body>
+        </html>
         """
     except Exception as e:
         current_app.logger.error(f"Error generating Miami map: {str(e)}")
         return f"""
-        <div style="display: flex; align-items: center; justify-content: center; height: 100%; font-family: Arial, sans-serif;">
-            <div style="text-align: center;">
-                <h3>Miami Coverage Map</h3>
-                <p>We deliver throughout Miami-Dade and Broward counties!</p>
+        <!DOCTYPE html>
+        <html style="height: 100%; margin: 0; padding: 0;">
+        <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Miami Coverage Map</title>
+        </head>
+        <body style="height: 100vh; margin: 0; padding: 0; display: flex; align-items: center; justify-content: center; font-family: Arial, sans-serif; background: #f8f9fa;">
+            <div style="text-align: center; padding: 2rem;">
+                <h3 style="color: #667eea; margin-bottom: 1rem;">Miami Coverage Map</h3>
+                <p style="margin-bottom: 1rem;">We deliver throughout Miami-Dade and Broward counties!</p>
                 <div style="margin-top: 2rem; padding: 1.5rem; background: #667eea; color: white; border-radius: 8px;">
                     <h4>🏬 Pickup Location</h4>
                     <p><strong>Miami Vape Smoke Shop</strong></p>
@@ -1190,7 +1236,8 @@ def miami_map():
                 </div>
                 <p style="color: #666; font-size: 0.9em; margin-top: 1rem;"><em>Error: {str(e)}</em></p>
             </div>
-        </div>
+        </body>
+        </html>
         """
 
 @main_bp.route('/test-auth')

@@ -114,12 +114,28 @@
                 </div>
 
                 <div class="miami-visual">
-                    <div class="miami-map-container">
+                    <div class="miami-map-container" id="map-container">
                         <iframe src="/miami-map"
                                 class="folium-map"
                                 frameborder="0"
-                                style="width: 100%; flex: 1; border-radius: 1rem;">
+                                loading="lazy"
+                                title="Miami Coverage Map"
+                                onload="console.log('Map iframe loaded successfully')"
+                                onerror="console.error('Map iframe failed to load'); document.getElementById('map-fallback').style.display = 'flex';">
                         </iframe>
+                        
+                        <!-- Fallback content if iframe fails -->
+                        <div id="map-fallback" style="display: none; width: 100%; height: 100%; background: var(--glass-bg); border-radius: 1rem; align-items: center; justify-content: center; text-align: center; padding: 2rem;">
+                            <div>
+                                <h3 style="color: hsl(var(--primary-color)); margin-bottom: 1rem;">Miami Coverage Map</h3>
+                                <p style="margin-bottom: 1rem;">We deliver throughout Miami-Dade and Broward counties!</p>
+                                <div style="background: hsl(var(--primary-color)); color: white; padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                                    <h4>🏬 Pickup Location</h4>
+                                    <p><strong>Miami Vape Smoke Shop</strong></p>
+                                    <p>351 NE 79th St<br>Miami, FL 33138</p>
+                                </div>
+                            </div>
+                        </div>
 
                         <!-- Coverage Statistics -->
                         <div class="coverage-stats">
@@ -574,5 +590,57 @@
     {% endwith %}
 
     <script src="{{ url_for('static', filename='js/index.js') }}?v=20241220d"></script>
+    
+    <!-- Map debugging script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mapIframe = document.querySelector('.folium-map');
+            const mapContainer = document.getElementById('map-container');
+            const fallback = document.getElementById('map-fallback');
+            
+            if (mapIframe) {
+                // Set a timeout to show fallback if iframe doesn't load
+                const timeout = setTimeout(() => {
+                    console.warn('Map iframe taking too long to load, showing fallback');
+                    if (fallback) {
+                        mapIframe.style.display = 'none';
+                        fallback.style.display = 'flex';
+                    }
+                }, 10000); // 10 seconds timeout
+                
+                mapIframe.onload = function() {
+                    console.log('Map iframe loaded successfully');
+                    clearTimeout(timeout);
+                };
+                
+                mapIframe.onerror = function() {
+                    console.error('Map iframe failed to load');
+                    clearTimeout(timeout);
+                    if (fallback) {
+                        mapIframe.style.display = 'none';
+                        fallback.style.display = 'flex';
+                    }
+                };
+                
+                // Check if iframe content is accessible (same-origin)
+                try {
+                    mapIframe.onload = function() {
+                        try {
+                            const iframeDoc = mapIframe.contentDocument || mapIframe.contentWindow.document;
+                            if (iframeDoc && iframeDoc.body) {
+                                console.log('Map iframe content loaded and accessible');
+                                clearTimeout(timeout);
+                            }
+                        } catch (e) {
+                            console.log('Map iframe loaded but content not accessible (this is normal for cross-origin)');
+                            clearTimeout(timeout);
+                        }
+                    };
+                } catch (e) {
+                    console.log('Cannot access iframe content due to security restrictions');
+                }
+            }
+        });
+    </script>
 </body>
 </html>
