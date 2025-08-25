@@ -302,6 +302,19 @@
             background: hsl(var(--background-color));
         }
 
+        /* Readonly field styling */
+        input[readonly] {
+            background-color: #f8f9fa !important;
+            color: #6c757d !important;
+            cursor: not-allowed !important;
+            border-color: #e9ecef !important;
+        }
+
+        input[readonly]:focus {
+            box-shadow: none !important;
+            border-color: #e9ecef !important;
+        }
+
         @media (max-width: 1024px) {
             .checkout-layout {
                 grid-template-columns: 1fr;
@@ -358,52 +371,102 @@
                 <!-- Customer Information -->
                 <div class="form-section">
                     <h3><i class="fas fa-user"></i> Contact Information</h3>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-row">
+                    
+                    {% if user_data %}
+                        <!-- Logged-in user: Show pre-filled info (read-only) and only ask for phone -->
                         <div class="form-group">
-                            <label for="firstName">First Name</label>
-                            <input type="text" id="firstName" name="firstName" required>
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" value="{{ user_data.email }}" readonly style="background-color: #f5f5f5; cursor: not-allowed;">
                         </div>
                         <div class="form-group">
-                            <label for="lastName">Last Name</label>
-                            <input type="text" id="lastName" name="lastName" required>
+                            <label for="fullName">Full Name</label>
+                            <input type="text" id="fullName" name="fullName" value="{{ user_data.full_name }}" readonly style="background-color: #f5f5f5; cursor: not-allowed;">
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone" required>
-                    </div>
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" required placeholder="Enter your phone number">
+                        </div>
+                    {% else %}
+                        <!-- Guest user: Show all fields -->
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="firstName">First Name</label>
+                                <input type="text" id="firstName" name="firstName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName">Last Name</label>
+                                <input type="text" id="lastName" name="lastName" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" required>
+                        </div>
+                    {% endif %}
                 </div>
 
                 <!-- Delivery Address (shown only for delivery) -->
                 <div class="form-section" id="delivery-address-section" style="display: none;">
                     <h3><i class="fas fa-map-marker-alt"></i> Delivery Address</h3>
-                    <div class="form-group">
-                        <label for="address">Street Address</label>
-                        <input type="text" id="address" name="address">
-                    </div>
-                    <div class="form-group">
-                        <label for="suite">Apartment/Suite (Optional)</label>
-                        <input type="text" id="suite" name="suite">
-                    </div>
-                    <div class="form-row">
+                    
+                    {% if user_data and user_addresses %}
+                        <!-- Logged-in user with saved addresses -->
                         <div class="form-group">
-                            <label for="city">City</label>
-                            <input type="text" id="city" name="city" value="Miami">
-                        </div>
-                        <div class="form-group">
-                            <label for="state">State</label>
-                            <select id="state" name="state">
-                                <option value="FL" selected>Florida</option>
+                            <label for="saved-address">Use Saved Address</label>
+                            <select id="saved-address" name="saved-address" onchange="handleSavedAddressChange()">
+                                <option value="">Select a saved address</option>
+                                {% for address in user_addresses %}
+                                    <option value="{{ address.id }}" 
+                                            data-address="{{ address.address }}"
+                                            data-suite="{{ address.suite or '' }}"
+                                            data-city="{{ address.city }}"
+                                            data-state="{{ address.state }}"
+                                            data-zip="{{ address.zip }}"
+                                            {% if address.is_default %}selected{% endif %}>
+                                        {{ address.address }}{% if address.suite %}, {{ address.suite }}{% endif %}, {{ address.city }}, {{ address.state }} {{ address.zip }}
+                                        {% if address.is_default %} (Default){% endif %}
+                                    </option>
+                                {% endfor %}
+                                <option value="manual">Enter new address manually</option>
                             </select>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="zip">ZIP Code</label>
-                        <input type="text" id="zip" name="zip">
+                        
+                        <!-- Address fields (hidden by default if default address exists) -->
+                        <div id="manual-address-fields" {% if default_address %}style="display: none;"{% endif %}>
+                    {% else %}
+                        <!-- Guest user or logged-in user without saved addresses -->
+                        <div id="manual-address-fields">
+                    {% endif %}
+                    
+                        <div class="form-group">
+                            <label for="address">Street Address</label>
+                            <input type="text" id="address" name="address"{% if default_address %} value="{{ default_address.address }}"{% endif %}>
+                        </div>
+                        <div class="form-group">
+                            <label for="suite">Apartment/Suite (Optional)</label>
+                            <input type="text" id="suite" name="suite"{% if default_address %} value="{{ default_address.suite or '' }}"{% endif %}>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="city">City</label>
+                                <input type="text" id="city" name="city" 
+                                       value="{% if default_address %}{{ default_address.city }}{% else %}Miami{% endif %}">
+                            </div>
+                            <div class="form-group">
+                                <label for="state">State</label>
+                                <select id="state" name="state">
+                                    <option value="FL" {% if not default_address or default_address.state == 'FL' %}selected{% endif %}>Florida</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="zip">ZIP Code</label>
+                            <input type="text" id="zip" name="zip"{% if default_address %} value="{{ default_address.zip }}"{% endif %}>
+                        </div>
                     </div>
                 </div>
 
@@ -788,7 +851,9 @@
                         return_url: window.location.origin + '/checkout-success',
                         payment_method_data: {
                             billing_details: {
-                                name: document.getElementById('firstName').value + ' ' + document.getElementById('lastName').value,
+                                name: document.getElementById('fullName') ? 
+                                      document.getElementById('fullName').value : 
+                                      document.getElementById('firstName').value + ' ' + document.getElementById('lastName').value,
                                 email: document.getElementById('email').value,
                                 phone: document.getElementById('phone').value,
                             }
@@ -826,8 +891,12 @@
                     delivery_type: selectedDeliveryType,
                     customer_info: {
                         email: document.getElementById('email').value,
-                        first_name: document.getElementById('firstName').value,
-                        last_name: document.getElementById('lastName').value,
+                        first_name: document.getElementById('fullName') ? 
+                                   document.getElementById('fullName').value.split(' ')[0] : 
+                                   document.getElementById('firstName').value,
+                        last_name: document.getElementById('fullName') ? 
+                                  document.getElementById('fullName').value.split(' ').slice(1).join(' ') : 
+                                  document.getElementById('lastName').value,
                         phone: document.getElementById('phone').value,
                     }
                 };
@@ -884,7 +953,18 @@
 
         // Validate form
         function validateForm() {
-            const requiredFields = ['email', 'firstName', 'lastName', 'phone'];
+            // Check if user is logged in by checking if fullName field exists (logged-in users have fullName, guests have firstName/lastName)
+            const isLoggedIn = document.getElementById('fullName') !== null;
+            
+            let requiredFields = [];
+            
+            if (isLoggedIn) {
+                // For logged-in users, only phone is required for contact info
+                requiredFields = ['phone'];
+            } else {
+                // For guest users, all contact fields are required
+                requiredFields = ['email', 'firstName', 'lastName', 'phone'];
+            }
 
             if (selectedDeliveryType === 'delivery') {
                 requiredFields.push('address', 'city', 'zip');
@@ -892,20 +972,23 @@
 
             for (const fieldId of requiredFields) {
                 const field = document.getElementById(fieldId);
-                if (!field.value.trim()) {
-                    showError(`Please fill in ${field.labels[0].textContent}`);
-                    field.focus();
+                if (!field || !field.value.trim()) {
+                    const fieldName = field ? field.labels[0].textContent : fieldId;
+                    showError(`Please fill in ${fieldName}`);
+                    if (field) field.focus();
                     return false;
                 }
             }
 
-            // Validate email
-            const email = document.getElementById('email').value;
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                showError('Please enter a valid email address');
-                document.getElementById('email').focus();
-                return false;
+            // Validate email for guest users only
+            if (!isLoggedIn) {
+                const email = document.getElementById('email').value;
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    showError('Please enter a valid email address');
+                    document.getElementById('email').focus();
+                    return false;
+                }
             }
 
             return true;
@@ -966,6 +1049,39 @@
                 })
                 .catch(error => {
                 });
+        }
+
+        // Handle saved address selection
+        function handleSavedAddressChange() {
+            const savedAddressSelect = document.getElementById('saved-address');
+            const manualAddressFields = document.getElementById('manual-address-fields');
+            const addressField = document.getElementById('address');
+            const suiteField = document.getElementById('suite');
+            const cityField = document.getElementById('city');
+            const stateField = document.getElementById('state');
+            const zipField = document.getElementById('zip');
+
+            if (savedAddressSelect.value === 'manual' || savedAddressSelect.value === '') {
+                // Show manual address fields and clear them if "manual" is selected
+                manualAddressFields.style.display = 'block';
+                if (savedAddressSelect.value === 'manual') {
+                    addressField.value = '';
+                    suiteField.value = '';
+                    cityField.value = 'Miami';
+                    stateField.value = 'FL';
+                    zipField.value = '';
+                }
+            } else {
+                // Fill in the selected address and show the fields
+                const selectedOption = savedAddressSelect.options[savedAddressSelect.selectedIndex];
+                addressField.value = selectedOption.dataset.address || '';
+                suiteField.value = selectedOption.dataset.suite || '';
+                cityField.value = selectedOption.dataset.city || 'Miami';
+                stateField.value = selectedOption.dataset.state || 'FL';
+                zipField.value = selectedOption.dataset.zip || '';
+                
+                manualAddressFields.style.display = 'block';
+            }
         }
     </script>
 </body>
