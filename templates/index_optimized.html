@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="LoveMeNow - Premium quality adult products for your intimate moments">
+    <title>LoveMeNow - Premium Adult Products</title>
+
+    <!-- Preload critical resources -->
+    <link rel="preload" href="{{ url_for('static', filename='CSS/styles.css') }}" as="style">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" as="style">
+    
+    <!-- Critical CSS inline (first 14KB) -->
+    <style>
+        /* Critical above-the-fold styles */
+        :root {
+            --primary-color: 280 100% 70%;
+            --accent-color: 320 100% 70%;
+            --dark-color: 220 13% 18%;
+            --background-color: 220 13% 15%;
+            --text-color: 220 13% 91%;
+            --muted-color: 220 9% 46%;
+            --border-color: 220 13% 31%;
+            --surface-color: 220 13% 24%;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --radius-sm: 0.5rem;
+            --radius-md: 0.75rem;
+            --radius-lg: 1rem;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: hsl(var(--text-color));
+            background: linear-gradient(135deg, hsl(var(--dark-color)), hsl(220 13% 12%));
+            min-height: 100vh;
+        }
+        
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem 1rem;
+        }
+        
+        .hero-content h1 {
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.875rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+        
+        /* Loading spinner for deferred content */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+
+    <!-- Load non-critical CSS asynchronously -->
+    <link rel="preload" href="{{ url_for('static', filename='CSS/styles.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}"></noscript>
+    
+    <!-- Load fonts asynchronously -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"></noscript>
+    
+    <!-- CSRF Protection -->
+    {% include 'csrf_meta.html' %}
+    
+    {% if show_age_verification %}
+    <script>
+        // Immediately block scrolling if age verification is needed
+        document.documentElement.style.overflow = 'hidden';
+        document.body.style.overflow = 'hidden';
+        
+        // Add a class to prevent any interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            document.body.classList.add('no-scroll');
+        });
+    </script>
+    {% endif %}
+</head>
+<body>
+
+    {% include "navbar.html" %}
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content fade-in-up">
+            <h1>Elevate Your Intimate Moments</h1>
+            <p class="lead">Discover premium quality products designed to enhance your personal experiences with discreet service and fast delivery.</p>
+            <a href="/products" class="btn btn-primary btn-lg">Explore Now</a>
+        </div>
+    </section>
+
+    <!-- Deferred content placeholder -->
+    <div id="deferred-content">
+        <div style="text-align: center; padding: 4rem 1rem;">
+            <div class="loading-spinner"></div>
+            <p style="margin-top: 1rem; opacity: 0.7;">Loading content...</p>
+        </div>
+    </div>
+
+    <!-- Load non-critical resources after page load -->
+    <script>
+        // Defer loading of heavy content until after initial render
+        window.addEventListener('load', function() {
+            // Load Font Awesome asynchronously
+            const fontAwesome = document.createElement('link');
+            fontAwesome.rel = 'stylesheet';
+            fontAwesome.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css';
+            document.head.appendChild(fontAwesome);
+            
+            // Load Mapbox only when needed
+            if (document.querySelector('#map-container')) {
+                const mapboxCSS = document.createElement('link');
+                mapboxCSS.rel = 'stylesheet';
+                mapboxCSS.href = 'https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.css';
+                document.head.appendChild(mapboxCSS);
+                
+                const mapboxJS = document.createElement('script');
+                mapboxJS.src = 'https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.js';
+                document.head.appendChild(mapboxJS);
+            }
+            
+            // Load deferred content
+            loadDeferredContent();
+        });
+        
+        function loadDeferredContent() {
+            fetch('/api/deferred-content')
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('deferred-content').innerHTML = html;
+                    // Initialize JavaScript for the loaded content
+                    if (window.initializeDeferredJS) {
+                        window.initializeDeferredJS();
+                    }
+                })
+                .catch(error => {
+                    console.error('Failed to load deferred content:', error);
+                    // Fallback: load the original content
+                    window.location.reload();
+                });
+        }
+    </script>
+
+    <!-- Load main JavaScript with defer -->
+    <script defer src="{{ url_for('static', filename='js/index_optimized.js') }}"></script>
+
+    {% if show_age_verification %}
+        {% include 'age_verification.html' %}
+    {% endif %}
+
+</body>
+</html>

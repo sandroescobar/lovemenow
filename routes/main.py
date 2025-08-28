@@ -10,7 +10,7 @@ import stripe
 import stripe.checkout
 
 from routes import db, csrf
-from models import Product, Category, Color, Wishlist, Cart, Order, OrderItem, UberDelivery
+from models import Product, Category, Color, Wishlist, Cart, Order, OrderItem, UberDelivery, UserAddress
 from security import validate_input
 from database_utils import retry_db_operation, test_database_connection, get_fallback_data
 
@@ -473,12 +473,32 @@ def checkout():
     cart_data['total'] = cart_data['subtotal'] + cart_data['shipping']
     cart_data['count'] = len(cart_data['items'])
     
+    # Prepare user data and addresses for logged-in users
+    user_data = None
+    user_addresses = []
+    default_address = None
+    
+    if current_user.is_authenticated:
+        user_data = {
+            'email': current_user.email,
+            'full_name': current_user.full_name
+        }
+        
+        # Get user addresses
+        user_addresses = UserAddress.query.filter_by(user_id=current_user.id).all()
+        default_address = UserAddress.query.filter_by(user_id=current_user.id, is_default=True).first()
+    
     # Use enhanced checkout template with delivery options
     try:
         current_app.logger.info("Attempting to render checkout_enhanced.html template")
         current_app.logger.info(f"Cart data: {cart_data}")
         current_app.logger.info(f"Config keys: {list(current_app.config.keys())}")
-        return render_template('checkout_enhanced.html', config=current_app.config, cart_data=cart_data)
+        return render_template('checkout_enhanced.html', 
+                             config=current_app.config, 
+                             cart_data=cart_data,
+                             user_data=user_data,
+                             user_addresses=user_addresses,
+                             default_address=default_address)
     except Exception as e:
         current_app.logger.error(f"Error rendering checkout template: {str(e)}")
         # Fallback to a simple error page

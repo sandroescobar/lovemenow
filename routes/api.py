@@ -47,6 +47,188 @@ def single_product_json(product_id: int):
         current_app.logger.error(f"Error fetching product {product_id}: {str(e)}")
         return jsonify({'error': 'Product not found'}), 404
 
+@api_bp.route('/deferred-content')
+def get_deferred_content():
+    """Get deferred content for performance optimization"""
+    from flask import render_template_string
+    from models import Product, Category
+    
+    try:
+        # Get featured products (limit for performance)
+        featured_products = (
+            Product.query
+            .options(joinedload(Product.images), joinedload(Product.category), joinedload(Product.colors))
+            .filter(Product.in_stock == True)
+            .order_by(Product.created_at.desc())
+            .limit(8)
+            .all()
+        )
+        
+        # Render the deferred content template
+        deferred_html = render_template_string('''
+        <!-- Miami Delivery & Pickup Section -->
+        <section class="miami-service-section">
+            <div class="container">
+                <div class="miami-content">
+                    <div class="miami-info">
+                        <div class="service-badge">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>Miami Exclusive</span>
+                        </div>
+                        <h2>Premium Service Across the Magic City</h2>
+                        <p class="miami-description">Experience unparalleled convenience with our discreet delivery and pickup services covering all of Miami-Dade County.</p>
+
+                        <div class="service-features">
+                            <div class="service-feature">
+                                <div class="feature-icon">
+                                    <i class="fas fa-truck"></i>
+                                </div>
+                                <div class="feature-content">
+                                    <h3>Same-Day Delivery</h3>
+                                    <p>Order before 2 PM for same-day delivery across Miami</p>
+                                </div>
+                            </div>
+
+                            <div class="service-feature">
+                                <div class="feature-icon">
+                                    <i class="fas fa-store"></i>
+                                </div>
+                                <div class="feature-content">
+                                    <h3>Discreet Pickup Points</h3>
+                                    <p>Convenient pickup locations in Brickell, Wynwood & Coral Gables</p>
+                                </div>
+                            </div>
+
+                            <div class="service-feature">
+                                <div class="feature-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="feature-content">
+                                    <h3>24/7 Service</h3>
+                                    <p>Round-the-clock availability for your convenience</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="miami-cta">
+                            <a href="/products" class="btn btn-primary btn-lg">
+                                <i class="fas fa-shopping-bag"></i>
+                                Shop Miami Collection
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="miami-visual">
+                        <div class="miami-map-container" id="map-container">
+                            <iframe src="/miami-map"
+                                    class="folium-map"
+                                    frameborder="0"
+                                    loading="lazy"
+                                    title="Miami Coverage Map">
+                            </iframe>
+                            
+                            <div class="coverage-stats">
+                                <div class="stat-item">
+                                    <div class="stat-number">100+</div>
+                                    <div class="stat-label">Areas Covered</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-number">1 Hour</div>
+                                    <div class="stat-label">Avg Delivery</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-number">10AM-10PM</div>
+                                    <div class="stat-label">Mon-Sun</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Products -->
+        <section class="container" style="padding: 4rem 1rem;">
+            <div class="text-center mb-4">
+                <h2 style="font-size: 2.5rem; margin-bottom: 1rem; background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color))); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Featured Products</h2>
+                <p style="font-size: 1.125rem; opacity: 0.8; max-width: 600px; margin: 0 auto;">Carefully curated selection of our most popular intimate products</p>
+            </div>
+
+            <div class="product-grid">
+                {% for product in featured_products %}
+                <div class="product-card fade-in-up" data-product-id="{{ product.id }}" data-in-stock="{{ product.in_stock|lower }}">
+                    <div class="product-image">
+                        {% set all_images = [] %}
+                        {% if product.image_url %}
+                            {% set _ = all_images.append(product.image_url) %}
+                        {% endif %}
+                        {% for img in product.images %}
+                            {% if img.url not in all_images %}
+                                {% set _ = all_images.append(img.url) %}
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if all_images %}
+                            <img class="lazy" 
+                                 data-src="{{ all_images[0] if all_images[0].startswith('http') else url_for('static', filename=all_images[0].lstrip('/')) }}"
+                                 alt="{{ product.name|e }}" 
+                                 style="width: 100%; height: 250px; object-fit: cover;">
+                        {% else %}
+                            <div class="placeholder-image">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                    <circle cx="9" cy="9" r="2"></circle>
+                                    <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
+                                </svg>
+                            </div>
+                        {% endif %}
+                        <div class="product-actions">
+                            <button class="btn-quick-view" data-product-id="{{ product.id }}">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-category">{{ product.category.name if product.category else 'Featured' }}</div>
+                        <h3 class="product-title">
+                            <a href="/product/{{ product.id }}">{{ product.name }}</a>
+                        </h3>
+                        <div class="product-price">${{ '%.2f'|format(product.price) }}</div>
+                        <div class="product-buttons">
+                            <button class="btn-add-cart" 
+                                    data-product-id="{{ product.id }}"
+                                    data-product-name="{{ product.name|e }}"
+                                    data-product-price="{{ product.price }}"
+                                    {% if not product.is_available %}disabled{% endif %}>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <circle cx="9" cy="21" r="1"></circle>
+                                    <circle cx="20" cy="21" r="1"></circle>
+                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                                </svg>
+                                {{ 'Add to Cart' if product.is_available else 'Out of Stock' }}
+                            </button>
+                            <button class="btn-wishlist" data-product-id="{{ product.id }}" data-product-name="{{ product.name|e }}">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        ''', featured_products=featured_products)
+        
+        return deferred_html
+        
+    except Exception as e:
+        current_app.logger.error(f"Error loading deferred content: {str(e)}")
+        return jsonify({'error': 'Failed to load content'}), 500
+
 @api_bp.route('/colors')
 def get_colors():
     """Get available colors"""

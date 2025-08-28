@@ -22,6 +22,9 @@ class User(db.Model, UserMixin):
     age_verified = db.Column(db.Boolean, default=False)  # Age verification status
     age_verification_date = db.Column(db.DateTime, nullable=True)  # When age was verified
 
+    # Relationships
+    addresses = db.relationship('UserAddress', backref='user', lazy='dynamic')
+
     # ── helper methods ─────────────────────────────────────────
     @property
     def password(self):
