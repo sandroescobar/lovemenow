@@ -13,9 +13,9 @@ df = pd.read_excel(file_path, sheet_name=sheet)
 # it in a ready dataframe
 
 
-mask = df["SKU"].isna()
-df.loc[mask, "SKU"] = (
-    "SKU-" + (mask.cumsum()).astype(str).str.zfill(4)   # SKU-0001, SKU-0002…
+mask = df["UPC"].isna()
+df.loc[mask, "UPC"] = (
+    "UPC-" + (mask.cumsum()).astype(str).str.zfill(4)   # UPC-0001, UPC-0002…
 )
 
 # save back

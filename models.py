@@ -99,12 +99,14 @@ class Product(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200), nullable=False)
-    sku = db.Column(db.String(50), nullable=True)  # Will be added later
+    upc = db.Column(db.String(50), nullable=True)  # Changed from sku to upc
     description = db.Column(db.Text, nullable=True)
     specifications = db.Column(db.Text, nullable=True)
     dimensions = db.Column(db.String(200), nullable=True)
     price = db.Column(db.Numeric(10, 2), nullable=False)
-    image_url = db.Column(db.String(500), nullable=True)  # Will be added later
+    wholesale_id = db.Column(db.Integer, nullable=True)  # New wholesale ID field
+    wholesale_price = db.Column(db.Float, nullable=True)  # New wholesale price field
+    image_url = db.Column(db.String(500), nullable=True)  # Keeping image_url as requested
     in_stock = db.Column(db.Boolean, default=True)
     quantity_on_hand = db.Column(db.Integer, default=0, nullable=False)
     rating = db.Column(db.Float, default=0.0)
