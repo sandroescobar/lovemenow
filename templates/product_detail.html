@@ -813,7 +813,7 @@
                     <div class="description-tabs">
                         <button class="tab-btn active" onclick="showTab('description')">Description</button>
                         <button class="tab-btn" onclick="showTab('specifications')">Specifications</button>
-                        <button class="tab-btn" onclick="showTab('dimensions')">Dimensions</button>
+                        <button class="tab-btn" onclick="showTab('dimensions')">Features</button>
                     </div>
                     
                     <div id="description" class="tab-content active">
@@ -821,11 +821,35 @@
                     </div>
                     
                     <div id="specifications" class="tab-content">
-                        <div>{{ (product.specifications or 'Specifications information will be available soon.')|replace('\n', '<br>')|safe }}</div>
+                        <div>
+                            {% if product.specifications %}
+                                <ul>
+                                    {% for spec in product.specifications.split('\n') %}
+                                        {% if spec.strip() %}
+                                            <li>{{ spec.strip() }}</li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                Specifications information will be available soon.
+                            {% endif %}
+                        </div>
                     </div>
                     
                     <div id="dimensions" class="tab-content">
-                        <div>{{ (product.dimensions or 'Dimensions information will be available soon.')|replace('\n', '<br>')|safe }}</div>
+                        <div>
+                            {% if product.dimensions %}
+                                <ul>
+                                    {% for dimension in product.dimensions.split('\n') %}
+                                        {% if dimension.strip() %}
+                                            <li>{{ dimension.strip() }}</li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                Dimensions information will be available soon.
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
