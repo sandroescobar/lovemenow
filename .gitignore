@@ -70,6 +70,7 @@ static/uploads/
 # Security sensitive files
 config/secrets.py
 secrets.py
+stripe_config.py
 private_keys/
 certificates/
 *.pem

@@ -12,6 +12,9 @@ class SlackNotificationService:
     
     def __init__(self):
         self.webhook_url = current_app.config.get('SLACK_WEBHOOK_URL')
+        current_app.logger.info(f"🔍 SLACK DEBUG - Webhook URL configured: {'YES' if self.webhook_url else 'NO'}")
+        if self.webhook_url:
+            current_app.logger.info(f"🔍 SLACK DEBUG - Webhook URL: {self.webhook_url[:50]}...{self.webhook_url[-10:]}")
     
     def send_order_notification(self, order, order_items: List[Dict]) -> bool:
         """

@@ -517,6 +517,7 @@ def create_order():
             order_number=f"LMN{datetime.now().strftime('%Y%m%d%H%M%S')}",
             email=data['customer_info']['email'],
             full_name=f"{data['customer_info']['first_name']} {data['customer_info']['last_name']}",
+            phone=data['customer_info'].get('phone', ''),  # Add phone number for Slack notifications
             delivery_type=data['delivery_type'],
             subtotal=subtotal,
             shipping_amount=delivery_fee,
@@ -722,6 +723,30 @@ def create_order():
             session['recent_order_id'] = order.id
         
         db.session.commit()
+        
+        # Send Slack notification after successful order creation
+        try:
+            from services.slack_notifications import send_order_notification
+            
+            # Prepare order items for Slack notification
+            order_items_for_slack = []
+            for item in cart_items:
+                order_items_for_slack.append({
+                    'product': item.product,
+                    'quantity': item.quantity
+                })
+            
+            current_app.logger.info(f"🔔 Attempting to send Slack notification for order {order.order_number}")
+            success = send_order_notification(order, order_items_for_slack)
+            if success:
+                current_app.logger.info(f"✅ Slack notification sent successfully for order {order.order_number}")
+            else:
+                current_app.logger.warning(f"⚠️ Slack notification failed for order {order.order_number}")
+        except Exception as e:
+            # Don't fail the order if Slack notification fails
+            current_app.logger.error(f"❌ Failed to send Slack notification for order {order.order_number}: {str(e)}")
+            import traceback
+            current_app.logger.error(f"Slack notification traceback: {traceback.format_exc()}")
         
         # Update response data with order information, preserving any existing data (like tracking_url)
         response_data.update({

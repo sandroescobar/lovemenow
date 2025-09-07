@@ -44,8 +44,9 @@ class Config:
     SEND_FILE_MAX_AGE_DEFAULT = timedelta(hours=1)
     
     # Stripe configuration
-    STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY')
-    STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
+    from stripe_config import STRIPE_LIVE_PUBLISHABLE_KEY, STRIPE_LIVE_SECRET_KEY
+    STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY') or STRIPE_LIVE_PUBLISHABLE_KEY
+    STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY') or STRIPE_LIVE_SECRET_KEY
     STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET')
     
     # Domain configuration
