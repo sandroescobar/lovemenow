@@ -5,6 +5,8 @@ import requests
 import json
 from flask import current_app
 from typing import Dict, List, Optional
+from datetime import datetime
+import pytz
 
 
 class SlackNotificationService:
@@ -100,6 +102,16 @@ class SlackNotificationService:
 """
             uber_link = ""
         
+        # Convert UTC time to Eastern Time
+        utc_time = order.created_at
+        if utc_time.tzinfo is None:
+            # If no timezone info, assume UTC
+            utc_time = pytz.UTC.localize(utc_time)
+        
+        # Convert to Eastern Time
+        eastern = pytz.timezone('US/Eastern')
+        local_time = utc_time.astimezone(eastern)
+        
         # Build the main message
         message_text = f"""🛍️ *NEW ORDER - {order.order_number}*
 
@@ -110,7 +122,7 @@ class SlackNotificationService:
 💰 *Total:* ${float(order.total_amount):.2f}
 {uber_link}
 
-⏰ *Order Time:* {order.created_at.strftime('%I:%M %p on %m/%d/%Y')}
+⏰ *Order Time:* {local_time.strftime('%I:%M %p on %m/%d/%Y')} EST
 """
         
         # Create Slack message payload

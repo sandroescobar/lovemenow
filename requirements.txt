@@ -15,8 +15,9 @@ python-dotenv==1.0.1
 # Payment processing
 stripe==10.12.0
 
-# Email
+# Email and notifications
 requests==2.32.3
+pytz==2024.1  # Timezone handling
 
 # Maps
 folium==0.15.1
