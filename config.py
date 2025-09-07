@@ -43,10 +43,9 @@ class Config:
     # Security headers
     SEND_FILE_MAX_AGE_DEFAULT = timedelta(hours=1)
     
-    # Stripe configuration
-    from stripe_config import STRIPE_LIVE_PUBLISHABLE_KEY, STRIPE_LIVE_SECRET_KEY
-    STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY') or STRIPE_LIVE_PUBLISHABLE_KEY
-    STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY') or STRIPE_LIVE_SECRET_KEY
+    # Stripe configuration - use environment variables only
+    STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY')
+    STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
     STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET')
     
     # Domain configuration
@@ -88,9 +87,7 @@ class Config:
         """Validate that required environment variables are set"""
         required_vars = [
             'DB_URL',
-            'SECRET_KEY',
-            'STRIPE_SECRET_KEY',
-            'STRIPE_PUBLISHABLE_KEY'
+            'SECRET_KEY'
         ]
         
         missing_vars = []
@@ -103,6 +100,21 @@ class Config:
                 f"❌ Missing required environment variables: {', '.join(missing_vars)}\n"
                 f"Please set these in your .env file or environment."
             )
+        
+        # Validate Stripe keys (but don't fail if they're using fallback)
+        config_instance = Config()
+        stripe_secret = config_instance.STRIPE_SECRET_KEY
+        stripe_publishable = config_instance.STRIPE_PUBLISHABLE_KEY
+        
+        if not stripe_secret or not stripe_secret.startswith('sk_'):
+            print(f"⚠️ Warning: Invalid or missing Stripe secret key")
+        else:
+            print(f"✅ Stripe secret key configured: {stripe_secret[:10]}...{stripe_secret[-4:]}")
+            
+        if not stripe_publishable or not stripe_publishable.startswith('pk_'):
+            print(f"⚠️ Warning: Invalid or missing Stripe publishable key")
+        else:
+            print(f"✅ Stripe publishable key configured: {stripe_publishable[:10]}...{stripe_publishable[-4:]}")
 
 class DevelopmentConfig(Config):
     """Development configuration"""

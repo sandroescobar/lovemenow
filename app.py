@@ -109,12 +109,20 @@ def create_app(config_name=None):
         # Don't exit, but log the error
         app.logger.error(f"Configuration validation failed: {e}")
 
-    # Configure Stripe with better error handling
+    # Configure Stripe with better error handling and debugging
     stripe_secret_key = app.config.get('STRIPE_SECRET_KEY')
+    
+    # Enhanced debugging for Render deployment
+    app.logger.info(f"🔍 APP INIT - Environment STRIPE_SECRET_KEY: {os.getenv('STRIPE_SECRET_KEY')[:10] if os.getenv('STRIPE_SECRET_KEY') else 'NOT SET'}...")
+    app.logger.info(f"🔍 APP INIT - Config STRIPE_SECRET_KEY: {stripe_secret_key[:10] if stripe_secret_key else 'NOT SET'}...")
+    app.logger.info(f"🔍 APP INIT - Key ending: ...{stripe_secret_key[-10:] if stripe_secret_key else 'NO KEY'}")
+    app.logger.info(f"🔍 APP INIT - Key length: {len(stripe_secret_key) if stripe_secret_key else 0}")
+    
     if stripe_secret_key:
         stripe.api_key = stripe_secret_key
+        app.logger.info(f"✅ Stripe API key configured successfully: {stripe.api_key[:10]}...{stripe.api_key[-4:]}")
     else:
-        app.logger.warning("Stripe API key not configured")
+        app.logger.error("❌ Stripe API key not configured - check STRIPE_SECRET_KEY environment variable")
 
     # Database performance optimizations
     if config_name == 'production':

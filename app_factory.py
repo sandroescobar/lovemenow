@@ -37,8 +37,7 @@ def create_app(config_name=None):
         raise RuntimeError(f"❌ Missing required environment variables: {', '.join(missing_vars)}")
     
     # Configure Stripe
-    from stripe_config import STRIPE_LIVE_SECRET_KEY
-    stripe.api_key = os.getenv('STRIPE_SECRET_KEY') or STRIPE_LIVE_SECRET_KEY
+    stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
     
     # Production security headers
     if config_name == 'production':
