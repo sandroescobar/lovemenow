@@ -223,27 +223,49 @@
         
         .color-options {
             display: flex;
-            gap: 0.75rem;
+            gap: 1rem;
             flex-wrap: wrap;
+            align-items: center;
         }
         
         .color-option {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 3px solid transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
             cursor: pointer;
             transition: all 0.2s ease;
-            position: relative;
+            padding: 0.5rem;
+            border-radius: 8px;
+            border: 2px solid transparent;
         }
         
         .color-option.active {
             border-color: hsl(var(--primary-color));
-            transform: scale(1.1);
+            background-color: rgba(var(--primary-color-rgb), 0.1);
         }
         
         .color-option:hover {
-            transform: scale(1.05);
+            background-color: rgba(var(--primary-color-rgb), 0.05);
+        }
+        
+        .color-option .color-dot {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid #ddd;
+        }
+        
+        .color-option .color-name {
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-align: center;
+            color: var(--text-color);
+        }
+        
+        .color-option.active .color-name {
+            color: hsl(var(--primary-color));
+            font-weight: 600;
         }
         
         .quantity-section {
@@ -643,20 +665,15 @@
             <!-- Product Images -->
             <div class="product-images">
                 <div class="main-image-container">
-                    {% set all_images = [] %}
-                    {% set sorted_images = product.images|sort(attribute='sort_order') %}
-                    {% for img in sorted_images %}
-                        {% if img.url not in all_images %}
-                            {% set _ = all_images.append(img.url) %}
-                        {% endif %}
-                    {% endfor %}
+                    {% set all_images = product.all_image_urls %}
+                    
                     {% if product.image_url and product.image_url not in all_images %}
                         {% set _ = all_images.append(product.image_url) %}
                     {% endif %}
                     
                     {% if all_images %}
                         <img id="mainImage" class="main-image" 
-                             src="{{ all_images[0] if all_images[0].startswith('http') else url_for('static', filename=all_images[0].lstrip('/')) }}" 
+                             src="{{ all_images[0] if all_images[0].startswith('http') or all_images[0].startswith('/static/') else url_for('static', filename=all_images[0].lstrip('/')) }}" 
                              alt="{{ product.name|e }}">
                         
                         {% if all_images|length > 1 %}
@@ -685,7 +702,7 @@
                 <div class="image-thumbnails">
                     {% for image in all_images %}
                     <div class="thumbnail {{ 'active' if loop.first else '' }}" onclick="changeMainImage({{ loop.index0 }})">
-                        <img src="{{ image if image.startswith('http') else url_for('static', filename=image.lstrip('/')) }}" alt="Product image {{ loop.index }}">
+                        <img src="{{ image if image.startswith('http') or image.startswith('/static/') else url_for('static', filename=image.lstrip('/')) }}" alt="Product image {{ loop.index }}">
                     </div>
                     {% endfor %}
                 </div>
@@ -699,6 +716,32 @@
                 {% endif %}
                 
                 <h1 class="product-title">{{ product.name }}</h1>
+                
+                <!-- Color dots display like in product cards -->
+                <div class="product-colors">
+                    <span class="product-colors-label">Colors:</span>
+                    <div class="product-color-dots">
+                        {% if product.colors %}
+                            {% if product.colors|length == 1 %}
+                                <div class="product-color-dot active"
+                                     style="background-color: {{ product.colors[0].hex }};"
+                                     title="{{ product.colors[0].name }}"></div>
+                            {% elif product.colors|length == 2 %}
+                                <div class="product-color-dot active diagonal-split"
+                                     style="background: linear-gradient(135deg, {{ product.colors[0].hex }} 50%, {{ product.colors[1].hex }} 50%);"
+                                     title="{{ product.colors[0].name }} / {{ product.colors[1].name }}"></div>
+                            {% else %}
+                                {% for color in product.colors[:3] %}
+                                    <div class="product-color-dot {{ 'active' if loop.first else '' }}"
+                                         style="background-color: {{ color.hex }};"
+                                         title="{{ color.name }}"></div>
+                                {% endfor %}
+                            {% endif %}
+                        {% else %}
+                            <!-- No colors available yet -->
+                        {% endif %}
+                    </div>
+                </div>
                 
                 <div class="product-rating">
                     <div class="stars">
@@ -723,31 +766,23 @@
                     {% endif %}
                 </div>
                 
-                {% if product.colors %}
+                {% set unique_colors = product.variants|selectattr('color')|map(attribute='color')|unique|list %}
+                {% if unique_colors|length > 1 %}
                 <div class="product-colors">
                     <span class="colors-label">Available Colors:</span>
                     <div class="color-options">
-                        {% set n = product.colors|length %}
-                        {% if n == 1 %}
-                            <span class="color-dot" 
-                                 style="background-color: {{ product.colors[0].hex }};" 
-                                 title="{{ product.colors[0].name }}"></span>
-                        {% elif n == 2 %}
-                            <span class="color-dot diagonal-split"
-                                 style="background: linear-gradient(135deg, {{ product.colors[0].hex }} 0% 50%, {{ product.colors[1].hex }} 50% 100%);"
-                                 title="{{ product.colors[0].name }} / {{ product.colors[1].name }}"></span>
-                        {% else %}
-                            {% set step = 100 // n %}
-                            {% set stops = [] %}
-                            {% for c in product.colors %}
-                                {% set start = loop.index0 * step %}
-                                {% set end = loop.index * step %}
-                                {% set _ = stops.append(c.hex ~ ' ' ~ start ~ '% ' ~ end ~ '%') %}
-                            {% endfor %}
-                            <span class="color-dot"
-                                 style="background: linear-gradient(135deg, {{ stops|join(', ') }});"
-                                 title="{{ product.colors|map(attribute='name')|join(' / ') }}"></span>
-                        {% endif %}
+                        {% for color in unique_colors %}
+                        {% set variant_with_color = product.variants|selectattr('color_id', 'equalto', color.id)|first %}
+                        <div class="color-option {{ 'active' if loop.first else '' }}" 
+                             data-color-id="{{ color.id }}"
+                             data-color-name="{{ color.name }}"
+                             data-variant-id="{{ variant_with_color.id if variant_with_color else '' }}"
+                             onclick="selectColor(this, '{{ color.name }}', {{ color.id }}, {{ variant_with_color.id if variant_with_color else '' }})"
+                             title="{{ color.name }}">
+                            <span class="color-dot" style="background-color: {{ color.hex }};"></span>
+                            <span class="color-name">{{ color.name }}</span>
+                        </div>
+                        {% endfor %}
                     </div>
                 </div>
                 {% endif %}
@@ -756,7 +791,8 @@
                     <span class="quantity-label">Quantity:</span>
                     <div class="quantity-controls">
                         <div class="quantity-input-group">
-                            <input type="number" id="quantityInput" class="quantity-input" value="1" min="1" max="{{ product.quantity_on_hand or 99 }}">
+                            <input type="number" id="quantityInput" class="quantity-input" value="1" min="1" max="{{ product.quantity_on_hand or 99 }}" 
+                                   oninput="validateQuantityInput(this)" onchange="validateQuantityInput(this)">
                             <div class="quantity-buttons">
                                 <button class="quantity-btn" onclick="changeQuantity(1)">
                                     <i class="fas fa-plus"></i>
@@ -775,7 +811,7 @@
                 <div class="ButtonsInProductDetails">
                     <!--
                     <button class="btn-add-to-cart-detail"
-                            onclick="addToCartDetail({{ product.id }}, {{ product.name|tojson }}, {{ product.price }})"
+
                             data-product-id="{{ product.id }}"
                             data-product-name="{{ product.name|e }}"
                             data-product-price="{{ product.price }}"
@@ -787,10 +823,12 @@
                     </button>
                     -->
                     <button class="btn-add-cart" 
+                            id="addToCartBtn"
                             data-product-id="{{ product.id }}" 
                             data-product-name="{{ product.name|e }}" 
                             data-product-price="{{ product.price }}" 
                             data-quantity-on-hand="{{ product.quantity_on_hand or 0 }}"
+
                             {% if not product.in_stock or (product.quantity_on_hand and product.quantity_on_hand <= 0) %}disabled{% endif %}>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <circle cx="9" cy="21" r="1"></circle>
@@ -863,19 +901,14 @@
                 {% for related_product in related_products %}
                 <div class="product-card fade-in-up" data-product-id="{{ related_product.id }}" data-in-stock="{{ related_product.in_stock|lower }}">
                     <div class="product-image">
-                        {% set related_images = [] %}
-                        {% if related_product.image_url %}
+                        {% set related_images = related_product.all_image_urls %}
+                        {% if related_product.image_url and related_product.image_url not in related_images %}
                             {% set _ = related_images.append(related_product.image_url) %}
                         {% endif %}
-                        {% for img in related_product.images %}
-                            {% if img.url not in related_images %}
-                                {% set _ = related_images.append(img.url) %}
-                            {% endif %}
-                        {% endfor %}
 
                         {% if related_images %}
                             <img style="width: 100%; height: 250px; object-fit: cover;"
-                                 src="{{ related_images[0] if related_images[0].startswith('http') else url_for('static', filename=related_images[0].lstrip('/')) }}"
+                                 src="{{ related_images[0] if related_images[0].startswith('http') or related_images[0].startswith('/static/') else url_for('static', filename=related_images[0].lstrip('/')) }}"
                                  alt="{{ related_product.name|e }}" loading="lazy">
                         {% else %}
                             <div class="placeholder-image">
@@ -937,6 +970,7 @@
     <script>
         let selectedQuantity = 1;
         let selectedColor = null;
+        let selectedVariantId = null;
 
         document.addEventListener('DOMContentLoaded', function() {
             
@@ -964,6 +998,7 @@
             const firstColor = document.querySelector('.color-option.active');
             if (firstColor) {
                 selectedColor = firstColor.getAttribute('title');
+                selectedVariantId = firstColor.getAttribute('data-variant-id');
             }
             
             // Check if add to cart button exists
@@ -978,6 +1013,11 @@
             if (wishlistBtnDebug) {
             } else {
             }
+            
+            // Initialize image navigation
+            rebuildThumbnails();
+            updateImageCounter();
+            updateNavigationVisibility();
         });
 
         function changeMainImage(imageIndex) {
@@ -1007,16 +1047,43 @@
 
         // Image navigation variables
         let currentImageIndex = 0;
-        const allImages = [];
+        let allImages = [];
         
-        // Build images array with exact same logic as the main image
-        {% for image_url in all_images %}
-        {% if image_url.startswith('http') %}
-        allImages.push("{{ image_url|e }}");
-        {% else %}
-        allImages.push("{{ url_for('static', filename=image_url.lstrip('/'))|e }}");
+        // Build variant-specific image data
+        const variantImages = {};
+        {% for variant in product.variants %}
+        {% if variant.images %}
+        variantImages[{{ variant.color.id if variant.color else 'null' }}] = [
+            {% for image in variant.images|sort(attribute='sort_order') %}
+            {% if image.url.startswith('http') or image.url.startswith('/static/') %}
+            "{{ image.url|e }}"{{ "," if not loop.last else "" }}
+            {% else %}
+            "{{ url_for('static', filename=image.url.lstrip('/'))|e }}"{{ "," if not loop.last else "" }}
+            {% endif %}
+            {% endfor %}
+        ];
         {% endif %}
         {% endfor %}
+        
+        // Initialize with the images from the template
+        {% if all_images %}
+        allImages = [
+            {% for image in all_images %}
+            {% if image.startswith('http') or image.startswith('/static/') %}
+            "{{ image|e }}"{{ "," if not loop.last else "" }}
+            {% else %}
+            "{{ url_for('static', filename=image.lstrip('/'))|e }}"{{ "," if not loop.last else "" }}
+            {% endif %}
+            {% endfor %}
+        ];
+        {% else %}
+        allImages = [];
+        {% endif %}
+        
+        console.log('🎯 INITIAL LOAD:', {
+            allImages: allImages,
+            totalImages: allImages.length
+        });
         
         // Fix HTML entity encoding in URLs
         for (let i = 0; i < allImages.length; i++) {
@@ -1029,6 +1096,8 @@
         if (mainImage && allImages.length > 0) {
             mainImage.src = allImages[0];
         }
+        
+
 
         function navigateImage(direction) {
             if (allImages.length <= 1) return;
@@ -1072,20 +1141,150 @@
             }
         });
 
-        function selectColor(colorElement, colorName) {
+        function selectColor(colorElement, colorName, colorId, variantId) {
+            console.log('🎨 COLOR SWITCH:', {
+                colorName: colorName,
+                colorId: colorId,
+                variantId: variantId,
+                availableImages: variantImages[colorId]
+            });
+            
+            // Update active color
             document.querySelectorAll('.color-option').forEach(c => c.classList.remove('active'));
             colorElement.classList.add('active');
             selectedColor = colorName;
+            selectedVariantId = variantId;
+            
+            // Switch to images for this color variant
+            if (variantImages[colorId]) {
+                allImages = variantImages[colorId];
+                currentImageIndex = 0;
+                
+                console.log('✅ Switching to images:', allImages);
+                
+                // Update main image
+                const mainImage = document.getElementById('mainImage');
+                if (mainImage && allImages.length > 0) {
+                    mainImage.src = allImages[0];
+                    console.log('📸 Main image updated to:', allImages[0]);
+                }
+                
+                // Rebuild thumbnails
+                rebuildThumbnails();
+                
+                // Update image counter
+                updateImageCounter();
+                
+                // Update navigation arrows visibility
+                updateNavigationVisibility();
+            } else {
+                console.error('❌ No images found for color ID:', colorId);
+            }
+        }
+        
+        function rebuildThumbnails() {
+            const thumbnailContainer = document.querySelector('.image-thumbnails');
+            if (!thumbnailContainer) return;
+            
+            // Clear existing thumbnails
+            thumbnailContainer.innerHTML = '';
+            
+            // Only show thumbnails if there are multiple images
+            if (allImages.length > 1) {
+                // Add new thumbnails for current color
+                allImages.forEach((imageUrl, index) => {
+                    const thumbnailDiv = document.createElement('div');
+                    thumbnailDiv.className = `thumbnail ${index === 0 ? 'active' : ''}`;
+                    thumbnailDiv.onclick = () => changeMainImage(index);
+                    
+                    const thumbnailImg = document.createElement('img');
+                    thumbnailImg.src = imageUrl;
+                    thumbnailImg.alt = `Product image ${index + 1}`;
+                    
+                    thumbnailDiv.appendChild(thumbnailImg);
+                    thumbnailContainer.appendChild(thumbnailDiv);
+                });
+                
+                // Show thumbnail container
+                thumbnailContainer.style.display = 'flex';
+            } else {
+                // Hide thumbnail container if only one image
+                thumbnailContainer.style.display = 'none';
+            }
+        }
+        
+        function updateImageCounter() {
+            const counterElement = document.getElementById('currentImageIndex');
+            const totalElement = document.getElementById('totalImages');
+            
+            if (counterElement) {
+                counterElement.textContent = currentImageIndex + 1;
+            }
+            if (totalElement) {
+                totalElement.textContent = allImages.length;
+            }
+        }
+        
+        function updateNavigationVisibility() {
+            const prevArrow = document.querySelector('.image-nav-arrow.prev');
+            const nextArrow = document.querySelector('.image-nav-arrow.next');
+            const imageCounter = document.querySelector('.image-counter');
+            
+            if (allImages.length > 1) {
+                if (prevArrow) prevArrow.style.display = 'flex';
+                if (nextArrow) nextArrow.style.display = 'flex';
+                if (imageCounter) imageCounter.style.display = 'block';
+            } else {
+                if (prevArrow) prevArrow.style.display = 'none';
+                if (nextArrow) nextArrow.style.display = 'none';
+                if (imageCounter) imageCounter.style.display = 'none';
+            }
+        }
+
+        function validateQuantityInput(input) {
+            const value = parseInt(input.value) || 1;
+            const min = parseInt(input.getAttribute('min')) || 1;
+            const max = parseInt(input.getAttribute('max')) || 99;
+            
+            if (value < min) {
+                input.value = min;
+                if (typeof showToast === 'function') {
+                    showToast(`Minimum quantity: ${min}`, 'warning');
+                }
+            } else if (value > max) {
+                input.value = max;
+                if (typeof showToast === 'function') {
+                    showToast(`Maximum quantity available: ${max}`, 'warning');
+                }
+            }
+            
+            selectedQuantity = parseInt(input.value);
         }
 
         function changeQuantity(delta) {
             const input = document.getElementById('quantityInput');
-            const newValue = parseInt(input.value) + delta;
-            const max = parseInt(input.getAttribute('max'));
+            const currentValue = parseInt(input.value) || 1;
+            const newValue = currentValue + delta;
+            const min = parseInt(input.getAttribute('min')) || 1;
+            const max = parseInt(input.getAttribute('max')) || 99;
             
-            if (newValue >= 1 && newValue <= max) {
+            if (newValue >= min && newValue <= max) {
                 input.value = newValue;
                 selectedQuantity = newValue;
+            } else if (newValue > max) {
+                // Show feedback when trying to exceed maximum
+                if (typeof showToast === 'function') {
+                    showToast(`Maximum quantity available: ${max}`, 'warning');
+                }
+                input.value = max;
+                selectedQuantity = max;
+            } else if (newValue < min) {
+                // Show feedback when trying to go below minimum
+                if (typeof showToast === 'function') {
+                    showToast(`Minimum quantity: ${min}`, 'warning');
+                }
+                input.value = min;
+                selectedQuantity = min;
             }
         }
 
@@ -1156,8 +1355,10 @@
             });
         }
 
-
-
+        // Initialize thumbnails and counters for the default color after all functions are defined
+        rebuildThumbnails();
+        updateImageCounter();
+        updateNavigationVisibility();
 
     </script>
 </body>

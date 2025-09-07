@@ -24,8 +24,8 @@
             </a>
 
             <ul class="nav-links">
-                <li><a class="nav-link active" href="{{url_for('index')}}">Home</a></li>
-                <li><a class="nav-link" href="{{url_for('products')}}">Products</a></li>
+                <li><a class="nav-link active" href="{{url_for('main.index')}}">Home</a></li>
+                <li><a class="nav-link" href="{{url_for('main.products')}}">Products</a></li>
                 <li><a class="nav-link" href="#about">About</a></li>
                 <li><a class="nav-link" href="#contact">Contact</a></li>
             </ul>
@@ -62,7 +62,7 @@
         <div class="hero-content fade-in-up">
             <h1>Elevate Your Intimate Moments</h1>
             <p class="lead">Discover premium quality products designed to enhance your personal experiences with discreet service and fast delivery.</p>
-            <a href= "{{url_for('products')}}" class="btn btn-primary btn-lg">Explore Now</a>
+            <a href= "{{url_for('main.products')}}" class="btn btn-primary btn-lg">Explore Now</a>
         </div>
     </section>
 
@@ -220,7 +220,7 @@
         </div>
 
         <div class="text-center mt-4">
-            <a href="{{url_for('products')}}" class="btn btn-primary btn-lg">View All Products</a>
+            <a href="{{url_for('main.products')}}" class="btn btn-primary btn-lg">View All Products</a>
         </div>
     </section>
 

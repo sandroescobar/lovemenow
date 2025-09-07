@@ -3,6 +3,7 @@ let currentSlides = {};
 let productImages = {};
 
 // Debug: Log when script loads
+console.log('index.js is loading...');
 
 // Initialize cart count IMMEDIATELY when script loads (not waiting for DOM)
 (function() {
@@ -143,33 +144,36 @@ function initializeWishlistButtons() {
 
 // Set up event delegation for buttons
 function setupButtonEventListeners() {
+    console.log('setupButtonEventListeners called - JavaScript is loading!');
     
     // Event delegation for add to cart buttons
     document.addEventListener('click', function(e) {
         if (e.target.closest('.btn-add-cart')) {
+            console.log('Add to cart button clicked!');
             e.preventDefault();
             const button = e.target.closest('.btn-add-cart');
+            console.log('Button element:', button);
             const productId = parseInt(button.dataset.productId);
+            const variantId = parseInt(button.dataset.variantId) || null;
             const productName = button.dataset.productName;
             const productPrice = parseFloat(button.dataset.productPrice);
+            console.log('Extracted data:', { productId, variantId, productName, productPrice });
             
             if (productId && productName && productPrice) {
-                addToCart(productId, productName, productPrice);
+                // Check if this is the main add to cart button on product detail page
+                if (button.id === 'addToCartBtn' || button.classList.contains('btn-add-to-cart-detail')) {
+                    console.log('Calling addToCartDetail for product detail page...');
+                    addToCartDetail(productId, productName, productPrice);
+                } else {
+                    console.log('Calling addToCart for regular product card...');
+                    addToCart(productId, productName, productPrice, variantId);
+                }
+            } else {
+                console.log('Missing required data, not calling addToCart');
             }
         }
         
-        // Event delegation for product detail add to cart button
-        if (e.target.closest('.btn-add-to-cart-detail')) {
-            e.preventDefault();
-            const button = e.target.closest('.btn-add-to-cart-detail');
-            const productId = parseInt(button.dataset.productId);
-            const productName = button.dataset.productName;
-            const productPrice = parseFloat(button.dataset.productPrice);
-            
-            if (productId && productName && productPrice) {
-                addToCartDetail(productId, productName, productPrice);
-            }
-        }
+
     });
     
     // Event delegation for wishlist buttons
@@ -380,14 +384,33 @@ window.handleLogout = async function() {
 // CART FUNCTIONS
 // ============================================================================
 
-window.addToCart = function addToCart(productId, productName, price) {
+// Function to get current cart quantity for a product (for better frontend validation)
+function getCurrentCartQuantity(productId, variantId = null) {
+    // This is a simplified check - in a real app you'd fetch from server
+    // For now, we'll let the backend handle the validation
+    return 0;
+}
+
+window.addToCart = function addToCart(productId, productName, price, variantId = null) {
+    console.log('🛒 addToCart called with:', { productId, productName, price, variantId });
 
     // Find the button that was clicked to check stock
-    const button = document.querySelector(`button[data-product-id="${productId}"]`);
+    const button = document.querySelector(`button.btn-add-cart[data-product-id="${productId}"]`);
+    console.log('🔍 Found button:', button);
+    
     const quantityOnHand = button ? parseInt(button.dataset.quantityOnHand) || 0 : 0;
+    console.log('📦 quantityOnHand from button:', quantityOnHand);
+    
+    // For product detail pages, always use null for variant ID since we work with products directly
+    // For product cards, use the variant ID if provided
+    const isProductDetailPage = document.getElementById('quantityInput') !== null;
+    const currentVariantId = isProductDetailPage ? null : (button ? parseInt(button.dataset.variantId) || null : variantId);
+    console.log('🎨 currentVariantId:', currentVariantId);
+    console.log('📄 isProductDetailPage:', isProductDetailPage);
     
     // Check if product is in stock
     if (quantityOnHand <= 0) {
+        console.log('❌ Product out of stock, showing toast');
         showToast('This item is currently out of stock', 'error');
         return;
     }
@@ -396,15 +419,12 @@ window.addToCart = function addToCart(productId, productName, price) {
     const quantityInput = document.getElementById('quantityInput');
     const quantity = quantityInput ? parseInt(quantityInput.value) || 1 : 1;
     
-    // Validate quantity doesn't exceed stock
-    if (quantity > quantityOnHand) {
-        showToast(`Only ${quantityOnHand} items available in stock`, 'error');
-        return;
-    }
-
-    // Check if user is authenticated for wishlist functionality
-    // Cart should work for both authenticated and guest users
-    addToCartWithQuantity(productId, productName, price, quantity, button);
+    console.log(`🔢 Attempting to add ${quantity} items. Stock available: ${quantityOnHand}`);
+    
+    // CRITICAL: Always let backend validate - it has the authoritative cart data
+    // Frontend validation can be bypassed, backend validation cannot
+    console.log('🚀 Calling addToCartWithQuantity - backend will validate stock limits');
+    addToCartWithQuantity(productId, productName, price, quantity, button, currentVariantId);
 }
 
 // Product detail page specific add to cart function
@@ -437,19 +457,23 @@ window.addToCartDetail = function addToCartDetail(productId, productName, price)
         return;
     }
 
-    // Check if requested quantity is available
-    if (quantity > quantityOnHand) {
-        showToast(`Only ${quantityOnHand} items available in stock`, 'error');
-        return;
-    }
+    // Let the backend handle cart quantity validation - it has the authoritative data
+    // Frontend validation can be bypassed, backend validation cannot
+    console.log('🚀 Calling addToCartWithQuantity - backend will validate stock and cart limits');
     addToCartWithQuantity(productId, productName, price, quantity, button);
 }
 
-function addToCartWithQuantity(productId, productName, price, quantity = 1, buttonElement = null) {
+// Get CSRF token from meta tag
+function getCSRFToken() {
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    return meta ? meta.getAttribute('content') : '';
+}
+
+function addToCartWithQuantity(productId, productName, price, quantity = 1, buttonElement = null, variantId = null) {
 
     // Check if product is in stock
     const productCard = document.querySelector(`.product-card[data-product-id="${productId}"]`);
-    const button = buttonElement || document.querySelector(`button[data-product-id="${productId}"]`);
+    const button = buttonElement || document.querySelector(`button[data-product-id="${productId}"]${variantId ? `[data-variant-id="${variantId}"]` : ''}`);
     const isInStock = productCard ? productCard.dataset.inStock !== 'false' : true;
 
     if (!isInStock) {
@@ -466,32 +490,71 @@ function addToCartWithQuantity(productId, productName, price, quantity = 1, butt
         }, 150);
     }
 
+    // Prepare request body
+    const requestBody = {
+        product_id: productId,
+        quantity: quantity
+    };
+    
+    // Add variant_id if provided
+    if (variantId) {
+        requestBody.variant_id = variantId;
+    }
+    
+    console.log('📤 Sending to cart API:', requestBody);
+
     // Send request to server
     fetch('/api/cart/add', {
         method: 'POST',
         credentials: 'same-origin',
         headers: {
             'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken(),
         },
-        body: JSON.stringify({
-            product_id: productId,
-            quantity: quantity
-        })
+        body: JSON.stringify(requestBody)
     })
     .then(response => response.json())
     .then(data => {
-        if (data.message) {
-            // Update cart count cache and display with server response
-            const newCount = data.count || 0;
+        console.log('📥 Cart API response:', data);
+        if (data.message || data.success) {
+            // Handle cart count locally since we're using localStorage
+            const currentCount = parseInt(localStorage.getItem('cartCount') || '0', 10);
+            const newCount = currentCount + quantity;
+            
+            // Update cart count cache and display
             cartCountCache = newCount;
             cartCountLastFetch = Date.now();
             updateCartCountDisplay(newCount);
+            
             // Store in localStorage for persistence across page loads
             localStorage.setItem('cartCount', newCount.toString());
             
-            showToast(`${productName} added to cart!`, 'success');
+            showToast(data.message || `${productName} added to cart!`, 'success');
         } else if (data.error) {
+            // CRITICAL FIX: Show the exact error from backend
             showToast(data.error, 'error');
+            
+            // If there's a max_additional value, update the quantity input on product detail page
+            if (data.max_additional !== undefined) {
+                const quantityInput = document.getElementById('quantityInput');
+                if (quantityInput) {
+                    if (data.max_additional > 0) {
+                        quantityInput.value = data.max_additional;
+                        quantityInput.max = data.max_additional;
+                        // Show additional helpful message
+                        setTimeout(() => {
+                            showToast(`You can add ${data.max_additional} more of this item`, 'info');
+                        }, 2000);
+                    } else {
+                        quantityInput.value = 1;
+                        // Show that item is already at max in cart
+                        setTimeout(() => {
+                            showToast('This item is already at maximum quantity in your cart', 'warning');
+                        }, 2000);
+                    }
+                }
+            }
+            
             // Refresh cart count on error to ensure accuracy
             updateCartCount(true);
         }
@@ -585,17 +648,24 @@ function updateCartCountDisplay(count) {
     }
 }
 
-// Remove item from cart function (global)
-window.removeFromCart = function removeFromCart(productId) {
+// Remove item from cart function (global) - DEPRECATED, use the one at line 2126
+window.removeFromCart = function removeFromCart(productId, variantId = null) {
+    const requestBody = {
+        product_id: productId
+    };
+    
+    // Add variant_id if provided and not null
+    if (variantId && variantId !== 'null') {
+        requestBody.variant_id = variantId;
+    }
+    
     fetch('/api/cart/remove', {
         method: 'POST',
         credentials: 'same-origin',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-            product_id: productId
-        })
+        body: JSON.stringify(requestBody)
     })
     .then(response => response.json())
     .then(data => {
@@ -623,10 +693,20 @@ window.removeFromCart = function removeFromCart(productId) {
 }
 
 // Update cart item quantity function (for cart modal)
-window.updateCartItemQuantity = function updateCartItemQuantity(productId, newQuantity) {
+window.updateCartItemQuantity = function updateCartItemQuantity(productId, newQuantity, variantId = null) {
     if (newQuantity <= 0) {
-        removeFromCart(productId);
+        removeFromCart(productId, variantId);
         return;
+    }
+
+    const requestBody = {
+        product_id: productId,
+        quantity: newQuantity
+    };
+    
+    // Add variant_id if provided and not null
+    if (variantId && variantId !== 'null') {
+        requestBody.variant_id = variantId;
     }
 
     fetch('/api/cart/update', {
@@ -635,10 +715,7 @@ window.updateCartItemQuantity = function updateCartItemQuantity(productId, newQu
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-            product_id: productId,
-            quantity: newQuantity
-        })
+        body: JSON.stringify(requestBody)
     })
     .then(response => response.json())
     .then(data => {
@@ -668,11 +745,14 @@ window.updateCartItemQuantity = function updateCartItemQuantity(productId, newQu
 // ============================================================================
 
 window.openCartModal = function openCartModal() {
+    console.log('openCartModal called');
     const modal = document.getElementById('cartModal');
     if (!modal) {
+        console.log('Cart modal element not found!');
         return;
     }
     
+    console.log('Opening cart modal...');
     modal.style.display = 'flex';
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
@@ -691,6 +771,7 @@ window.closeCartModal = function closeCartModal() {
 }
 
 function loadCartContents() {
+    console.log('loadCartContents called');
     const cartLoading = document.getElementById('cartLoading');
     const cartItems = document.getElementById('cartItems');
     const emptyCartModal = document.getElementById('emptyCartModal');
@@ -703,11 +784,19 @@ function loadCartContents() {
     if (emptyCartModal) emptyCartModal.style.display = 'none';
     if (cartSummary) cartSummary.style.display = 'none';
     
+    console.log('Fetching cart data from /api/cart/');
     fetch('/api/cart/', {
         credentials: 'same-origin'
     })
-        .then(response => response.json())
+        .then(response => {
+            console.log('Cart API response status:', response.status);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
+            console.log('Cart data received:', data);
             // Hide loading immediately
             if (cartLoading) cartLoading.style.display = 'none';
             
@@ -720,13 +809,13 @@ function loadCartContents() {
                             <h4>${product.name}</h4>
                             <p class="cart-item-price">$${product.price.toFixed(2)}</p>
                             <div class="cart-item-quantity">
-                                <button onclick="updateCartItemQuantity(${product.id}, ${product.quantity - 1})" ${product.quantity <= 1 ? 'disabled' : ''}>-</button>
+                                <button onclick="updateCartItemQuantity(${product.id}, ${product.quantity - 1}, ${product.variant_id || 'null'})" ${product.quantity <= 1 ? 'disabled' : ''}>-</button>
                                 <span>${product.quantity}</span>
-                                <button onclick="updateCartItemQuantity(${product.id}, ${product.quantity + 1})" ${product.quantity >= product.max_quantity ? 'disabled' : ''}>+</button>
+                                <button onclick="updateCartItemQuantity(${product.id}, ${product.quantity + 1}, ${product.variant_id || 'null'})" ${product.quantity >= product.max_quantity ? 'disabled' : ''}>+</button>
                             </div>
                         </div>
                         <div class="cart-item-total">$${product.item_total.toFixed(2)}</div>
-                        <button class="cart-item-remove" onclick="removeFromCart(${product.id})">
+                        <button class="cart-item-remove" onclick="removeFromCart(${product.id}, ${product.variant_id || 'null'})">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
@@ -753,6 +842,7 @@ function loadCartContents() {
             }
         })
         .catch(error => {
+            console.error('Error loading cart:', error);
             if (cartLoading) cartLoading.style.display = 'none';
             if (emptyCartModal) emptyCartModal.style.display = 'block';
         });
@@ -1634,35 +1724,29 @@ window.filterProducts = function filterProducts(categorySlug) {
         // Updated mapping from slug to category ID based on actual database
         const categoryMap = {
             // Main categories
-            'bdsm': 1,
-            'toys': 2,
             'kits': 3,
             'lubricant': 4,
             'lingerie': 5,
             
-            // BDSM subcategories
+            // Subcategories with actual products
+            'roleplay-kit': 6,
             'masks': 7,
+            'bondage-kit': 9,
             'restraints': 10,
-            'collars-nipple-clamps': 40,
-            'nipple-clamps': 50,
-            
-            // Toys subcategories
             'butt-plug': 11,
+            'anal-numbing-gel': 22,
             'dildos': 33,
             'masturbators': 34,
             'cock-pumps': 35,
-            'vibrators': 36,
             'penis-extensions': 37,
             'anal-beads': 38,
-            'wands': 39,
-            
-            // Kits subcategories
-            'roleplay-kit': 6,
-            'bondage-kit': 9,
-            
-            // Lubricant subcategories
-            'anal-numbing-gel': 22,
-            'douches-and-enemas': 51
+            'collars-nipple-clamps': 40,
+            'nipple-clamps': 50,
+            'douches-and-enemas': 51,
+            'strap-on-kits': 54,
+            'Water Based Lubricant': 55,
+            'oil based': 56,
+            'Massage Oil': 57
         };
         
         const categoryId = categoryMap[categorySlug];
@@ -1701,7 +1785,7 @@ window.handleSearch = function handleSearch() {
             }
             window.location.href = url.toString();
         }
-    }, 500); // 500ms delay
+    }, 1500); // 1500ms delay
 }
 
 window.clearSearch = function clearSearch() {
@@ -1848,6 +1932,13 @@ function closeWishlistModal() {
     }
 }
 
+function changeQuickViewImage(imageUrl) {
+    const mainImage = document.querySelector('#quickViewModal .main-image img');
+    if (mainImage) {
+        mainImage.src = imageUrl;
+    }
+}
+
 // Make functions globally available for onclick handlers
 window.closeQuickViewModal = closeQuickViewModal;
 window.closeQuickView = closeQuickViewModal; // Alias for backward compatibility
@@ -1884,12 +1975,14 @@ function loadCart() {
         }
     })
         .then(response => {
+            console.log('loadCart response status:', response.status);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             return response.json();
         })
         .then(data => {
+            console.log('loadCart response data:', data);
             displayCart(data);
         })
         .catch(error => {
@@ -2025,16 +2118,18 @@ function updateQuantity(productId, newQuantity) {
         return;
     }
 
+    const requestBody = {
+        product_id: productId,
+        quantity: parseInt(newQuantity)
+    };
+
     fetch('/api/cart/update', {
         method: 'POST',
         credentials: 'same-origin',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-            product_id: productId,
-            quantity: parseInt(newQuantity)
-        })
+        body: JSON.stringify(requestBody)
     })
     .then(response => {
         if (!response.ok) {
@@ -2057,25 +2152,45 @@ function updateQuantity(productId, newQuantity) {
     });
 }
 
-function removeFromCart(productId) {
+function removeFromCart(productId, variantId = null) {
+    console.log('removeFromCart called with:', { productId, variantId });
+    
+    const requestBody = {
+        product_id: productId
+    };
+    
+    // Add variant_id if provided and not null
+    if (variantId && variantId !== 'null') {
+        requestBody.variant_id = variantId;
+    }
+    
+    console.log('Sending request body:', requestBody);
+    
     fetch('/api/cart/remove', {
         method: 'POST',
         credentials: 'same-origin',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-            product_id: productId
-        })
+        body: JSON.stringify(requestBody)
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Remove response status:', response.status);
+        return response.json();
+    })
     .then(data => {
+        console.log('Remove response data:', data);
         if (data.message) {
             loadCart(); // Reload cart
             updateCartCount();
+            showToast('Item removed from cart', 'success');
+        } else if (data.error) {
+            showToast(data.error, 'error');
         }
     })
     .catch(error => {
+        console.error('Remove from cart error:', error);
+        showToast('Failed to remove item', 'error');
     });
 }
 

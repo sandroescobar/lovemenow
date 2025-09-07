@@ -7,7 +7,7 @@ from flask_login import login_required, current_user
 from sqlalchemy.orm import joinedload
 
 from routes import db
-from models import Product, Color, User, Cart, Wishlist, UserAddress, Order, OrderItem, UberDelivery
+from models import Product, ProductVariant, Color, User, Cart, Wishlist, UserAddress, Order, OrderItem, UberDelivery
 from security import sanitize_input, validate_input
 from sqlalchemy import func
 
@@ -21,13 +21,44 @@ def get_csrf_token():
 
 @api_bp.route('/product/<int:product_id>')
 def single_product_json(product_id: int):
-    """Get single product data as JSON"""
+    """Get single product data as JSON with variant information"""
     try:
         product = (
             Product.query
-            .options(joinedload(Product.images))
+            .options(
+                joinedload(Product.variants).joinedload(ProductVariant.images),
+                joinedload(Product.variants).joinedload(ProductVariant.color)
+            )
             .get_or_404(product_id)
         )
+        
+        # Get default variant for main product info
+        default_variant = product.default_variant
+        
+        # Build variants data
+        variants = []
+        for variant in product.variants:
+            variant_data = {
+                "id": variant.id,
+                "color_id": variant.color_id,
+                "color_name": variant.color.name if variant.color else "Default",
+                "color_hex": variant.color.hex if variant.color else "#808080",
+                "variant_name": variant.variant_name,
+                "in_stock": variant.in_stock,
+                "quantity_on_hand": variant.quantity_on_hand,
+                "is_available": variant.is_available,
+                "display_name": variant.display_name,
+                "images": [
+                    {
+                        "url": url_for("static", filename=img.url.lstrip("/")),
+                        "is_primary": img.is_primary,
+                        "sort_order": img.sort_order,
+                        "alt_text": img.alt_text
+                    }
+                    for img in sorted(variant.images, key=lambda i: i.sort_order)
+                ]
+            }
+            variants.append(variant_data)
         
         return jsonify({
             "id": product.id,
@@ -35,17 +66,68 @@ def single_product_json(product_id: int):
             "price": float(product.price),
             "description": product.description,
             "specifications": product.specifications or "",
-            "in_stock": product.in_stock,
-            "quantity_on_hand": product.quantity_on_hand,
-            "images": [
-                {"url": url_for("static", filename=img.url.lstrip("/"))}
-                for img in sorted(product.images, key=lambda i: i.sort_order)
+            "is_available": product.is_available,
+            "total_quantity_on_hand": product.total_quantity_on_hand,
+            "main_image_url": product.main_image_url,
+            "all_image_urls": product.all_image_urls,
+            "available_colors": [
+                {
+                    "id": color.id,
+                    "name": color.name,
+                    "hex": color.hex,
+                    "slug": color.slug
+                }
+                for color in product.available_colors
             ],
+            "variants": variants,
+            "default_variant_id": default_variant.id if default_variant else None
         })
     
     except Exception as e:
         current_app.logger.error(f"Error fetching product {product_id}: {str(e)}")
         return jsonify({'error': 'Product not found'}), 404
+
+@api_bp.route('/variant/<int:variant_id>')
+def single_variant_json(variant_id: int):
+    """Get single variant data as JSON"""
+    try:
+        variant = (
+            ProductVariant.query
+            .options(
+                joinedload(ProductVariant.images),
+                joinedload(ProductVariant.color),
+                joinedload(ProductVariant.product)
+            )
+            .get_or_404(variant_id)
+        )
+        
+        return jsonify({
+            "id": variant.id,
+            "product_id": variant.product_id,
+            "product_name": variant.product.name,
+            "color_id": variant.color_id,
+            "color_name": variant.color.name if variant.color else "Default",
+            "color_hex": variant.color.hex if variant.color else "#808080",
+            "variant_name": variant.variant_name,
+            "display_name": variant.display_name,
+            "in_stock": variant.in_stock,
+            "quantity_on_hand": variant.quantity_on_hand,
+            "is_available": variant.is_available,
+            "price": float(variant.product.price),
+            "images": [
+                {
+                    "url": url_for("static", filename=img.url.lstrip("/")),
+                    "is_primary": img.is_primary,
+                    "sort_order": img.sort_order,
+                    "alt_text": img.alt_text
+                }
+                for img in sorted(variant.images, key=lambda i: i.sort_order)
+            ]
+        })
+    
+    except Exception as e:
+        current_app.logger.error(f"Error fetching variant {variant_id}: {str(e)}")
+        return jsonify({'error': 'Variant not found'}), 404
 
 @api_bp.route('/deferred-content')
 def get_deferred_content():
@@ -54,11 +136,11 @@ def get_deferred_content():
     from models import Product, Category
     
     try:
-        # Get featured products (limit for performance)
+        # Get featured products (limit for performance) - using product-level availability
         featured_products = (
             Product.query
-            .options(joinedload(Product.images), joinedload(Product.category), joinedload(Product.colors))
-            .filter(Product.in_stock == True)
+            .options(joinedload(Product.variants), joinedload(Product.category), joinedload(Product.colors))
+            .filter(Product.in_stock == True, Product.quantity_on_hand > 0)
             .order_by(Product.created_at.desc())
             .limit(8)
             .all()
@@ -390,15 +472,24 @@ def create_order():
             # Handle session cart
             cart_data = session.get('cart', {})
             cart_items = []
-            for product_id, quantity in cart_data.items():
-                product = Product.query.get(int(product_id))
-                if product:
-                    cart_item = type('CartItem', (), {
-                        'product': product,
-                        'quantity': quantity,
-                        'product_id': product.id
-                    })()
-                    cart_items.append(cart_item)
+            for cart_key, quantity in cart_data.items():
+                try:
+                    # Handle both formats: "product_id" and "product_id:variant_id"
+                    if ':' in str(cart_key):
+                        product_id = int(cart_key.split(':')[0])
+                    else:
+                        product_id = int(cart_key)
+                    
+                    product = Product.query.get(product_id)
+                    if product:
+                        cart_item = type('CartItem', (), {
+                            'product': product,
+                            'quantity': quantity,
+                            'product_id': product.id
+                        })()
+                        cart_items.append(cart_item)
+                except (ValueError, TypeError):
+                    continue
         
         if not cart_items:
             return jsonify({'error': 'Cart is empty'}), 400
@@ -409,9 +500,14 @@ def create_order():
         
         if data['delivery_type'] == 'delivery':
             if 'delivery_quote' in data and data['delivery_quote']:
+                # Use the actual Uber quote fee in dollars
                 delivery_fee = float(data['delivery_quote'].get('fee_dollars', 0))
-            elif subtotal < 100:
-                delivery_fee = 9.99
+                current_app.logger.info(f"Using delivery quote fee: ${delivery_fee:.2f}")
+            else:
+                # If no quote provided, this should be handled in frontend
+                # For now, use a minimal fallback
+                delivery_fee = 5.99
+                current_app.logger.warning("No delivery quote provided, using fallback fee")
         
         total = subtotal + delivery_fee
         
@@ -469,14 +565,17 @@ def create_order():
             )
             db.session.add(order_item)
             
-            # Update product inventory using the model's method
+            # Update product inventory directly (product-level inventory)
             product = item.product
-            success = product.decrement_inventory(item.quantity)
-            if success:
+            if product.quantity_on_hand >= item.quantity:
+                # Sufficient inventory - decrement it
+                product.quantity_on_hand -= item.quantity
+                if product.quantity_on_hand <= 0:
+                    product.in_stock = False
                 current_app.logger.info(f"Updated inventory for product {product.id}: {product.name}, new quantity: {product.quantity_on_hand}")
             else:
+                # Insufficient inventory - still process order but mark as out of stock
                 current_app.logger.warning(f"Insufficient inventory for product {product.id}: {product.name}, requested: {item.quantity}, available: {product.quantity_on_hand}")
-                # Still process the order but set product as out of stock
                 product.quantity_on_hand = 0
                 product.in_stock = False
         
@@ -487,14 +586,41 @@ def create_order():
         if data['delivery_type'] == 'delivery':
             current_app.logger.info("Processing delivery order - attempting Uber Direct creation")
             
-            # For testing: create a mock quote if none provided
+            # Try to get real Uber quote if none provided
             if not ('delivery_quote' in data and data['delivery_quote']):
-                current_app.logger.info("No delivery quote provided - creating mock quote for testing")
-                data['delivery_quote'] = {
-                    'id': f'dqt_test_{datetime.now().strftime("%Y%m%d%H%M%S")}',
-                    'fee': 799,  # $7.99 in cents
-                    'currency': 'usd'
-                }
+                current_app.logger.info("No delivery quote provided - attempting to get real Uber quote")
+                try:
+                    # Try to get a real quote from Uber
+                    from uber_service import uber_service, get_miami_store_address, get_miami_store_coordinates, format_address_for_uber
+                    
+                    pickup_address = get_miami_store_address()
+                    store_coords = get_miami_store_coordinates()
+                    delivery_address = format_address_for_uber(data['delivery_address'])
+                    
+                    quote = uber_service.create_quote_with_coordinates(
+                        pickup_address, 
+                        delivery_address,
+                        pickup_coords=store_coords,
+                        dropoff_coords=None
+                    )
+                    
+                    data['delivery_quote'] = {
+                        'id': quote['id'],
+                        'fee': quote['fee'],
+                        'fee_dollars': quote['fee'] / 100,
+                        'currency': quote['currency']
+                    }
+                    current_app.logger.info(f"Got real Uber quote: ${quote['fee'] / 100:.2f}")
+                    
+                except Exception as e:
+                    current_app.logger.error(f"Failed to get Uber quote: {str(e)}")
+                    # Fallback to mock quote only if Uber fails
+                    data['delivery_quote'] = {
+                        'id': f'dqt_test_{datetime.now().strftime("%Y%m%d%H%M%S")}',
+                        'fee': 599,  # $5.99 in cents - reduced fallback
+                        'fee_dollars': 5.99,
+                        'currency': 'usd'
+                    }
             try:
                 from routes.uber import uber_bp
                 # Import the uber service
@@ -636,3 +762,125 @@ def health_check():
             'status': 'unhealthy',
             'database': 'disconnected'
         }), 500
+
+@api_bp.route('/orders/<int:order_id>/status', methods=['PUT'])
+def update_order_status(order_id):
+    """Update order status"""
+    try:
+        data = request.get_json()
+        
+        if not data or 'status' not in data:
+            return jsonify({'error': 'Status is required'}), 400
+        
+        new_status = data['status']
+        valid_statuses = ['pending', 'processing', 'ready', 'delivered', 'cancelled']
+        
+        if new_status not in valid_statuses:
+            return jsonify({'error': f'Invalid status. Must be one of: {", ".join(valid_statuses)}'}), 400
+        
+        # Get the order
+        order = Order.query.get(order_id)
+        if not order:
+            return jsonify({'error': 'Order not found'}), 404
+        
+        # Update the status
+        old_status = order.status
+        order.status = new_status
+        
+        db.session.commit()
+        
+        current_app.logger.info(f"Order {order_id} status updated from {old_status} to {new_status}")
+        
+        return jsonify({
+            'success': True,
+            'order_id': order_id,
+            'old_status': old_status,
+            'new_status': new_status,
+            'message': f'Order status updated to {new_status}'
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error updating order status: {str(e)}")
+        return jsonify({'error': 'Failed to update order status'}), 500
+
+@api_bp.route('/track-order', methods=['POST'])
+def track_order():
+    """Track order by order number and email"""
+    try:
+        data = request.get_json()
+        
+        if not data or 'order_number' not in data or 'email' not in data:
+            return jsonify({'error': 'Order number and email are required'}), 400
+        
+        order_number = data['order_number'].strip()
+        email = data['email'].strip().lower()
+        
+        # Find the order
+        order = Order.query.filter_by(
+            order_number=order_number,
+            email=email
+        ).first()
+        
+        if not order:
+            return jsonify({'error': 'Order not found. Please check your order number and email address.'}), 404
+        
+        # Prepare order data
+        order_data = {
+            'id': order.id,
+            'order_number': order.order_number,
+            'customer_name': order.full_name,
+            'customer_email': order.email,
+            'status': order.status,
+            'delivery_type': order.delivery_type,
+            'total_amount': float(order.total_amount),
+            'created_at': order.created_at.isoformat(),
+            'delivery_info': None
+        }
+        
+        # Add delivery information if available
+        if order.delivery and order.delivery_type == 'delivery':
+            # Try to get updated delivery status from Uber
+            try:
+                from routes.uber import uber_bp
+                from uber_service import uber_service
+                
+                delivery_status = uber_service.get_delivery_status(order.delivery.delivery_id)
+                
+                # Update database with latest status
+                order.delivery.status = delivery_status.get('status', order.delivery.status)
+                
+                # Update courier information if available
+                courier = delivery_status.get('courier')
+                if courier:
+                    order.delivery.courier_name = courier.get('name')
+                    order.delivery.courier_phone = courier.get('phone_number')
+                    
+                    location = courier.get('location')
+                    if location:
+                        order.delivery.courier_location_lat = location.get('lat')
+                        order.delivery.courier_location_lng = location.get('lng')
+                
+                db.session.commit()
+                
+            except Exception as e:
+                current_app.logger.error(f"Error updating delivery status for tracking: {str(e)}")
+                # Continue with existing data
+            
+            order_data['delivery_info'] = {
+                'status': order.delivery.status,
+                'tracking_url': order.delivery.tracking_url,
+                'pickup_eta': order.delivery.pickup_eta.isoformat() if order.delivery.pickup_eta else None,
+                'dropoff_eta': order.delivery.dropoff_eta.isoformat() if order.delivery.dropoff_eta else None,
+                'courier_name': order.delivery.courier_name,
+                'courier_phone': order.delivery.courier_phone
+            }
+        
+        return jsonify({
+            'success': True,
+            'order': order_data
+        })
+        
+    except Exception as e:
+        current_app.logger.error(f"Error tracking order: {str(e)}")
+        return jsonify({'error': 'Failed to track order'}), 500

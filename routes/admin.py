@@ -45,6 +45,17 @@ def dashboard():
         current_app.logger.error(f"Admin dashboard error: {str(e)}")
         return render_template('errors/500.html'), 500
 
+@admin_bp.route('/order-management')
+@login_required
+@admin_required
+def order_management():
+    """Order management interface with real-time tracking"""
+    try:
+        return render_template('admin_orders.html')
+    except Exception as e:
+        current_app.logger.error(f"Admin order management error: {str(e)}")
+        return render_template('errors/500.html'), 500
+
 @admin_bp.route('/users')
 @login_required
 @admin_required

@@ -1,20 +1,63 @@
 """
 Main application routes
 """
-from flask import Blueprint, render_template, request, jsonify, current_app, redirect, url_for, session, flash
+from flask import Blueprint, render_template, request, jsonify, current_app, redirect, url_for, session, flash, make_response
 from flask_login import current_user, login_required
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, defer
 from sqlalchemy import func, desc
 from sqlalchemy.exc import OperationalError, DisconnectionError
 import stripe
 import stripe.checkout
 
 from routes import db, csrf
-from models import Product, Category, Color, Wishlist, Cart, Order, OrderItem, UberDelivery, UserAddress
+from models import Product, ProductVariant, Category, Color, Wishlist, Cart, Order, OrderItem, UberDelivery, UserAddress
 from security import validate_input
 from database_utils import retry_db_operation, test_database_connection, get_fallback_data
 
 main_bp = Blueprint('main', __name__)
+
+def get_cached_user_counts():
+    """Get cached cart and wishlist counts for performance optimization"""
+    if not current_user.is_authenticated:
+        # For guest users, get from session
+        cart_count = sum(session.get('cart', {}).values())
+        wishlist_count = len(session.get('wishlist', []))
+        return cart_count, wishlist_count
+    
+    # Check if we have cached counts in session
+    cache_key = f'user_counts_{current_user.id}'
+    cached_counts = session.get(cache_key)
+    
+    # Cache for 90 seconds for better performance
+    import time
+    current_time = time.time()
+    
+    if cached_counts and (current_time - cached_counts.get('timestamp', 0)) < 90:
+        return cached_counts['cart_count'], cached_counts['wishlist_count']
+    
+    # Optimized database queries
+    try:
+        # Use more efficient queries with explicit scalar operations
+        cart_count = db.session.query(func.coalesce(func.sum(Cart.quantity), 0)).filter_by(user_id=current_user.id).scalar()
+        wishlist_count = db.session.query(func.count(Wishlist.id)).filter_by(user_id=current_user.id).scalar()
+        
+        # Cache the results with proper type conversion
+        session[cache_key] = {
+            'cart_count': int(cart_count or 0),
+            'wishlist_count': int(wishlist_count or 0),
+            'timestamp': current_time
+        }
+        
+        return int(cart_count or 0), int(wishlist_count or 0)
+    except Exception as e:
+        current_app.logger.error(f"Error getting user counts: {str(e)}")
+        return 0, 0
+
+def invalidate_user_counts_cache():
+    """Invalidate cached user counts when cart/wishlist changes"""
+    if current_user.is_authenticated:
+        cache_key = f'user_counts_{current_user.id}'
+        session.pop(cache_key, None)
 
 # Health check endpoint for Render
 @main_bp.route('/api/health')
@@ -84,36 +127,45 @@ def index():
                                  db_error=True,
                                  show_age_verification=not age_verified)
         
-        # Get featured products (limit to 3)
+        # Get featured products (limit to 3) - optimized query with deferred loading
+        # Using product-level inventory checking
         featured_products = (
             Product.query
             .filter(Product.in_stock == True, Product.quantity_on_hand > 0)
-            .options(joinedload(Product.images))
+            .options(
+                joinedload(Product.variants),  # Load variants for color display
+                joinedload(Product.colors),    # Load colors for display
+                defer(Product.description),    # Defer heavy text fields
+                defer(Product.specifications)  # Defer additional heavy fields
+            )
+            .order_by(Product.id.desc())  # Add ordering for consistent results
             .limit(3)
             .all()
         )
         
-        # Get categories for navigation
-        categories = Category.query.filter(Category.parent_id.is_(None)).all()
+        # Get categories for navigation - optimized with limit and defer loading
+        categories = Category.query.filter(Category.parent_id.is_(None)).limit(8).all()
         
-        # Get cart and wishlist counts for logged-in users
-        cart_count = 0
-        wishlist_count = 0
+        # Get cart and wishlist counts using cached function
+        cart_count, wishlist_count = get_cached_user_counts()
         
-        if current_user.is_authenticated:
-            cart_count = db.session.query(func.sum(Cart.quantity)).filter_by(user_id=current_user.id).scalar() or 0
-            wishlist_count = Wishlist.query.filter_by(user_id=current_user.id).count()
-        else:
-            # For guest users, get from session
-            cart_count = sum(session.get('cart', {}).values())
-            wishlist_count = len(session.get('wishlist', []))
-        
-        return render_template('index.html',
+        response = make_response(render_template('index.html',
                              featured_products=featured_products,
                              categories=categories,
                              cart_count=cart_count,
                              wishlist_count=wishlist_count,
-                             show_age_verification=not age_verified)
+                             show_age_verification=not age_verified))
+        
+        # Add optimized caching headers for better performance
+        if not current_user.is_authenticated:
+            # Cache for anonymous users for 5 minutes
+            response.headers['Cache-Control'] = 'public, max-age=300'
+        else:
+            # Short cache for logged-in users to improve performance while keeping data fresh
+            response.headers['Cache-Control'] = 'private, max-age=30'  # 30 second cache
+            response.headers['Vary'] = 'Cookie'
+        
+        return response
     
     except (OperationalError, DisconnectionError) as e:
         current_app.logger.error(f"Database connection error on home page: {str(e)}")
@@ -145,7 +197,7 @@ def products():
     """Products listing page with filtering and pagination"""
     try:
         page = request.args.get('page', 1, type=int)
-        per_page = 50  # Show more products per page
+        per_page = 100  # Show all products on one page
         
         # Build query - show all products including out of stock
         query = Product.query
@@ -153,17 +205,17 @@ def products():
         # Apply filters
         category_id = request.args.get('category', type=int)
         if category_id:
-            # Get the category and check if it has children
+            # Get the category and all its descendants recursively
             category = Category.query.get(category_id)
             if category:
-                if category.children:
-                    # If it's a parent category, include products from all subcategories
-                    subcategory_ids = [child.id for child in category.children]
-                    subcategory_ids.append(category_id)  # Include parent category itself
-                    query = query.filter(Product.category_id.in_(subcategory_ids))
-                else:
-                    # If it's a subcategory, just filter by that category
-                    query = query.filter(Product.category_id == category_id)
+                def get_all_subcategory_ids(cat):
+                    ids = [cat.id]
+                    for child in cat.children:
+                        ids.extend(get_all_subcategory_ids(child))
+                    return ids
+                
+                all_category_ids = get_all_subcategory_ids(category)
+                query = query.filter(Product.category_id.in_(all_category_ids))
         
         color_id = request.args.get('color', type=int)
         if color_id:
@@ -184,10 +236,13 @@ def products():
             if not errors:
                 query = query.filter(Product.name.contains(search))
         
-        # In stock filter
+        # In stock filter - check product-level inventory
         in_stock_only = request.args.get('in_stock', '').lower() == 'true'
         if in_stock_only:
-            query = query.filter(Product.in_stock == True, Product.quantity_on_hand > 0)
+            query = query.filter(
+                Product.in_stock == True, 
+                Product.quantity_on_hand > 0
+            )
         
         # Brand filter (extract from product name)
         brand = request.args.get('brand', '').strip()
@@ -205,8 +260,11 @@ def products():
         else:
             query = query.order_by(Product.name.asc())
         
-        # Paginate results
-        products = query.options(joinedload(Product.images)).paginate(
+        # Paginate results with variant, image, and color loading
+        products = query.options(
+            joinedload(Product.variants).joinedload(ProductVariant.images),
+            joinedload(Product.colors)
+        ).paginate(
             page=page, per_page=per_page, error_out=False
         )
         
@@ -240,11 +298,15 @@ def product_detail(product_id):
     try:
         product = (
             Product.query
-            .options(joinedload(Product.images), joinedload(Product.colors))
+            .options(
+                joinedload(Product.variants).joinedload(ProductVariant.images),
+                joinedload(Product.variants).joinedload(ProductVariant.color),
+                joinedload(Product.colors)
+            )
             .get_or_404(product_id)
         )
         
-        # Get related products from same category
+        # Get related products from same category that are in stock
         related_products = (
             Product.query
             .filter(Product.category_id == product.category_id)
@@ -277,6 +339,11 @@ def return_policy():
     """Return policy page"""
     return render_template('return.html')
 
+@main_bp.route('/track')
+def track_order():
+    """Order tracking page"""
+    return render_template('track_order.html')
+
 @main_bp.route('/test-age-verification')
 @require_age_verification
 def test_age_verification():
@@ -307,6 +374,7 @@ def clear_age_verification():
         db.session.commit()
     
     current_app.logger.info("🧹 Complete session cleared for testing (simulates fresh browser)")
+    
     return f"""
     <h1>Session Completely Cleared (Testing Only)</h1>
     <p><strong>⚠️ This simulates a fresh browser visit!</strong></p>
@@ -321,6 +389,33 @@ def clear_age_verification():
     </ol>
     <a href="{url_for('main.index')}" style="font-size: 18px; color: blue;">Go to Home (should show age verification)</a>
     """
+
+@main_bp.route('/test-slack-notification')
+def test_slack_notification():
+    """Test route to verify Slack notifications are working"""
+    from services.slack_notifications import send_test_notification
+    
+    try:
+        success = send_test_notification()
+        if success:
+            return """
+            <h1>✅ Slack Test Notification Sent!</h1>
+            <p>Check your Slack channel to see if the test message was received.</p>
+            <p><a href="/">Return to Home</a></p>
+            """
+        else:
+            return """
+            <h1>❌ Slack Test Notification Failed</h1>
+            <p>The test notification could not be sent. Check the server logs for details.</p>
+            <p><a href="/">Return to Home</a></p>
+            """, 500
+    except Exception as e:
+        current_app.logger.error(f"Error in test Slack notification: {str(e)}")
+        return f"""
+        <h1>❌ Slack Test Error</h1>
+        <p>An error occurred: {str(e)}</p>
+        <p><a href="/">Return to Home</a></p>
+        """, 500
 
 @main_bp.route('/debug-session')
 def debug_session():
@@ -388,13 +483,21 @@ def checkout():
     if current_user.is_authenticated:
         # Get cart from database for logged-in users
         cart_items = Cart.query.filter_by(user_id=current_user.id).all()
+        current_app.logger.info(f"Authenticated user cart items: {len(cart_items)}")
     else:
         # Get cart from session for guest users
         cart_data = session.get('cart', {})
+        current_app.logger.info(f"Guest user cart data: {cart_data}")
         if cart_data:
-            for product_id, quantity in cart_data.items():
+            for cart_key, quantity in cart_data.items():
                 try:
-                    product = Product.query.get(int(product_id))
+                    # Handle both formats: "product_id" and "product_id:variant_id"
+                    if ':' in str(cart_key):
+                        product_id = int(cart_key.split(':')[0])
+                    else:
+                        product_id = int(cart_key)
+                    
+                    product = Product.query.get(product_id)
                     if product:
                         cart_items.append({
                             'product': product,
@@ -405,6 +508,7 @@ def checkout():
     
     # If cart is empty, redirect to cart page - simple and predictable
     if not cart_items:
+        current_app.logger.warning("Cart is empty, redirecting to cart page")
         return redirect(url_for('main.cart_page'))
     
     # Debug configuration
@@ -422,7 +526,6 @@ def checkout():
     
     if current_user.is_authenticated:
         # Get cart from database for logged-in users
-        from sqlalchemy.orm import joinedload
         cart_items_db = (
             db.session.query(Cart, Product)
             .join(Product)
@@ -450,26 +553,52 @@ def checkout():
         # Get cart from session for guest users
         cart_session = session.get('cart', {})
         if cart_session:
-            cart_products = Product.query.filter(Product.id.in_(cart_session.keys())).all()
+            # Extract product IDs from cart keys (handle both "product_id" and "product_id:variant_id" formats)
+            product_ids = []
+            for cart_key in cart_session.keys():
+                try:
+                    if ':' in str(cart_key):
+                        product_id = int(cart_key.split(':')[0])
+                    else:
+                        product_id = int(cart_key)
+                    product_ids.append(product_id)
+                except (ValueError, TypeError):
+                    continue
+            
+            cart_products = Product.query.filter(Product.id.in_(product_ids)).all()
             for product in cart_products:
-                quantity = cart_session[str(product.id)]
-                item_total = float(product.price) * quantity
-                cart_data['subtotal'] += item_total
+                # Find the cart entry for this product (could be "product_id" or "product_id:variant_id")
+                quantity = 0
+                for cart_key, cart_quantity in cart_session.items():
+                    try:
+                        if ':' in str(cart_key):
+                            key_product_id = int(cart_key.split(':')[0])
+                        else:
+                            key_product_id = int(cart_key)
+                        
+                        if key_product_id == product.id:
+                            quantity += cart_quantity  # Sum quantities if multiple variants
+                    except (ValueError, TypeError):
+                        continue
                 
-                cart_data['items'].append({
-                    'id': product.id,
-                    'name': product.name,
-                    'price': float(product.price),
-                    'quantity': quantity,
-                    'image_url': product.main_image_url,
-                    'description': product.description or '',
-                    'in_stock': product.is_available,
-                    'max_quantity': product.quantity_on_hand,
-                    'item_total': item_total
-                })
+                if quantity > 0:
+                    item_total = float(product.price) * quantity
+                    cart_data['subtotal'] += item_total
+                    
+                    cart_data['items'].append({
+                        'id': product.id,
+                        'name': product.name,
+                        'price': float(product.price),
+                        'quantity': quantity,
+                        'image_url': product.main_image_url,
+                        'description': product.description or '',
+                        'in_stock': product.is_available,
+                        'max_quantity': product.quantity_on_hand,
+                        'item_total': item_total
+                    })
     
-    # Calculate shipping
-    cart_data['shipping'] = 9.99 if cart_data['subtotal'] > 0 and cart_data['subtotal'] < 50 else 0
+    # Calculate shipping - will be determined at checkout based on delivery method
+    cart_data['shipping'] = 0  # No shipping fee in cart, will be calculated at checkout
     cart_data['total'] = cart_data['subtotal'] + cart_data['shipping']
     cart_data['count'] = len(cart_data['items'])
     
@@ -623,31 +752,25 @@ def checkout_success():
         
         if order_id:
             order = Order.query.options(
-                joinedload(Order.items).joinedload(OrderItem.product).joinedload(Product.images)
+                joinedload(Order.items)
             ).get(order_id)
         
         if not order:
             current_app.logger.warning(f"Order {order_id} not found, redirecting to home")
             return redirect(url_for('main.index'))
         
-        # Get order items with product details
+        # Get order items with product details (NO VARIANTS)
         order_items = []
         for item in order.items:
-            product = item.product
+            # Get product directly (no variants)
+            product = Product.query.get(item.product_id)
             if product:
-                # Get product image
-                product_image = None
-                if product.image_url:
-                    product_image = product.image_url
-                elif product.images:
-                    product_image = product.images[0].url
-                
                 order_items.append({
                     'product': product,
                     'quantity': item.quantity,
                     'unit_price': item.price,
                     'total_price': item.total,
-                    'product_image': product_image
+                    'product_image': product.image_url
                 })
         
         # Check if this order has Uber tracking
@@ -786,8 +909,13 @@ def create_checkout_session():
                 # Get cart from session
                 cart_data = session.get('cart', {})
                 current_app.logger.info(f"Session cart data: {cart_data}")
-                for product_id, quantity in cart_data.items():
-                    product = Product.query.get(int(product_id))
+                for cart_key, quantity in cart_data.items():
+                    # Handle both formats: "product_id" and "product_id:variant_id"
+                    if ':' in str(cart_key):
+                        product_id = int(cart_key.split(':')[0])
+                    else:
+                        product_id = int(cart_key)
+                    product = Product.query.get(product_id)
                     if product:
                         # Create a simple cart item object
                         cart_item = type('CartItem', (), {

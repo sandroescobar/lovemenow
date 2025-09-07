@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Your Order - LoveMeNow</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}">
+    <style>
+        .tracking-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .tracking-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .order-lookup {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .lookup-form {
+            display: flex;
+            gap: 1rem;
+            align-items: end;
+        }
+        
+        .form-group {
+            flex: 1;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        
+        .btn-track {
+            padding: 0.75rem 2rem;
+            background: hsl(var(--primary-color));
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-track:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .order-details {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+        
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .order-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: hsl(var(--primary-color));
+        }
+        
+        .order-status {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+        
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-processing { background: #d1ecf1; color: #0c5460; }
+        .status-ready { background: #d4edda; color: #155724; }
+        .status-delivered { background: #e2e3e5; color: #383d41; }
+        
+        .delivery-tracking {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 2rem;
+        }
+        
+        .tracking-status {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .tracking-url {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: hsl(var(--primary-color));
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        
+        .tracking-url:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .courier-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #ddd;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .lookup-form {
+                flex-direction: column;
+            }
+            
+            .courier-info {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="tracking-container">
+        <div class="tracking-header">
+            <h1><i class="fas fa-search-location"></i> Track Your Order</h1>
+            <p>Enter your order number and email to track your delivery</p>
+        </div>
+        
+        <div class="order-lookup">
+            <form class="lookup-form" onsubmit="trackOrder(event)">
+                <div class="form-group">
+                    <label for="order-number">Order Number</label>
+                    <input type="text" id="order-number" placeholder="LMN20250130..." required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" placeholder="your@email.com" required>
+                </div>
+                
+                <button type="submit" class="btn-track">
+                    <i class="fas fa-search"></i> Track Order
+                </button>
+            </form>
+        </div>
+        
+        <div class="loading" id="loading">
+            <i class="fas fa-spinner fa-spin"></i> Looking up your order...
+        </div>
+        
+        <div class="error-message" id="error-message"></div>
+        
+        <div class="order-details" id="order-details">
+            <div class="order-header">
+                <div class="order-number" id="display-order-number"></div>
+                <div class="order-status" id="display-order-status"></div>
+            </div>
+            
+            <div class="order-info">
+                <h3>Order Information</h3>
+                <div id="order-info-content"></div>
+            </div>
+            
+            <div class="delivery-tracking" id="delivery-tracking" style="display: none;">
+                <h3><i class="fas fa-truck"></i> Delivery Tracking</h3>
+                <div class="tracking-status">
+                    <div class="order-status" id="delivery-status"></div>
+                    <div id="tracking-link"></div>
+                </div>
+                
+                <div id="delivery-times"></div>
+                
+                <div class="courier-info" id="courier-info" style="display: none;">
+                    <div>
+                        <h4>Your Courier</h4>
+                        <div id="courier-details"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        async function trackOrder(event) {
+            event.preventDefault();
+            
+            const orderNumber = document.getElementById('order-number').value.trim();
+            const email = document.getElementById('email').value.trim();
+            
+            if (!orderNumber || !email) {
+                showError('Please enter both order number and email address');
+                return;
+            }
+            
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('error-message').style.display = 'none';
+            document.getElementById('order-details').style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/track-order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        order_number: orderNumber,
+                        email: email
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayOrderDetails(data.order);
+                } else {
+                    showError(data.error || 'Order not found');
+                }
+                
+            } catch (error) {
+                showError('Network error - please try again');
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+        
+        function displayOrderDetails(order) {
+            // Show order details
+            document.getElementById('display-order-number').textContent = `#${order.order_number}`;
+            document.getElementById('display-order-status').textContent = order.status;
+            document.getElementById('display-order-status').className = `order-status status-${order.status}`;
+            
+            // Order info
+            const orderInfo = `
+                <p><strong>Customer:</strong> ${order.customer_name}</p>
+                <p><strong>Email:</strong> ${order.customer_email}</p>
+                <p><strong>Total:</strong> $${order.total_amount.toFixed(2)}</p>
+                <p><strong>Order Date:</strong> ${new Date(order.created_at).toLocaleString()}</p>
+                <p><strong>Delivery Type:</strong> ${order.delivery_type}</p>
+            `;
+            document.getElementById('order-info-content').innerHTML = orderInfo;
+            
+            // Delivery tracking
+            if (order.delivery_info && order.delivery_type === 'delivery') {
+                const deliveryTracking = document.getElementById('delivery-tracking');
+                deliveryTracking.style.display = 'block';
+                
+                // Delivery status
+                const deliveryStatus = document.getElementById('delivery-status');
+                deliveryStatus.textContent = order.delivery_info.status;
+                deliveryStatus.className = `order-status status-${order.delivery_info.status}`;
+                
+                // Tracking link
+                if (order.delivery_info.tracking_url) {
+                    document.getElementById('tracking-link').innerHTML = `
+                        <a href="${order.delivery_info.tracking_url}" target="_blank" class="tracking-url">
+                            <i class="fas fa-external-link-alt"></i> Track on Uber
+                        </a>
+                    `;
+                }
+                
+                // Delivery times
+                let deliveryTimes = '';
+                if (order.delivery_info.pickup_eta) {
+                    deliveryTimes += `<p><strong>Pickup ETA:</strong> ${new Date(order.delivery_info.pickup_eta).toLocaleString()}</p>`;
+                }
+                if (order.delivery_info.dropoff_eta) {
+                    deliveryTimes += `<p><strong>Delivery ETA:</strong> ${new Date(order.delivery_info.dropoff_eta).toLocaleString()}</p>`;
+                }
+                document.getElementById('delivery-times').innerHTML = deliveryTimes;
+                
+                // Courier info
+                if (order.delivery_info.courier_name) {
+                    const courierInfo = document.getElementById('courier-info');
+                    courierInfo.style.display = 'grid';
+                    
+                    let courierDetails = `<p><strong>Name:</strong> ${order.delivery_info.courier_name}</p>`;
+                    if (order.delivery_info.courier_phone) {
+                        courierDetails += `<p><strong>Phone:</strong> ${order.delivery_info.courier_phone}</p>`;
+                    }
+                    
+                    document.getElementById('courier-details').innerHTML = courierDetails;
+                }
+            }
+            
+            document.getElementById('order-details').style.display = 'block';
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

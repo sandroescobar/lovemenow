@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Management - LoveMeNow Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}">
+    <style>
+        .admin-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .admin-header {
+            background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+        
+        .orders-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+        
+        .order-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid hsl(var(--primary-color));
+        }
+        
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .order-number {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: hsl(var(--primary-color));
+        }
+        
+        .order-status {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+        
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-processing { background: #d1ecf1; color: #0c5460; }
+        .status-ready { background: #d4edda; color: #155724; }
+        .status-delivered { background: #e2e3e5; color: #383d41; }
+        
+        .order-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .detail-group h4 {
+            margin: 0 0 0.5rem 0;
+            color: #666;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+        
+        .delivery-info {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+        
+        .delivery-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .courier-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary {
+            background: hsl(var(--primary-color));
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .refresh-button {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: hsl(var(--primary-color));
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .refresh-button:hover {
+            transform: scale(1.1);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1><i class="fas fa-box"></i> Order Management</h1>
+            <p>Track and manage all orders and deliveries</p>
+        </div>
+        
+        <div id="error-container"></div>
+        <div id="loading" class="loading">
+            <i class="fas fa-spinner fa-spin"></i> Loading orders...
+        </div>
+        <div id="orders-container" class="orders-grid"></div>
+    </div>
+    
+    <button class="refresh-button" onclick="loadOrders()" title="Refresh Orders">
+        <i class="fas fa-sync-alt"></i>
+    </button>
+    
+    <script>
+        let orders = [];
+        
+        // Load orders on page load
+        document.addEventListener('DOMContentLoaded', loadOrders);
+        
+        // Auto-refresh every 30 seconds
+        setInterval(loadOrders, 30000);
+        
+        async function loadOrders() {
+            try {
+                document.getElementById('loading').style.display = 'block';
+                document.getElementById('error-container').innerHTML = '';
+                
+                const response = await fetch('/api/uber/store-orders');
+                const data = await response.json();
+                
+                if (data.success) {
+                    orders = data.orders;
+                    renderOrders();
+                } else {
+                    showError('Failed to load orders: ' + data.error);
+                }
+                
+            } catch (error) {
+                showError('Network error loading orders: ' + error.message);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+        
+        function renderOrders() {
+            const container = document.getElementById('orders-container');
+            
+            if (orders.length === 0) {
+                container.innerHTML = '<div class="loading">No orders found</div>';
+                return;
+            }
+            
+            container.innerHTML = orders.map(order => `
+                <div class="order-card">
+                    <div class="order-header">
+                        <div class="order-number">#${order.order_number}</div>
+                        <div class="order-status status-${order.status}">${order.status}</div>
+                    </div>
+                    
+                    <div class="order-details">
+                        <div class="detail-group">
+                            <h4>Customer</h4>
+                            <div>${order.customer_name}</div>
+                            <div>${order.customer_email}</div>
+                            <div>${order.customer_phone || 'No phone'}</div>
+                        </div>
+                        
+                        <div class="detail-group">
+                            <h4>Order Info</h4>
+                            <div>Type: ${order.delivery_type}</div>
+                            <div>Total: $${order.total_amount.toFixed(2)}</div>
+                            <div>Created: ${new Date(order.created_at).toLocaleString()}</div>
+                        </div>
+                    </div>
+                    
+                    ${order.delivery_info ? `
+                        <div class="delivery-info">
+                            <h4><i class="fas fa-truck"></i> Delivery Status</h4>
+                            <div class="delivery-status">
+                                <span class="order-status status-${order.delivery_info.status}">${order.delivery_info.status}</span>
+                                ${order.delivery_info.tracking_url ? `<a href="${order.delivery_info.tracking_url}" target="_blank" class="btn btn-primary btn-sm">Track</a>` : ''}
+                            </div>
+                            
+                            ${order.delivery_info.pickup_eta ? `<div>Pickup ETA: ${new Date(order.delivery_info.pickup_eta).toLocaleString()}</div>` : ''}
+                            ${order.delivery_info.dropoff_eta ? `<div>Delivery ETA: ${new Date(order.delivery_info.dropoff_eta).toLocaleString()}</div>` : ''}
+                            
+                            ${order.delivery_info.courier_name ? `
+                                <div class="courier-info">
+                                    <div>
+                                        <h5>Courier</h5>
+                                        <div>${order.delivery_info.courier_name}</div>
+                                        ${order.delivery_info.courier_phone ? `<div>${order.delivery_info.courier_phone}</div>` : ''}
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    ` : ''}
+                    
+                    <div class="action-buttons">
+                        ${order.delivery_info ? `
+                            <button class="btn btn-primary" onclick="refreshDeliveryStatus('${order.delivery_info.delivery_id || order.id}')">
+                                <i class="fas fa-sync"></i> Refresh Status
+                            </button>
+                        ` : ''}
+                        
+                        <button class="btn btn-secondary" onclick="updateOrderStatus('${order.id}', 'processing')">
+                            <i class="fas fa-play"></i> Mark Processing
+                        </button>
+                        
+                        <button class="btn btn-success" onclick="updateOrderStatus('${order.id}', 'ready')">
+                            <i class="fas fa-check"></i> Mark Ready
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        async function refreshDeliveryStatus(deliveryId) {
+            try {
+                const response = await fetch(`/api/uber/delivery-status/${deliveryId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    console.log('Delivery status updated:', data.delivery);
+                    loadOrders(); // Reload all orders
+                } else {
+                    showError('Failed to refresh delivery status: ' + data.error);
+                }
+            } catch (error) {
+                showError('Error refreshing delivery status: ' + error.message);
+            }
+        }
+        
+        async function updateOrderStatus(orderId, newStatus) {
+            try {
+                const response = await fetch(`/api/orders/${orderId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    loadOrders(); // Reload all orders
+                } else {
+                    showError('Failed to update order status: ' + data.error);
+                }
+            } catch (error) {
+                showError('Error updating order status: ' + error.message);
+            }
+        }
+        
+        function showError(message) {
+            document.getElementById('error-container').innerHTML = `
+                <div class="error">
+                    <i class="fas fa-exclamation-triangle"></i> ${message}
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

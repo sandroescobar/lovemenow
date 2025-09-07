@@ -2024,6 +2024,54 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
     box-sizing: border-box !important;
 }
 
+/* Clickable color dot styles for variants */
+.clickable-color-dot {
+    width: 20px !important;
+    height: 20px !important;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-right: 0.5rem;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+    display: inline-block;
+    box-sizing: border-box;
+    background: none;
+    padding: 0;
+    outline: none;
+}
+
+.clickable-color-dot:hover {
+    transform: scale(1.1);
+    border-color: hsl(var(--primary-color));
+    box-shadow: 0 0 0 2px hsla(var(--primary-color), 0.3);
+}
+
+.clickable-color-dot.active {
+    border-color: hsl(var(--primary-color));
+    box-shadow: 0 0 0 2px hsla(var(--primary-color), 0.5);
+    transform: scale(1.05);
+}
+
+.clickable-color-dot:focus {
+    border-color: hsl(var(--primary-color));
+    box-shadow: 0 0 0 2px hsla(var(--primary-color), 0.5);
+}
+
+.clickable-color-dot:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.clickable-color-dot:disabled:hover {
+    transform: none;
+    border-color: transparent;
+    box-shadow: none;
+}
+
 /* Color tooltip styles */
 .color-tooltip {
     position: fixed;
@@ -3294,6 +3342,191 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
     font-size: 0.875rem;
     margin-right: 0.5rem;
     margin-bottom: 0;
+}
+
+/* Quick View Modal Styles */
+.quick-view-modal {
+    max-width: 900px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    background: white;
+    border-radius: 12px;
+    padding: 0;
+}
+
+.quick-view-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    padding: 2rem;
+}
+
+.quick-view-images {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.quick-view-images .main-image {
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: 8px;
+    background: #f8f9fa;
+}
+
+.quick-view-images .main-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.quick-view-images .image-thumbnails {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+}
+
+.quick-view-images .thumbnail {
+    flex-shrink: 0;
+    width: 60px;
+    height: 60px;
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color 0.2s;
+}
+
+.quick-view-images .thumbnail.active {
+    border-color: var(--primary-color);
+}
+
+.quick-view-images .thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.quick-view-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.quick-view-info h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.quick-view-info .price {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.quick-view-info .color-selection {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.quick-view-info .color-options {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.quick-view-info .color-option {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.quick-view-info .color-option.active {
+    border-color: var(--primary-color);
+    transform: scale(1.1);
+}
+
+.quick-view-info .quantity-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.quick-view-info .quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.quick-view-info .quantity-controls button {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.quick-view-info .quantity-controls input {
+    width: 60px;
+    height: 32px;
+    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.quick-view-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: auto;
+}
+
+.quick-view-actions .btn-primary,
+.quick-view-actions .btn-secondary {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    text-decoration: none;
+    text-align: center;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.quick-view-actions .btn-primary {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+}
+
+.quick-view-actions .btn-secondary {
+    background: transparent;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+}
+
+@media (max-width: 768px) {
+    .quick-view-modal {
+        width: 95%;
+        max-height: 90vh;
+    }
+    
+    .quick-view-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        padding: 1.5rem;
+    }
+    
+    .quick-view-actions {
+        flex-direction: column;
+    }
 }
 
 /* Responsive modal design */

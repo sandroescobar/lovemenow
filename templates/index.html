@@ -6,15 +6,34 @@
     <meta name="description" content="LoveMeNow - Premium quality adult products for your intimate moments">
     <title>LoveMeNow - Premium Adult Products</title>
 
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Preconnect to external domains for faster loading -->
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://api.mapbox.com">
+    <link rel="preconnect" href="https://js.stripe.com">
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://api.mapbox.com">
+    <link rel="dns-prefetch" href="https://js.stripe.com">
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="{{ url_for('static', filename='js/index.js') }}" as="script">
+    <link rel="preload" href="{{ url_for('static', filename='CSS/styles.css') }}" as="style">
 
-    <!-- Mapbox GL JS -->
+    <!-- Font Awesome - async load for non-critical icons -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"></noscript>
+
+    <!-- Mapbox GL JS - load only when needed -->
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.css" rel="stylesheet">
-    <script src="https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.js"></script>
+    <script defer src="https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.js"></script>
 
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}">
+    <!-- Critical CSS inline for faster rendering -->
+    <style>
+        :root{--primary-color:280 100% 70%;--accent-color:320 100% 70%;--dark-color:220 13% 18%;--background-color:220 13% 15%;--text-color:220 13% 91%;--muted-color:220 9% 46%;--border-color:220 13% 31%;--surface-color:220 13% 24%;--glass-bg:rgba(255,255,255,0.1);--glass-border:rgba(255,255,255,0.2);--radius-sm:0.5rem;--radius-md:0.75rem;--radius-lg:1rem}*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI','Roboto',sans-serif;line-height:1.6;color:hsl(var(--text-color));background:linear-gradient(135deg,hsl(var(--dark-color)),hsl(220 13% 12%));min-height:100vh}.container{max-width:1200px;margin:0 auto;padding:0 1rem}.d-flex{display:flex}.justify-content-between{justify-content:space-between}.align-items-center{align-items:center}
+    </style>
+    
+    <!-- Non-critical CSS loaded asynchronously -->
+    <link rel="preload" href="{{ url_for('static', filename='CSS/styles.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}"></noscript>
     
     <!-- CSRF Protection -->
     {% include 'csrf_meta.html' %}
@@ -167,21 +186,16 @@
 
         <div class="product-grid">
             {% for product in featured_products %}
-            <div class="product-card fade-in-up" data-product-id="{{ product.id }}" data-in-stock="{{ product.in_stock|lower }}">
+            <div class="product-card fade-in-up" data-product-id="{{ product.id }}" data-in-stock="{{ product.in_stock|lower }}" data-product-quantity="{{ product.quantity_on_hand or 0 }}">
                 <div class="product-image">
-                    {% set all_images = [] %}
-                    {% if product.image_url %}
+                    {% set all_images = product.all_image_urls %}
+                    {% if product.image_url and product.image_url not in all_images %}
                         {% set _ = all_images.append(product.image_url) %}
                     {% endif %}
-                    {% for img in product.images %}
-                        {% if img.url not in all_images %}
-                            {% set _ = all_images.append(img.url) %}
-                        {% endif %}
-                    {% endfor %}
 
                     {% if all_images %}
                         <img style="width: 100%; height: 250px; object-fit: cover;"
-                             src="{{ all_images[0] if all_images[0].startswith('http') else url_for('static', filename=all_images[0].lstrip('/')) }}"
+                             src="{{ all_images[0] if all_images[0].startswith('http') or all_images[0].startswith('/static/') else url_for('static', filename=all_images[0].lstrip('/')) }}"
                              alt="{{ product.name|e }}" loading="lazy">
                     {% else %}
                         <div class="placeholder-image">
@@ -243,6 +257,7 @@
                     <div class="product-buttons">
                         <button class="btn-add-cart" 
                                 data-product-id="{{ product.id }}"
+                                data-variant-id="{{ product.default_variant.id if product.default_variant else '' }}"
                                 data-product-name="{{ product.name|e }}"
                                 data-product-price="{{ product.price }}"
                                 data-quantity-on-hand="{{ product.quantity_on_hand or 0 }}"
@@ -589,11 +604,45 @@
       {% endif %}
     {% endwith %}
 
-    <script src="{{ url_for('static', filename='js/index.js') }}?v=20241220d"></script>
-    
-    <!-- Map debugging script -->
+    <!-- Optimized JavaScript loading to prevent render blocking -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        // Critical functionality - load immediately
+        (function() {
+            // Initialize cart count from localStorage immediately
+            const storedCount = localStorage.getItem('cartCount');
+            if (storedCount !== null) {
+                const count = parseInt(storedCount, 10) || 0;
+                const cartCountElement = document.getElementById('cartCount');
+                if (cartCountElement) {
+                    cartCountElement.textContent = count;
+                    cartCountElement.style.display = count > 0 ? 'inline' : 'none';
+                    if (count > 0) cartCountElement.classList.add('has-items');
+                }
+            }
+        })();
+        
+        // Load main JavaScript asynchronously after critical path
+        function loadMainJS() {
+            const script = document.createElement('script');
+            script.src = "{{ url_for('static', filename='js/index.js') }}?v=20250106b";
+            script.async = true;
+            document.head.appendChild(script);
+        }
+        
+        // Load after DOM is ready but don't block rendering
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(loadMainJS, 100); // Small delay to prioritize rendering
+            });
+        } else {
+            setTimeout(loadMainJS, 100);
+        }
+    </script>
+    
+    <!-- Map debugging script - optimized for performance -->
+    <script>
+        // Lazy load map only when user scrolls near it
+        function initializeMap() {
             const mapIframe = document.querySelector('.folium-map');
             const mapContainer = document.getElementById('map-container');
             const fallback = document.getElementById('map-fallback');
@@ -606,7 +655,7 @@
                         mapIframe.style.display = 'none';
                         fallback.style.display = 'flex';
                     }
-                }, 10000); // 10 seconds timeout
+                }, 3000); // Reduced timeout to 3 seconds for faster fallback
                 
                 mapIframe.onload = function() {
                     console.log('Map iframe loaded successfully');
@@ -639,6 +688,24 @@
                 } catch (e) {
                     console.log('Cannot access iframe content due to security restrictions');
                 }
+            }
+        }
+        
+        // Use Intersection Observer to lazy load map when it comes into view
+        document.addEventListener('DOMContentLoaded', function() {
+            const mapContainer = document.getElementById('map-container');
+            if (mapContainer) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            // Initialize map when it comes into view
+                            setTimeout(initializeMap, 100); // Small delay to improve performance
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { rootMargin: '50px' }); // Start loading 50px before it comes into view
+                
+                observer.observe(mapContainer);
             }
         });
     </script>

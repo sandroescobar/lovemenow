@@ -9,6 +9,7 @@ from sqlalchemy.orm import joinedload
 from routes import db
 from models import Product, Cart, Order, OrderItem, User
 from flask import session as flask_session
+from services.slack_notifications import send_order_notification
 
 webhooks_bp = Blueprint('webhooks', __name__)
 
@@ -21,12 +22,14 @@ def stripe_webhook():
     try:
         # Verify webhook signature
         endpoint_secret = current_app.config.get('STRIPE_WEBHOOK_SECRET')
-        if endpoint_secret:
+        if endpoint_secret and endpoint_secret != 'whsec_test_webhook_secret_for_development':
+            # Production: verify signature
             event = stripe.Webhook.construct_event(
                 payload, sig_header, endpoint_secret
             )
         else:
-            # For development/testing without webhook secret
+            # Development/testing: skip signature verification
+            current_app.logger.info("Development mode: Skipping webhook signature verification")
             event = json.loads(payload)
         
         current_app.logger.info(f"Received Stripe webhook: {event['type']}")
@@ -45,6 +48,12 @@ def stripe_webhook():
         elif event['type'] == 'payment_intent.succeeded':
             payment_intent = event['data']['object']
             current_app.logger.info(f"Payment intent succeeded: {payment_intent['id']}")
+            
+            # Process the successful payment intent
+            success = process_successful_payment_intent(payment_intent)
+            if not success:
+                current_app.logger.error(f"Failed to process payment intent: {payment_intent['id']}")
+                return jsonify({'error': 'Failed to process payment intent'}), 500
             
         else:
             current_app.logger.info(f"Unhandled event type: {event['type']}")
@@ -160,6 +169,20 @@ def process_successful_payment(stripe_session):
         # Commit all changes
         db.session.commit()
         
+        # Send Slack notification after successful order processing
+        try:
+            current_app.logger.info(f"Attempting to send Slack notification for order {order.order_number}")
+            success = send_order_notification(order, cart_items)
+            if success:
+                current_app.logger.info(f"Slack notification sent successfully for order {order.order_number}")
+            else:
+                current_app.logger.warning(f"Slack notification failed for order {order.order_number}")
+        except Exception as e:
+            # Don't fail the webhook if Slack notification fails
+            current_app.logger.error(f"Failed to send Slack notification for order {order.order_number}: {str(e)}")
+            import traceback
+            current_app.logger.error(f"Slack notification traceback: {traceback.format_exc()}")
+        
         current_app.logger.info(f"Successfully processed payment for session {session_id}")
         return True
         
@@ -180,6 +203,7 @@ def create_order_from_stripe_session(stripe_session, user, cart_items):
         customer_details = stripe_session.get('customer_details', {})
         customer_email = customer_details.get('email', '')
         customer_name = customer_details.get('name', '')
+        customer_phone = customer_details.get('phone', '')
         
         # Get shipping address
         shipping_details = stripe_session.get('shipping_details', {})
@@ -188,7 +212,7 @@ def create_order_from_stripe_session(stripe_session, user, cart_items):
         # Calculate totals
         from decimal import Decimal
         subtotal = sum(Decimal(str(item['product'].price)) * item['quantity'] for item in cart_items)
-        shipping_amount = Decimal('9.99') if subtotal < 50 else Decimal('0')
+        shipping_amount = Decimal('0')  # Shipping calculated separately based on delivery method
         total_amount = subtotal + shipping_amount
         
         # Create order
@@ -197,6 +221,7 @@ def create_order_from_stripe_session(stripe_session, user, cart_items):
             order_number=order_number,
             email=customer_email,
             full_name=customer_name,
+            phone=customer_phone,
             shipping_address=shipping_address.get('line1', ''),
             shipping_suite=shipping_address.get('line2', ''),
             shipping_city=shipping_address.get('city', ''),
@@ -221,3 +246,70 @@ def create_order_from_stripe_session(stripe_session, user, cart_items):
     except Exception as e:
         current_app.logger.error(f"Error creating order: {str(e)}")
         return None
+
+def process_successful_payment_intent(payment_intent):
+    """Process a successful payment intent and send Slack notification"""
+    try:
+        payment_intent_id = payment_intent['id']
+        current_app.logger.info(f"Processing payment intent: {payment_intent_id}")
+        
+        # Get metadata from payment intent
+        metadata = payment_intent.get('metadata', {})
+        current_app.logger.info(f"Payment intent metadata: {metadata}")
+        
+        # Build cart items from metadata
+        cart_items = []
+        item_count = int(metadata.get('item_count', 0))
+        
+        for i in range(item_count):
+            product_id = metadata.get(f'item_{i}_product_id')
+            quantity = int(metadata.get(f'item_{i}_quantity', 1))
+            
+            if product_id:
+                product = Product.query.get(int(product_id))
+                if product:
+                    cart_items.append({
+                        'product': product,
+                        'quantity': quantity
+                    })
+        
+        current_app.logger.info(f"Found {len(cart_items)} items from payment intent metadata")
+        
+        if not cart_items:
+            current_app.logger.warning(f"No cart items found in payment intent {payment_intent_id}")
+            return True  # Don't fail the webhook, but log the issue
+        
+        # Create a mock order object for Slack notification
+        # Since the order is created in the frontend, we just need basic info for Slack
+        from datetime import datetime
+        mock_order = type('Order', (), {
+            'order_number': f"PI-{payment_intent_id[-8:].upper()}",
+            'total_amount': payment_intent['amount'] / 100,  # Convert from cents
+            'delivery_type': 'pickup',  # Default for payment intents
+            'email': payment_intent.get('receipt_email', 'N/A'),
+            'payment_status': 'paid',
+            'full_name': 'Webhook Customer',  # Required by Slack service
+            'phone': 'N/A',  # Required by Slack service
+            'created_at': datetime.now()  # Only needed for Slack timestamp formatting
+        })()
+        
+        # Send Slack notification
+        try:
+            current_app.logger.info(f"Attempting to send Slack notification for payment intent {payment_intent_id}")
+            success = send_order_notification(mock_order, cart_items)
+            if success:
+                current_app.logger.info(f"Slack notification sent successfully for payment intent {payment_intent_id}")
+            else:
+                current_app.logger.warning(f"Slack notification failed for payment intent {payment_intent_id}")
+        except Exception as e:
+            current_app.logger.error(f"Failed to send Slack notification for payment intent {payment_intent_id}: {str(e)}")
+            import traceback
+            current_app.logger.error(f"Slack notification traceback: {traceback.format_exc()}")
+        
+        return True
+        
+    except Exception as e:
+        current_app.logger.error(f"Error processing payment intent: {str(e)}")
+        import traceback
+        current_app.logger.error(f"Payment intent processing traceback: {traceback.format_exc()}")
+        return False

@@ -393,9 +393,276 @@ async function openQuickView(productId) {
 }
 
 function displayQuickView(product) {
-    // Implementation for displaying quick view modal
-    // This would create and show the modal with product details
-    console.log('Displaying quick view for:', product);
+    // Create modal HTML
+    const modalHTML = `
+        <div id="quickViewModal" class="modal-overlay" style="display: flex;">
+            <div class="modal-content quick-view-modal">
+                <button class="modal-close" onclick="closeQuickViewModal()">&times;</button>
+                
+                <div class="quick-view-grid">
+                    <!-- Product Images -->
+                    <div class="quick-view-images">
+                        <div class="main-image">
+                            <img id="quickViewMainImage" src="" alt="${product.name}">
+                        </div>
+                        <div class="image-thumbnails" id="quickViewThumbnails">
+                            <!-- Thumbnails will be populated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <!-- Product Info -->
+                    <div class="quick-view-info">
+                        <h2>${product.name}</h2>
+                        <div class="price">$${product.price}</div>
+                        
+                        <!-- Colors -->
+                        <div class="color-selection" id="quickViewColors">
+                            <!-- Colors will be populated by JavaScript -->
+                        </div>
+                        
+                        <!-- Quantity -->
+                        <div class="quantity-section">
+                            <label>Quantity:</label>
+                            <div class="quantity-controls">
+                                <button onclick="changeQuickViewQuantity(-1)">-</button>
+                                <input type="number" id="quickViewQuantity" value="1" min="1" max="${product.quantity_on_hand || 1}">
+                                <button onclick="changeQuickViewQuantity(1)">+</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Actions -->
+                        <div class="quick-view-actions">
+                            <button class="btn-primary" onclick="addToCartFromQuickView(${product.id})">
+                                <i class="fas fa-shopping-cart"></i> Add to Cart
+                            </button>
+                            <a href="/product/${product.id}" class="btn-secondary">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove existing modal if any
+    const existingModal = document.getElementById('quickViewModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Add modal to body
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Initialize quick view with color-specific images
+    initializeQuickView(product);
+}
+
+function initializeQuickView(product) {
+    // Build variant-specific image data (same logic as product detail page)
+    const variantImages = {};
+    let quickViewAllImages = [];
+    let currentQuickViewImageIndex = 0;
+    
+    // Build variant images object
+    if (product.variants) {
+        product.variants.forEach(variant => {
+            if (variant.color && variant.images && variant.images.length > 0) {
+                variantImages[variant.color.id] = variant.images.map(img => img.url);
+            }
+        });
+    }
+    
+    console.log('🎯 QUICK VIEW INIT:', {
+        productName: product.name,
+        variantImages: variantImages,
+        colors: product.colors
+    });
+    
+    // Set initial images (first color)
+    if (product.colors && product.colors.length > 0) {
+        const firstColorId = product.colors[0].id;
+        quickViewAllImages = variantImages[firstColorId] || [];
+    }
+    
+    // Set main image
+    const mainImage = document.getElementById('quickViewMainImage');
+    if (mainImage && quickViewAllImages.length > 0) {
+        mainImage.src = quickViewAllImages[0];
+    }
+    
+    // Build color options
+    const colorsContainer = document.getElementById('quickViewColors');
+    if (colorsContainer && product.colors) {
+        let colorsHTML = '<label>Color:</label><div class="color-options">';
+        
+        product.colors.forEach((color, index) => {
+            const isActive = index === 0 ? 'active' : '';
+            colorsHTML += `
+                <div class="color-option ${isActive}" 
+                     onclick="selectQuickViewColor(this, '${color.name}', ${color.id})"
+                     style="background-color: ${color.hex || '#ccc'};"
+                     title="${color.name}">
+                </div>
+            `;
+        });
+        
+        colorsHTML += '</div>';
+        colorsContainer.innerHTML = colorsHTML;
+    }
+    
+    // Build thumbnails
+    buildQuickViewThumbnails();
+    
+    // Store data globally for color switching
+    window.quickViewData = {
+        variantImages: variantImages,
+        allImages: quickViewAllImages,
+        currentImageIndex: currentQuickViewImageIndex
+    };
+}
+
+function selectQuickViewColor(colorElement, colorName, colorId) {
+    console.log('🎨 QUICK VIEW COLOR SWITCH:', {
+        colorName: colorName,
+        colorId: colorId,
+        availableImages: window.quickViewData.variantImages[colorId]
+    });
+    
+    // Update active color
+    document.querySelectorAll('#quickViewColors .color-option').forEach(c => c.classList.remove('active'));
+    colorElement.classList.add('active');
+    
+    // Switch to images for this color variant
+    if (window.quickViewData.variantImages[colorId]) {
+        window.quickViewData.allImages = window.quickViewData.variantImages[colorId];
+        window.quickViewData.currentImageIndex = 0;
+        
+        // Update main image
+        const mainImage = document.getElementById('quickViewMainImage');
+        if (mainImage && window.quickViewData.allImages.length > 0) {
+            mainImage.src = window.quickViewData.allImages[0];
+            console.log('📸 Quick view main image updated to:', window.quickViewData.allImages[0]);
+        }
+        
+        // Rebuild thumbnails
+        buildQuickViewThumbnails();
+    }
+}
+
+function buildQuickViewThumbnails() {
+    const thumbnailContainer = document.getElementById('quickViewThumbnails');
+    if (!thumbnailContainer || !window.quickViewData) return;
+    
+    // Clear existing thumbnails
+    thumbnailContainer.innerHTML = '';
+    
+    // Only show thumbnails if there are multiple images
+    if (window.quickViewData.allImages.length > 1) {
+        window.quickViewData.allImages.forEach((imageUrl, index) => {
+            const thumbnailDiv = document.createElement('div');
+            thumbnailDiv.className = `thumbnail ${index === 0 ? 'active' : ''}`;
+            thumbnailDiv.onclick = () => changeQuickViewImage(imageUrl, index);
+            
+            const thumbnailImg = document.createElement('img');
+            thumbnailImg.src = imageUrl;
+            thumbnailImg.alt = `Product image ${index + 1}`;
+            
+            thumbnailDiv.appendChild(thumbnailImg);
+            thumbnailContainer.appendChild(thumbnailDiv);
+        });
+    }
+}
+
+function changeQuickViewImage(imageUrl, index) {
+    const mainImage = document.getElementById('quickViewMainImage');
+    if (mainImage) {
+        mainImage.src = imageUrl;
+    }
+    
+    // Update active thumbnail
+    document.querySelectorAll('#quickViewThumbnails .thumbnail').forEach((thumb, i) => {
+        thumb.classList.toggle('active', i === index);
+    });
+    
+    if (window.quickViewData) {
+        window.quickViewData.currentImageIndex = index;
+    }
+}
+
+function changeQuickViewQuantity(delta) {
+    const input = document.getElementById('quickViewQuantity');
+    if (input) {
+        const newValue = parseInt(input.value) + delta;
+        const max = parseInt(input.getAttribute('max'));
+        
+        if (newValue >= 1 && newValue <= max) {
+            input.value = newValue;
+        }
+    }
+}
+
+function addToCartFromQuickView(productId) {
+    const quantityInput = document.getElementById('quickViewQuantity');
+    const quantity = quantityInput ? parseInt(quantityInput.value) : 1;
+    
+    // Get selected color/variant if available
+    const selectedColorDot = document.querySelector('.quick-view-info .color-option.active');
+    const variantId = selectedColorDot ? selectedColorDot.dataset.variantId : null;
+    
+    // Prepare request body
+    const requestBody = {
+        product_id: productId,
+        quantity: quantity
+    };
+    
+    if (variantId) {
+        requestBody.variant_id = variantId;
+    }
+    
+    // Use existing cart functionality
+    fetch('/api/cart/add', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify(requestBody)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message || data.success) {
+            // Handle cart count locally
+            const currentCount = parseInt(localStorage.getItem('cartCount') || '0', 10);
+            const newCount = currentCount + quantity;
+            localStorage.setItem('cartCount', newCount.toString());
+            
+            // Update cart display if cartManager exists
+            if (window.cartManager) {
+                window.cartManager.count = newCount;
+                window.cartManager.updateDisplay();
+            }
+            
+            showToast(data.message || 'Added to cart!', 'success');
+            closeQuickViewModal();
+        } else if (data.error) {
+            showToast(data.error, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Add to cart error:', error);
+        showToast('Error adding to cart', 'error');
+    });
+}
+
+function closeQuickViewModal() {
+    const modal = document.getElementById('quickViewModal');
+    if (modal) {
+        modal.remove();
+    }
+    // Clean up global data
+    if (window.quickViewData) {
+        delete window.quickViewData;
+    }
 }
 
 // Initialize when deferred content is loaded
@@ -457,3 +724,8 @@ window.cartManager = cartManager;
 window.wishlistManager = wishlistManager;
 window.openQuickView = openQuickView;
 window.showToast = showToast;
+window.selectQuickViewColor = selectQuickViewColor;
+window.changeQuickViewImage = changeQuickViewImage;
+window.changeQuickViewQuantity = changeQuickViewQuantity;
+window.addToCartFromQuickView = addToCartFromQuickView;
+window.closeQuickViewModal = closeQuickViewModal;

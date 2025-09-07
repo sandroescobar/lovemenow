@@ -14,11 +14,71 @@ from uber_service import uber_service, get_miami_store_address, get_miami_store_
 uber_bp = Blueprint('uber', __name__)
 logger = logging.getLogger(__name__)
 
+# TEMPORARILY DISABLED TO FIX INFINITE LOOP ISSUE
+# @uber_bp.route('/quote', methods=['POST'])
+# def get_delivery_quote():
+#     """Get delivery quote from Uber Direct"""
+#     try:
+#         data = request.get_json()
+#         
+#         # Validate required fields
+#         required_fields = ['delivery_address']
+#         for field in required_fields:
+#             if field not in data:
+#                 return jsonify({'error': f'Missing required field: {field}'}), 400
+#         
+#         # Get store pickup address and coordinates
+#         pickup_address = get_miami_store_address()
+#         store_coords = get_miami_store_coordinates()
+#         
+#         # Format customer delivery address
+#         delivery_address = format_address_for_uber(data['delivery_address'])
+#         
+#         # Create quote with Uber including coordinates to match delivery request
+#         quote = uber_service.create_quote_with_coordinates(
+#             pickup_address, 
+#             delivery_address,
+#             pickup_coords=store_coords,
+#             dropoff_coords=None  # Let Uber geocode the dropoff
+#         )
+#         
+#         return jsonify({
+#             'success': True,
+#             'quote': {
+#                 'id': quote['id'],
+#                 'fee': quote['fee'],
+#                 'fee_dollars': quote['fee'] / 100,
+#                 'currency': quote['currency'],
+
+def is_in_delivery_area(address_data):
+    """Check if address is in our delivery area"""
+    delivery_cities = [
+        'miami', 'hialeah', 'kendall', 'aventura', 'sunny isles', 'doral',
+        'coral gables', 'hollywood', 'north miami beach', 'fort lauderdale',
+        'pompano beach', 'wynwood', 'miami beach', 'homestead', 'pinecrest',
+        'palmetto bay', 'cutler bay', 'south beach', 'brickell', 'downtown miami'
+    ]
+    
+    city = address_data.get('city', '').lower().strip()
+    state = address_data.get('state', '').lower().strip()
+    
+    # Must be in Florida
+    if state not in ['fl', 'florida']:
+        return False, f"We only deliver within Florida. Address is in {state.upper()}"
+    
+    # Check if city is in our delivery area
+    for delivery_city in delivery_cities:
+        if delivery_city in city or city in delivery_city:
+            return True, None
+    
+    return False, f"We don't deliver to {city.title()}. We deliver to: Miami, Hialeah, Kendall, Aventura, Sunny Isles, Doral, Coral Gables, Hollywood, North Miami Beach, Fort Lauderdale, and Pompano Beach."
+
 @uber_bp.route('/quote', methods=['POST'])
 def get_delivery_quote():
     """Get delivery quote from Uber Direct"""
     try:
         data = request.get_json()
+        logger.info(f"Quote request received: {data}")
         
         # Validate required fields
         required_fields = ['delivery_address']
@@ -26,20 +86,34 @@ def get_delivery_quote():
             if field not in data:
                 return jsonify({'error': f'Missing required field: {field}'}), 400
         
+        # Check if address is in delivery area
+        is_valid, error_msg = is_in_delivery_area(data['delivery_address'])
+        if not is_valid:
+            logger.warning(f"Address outside delivery area: {data['delivery_address']}")
+            return jsonify({
+                'success': False,
+                'error': error_msg
+            }), 400
+        
         # Get store pickup address and coordinates
         pickup_address = get_miami_store_address()
         store_coords = get_miami_store_coordinates()
+        logger.info(f"Store address: {pickup_address}")
+        logger.info(f"Store coordinates: {store_coords}")
         
         # Format customer delivery address
         delivery_address = format_address_for_uber(data['delivery_address'])
+        logger.info(f"Formatted delivery address: {delivery_address}")
         
         # Create quote with Uber including coordinates to match delivery request
+        logger.info("Calling Uber API for quote...")
         quote = uber_service.create_quote_with_coordinates(
             pickup_address, 
             delivery_address,
             pickup_coords=store_coords,
             dropoff_coords=None  # Let Uber geocode the dropoff
         )
+        logger.info(f"Uber quote response: {quote}")
         
         return jsonify({
             'success': True,
@@ -57,7 +131,14 @@ def get_delivery_quote():
         
     except Exception as e:
         logger.error(f"Error getting delivery quote: {str(e)}")
-        return jsonify({'error': 'Failed to get delivery quote'}), 500
+        logger.error(f"Request data: {data}")
+        logger.error(f"Delivery address: {delivery_address if 'delivery_address' in locals() else 'Not set'}")
+        import traceback
+        logger.error(f"Full traceback: {traceback.format_exc()}")
+        return jsonify({
+            'success': False,
+            'error': f'Failed to get delivery quote: {str(e)}'
+        }), 500
 
 @uber_bp.route('/create-delivery', methods=['POST'])
 def create_delivery():

@@ -8,6 +8,7 @@ from sqlalchemy.orm import joinedload
 from routes import db
 from models import Product, Wishlist
 from security import validate_input
+from routes.main import invalidate_user_counts_cache
 
 wishlist_bp = Blueprint('wishlist', __name__)
 
@@ -40,6 +41,9 @@ def add_to_wishlist():
             wishlist_item = Wishlist(user_id=current_user.id, product_id=product_id)
             db.session.add(wishlist_item)
             db.session.commit()
+            
+            # Invalidate cache after wishlist update
+            invalidate_user_counts_cache()
             
             # Get updated count
             count = Wishlist.query.filter_by(user_id=current_user.id).count()
@@ -81,6 +85,8 @@ def remove_from_wishlist():
             if wishlist_item:
                 db.session.delete(wishlist_item)
                 db.session.commit()
+                # Invalidate cache after wishlist update
+                invalidate_user_counts_cache()
             
             count = Wishlist.query.filter_by(user_id=current_user.id).count()
             return jsonify({'message': 'Removed from wishlist', 'in_wishlist': False, 'count': count})
@@ -141,7 +147,7 @@ def get_wishlist():
                     'name': p.name,
                     'price': float(p.price),
                     'image_url': p.main_image_url,
-                    'in_stock': p.in_stock
+                    'in_stock': p.is_available
                 }
                 for p in products
             ],

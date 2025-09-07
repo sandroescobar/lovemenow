@@ -79,6 +79,9 @@ class Config:
     STORE_LATITUDE = float(os.getenv('STORE_LATITUDE', '25.7617'))
     STORE_LONGITUDE = float(os.getenv('STORE_LONGITUDE', '-80.1918'))
     
+    # Slack integration
+    SLACK_WEBHOOK_URL = os.getenv('SLACK_WEBHOOK_URL')
+    
     @staticmethod
     def validate_config():
         """Validate that required environment variables are set"""

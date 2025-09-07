@@ -116,11 +116,67 @@ def create_app(config_name=None):
     else:
         app.logger.warning("Stripe API key not configured")
 
+    # Database performance optimizations
+    if config_name == 'production':
+        # Production database optimizations
+        app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+            'pool_size': 20,
+            'pool_timeout': 30,
+            'pool_recycle': 1800,  # 30 minutes
+            'max_overflow': 30,
+            'pool_pre_ping': True,
+            'connect_args': {
+                'connect_timeout': 10,
+                'read_timeout': 30,
+                'write_timeout': 30
+            }
+        }
+    else:
+        # Development database optimizations
+        app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+            'pool_size': 5,
+            'pool_timeout': 20,
+            'pool_recycle': 3600,
+            'max_overflow': 10,
+            'pool_pre_ping': True
+        }
+    
     # Initialize extensions
     db.init_app(app)
     migrate.init_app(app, db)
     bcrypt.init_app(app)
     login_mgr.init_app(app)
+    
+    # Add response compression for better performance
+    try:
+        from flask_compress import Compress
+        
+        # Configure compression settings
+        app.config['COMPRESS_MIMETYPES'] = [
+            'text/html',
+            'text/css',
+            'text/xml',
+            'application/json',
+            'application/javascript',
+            'text/javascript',
+            'application/xml',
+            'text/plain'
+        ]
+        app.config['COMPRESS_LEVEL'] = 6  # Good balance between compression and speed
+        app.config['COMPRESS_MIN_SIZE'] = 500  # Only compress files larger than 500 bytes
+        
+        Compress(app)
+        app.logger.info("Response compression enabled with optimized settings")
+    except ImportError:
+        app.logger.warning("Flask-Compress not available, skipping compression")
+    
+    # Add static file caching for better performance
+    @app.after_request
+    def add_performance_headers(response):
+        # Cache static files for 1 year
+        if request.endpoint == 'static':
+            response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+        return response
 
     # Add session validation for development
     if config_name == 'development':
@@ -159,9 +215,6 @@ def create_app(config_name=None):
     # Initialize CSRF protection
     from routes import csrf
     csrf.init_app(app)
-
-    # Exempt webhook endpoints from CSRF protection
-    csrf.exempt('webhooks.stripe_webhook')
 
     # Add csrf_token function to templates
     from flask_wtf.csrf import generate_csrf
@@ -213,6 +266,10 @@ def create_app(config_name=None):
 
     # Register blueprints
     register_blueprints(app)
+
+    # Exempt webhook endpoints from CSRF protection (must be after blueprint registration)
+    from routes import csrf
+    csrf.exempt(app.view_functions['webhooks.stripe_webhook'])
 
     # Register error handlers
     register_error_handlers(app)

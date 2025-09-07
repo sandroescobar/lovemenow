@@ -1,13 +1,14 @@
 import os
 from urllib.parse import urlencode
 from datetime import timedelta
-from flask import Flask, render_template, redirect, request, url_for, flash
+from flask import Flask, render_template, redirect, request, url_for, flash, session
 from dotenv import load_dotenv
 from flask_login import login_user, logout_user
 from sqlalchemy import text
-from routes import db, bcrypt, login_mgr
+from routes import db, bcrypt, login_mgr, csrf
 from models     import User
 from flask_talisman import Talisman
+import secrets
 # ← import AFTER extensions declared
 
 # ── env vars ─────────────────────────────────────────────────
@@ -23,6 +24,12 @@ app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
 )
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
+# ── Slack Configuration ─────────────────────────────
+app.config["SLACK_WEBHOOK_URL"] = os.getenv("SLACK_WEBHOOK_URL")
+
+# ── Performance optimizations ─────────────────────────────
+app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 31536000  # 1 year cache for static files
+
 # ── DISABLE CSP TEMPORARILY TO TEST STRIPE ─────────────────────────────
 print("🚫 DISABLING CSP TEMPORARILY TO TEST STRIPE")
 print("🚫 This will allow Stripe frames to load without CSP blocking")
@@ -32,8 +39,22 @@ print("🚫 This will allow Stripe frames to load without CSP blocking")
 db.init_app(app)
 bcrypt.init_app(app)
 login_mgr.init_app(app)
+
+# TEMPORARILY DISABLE CSRF FOR TESTING
+# csrf.init_app(app)
+print("🚫 CSRF PROTECTION TEMPORARILY DISABLED FOR CART TESTING")
+
 login_mgr.login_view    = "login_modal"
 login_mgr.login_message = "Please log in first."
+
+# ── CSRF Token Function ─────────────────────────────────────────────
+@app.context_processor
+def inject_csrf_token():
+    def csrf_token():
+        if 'csrf_token' not in session:
+            session['csrf_token'] = secrets.token_urlsafe(32)
+        return session['csrf_token']
+    return dict(csrf_token=csrf_token)
 
 # ── loader callback required by Flask‑Login ──────────────────
 @login_mgr.user_loader
@@ -45,9 +66,9 @@ def load_user(user_id: str):
 def index():
     try:
         # Import models here to avoid circular imports
-        from models import Product, Category
+        from models import Product, Category, ProductVariant
         
-        # Get featured products (limit to 3)
+        # Get featured products (limit to 3) - products that are in stock
         featured_products = (
             Product.query
             .filter(Product.in_stock == True, Product.quantity_on_hand > 0)
@@ -63,6 +84,18 @@ def index():
 @app.route("/products", methods = ['GET', 'POST'])
 def products():
     return render_template("products.html")
+
+@app.route("/cart")
+def cart_page():
+    return render_template("cart.html")
+
+@app.route("/about")
+def about():
+    return "<h1>About Us</h1><p>Coming soon...</p>"
+
+@app.route("/support")
+def support():
+    return "<h1>Support</h1><p>Coming soon...</p>"
 
 @app.route("/register_modal", methods = ['GET', 'POST'])
 def register_modal():
@@ -228,7 +261,173 @@ def miami_map():
         </div>
         """
 
+@app.route('/debug/product/<int:product_id>')
+def debug_product_images(product_id):
+    """Debug route to see raw image URLs"""
+    from models import Product
+    product = Product.query.get_or_404(product_id)
+    
+    debug_info = {
+        'product_name': product.name,
+        'variants': []
+    }
+    
+    for variant in product.variants:
+        variant_info = {
+            'id': variant.id,
+            'color': variant.color.name if variant.color else 'No color',
+            'images': []
+        }
+        
+        for img in variant.images:
+            variant_info['images'].append({
+                'raw_url': img.url,
+                'starts_with_http': img.url.startswith('http'),
+                'starts_with_static': img.url.startswith('/static/'),
+                'starts_with_static_no_slash': img.url.startswith('static/'),
+            })
+        
+        debug_info['variants'].append(variant_info)
+    
+    return f"<pre>{debug_info}</pre>"
 
+# ── CART API ENDPOINTS ─────────────────────────────────────────────
+@app.route('/api/cart/add', methods=['POST'])
+def api_cart_add():
+    """Add item to cart (localStorage-based for now)"""
+    from flask import jsonify, request
+    
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+            
+        product_id = data.get('product_id')
+        quantity = data.get('quantity', 1)
+        variant_id = data.get('variant_id')
+        
+        if not product_id:
+            return jsonify({'error': 'Product ID is required'}), 400
+            
+        # Validate product exists
+        from models import Product, ProductVariant
+        product = Product.query.get(product_id)
+        if not product:
+            return jsonify({'error': 'Product not found'}), 404
+            
+        # Validate variant if provided
+        if variant_id:
+            variant = ProductVariant.query.get(variant_id)
+            if not variant or variant.product_id != product_id:
+                return jsonify({'error': 'Invalid variant'}), 400
+        
+        # CRITICAL FIX: Use database Cart model for proper validation
+        from models import Cart
+        from flask import session
+        
+        # For now, use session ID for guest users (could be improved with proper guest cart handling)
+        if current_user.is_authenticated:
+            user_id = current_user.id
+            # Get current cart quantity from database
+            existing_cart_item = Cart.query.filter_by(
+                user_id=user_id, 
+                product_id=product_id, 
+                variant_id=variant_id
+            ).first()
+            current_cart_quantity = existing_cart_item.quantity if existing_cart_item else 0
+        else:
+            # For guest users, use session-based cart (temporary solution)
+            cart_key = f'guest_cart_{product_id}_{variant_id or "none"}'
+            current_cart_quantity = session.get(cart_key, 0)
+        
+        # Use product's can_add_to_cart method for validation
+        can_add, message = product.can_add_to_cart(quantity, current_cart_quantity)
+        
+        if not can_add:
+            # Calculate how many more can be added
+            max_additional = max(0, product.quantity_on_hand - current_cart_quantity)
+            return jsonify({
+                'error': message,
+                'max_additional': max_additional,
+                'current_in_cart': current_cart_quantity,
+                'stock_available': product.quantity_on_hand
+            }), 400
+        
+        # Update cart in database or session
+        if current_user.is_authenticated:
+            if existing_cart_item:
+                # Update existing cart item
+                existing_cart_item.quantity += quantity
+            else:
+                # Create new cart item
+                new_cart_item = Cart(
+                    user_id=user_id,
+                    product_id=product_id,
+                    variant_id=variant_id,
+                    quantity=quantity
+                )
+                db.session.add(new_cart_item)
+            
+            db.session.commit()
+            
+            # Calculate total cart count from database
+            total_count = db.session.query(db.func.sum(Cart.quantity)).filter_by(user_id=user_id).scalar() or 0
+        else:
+            # Update session cart for guest users
+            session[cart_key] = current_cart_quantity + quantity
+            # Calculate total cart count from session
+            total_count = sum(session.get(key, 0) for key in session.keys() if key.startswith('guest_cart_'))
+        
+        # Get updated cart quantity for response
+        if current_user.is_authenticated:
+            updated_cart_item = Cart.query.filter_by(
+                user_id=user_id, 
+                product_id=product_id, 
+                variant_id=variant_id
+            ).first()
+            updated_cart_quantity = updated_cart_item.quantity if updated_cart_item else 0
+        else:
+            updated_cart_quantity = session.get(cart_key, 0)
+        
+        return jsonify({
+            'message': f'{product.name} added to cart!',
+            'count': total_count,
+            'success': True,
+            'current_in_cart': updated_cart_quantity,
+            'stock_available': product.quantity_on_hand
+        })
+        
+    except Exception as e:
+        print(f"Cart add error: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
+
+@app.route('/api/cart/clear', methods=['POST'])
+def api_cart_clear():
+    """Clear cart (session-based)"""
+    from flask import jsonify, session
+    
+    # Clear all cart items from session
+    cart_keys = [key for key in session.keys() if key.startswith('cart_')]
+    for key in cart_keys:
+        session.pop(key, None)
+    
+    return jsonify({
+        'message': 'Cart cleared',
+        'success': True
+    })
+
+@app.route('/api/cart/count', methods=['GET'])
+def api_cart_count():
+    """Get cart count (session-based)"""
+    from flask import jsonify, session
+    
+    # Calculate total count from session
+    total_count = sum(session.get(f'cart_{pid}', 0) for pid in session.keys() if pid.startswith('cart_'))
+    
+    return jsonify({
+        'count': total_count,
+        'message': 'Cart count from session'
+    })
 
 
 # ── run & create tables once ─────────────────────────────────
@@ -239,4 +438,4 @@ if __name__ == "__main__":
         db.session.execute(text("SELECT 1"))
         print("✅  DB connected and tables ensured.")
 
-    app.run(debug=True)
+    app.run(debug=True, port=5001)

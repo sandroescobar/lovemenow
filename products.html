@@ -55,7 +55,7 @@
 {# ░░░ NAVBAR (unchanged) ░░░ #}
 <nav class="navbar">
     <div class="container d-flex justify-content-between align-items-center" style="padding: 1rem;">
-        <a class="navbar-brand" href="{{ url_for('index') }}">
+        <a class="navbar-brand" href="{{ url_for('main.index') }}">
             <svg class="logo-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
             </svg>
@@ -64,10 +64,10 @@
 
         <div class="navbar-center">
             <ul class="nav-links">
-                <li><a class="nav-link" href="{{url_for('index')}}">Home</a></li>
-                <li><a class="nav-link active" href="{{url_for('products')}}">Shop</a></li>
-                <li><a class="nav-link" href="{{url_for('about')}}">About</a></li>
-                <li><a class="nav-link" href="{{url_for('support')}}">Support</a></li>
+                <li><a class="nav-link" href="{{url_for('main.index')}}">Home</a></li>
+                <li><a class="nav-link active" href="{{url_for('main.products')}}">Shop</a></li>
+                <li><a class="nav-link" href="{{url_for('main.about')}}">About</a></li>
+                <li><a class="nav-link" href="{{url_for('main.support')}}">Support</a></li>
             </ul>
         </div>
 
@@ -77,7 +77,7 @@
                     <i class="fas fa-heart"></i>
                     <span class="icon-badge" id="wishlistCount" style="display: inline-block;">0</span>
                 </button>
-                <a href="{{ url_for('cart_page') }}" class="nav-icon-btn" title="Cart">
+                <a href="{{ url_for('main.cart_page') }}" class="nav-icon-btn" title="Cart">
                     <i class="fas fa-shopping-bag"></i>
                     <span class="icon-badge" id="cartCount" style="display: inline-block;">0</span>
                 </a>

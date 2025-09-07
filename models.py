@@ -72,18 +72,89 @@ class Category(db.Model):
     products = db.relationship('Product', backref='category', lazy=True)
 
 
+class ProductVariant(db.Model):
+    __tablename__ = "product_variants"
+
+    id = db.Column(db.Integer, primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey("products.id"), nullable=False)
+    color_id = db.Column(db.Integer, db.ForeignKey("colors.id"), nullable=True)  # Nullable for products without specific colors
+    
+    # Optional variant-specific fields
+    variant_name = db.Column(db.String(100), nullable=True)  # e.g., "Stone", "Midnight"
+    upc = db.Column(db.String(50), nullable=True)  # Variant-specific UPC if needed
+    
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    product = db.relationship("Product", back_populates="variants")
+    color = db.relationship("Color", backref="product_variants")
+    
+    # Ensure unique product-color combinations
+    __table_args__ = (
+        db.UniqueConstraint('product_id', 'color_id', name='unique_product_color_variant'),
+        db.Index('idx_variant_product_color', 'product_id', 'color_id'),
+    )
+
+    @property
+    def is_available(self):
+        """Check if variant is available for purchase (uses product-level inventory)"""
+        return self.product.in_stock and self.product.quantity_on_hand > 0
+    
+    def can_add_to_cart(self, requested_quantity=1, current_cart_quantity=0):
+        """Check if requested quantity can be added to cart (uses product-level inventory)"""
+        if not self.is_available:
+            return False, "This item is currently out of stock"
+        
+        total_requested = current_cart_quantity + requested_quantity
+        if total_requested > self.product.quantity_on_hand:
+            available = self.product.quantity_on_hand - current_cart_quantity
+            if available <= 0:
+                return False, "This item is already at maximum quantity in your cart"
+            else:
+                return False, f"Only {available} more item(s) can be added to cart (stock limit: {self.product.quantity_on_hand})"
+        
+        return True, "Available"
+    
+    def decrement_inventory(self, quantity):
+        """Safely decrement inventory and update stock status (uses product-level inventory)"""
+        if quantity <= 0:
+            return False
+        
+        if self.product.quantity_on_hand < quantity:
+            return False
+        
+        self.product.quantity_on_hand -= quantity
+        
+        # Update in_stock status if quantity reaches 0
+        if self.product.quantity_on_hand <= 0:
+            self.product.in_stock = False
+        
+        return True
+
+    @property
+    def display_name(self):
+        """Get display name for the variant"""
+        if self.variant_name:
+            return f"{self.product.name} - {self.variant_name}"
+        elif self.color:
+            return f"{self.product.name} - {self.color.name}"
+        else:
+            return self.product.name
+
+
 class ProductImage(db.Model):
     __tablename__ = "product_images"
 
     id = db.Column(db.Integer, primary_key=True)
-    product_id = db.Column(db.Integer, db.ForeignKey("products.id"), nullable=False)
+    product_variant_id = db.Column(db.Integer, db.ForeignKey("product_variants.id"), nullable=False)
     url = db.Column(db.String(500), nullable=False)
     is_primary = db.Column(db.Boolean, default=False)
     sort_order = db.Column(db.Integer, default=0)
     alt_text = db.Column(db.String(255))
 
-    # back-link to Product
-    product = db.relationship("Product", back_populates="images")
+    # back-link to ProductVariant
+    variant = db.relationship("ProductVariant", backref="images")
 
 
 product_colors = db.Table(
@@ -99,20 +170,25 @@ class Product(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200), nullable=False)
-    upc = db.Column(db.String(50), nullable=True)  # Changed from sku to upc
+    upc = db.Column(db.String(50), nullable=True)  # Product UPC
+    base_upc = db.Column(db.String(50), nullable=True)  # Base UPC for the product line
     description = db.Column(db.Text, nullable=True)
     specifications = db.Column(db.Text, nullable=True)
     dimensions = db.Column(db.String(200), nullable=True)
     price = db.Column(db.Numeric(10, 2), nullable=False)
     wholesale_id = db.Column(db.Integer, nullable=True)  # New wholesale ID field
     wholesale_price = db.Column(db.Float, nullable=True)  # New wholesale price field
-    image_url = db.Column(db.String(500), nullable=True)  # Keeping image_url as requested
-    in_stock = db.Column(db.Boolean, default=True)
-    quantity_on_hand = db.Column(db.Integer, default=0, nullable=False)
+    image_url = db.Column(db.String(500), nullable=True)  # Fallback image for product
+    in_stock = db.Column(db.Boolean, default=True)  # Product-level inventory
+    quantity_on_hand = db.Column(db.Integer, default=0, nullable=False)  # Product-level inventory
     rating = db.Column(db.Float, default=0.0)
     review_count = db.Column(db.Integer, default=0)
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    variants = db.relationship("ProductVariant", back_populates="product", cascade="all, delete-orphan")
     colors = db.relationship(
         "Color",
         secondary=product_colors,
@@ -120,13 +196,30 @@ class Product(db.Model):
         lazy="joined"
     )
 
-    images = relationship("ProductImage", back_populates="product", lazy="joined")
+    @property
+    def default_variant(self):
+        """Get the default variant (first variant since inventory is product-level)"""
+        if not self.variants:
+            return None
+        
+        # Return the first variant since all variants share product-level inventory
+        return self.variants[0]
 
     @property
     def main_image_url(self):
-        """Return url of the image with is_primary = 1 or fall back to image_url."""
-        hero = next((img.url for img in self.images if img.is_primary), None)
-        image_path = hero or self.image_url
+        """Return url of the primary image from default variant, ordered by sort_order."""
+        default_variant = self.default_variant
+        if default_variant and default_variant.images:
+            # First try to get the primary image
+            hero = next((img.url for img in default_variant.images if img.is_primary), None)
+            if hero:
+                image_path = hero
+            else:
+                # If no primary image, get the first image by sort_order
+                sorted_images = sorted(default_variant.images, key=lambda x: x.sort_order)
+                image_path = sorted_images[0].url if sorted_images else None
+        else:
+            image_path = None
         
         if image_path:
             # Ensure the path starts with /static/ for web serving
@@ -137,51 +230,62 @@ class Product(db.Model):
 
     @property
     def all_image_urls(self):
-        """Return all image URLs for this product."""
+        """Return all image URLs for all variants of this product, ordered by sort_order."""
         all_images = []
 
-        # Add main image if it exists
-        if self.image_url:
-            image_url = self.image_url
-            # Ensure proper static path
-            if not image_url.startswith('/static/') and not image_url.startswith('http'):
-                image_url = f"/static/{image_url}"
-            all_images.append(image_url)
-
-        # Add additional images from the relationship
-        for img in self.images:
-            img_url = img.url
-            # Ensure proper static path
-            if not img_url.startswith('/static/') and not img_url.startswith('http'):
-                img_url = f"/static/{img_url}"
-            
-            if img_url not in all_images:  # Avoid duplicates
-                all_images.append(img_url)
+        # Add images from all variants, properly sorted
+        for variant in self.variants:
+            # Sort images by sort_order for proper display order
+            sorted_images = sorted(variant.images, key=lambda x: x.sort_order)
+            for img in sorted_images:
+                img_url = img.url
+                # Ensure proper static path
+                if not img_url.startswith('/static/') and not img_url.startswith('http'):
+                    img_url = f"/static/{img_url}"
+                
+                if img_url not in all_images:  # Avoid duplicates
+                    all_images.append(img_url)
 
         return all_images
     
     @property
     def is_available(self):
-        """Check if product is available for purchase"""
+        """Check if this product is available for purchase (uses product-level inventory)"""
         return self.in_stock and self.quantity_on_hand > 0
     
+    @property
+    def total_quantity_on_hand(self):
+        """Get product quantity (product-level inventory) - alias for compatibility"""
+        return self.quantity_on_hand
+    
+    @property
+    def available_colors(self):
+        """Get list of colors for this product (always show colors regardless of stock)"""
+        return list(self.colors)
+    
+    @property
+    def all_colors(self):
+        """Get list of all colors for this product (including out of stock)"""
+        return [variant.color for variant in self.variants if variant.color]
+    
+    def get_variant_by_color(self, color_id):
+        """Get variant by color ID"""
+        return next((variant for variant in self.variants if variant.color_id == color_id), None)
+    
+    def get_variant_by_id(self, variant_id):
+        """Get variant by variant ID"""
+        return next((variant for variant in self.variants if variant.id == variant_id), None)
+    
     def can_add_to_cart(self, requested_quantity=1, current_cart_quantity=0):
-        """Check if requested quantity can be added to cart"""
-        if not self.is_available:
-            return False, "This item is currently out of stock"
+        """Check if requested quantity can be added to cart - uses default variant"""
+        default_variant = self.default_variant
+        if not default_variant:
+            return False, "Product variant not available"
         
-        total_requested = current_cart_quantity + requested_quantity
-        if total_requested > self.quantity_on_hand:
-            available = self.quantity_on_hand - current_cart_quantity
-            if available <= 0:
-                return False, "This item is already at maximum quantity in your cart"
-            else:
-                return False, f"Only {available} more item(s) can be added to cart (stock limit: {self.quantity_on_hand})"
-        
-        return True, "Available"
+        return default_variant.can_add_to_cart(requested_quantity, current_cart_quantity)
     
     def decrement_inventory(self, quantity):
-        """Safely decrement inventory and update stock status"""
+        """Safely decrement inventory and update stock status (product-level inventory)"""
         if quantity <= 0:
             return False
         
@@ -202,7 +306,7 @@ class Wishlist(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)  # Temporarily using product_id to match DB
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Relationships
@@ -227,18 +331,27 @@ class Cart(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
     product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False, index=True)
+    variant_id = db.Column(db.Integer, db.ForeignKey('product_variants.id'), nullable=True, index=True)
     quantity = db.Column(db.Integer, nullable=False, default=1)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Relationships
     user = db.relationship('User', backref='cart_items')
     product = db.relationship('Product', backref='cart_items')
+    variant = db.relationship('ProductVariant', backref='cart_items')
     
-    # Ensure unique user-product combinations and add composite index for performance
+    # Ensure unique user-product-variant combinations and add composite index for performance
     __table_args__ = (
-        db.UniqueConstraint('user_id', 'product_id', name='unique_user_product_cart'),
-        db.Index('idx_cart_user_product', 'user_id', 'product_id'),
+        db.UniqueConstraint('user_id', 'product_id', 'variant_id', name='unique_user_product_variant_cart'),
+        db.Index('idx_cart_user_product_variant', 'user_id', 'product_id', 'variant_id'),
     )
+    
+    @property
+    def total_price(self):
+        """Calculate total price for this cart item"""
+        if self.product:
+            return float(self.product.price) * self.quantity
+        return 0.0
 
 
 class Order(db.Model):
@@ -252,6 +365,7 @@ class Order(db.Model):
     # Customer information
     email = db.Column(db.String(120), nullable=False)
     full_name = db.Column(db.String(120), nullable=False)
+    phone = db.Column(db.String(20), nullable=True)  # Customer phone number
     
     # Shipping address
     shipping_address = db.Column(db.String(255), nullable=False)
@@ -295,7 +409,7 @@ class OrderItem(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     order_id = db.Column(db.Integer, db.ForeignKey('orders.id'), nullable=False)
-    product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)  # Match actual database
     
     # Store product details at time of order (in case product changes later)
     product_name = db.Column(db.String(255), nullable=True)

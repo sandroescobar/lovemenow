@@ -119,34 +119,29 @@
             color: hsl(var(--muted-color));
         }
 
-        .delivery-quote {
-            background: hsla(var(--primary-color), 0.1);
-            border: 1px solid hsl(var(--primary-color));
-            border-radius: var(--radius-md);
-            padding: 1rem;
-            margin-top: 1rem;
-            display: none;
-        }
 
-        .delivery-quote.show {
-            display: block;
-        }
-
-        .quote-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-        }
-
-        .quote-fee {
+        
+        #get-quote-btn {
+            background: hsl(var(--primary-color));
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
             font-weight: 600;
-            color: hsl(var(--primary-color));
+            transition: all 0.2s ease;
+            margin-top: 10px;
         }
-
-        .quote-time {
-            font-size: 0.9rem;
-            color: hsl(var(--muted-color));
+        
+        #get-quote-btn:hover {
+            background: hsl(var(--primary-color) / 0.8);
+            transform: translateY(-1px);
+        }
+        
+        #get-quote-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .form-group {
@@ -359,13 +354,7 @@
                         </div>
                     </div>
 
-                    <div class="delivery-quote" id="delivery-quote">
-                        <div class="quote-info">
-                            <span>Delivery Fee:</span>
-                            <span class="quote-fee" id="quote-fee">$9.99</span>
-                        </div>
-                        <div class="quote-time" id="quote-time">Estimated delivery: 30-45 minutes</div>
-                    </div>
+
                 </div>
 
                 <!-- Customer Information -->
@@ -513,7 +502,7 @@
         </div>
     </div>
 
-    <script nonce="{{ csp_nonce() }}">
+    <script nonce="{{ csp_nonce() }}" data-version="v2.0">
         // Initialize Stripe
         const stripe = Stripe('{{ config.STRIPE_PUBLISHABLE_KEY }}');
         let elements;
@@ -521,10 +510,10 @@
         let selectedDeliveryType = 'pickup';
         let cartData = null;
         let deliveryQuote = null;
+        let isGettingQuote = false; // Flag to prevent infinite loops
 
         // DOM elements
         const deliveryOptions = document.querySelectorAll('.delivery-option');
-        const deliveryQuoteEl = document.getElementById('delivery-quote');
         const deliveryAddressSection = document.getElementById('delivery-address-section');
         const deliveryFeeRow = document.getElementById('delivery-fee-row');
         const checkoutButton = document.getElementById('checkout-button');
@@ -602,19 +591,14 @@
 
                     if (selectedDeliveryType === 'delivery') {
                         deliveryAddressSection.style.display = 'block';
-                        deliveryQuoteEl.classList.add('show');
                         deliveryFeeRow.style.display = 'flex';
 
                         // Make address fields required
                         document.getElementById('address').required = true;
                         document.getElementById('city').required = true;
                         document.getElementById('zip').required = true;
-
-                        // Get delivery quote when address is filled
-                        setupAddressValidation();
                     } else {
                         deliveryAddressSection.style.display = 'none';
-                        deliveryQuoteEl.classList.remove('show');
                         deliveryFeeRow.style.display = 'none';
 
                         // Remove required from address fields
@@ -633,26 +617,26 @@
             document.querySelector('[data-type="pickup"]').click();
         }
 
-        // Setup address validation for delivery quotes
-        function setupAddressValidation() {
-            const addressFields = ['address', 'city', 'zip'];
 
-            addressFields.forEach(fieldId => {
-                const field = document.getElementById(fieldId);
-                field.addEventListener('blur', getDeliveryQuote);
-            });
-        }
 
-        // Get delivery quote from Uber
+        // Get delivery quote from Uber (with proper loop prevention)
         async function getDeliveryQuote() {
             if (selectedDeliveryType !== 'delivery') return;
+            if (isGettingQuote) return; // Prevent multiple simultaneous requests
 
             const address = document.getElementById('address').value;
             const city = document.getElementById('city').value;
             const zip = document.getElementById('zip').value;
             const state = document.getElementById('state').value;
 
-            if (!address || !city || !zip) return;
+            if (!address || !city || !zip) {
+                deliveryQuote = null;
+                updateOrderSummary();
+                return;
+            }
+
+            // Set flag to prevent multiple requests
+            isGettingQuote = true;
 
             try {
                 const response = await fetch('/api/uber/quote', {
@@ -675,20 +659,23 @@
 
                 if (data.success) {
                     deliveryQuote = data.quote;
-                    document.getElementById('quote-fee').textContent = `$${data.quote.fee_dollars.toFixed(2)}`;
-
-                    if (data.quote.duration) {
-                        const minutes = data.quote.duration;
-                        document.getElementById('quote-time').textContent = `Estimated delivery: ${minutes} minutes`;
-                    }
-
                     updateOrderSummary();
+                    
+                    // Show success message
+                    console.log(`✅ Got delivery quote: $${data.quote.fee_dollars.toFixed(2)} for ${data.quote.duration} minutes`);
                 } else {
-                    showError('Unable to get delivery quote: ' + data.error);
+                    deliveryQuote = null;
+                    updateOrderSummary();
+                    console.error('Quote error:', data.error);
                 }
 
             } catch (error) {
-                showError('Failed to get delivery quote');
+                deliveryQuote = null;
+                updateOrderSummary();
+                console.error('Network error getting quote:', error);
+            } finally {
+                // Always reset the flag when done
+                isGettingQuote = false;
             }
         }
 
@@ -698,19 +685,35 @@
 
             let subtotal = cartData.subtotal;
             let deliveryFee = 0;
+            let deliveryFeeText = '$0.00';
 
             if (selectedDeliveryType === 'delivery') {
                 if (deliveryQuote) {
                     deliveryFee = deliveryQuote.fee_dollars;
-                } else if (subtotal < 100) {
-                    deliveryFee = 9.99; // Default delivery fee
+                    deliveryFeeText = `$${deliveryFee.toFixed(2)}`;
+                } else {
+                    // Show estimating state
+                    deliveryFee = 0;
+                    if (isGettingQuote) {
+                        deliveryFeeText = 'Getting quote...';
+                    } else {
+                        const address = document.getElementById('address')?.value;
+                        const city = document.getElementById('city')?.value;
+                        const zip = document.getElementById('zip')?.value;
+                        
+                        if (!address || !city || !zip) {
+                            deliveryFeeText = 'Estimating...';
+                        } else {
+                            deliveryFeeText = 'Estimating...';
+                        }
+                    }
                 }
             }
 
             const total = subtotal + deliveryFee;
 
             document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
-            document.getElementById('delivery-fee').textContent = `$${deliveryFee.toFixed(2)}`;
+            document.getElementById('delivery-fee').textContent = deliveryFeeText;
             document.getElementById('total').textContent = `$${total.toFixed(2)}`;
         }
 
@@ -928,6 +931,28 @@
 
 
                 if (result.success) {
+                    // Clear the cart after successful order creation
+                    try {
+                        await fetch('/api/cart/clear', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            }
+                        });
+                        // Clear localStorage cart data
+                        localStorage.removeItem('cartCount');
+                        localStorage.removeItem('cart');
+                        // Update cart display immediately
+                        const cartCountElement = document.getElementById('cartCount');
+                        if (cartCountElement) {
+                            cartCountElement.textContent = '0';
+                            cartCountElement.style.display = 'none';
+                            cartCountElement.classList.remove('has-items');
+                        }
+                    } catch (error) {
+                        console.log('Failed to clear cart, but order was successful');
+                    }
+                    
                     // Check if this is an Uber Direct delivery with tracking URL
                     if (result.tracking_url) {
                         // Redirect to Uber tracking page for delivery orders
@@ -1083,6 +1108,63 @@
                 manualAddressFields.style.display = 'block';
             }
         }
+
+        // Debounce function to prevent too many API calls
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Debounced quote function (500ms delay)
+        const debouncedGetQuote = debounce(getDeliveryQuote, 500);
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up address field listeners for automatic quote fetching
+            const addressFields = ['address', 'city', 'zip', 'state'];
+            
+            addressFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    // Use input event for real-time updates, but debounced
+                    field.addEventListener('input', () => {
+                        if (selectedDeliveryType === 'delivery') {
+                            debouncedGetQuote();
+                        }
+                    });
+                    
+                    // Also trigger on blur for when user tabs through fields
+                    field.addEventListener('blur', () => {
+                        if (selectedDeliveryType === 'delivery') {
+                            debouncedGetQuote();
+                        }
+                    });
+                }
+            });
+
+            // Set up saved address dropdown listener
+            const savedAddressSelect = document.getElementById('saved-address');
+            if (savedAddressSelect) {
+                savedAddressSelect.addEventListener('change', () => {
+                    handleSavedAddressChange();
+                    // Trigger quote after address is populated
+                    if (selectedDeliveryType === 'delivery') {
+                        setTimeout(() => debouncedGetQuote(), 100);
+                    }
+                });
+            }
+
+            // Initialize the page
+            loadCart();
+            initializeStripe();
+        });
     </script>
 </body>
 </html>
