@@ -869,17 +869,23 @@ def create_checkout_session():
         # Get Stripe API key from config with better error handling
         stripe_secret_key = current_app.config.get('STRIPE_SECRET_KEY')
         
-        # Debug logging
-        current_app.logger.info(f"Config keys available: {list(current_app.config.keys())}")
-        current_app.logger.info(f"Stripe secret key from config: {stripe_secret_key[:10] if stripe_secret_key else 'None'}...")
+        # Enhanced debug logging for Render deployment
+        import os
+        current_app.logger.info(f"🔍 STRIPE DEBUG - Environment STRIPE_SECRET_KEY: {os.getenv('STRIPE_SECRET_KEY')[:10] if os.getenv('STRIPE_SECRET_KEY') else 'NOT SET'}...")
+        current_app.logger.info(f"🔍 STRIPE DEBUG - Config STRIPE_SECRET_KEY: {stripe_secret_key[:10] if stripe_secret_key else 'NOT SET'}...")
+        current_app.logger.info(f"🔍 STRIPE DEBUG - Full key ending: ...{stripe_secret_key[-10:] if stripe_secret_key else 'NO KEY'}")
+        current_app.logger.info(f"🔍 STRIPE DEBUG - Key length: {len(stripe_secret_key) if stripe_secret_key else 0}")
         
         # Verify Stripe is properly configured
         if not stripe_secret_key:
-            current_app.logger.error("Stripe API key is not set in configuration")
+            current_app.logger.error("❌ Stripe API key is not set in configuration")
             return jsonify({'error': 'Payment system not configured - missing API key'}), 500
             
         # Set Stripe API key
         stripe.api_key = stripe_secret_key
+        
+        # Verify the key was actually set
+        current_app.logger.info(f"🔍 STRIPE DEBUG - stripe.api_key after setting: {stripe.api_key[:10] if stripe.api_key else 'NOT SET'}...{stripe.api_key[-10:] if stripe.api_key else ''}")
         
         # Verify the key was set correctly
         if not stripe.api_key:
