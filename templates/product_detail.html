@@ -828,7 +828,7 @@
                             data-product-name="{{ product.name|e }}" 
                             data-product-price="{{ product.price }}" 
                             data-quantity-on-hand="{{ product.quantity_on_hand or 0 }}"
-
+                            data-variant-id="{{ product.default_variant.id if product.default_variant else '' }}"
                             {% if not product.in_stock or (product.quantity_on_hand and product.quantity_on_hand <= 0) %}disabled{% endif %}>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <circle cx="9" cy="21" r="1"></circle>
@@ -965,7 +965,7 @@
 
 
     <!-- JavaScript -->
-    <script src="{{ url_for('static', filename='js/index.js') }}?v=20241220c"></script>
+    <script src="{{ url_for('static', filename='js/index.js') }}?v=20250107c"></script>
     
     <script>
         let selectedQuantity = 1;
@@ -1155,6 +1155,13 @@
             selectedColor = colorName;
             selectedVariantId = variantId;
             
+            // Update add to cart button with the selected variant ID
+            const addToCartBtn = document.getElementById('addToCartBtn');
+            if (addToCartBtn && variantId) {
+                addToCartBtn.setAttribute('data-variant-id', variantId);
+                console.log('🛒 Updated add to cart button variant ID to:', variantId);
+            }
+            
             // Switch to images for this color variant
             if (variantImages[colorId]) {
                 allImages = variantImages[colorId];
@@ -1300,59 +1307,41 @@
 
         window.addToCartDetail = function addToCartDetail(productId, productName, price) {
             
+            // Validate input parameters
+            if (!productId || !productName || !price) {
+                showToast('Error: Invalid product information', 'error');
+                return;
+            }
+
+            // Get quantity from the quantity selector if it exists
             const quantityInput = document.getElementById('quantityInput');
-            const quantity = quantityInput ? parseInt(quantityInput.value) : 1;
-            const addToCartBtn = document.getElementById('addToCartBtn');
-            const quantityOnHand = addToCartBtn ? parseInt(addToCartBtn.dataset.quantityOnHand) || 0 : 0;
+            const quantity = quantityInput ? parseInt(quantityInput.value) || 1 : 1;
             
-            // Check stock before proceeding
+            // Find the add to cart button
+            const button = document.getElementById('addToCartBtn') || document.querySelector(`button[data-product-id="${productId}"]`);
+            const quantityOnHand = button ? parseInt(button.dataset.quantityOnHand) || 0 : 0;
+            
+            // Get the variant ID from the button's data attribute
+            const variantId = button ? parseInt(button.dataset.variantId) || null : null;
+            
+            // Check if button is disabled
+            if (button && button.disabled) {
+                showToast('This item is currently unavailable', 'error');
+                return;
+            }
+            
+            // Check if product is in stock
             if (quantityOnHand <= 0) {
                 showToast('This item is currently out of stock', 'error');
                 return;
             }
+
+            // Let the backend handle cart quantity validation - it has the authoritative data
+            // Frontend validation can be bypassed, backend validation cannot
+            console.log('🚀 Product detail: Calling addToCartWithQuantity with variant ID:', variantId);
             
-            if (quantity > quantityOnHand) {
-                showToast(`Only ${quantityOnHand} item(s) available in stock`, 'error');
-                return;
-            }
-            
-            // Disable button temporarily
-            if (addToCartBtn) {
-                addToCartBtn.disabled = true;
-                addToCartBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Adding...</span>';
-            }
-            
-            fetch('/api/cart/add', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    product_id: productId,
-                    quantity: quantity
-                })
-            })
-            .then(response => {
-                return response.json();
-            })
-            .then(data => {
-                if (data.message) {
-                    updateCartCount();
-                    // Silent add to cart - no toast message
-                } else if (data.error) {
-                    showToast(data.error, 'error');
-                }
-            })
-            .catch(error => {
-                showToast('Error adding to cart', 'error');
-            })
-            .finally(() => {
-                // Re-enable button
-                if (addToCartBtn) {
-                    addToCartBtn.disabled = false;
-                    addToCartBtn.innerHTML = '<i class="fas fa-shopping-cart"></i><span>Add to Cart</span>';
-                }
-            });
+            // Use the same robust function as the products page, passing the variant ID
+            addToCartWithQuantity(productId, productName, price, quantity, button, variantId);
         }
 
         // Initialize thumbnails and counters for the default color after all functions are defined

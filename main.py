@@ -403,31 +403,53 @@ def api_cart_add():
 
 @app.route('/api/cart/clear', methods=['POST'])
 def api_cart_clear():
-    """Clear cart (session-based)"""
+    """Clear cart"""
     from flask import jsonify, session
+    from models import Cart
     
-    # Clear all cart items from session
-    cart_keys = [key for key in session.keys() if key.startswith('cart_')]
-    for key in cart_keys:
-        session.pop(key, None)
-    
-    return jsonify({
-        'message': 'Cart cleared',
-        'success': True
-    })
+    try:
+        if current_user.is_authenticated:
+            # Clear database cart for logged-in users
+            Cart.query.filter_by(user_id=current_user.id).delete()
+            db.session.commit()
+        else:
+            # Clear session cart for guest users
+            cart_keys = [key for key in session.keys() if key.startswith('guest_cart_')]
+            for key in cart_keys:
+                session.pop(key, None)
+        
+        return jsonify({
+            'message': 'Cart cleared',
+            'count': 0,
+            'success': True
+        })
+        
+    except Exception as e:
+        print(f"Cart clear error: {e}")
+        return jsonify({'error': 'Error clearing cart'}), 500
 
 @app.route('/api/cart/count', methods=['GET'])
 def api_cart_count():
-    """Get cart count (session-based)"""
+    """Get current cart count"""
     from flask import jsonify, session
+    from models import Cart
     
-    # Calculate total count from session
-    total_count = sum(session.get(f'cart_{pid}', 0) for pid in session.keys() if pid.startswith('cart_'))
-    
-    return jsonify({
-        'count': total_count,
-        'message': 'Cart count from session'
-    })
+    try:
+        if current_user.is_authenticated:
+            # Get count from database for logged-in users
+            total_count = db.session.query(db.func.sum(Cart.quantity)).filter_by(user_id=current_user.id).scalar() or 0
+        else:
+            # Get count from session for guest users
+            total_count = sum(session.get(key, 0) for key in session.keys() if key.startswith('guest_cart_'))
+        
+        return jsonify({
+            'count': total_count,
+            'success': True
+        })
+        
+    except Exception as e:
+        print(f"Cart count error: {e}")
+        return jsonify({'count': 0, 'error': 'Error getting cart count'}), 500
 
 
 # ── run & create tables once ─────────────────────────────────

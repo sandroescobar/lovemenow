@@ -1052,9 +1052,7 @@ def create_checkout_session():
                 amount=total_amount_cents,
                 currency='usd',
                 metadata=cart_metadata,
-                automatic_payment_methods={
-                    'enabled': True,
-                },
+                payment_method_types=['card'],  # Only allow card payments (no CashApp, Klarna, Apple Pay)
                 # Add shipping and billing info if available
                 description=f"LoveMeNow order - {len(line_items)} items"
             )

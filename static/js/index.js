@@ -513,25 +513,30 @@ function addToCartWithQuantity(productId, productName, price, quantity = 1, butt
         },
         body: JSON.stringify(requestBody)
     })
-    .then(response => response.json())
-    .then(data => {
+    .then(response => {
+        console.log('📡 Response status:', response.status);
+        return response.json().then(data => ({ status: response.status, data }));
+    })
+    .then(({ status, data }) => {
         console.log('📥 Cart API response:', data);
-        if (data.message || data.success) {
-            // Handle cart count locally since we're using localStorage
-            const currentCount = parseInt(localStorage.getItem('cartCount') || '0', 10);
-            const newCount = currentCount + quantity;
+        
+        if (status === 200 && (data.message || data.success)) {
+            // CRITICAL FIX: Use backend cart count instead of localStorage
+            // Backend has the authoritative cart data
+            const backendCartCount = data.count || 0;
             
-            // Update cart count cache and display
-            cartCountCache = newCount;
+            // Update cart count cache and display with backend data
+            cartCountCache = backendCartCount;
             cartCountLastFetch = Date.now();
-            updateCartCountDisplay(newCount);
+            updateCartCountDisplay(backendCartCount);
             
-            // Store in localStorage for persistence across page loads
-            localStorage.setItem('cartCount', newCount.toString());
+            // Store backend count in localStorage for persistence
+            localStorage.setItem('cartCount', backendCartCount.toString());
             
             showToast(data.message || `${productName} added to cart!`, 'success');
-        } else if (data.error) {
+        } else if (status === 400 || data.error) {
             // CRITICAL FIX: Show the exact error from backend
+            console.log('❌ Cart validation failed:', data);
             showToast(data.error, 'error');
             
             // If there's a max_additional value, update the quantity input on product detail page
@@ -560,6 +565,7 @@ function addToCartWithQuantity(productId, productName, price, quantity = 1, butt
         }
     })
     .catch(error => {
+        console.error('🚨 Cart API error:', error);
         showToast('Error adding to cart', 'error');
         // Refresh cart count on error to ensure accuracy
         updateCartCount(true);
@@ -572,14 +578,23 @@ let cartCountLastFetch = 0;
 let cartCountFetching = false;
 const CART_COUNT_CACHE_DURATION = 1000; // 1 second cache for faster updates
 
-// Initialize cart count from localStorage immediately
+// Initialize cart count from backend (authoritative source)
 function initializeCartCountFromStorage() {
+    // Show localStorage value immediately for fast UI response
     const storedCount = localStorage.getItem('cartCount');
     if (storedCount !== null) {
         const count = parseInt(storedCount, 10) || 0;
         cartCountCache = count;
         updateCartCountDisplay(count);
     }
+    
+    // CRITICAL FIX: Always sync with backend to get authoritative cart count
+    // This ensures frontend and backend cart state are synchronized
+    updateCartCount(true).then(backendCount => {
+        console.log('🔄 Cart count synced with backend:', backendCount);
+    }).catch(error => {
+        console.warn('⚠️ Failed to sync cart count with backend:', error);
+    });
 }
 
 function updateCartCount(forceRefresh = false) {
