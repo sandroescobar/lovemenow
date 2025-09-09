@@ -851,11 +851,13 @@ def track_orders():
 @login_required
 def my_orders():
     """Display user's order history and status"""
-    from models import Order
+    from models import Order, OrderItem, Product
+    from sqlalchemy.orm import joinedload
     
-    # Get user's orders with delivery information
+    # Get user's orders with delivery information and eagerly load product data
     orders = (Order.query
               .filter_by(user_id=current_user.id)
+              .options(joinedload(Order.items).joinedload(OrderItem.product))
               .order_by(Order.created_at.desc())
               .all())
     
@@ -1235,6 +1237,177 @@ def settings():
 def user_profile():
     """User profile page"""
     return render_template('user_profile.html')
+
+# ============================================================================
+# STRIPE EMBEDDED CHECKOUT TEST ROUTES
+# ============================================================================
+
+@main_bp.route('/checkout-test')
+@require_age_verification
+def checkout_test():
+    """Test Stripe Embedded Checkout"""
+    # Get cart data (same logic as regular checkout)
+    cart_items = []
+    if current_user.is_authenticated:
+        cart_items = Cart.query.filter_by(user_id=current_user.id).all()
+    else:
+        cart_data = session.get('cart', {})
+        if cart_data:
+            for cart_key, quantity in cart_data.items():
+                try:
+                    if ':' in str(cart_key):
+                        product_id = int(cart_key.split(':')[0])
+                    else:
+                        product_id = int(cart_key)
+                    
+                    product = Product.query.get(product_id)
+                    if product:
+                        cart_items.append({
+                            'product': product,
+                            'quantity': quantity
+                        })
+                except (ValueError, TypeError):
+                    continue
+
+    # Calculate totals
+    subtotal = 0
+    items = []
+    for item in cart_items:
+        if hasattr(item, 'product'):
+            product = item.product
+            quantity = item.quantity
+        else:
+            product = item['product']
+            quantity = item['quantity']
+        
+        subtotal += product.price * quantity
+        items.append({
+            'product': product,
+            'quantity': quantity
+        })
+
+    cart_data = {
+        'items': items,
+        'subtotal': subtotal,
+        'total': subtotal  # No shipping for now
+    }
+
+    return render_template('checkout_stripe_embedded.html', 
+                         config=current_app.config,
+                         cart_data=cart_data)
+
+@main_bp.route('/create-checkout-session-embedded', methods=['POST'])
+@csrf.exempt
+def create_checkout_session_embedded():
+    """Create Stripe Checkout Session for embedded checkout"""
+    try:
+        # Set Stripe API key
+        stripe_secret_key = current_app.config.get('STRIPE_SECRET_KEY')
+        if not stripe_secret_key:
+            return jsonify({'error': 'Payment system not configured'}), 500
+        
+        stripe.api_key = stripe_secret_key
+
+        # Get cart data (same logic as regular checkout)
+        cart_items = []
+        if current_user.is_authenticated:
+            cart_items = Cart.query.filter_by(user_id=current_user.id).all()
+        else:
+            # Handle session cart
+            cart_data = session.get('cart', {})
+            if cart_data:
+                for cart_key, quantity in cart_data.items():
+                    try:
+                        if ':' in str(cart_key):
+                            product_id = int(cart_key.split(':')[0])
+                        else:
+                            product_id = int(cart_key)
+                        
+                        product = Product.query.get(product_id)
+                        if product:
+                            cart_items.append({
+                                'product': product,
+                                'quantity': quantity
+                            })
+                    except (ValueError, TypeError):
+                        continue
+
+        # Create line items from cart
+        line_items = []
+        if cart_items:
+            for item in cart_items:
+                if hasattr(item, 'product'):
+                    product = item.product
+                    quantity = item.quantity
+                else:
+                    product = item['product']
+                    quantity = item['quantity']
+                
+                line_items.append({
+                    'price_data': {
+                        'currency': 'usd',
+                        'product_data': {
+                            'name': product.name,
+                            'description': product.description[:100] if product.description else '',
+                        },
+                        'unit_amount': int(product.price * 100),
+                    },
+                    'quantity': quantity,
+                })
+        
+        # If no cart items, create test item
+        if not line_items:
+            line_items = [{
+                'price_data': {
+                    'currency': 'usd',
+                    'product_data': {
+                        'name': 'Test Product',
+                        'description': 'Test product for Stripe Embedded Checkout',
+                    },
+                    'unit_amount': 2999,  # $29.99
+                },
+                'quantity': 1,
+            }]
+
+        # Create Stripe Checkout Session (NOT Payment Intent!)
+        checkout_session = stripe.checkout.Session.create(
+            ui_mode='embedded',  # This makes it embeddable
+            payment_method_types=['card'],  # Only cards for now
+            line_items=line_items,
+            mode='payment',
+            return_url=request.host_url + 'checkout-success?session_id={CHECKOUT_SESSION_ID}',
+            
+            # Collect customer information
+            customer_email=current_user.email if current_user.is_authenticated else None,
+            billing_address_collection='required',  # Collect billing address
+            phone_number_collection={'enabled': True},  # Collect phone number
+            
+            # Shipping (if needed)
+            shipping_address_collection={
+                'allowed_countries': ['US'],  # Restrict to US for now
+            },
+            
+            # Custom fields for additional info
+            custom_fields=[
+                {
+                    'key': 'full_name',
+                    'label': {'type': 'custom', 'custom': 'Full Name'},
+                    'type': 'text',
+                    'optional': False,
+                }
+            ],
+            
+            # Enable saved payment methods for returning customers
+            customer_creation='if_required',
+        )
+
+        return jsonify({
+            'client_secret': checkout_session.client_secret
+        })
+
+    except Exception as e:
+        current_app.logger.error(f"Error creating embedded checkout session: {str(e)}")
+        return jsonify({'error': str(e)}), 500
 
 @main_bp.route('/cart')
 def cart_page():
