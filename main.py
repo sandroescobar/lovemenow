@@ -1,7 +1,7 @@
 import os
 from urllib.parse import urlencode
 from datetime import timedelta
-from flask import Flask, render_template, redirect, request, url_for, flash, session
+from flask import Flask, render_template, redirect, request, url_for, flash, session, current_app
 from dotenv import load_dotenv
 from flask_login import login_user, logout_user
 from sqlalchemy import text
@@ -64,22 +64,60 @@ def load_user(user_id: str):
 # ── routes (very trimmed) ─────────────────────────────────────
 @app.route("/")
 def index():
+    """Optimized home page with performance improvements"""
     try:
-        # Import models here to avoid circular imports
-        from models import Product, Category, ProductVariant
-        
-        # Get featured products (limit to 3) - products that are in stock
-        featured_products = (
-            Product.query
-            .filter(Product.in_stock == True, Product.quantity_on_hand > 0)
-            .limit(3)
-            .all()
+        # Import performance utilities
+        from performance_utils import (
+            get_featured_products, 
+            get_main_categories, 
+            get_optimized_user_counts,
+            get_fallback_data,
+            test_database_connection
         )
+        from flask_login import current_user
         
-        return render_template("index.html", featured_products=featured_products)
+        # Check if age verification is needed
+        age_verified = session.get('age_verified', False)
+        
+        # For logged-in users: check if they have age verification in their user record
+        if current_user.is_authenticated and hasattr(current_user, 'age_verified') and current_user.age_verified:
+            # User is logged in and has been age verified before - set session
+            session['age_verified'] = True
+            age_verified = True
+        
+        # Test database connection first
+        db_connected, db_message = test_database_connection()
+        
+        if not db_connected:
+            current_app.logger.warning(f"Database connection failed: {db_message}")
+            # Use fallback data when database is unavailable
+            fallback_data = get_fallback_data()
+            return render_template('index.html',
+                                 featured_products=fallback_data['featured_products'],
+                                 categories=fallback_data['categories'],
+                                 cart_count=fallback_data['cart_count'],
+                                 wishlist_count=fallback_data['wishlist_count'],
+                                 db_error=True,
+                                 show_age_verification=not age_verified)
+        
+        # Get data using optimized cached functions
+        featured_products = get_featured_products()
+        categories = get_main_categories()
+        
+        # Get cart and wishlist counts using optimized cached function
+        cart_count, wishlist_count = get_optimized_user_counts()
+        
+        return render_template('index.html',
+                             featured_products=featured_products,
+                             categories=categories,
+                             cart_count=cart_count,
+                             wishlist_count=wishlist_count,
+                             show_age_verification=not age_verified)
+        
     except Exception as e:
+        current_app.logger.error(f"Error in index route: {e}")
         # If there's any error, return template with empty products
-        return render_template("index.html", featured_products=[])
+        return render_template("index.html", featured_products=[], show_age_verification=True)
 
 @app.route("/products", methods = ['GET', 'POST'])
 def products():
@@ -96,6 +134,21 @@ def about():
 @app.route("/support")
 def support():
     return "<h1>Support</h1><p>Coming soon...</p>"
+
+@app.route('/api/verify-age', methods=['POST'])
+def verify_age():
+    """API endpoint for age verification"""
+    from flask import jsonify
+    try:
+        data = request.get_json()
+        if data and data.get('verified'):
+            session['age_verified'] = True
+            return jsonify({'success': True, 'message': 'Age verified successfully'})
+        else:
+            return jsonify({'success': False, 'message': 'Age verification failed'}), 400
+    except Exception as e:
+        current_app.logger.error(f"Error in age verification: {e}")
+        return jsonify({'success': False, 'message': 'Server error'}), 500
 
 @app.route("/register_modal", methods = ['GET', 'POST'])
 def register_modal():
