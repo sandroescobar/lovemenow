@@ -185,6 +185,12 @@
             color: hsl(var(--muted-color));
         }
         
+        .item-price {
+            font-weight: 600;
+            color: hsl(var(--text-color));
+            margin-left: auto;
+        }
+        
         .no-orders {
             text-align: center;
             padding: 3rem;
@@ -311,26 +317,45 @@
                         <p>Your order is ready for pickup at our Miami location</p>
                     </div>
                 </div>
+                
+                <div class="delivery-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Pickup Location:</span>
+                        <span class="detail-value"><strong>Miami Vape Smoke Shop #2</strong></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Address:</span>
+                        <span class="detail-value">351 NE 79th St Unit 101, Miami, FL 33138</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Instructions:</span>
+                        <span class="detail-value">📍 Look for LoveMeNow pickup counter inside the smoke shop</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Store Hours:</span>
+                        <span class="detail-value">Mon-Thu: 10AM-10PM, Fri-Sat: 10PM-12AM, Sun: 11AM-8PM</span>
+                    </div>
+                </div>
                 {% endif %}
                 
                 <div class="order-items">
                     <h4>Order Items</h4>
                     {% for item in order.items %}
                     <div class="item">
-                        {% if item.product and item.product.main_image_url %}
-                        <img src="{{ item.product.main_image_url }}" alt="{{ item.product.name }}" class="item-image">
-                        {% elif item.product and item.product.all_image_urls and item.product.all_image_urls|length > 0 %}
-                        <img src="{{ item.product.all_image_urls[0] }}" alt="{{ item.product.name }}" class="item-image">
+                        {% if item.product_image_url %}
+                        <img src="{{ item.product_image_url }}" alt="{{ item.product_name }}" class="item-image">
+                        {% elif item.product and item.product.main_image_url %}
+                        <img src="{{ item.product.main_image_url }}" alt="{{ item.product_name }}" class="item-image">
                         {% else %}
                         <div class="item-image" style="background: hsl(var(--muted-color)); display: flex; align-items: center; justify-content: center;">
                             <i class="fas fa-image" style="color: white;"></i>
                         </div>
                         {% endif %}
                         <div class="item-info">
-                            <div class="item-name">{{ item.product_name or (item.product.name if item.product else 'Unknown Product') }}</div>
-                            <div class="item-details">Quantity: {{ item.quantity }} • ${{ "%.2f"|format(item.price) }} each</div>
+                            <div class="item-name">{{ item.product_name }}</div>
+                            <div class="item-details">Qty: {{ item.quantity }} • ${{ "%.2f"|format(item.price) }} each</div>
                         </div>
-                        <div style="font-weight: 600; color: hsl(var(--text-color));">
+                        <div class="item-price">
                             ${{ "%.2f"|format(item.total) }}
                         </div>
                     </div>

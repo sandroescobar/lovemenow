@@ -46,10 +46,10 @@ class FinalCSPMiddleware:
             "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; "
             "img-src 'self' data: https:; "
             "media-src 'self'; "
-            # ✅ allow Stripe iframes (add a couple safe extras used in some flows)
-            "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://m.stripe.com https://pay.google.com; "
+            # ✅ allow Stripe iframes and Google Maps
+            "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://m.stripe.com https://pay.google.com https://maps.google.com https://www.google.com; "
             # CSP2 fallback some browsers still consult
-            "child-src https://js.stripe.com https://hooks.stripe.com https://m.stripe.com https://pay.google.com; "
+            "child-src https://js.stripe.com https://hooks.stripe.com https://m.stripe.com https://pay.google.com https://maps.google.com https://www.google.com; "
             # APIs/telemetry used by Stripe + Mapbox calls you had
             "connect-src 'self' https://api.stripe.com https://r.stripe.com https://m.stripe.network https://api.mapbox.com; "
             "object-src 'none'; "
@@ -250,9 +250,9 @@ def create_app(config_name=None):
         "default-src": ["'self'"],
         "script-src": ["'self'", STRIPE_JS],
         "style-src": ["'self'", "'unsafe-inline'"],
-        "frame-src": [STRIPE_JS, STRIPE_HOOKS],
+        "frame-src": [STRIPE_JS, STRIPE_HOOKS, "https://maps.google.com", "https://www.google.com"],
         "connect-src": ["'self'", STRIPE_API, STRIPE_R],
-        "img-src": ["'self'", "data:", "*.stripe.com"],
+        "img-src": ["'self'", "data:", "*.stripe.com", "*.googleapis.com", "*.gstatic.com"],
         "font-src": ["'self'", "data:"],
         "object-src": ["'none'"],
         "base-uri": ["'self'"],

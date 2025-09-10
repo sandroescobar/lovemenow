@@ -160,8 +160,11 @@
                         <div class="location-item">
                             <i class="fas fa-map-marker-alt"></i>
                             <div>
-                                <strong>Address</strong>
-                                <span>351 NE 79th Street<br>Miami, Florida 33138<br>United States</span>
+                                <strong>Pickup Location</strong>
+                                <span><strong>Miami Vape Smoke Shop #2</strong><br>351 NE 79th St Unit 101<br>Miami, Florida 33138<br>United States</span>
+                                <small style="color: hsl(var(--accent-color)); font-style: italic; display: block; margin-top: 0.5rem;">
+                                    📍 We're located inside the smoke shop - look for LoveMeNow pickup counter
+                                </small>
                             </div>
                         </div>
                         <div class="location-item">
@@ -180,7 +183,7 @@
                         </div>
                     </div>
                     <div class="location-actions">
-                        <a href="https://maps.google.com/?q=351+NE+79th+Street,+Miami,+FL+33138" target="_blank" class="btn btn-primary">
+                        <a href="https://maps.google.com/?q=Miami+Vape+Smoke+Shop+351+NE+79th+St+Unit+101+Miami+FL+33138" target="_blank" class="btn btn-primary">
                             <i class="fas fa-directions"></i>
                             Get Directions
                         </a>
@@ -191,10 +194,18 @@
                     </div>
                 </div>
                 <div class="content-visual">
-                    <div class="location-map-placeholder">
-                        <i class="fas fa-map" style="font-size: 4rem; color: hsl(var(--primary-color));"></i>
-                        <p style="margin-top: 1rem; color: hsl(var(--muted-color));">Interactive Map</p>
-                        <small style="color: hsl(var(--muted-color));">Click "Get Directions" for navigation</small>
+                    <div class="location-map-container">
+                        <iframe 
+                            src="https://maps.google.com/maps?q=Miami+Vape+Smoke+Shop+%232,+351+NE+79th+St+Unit+101,+Miami,+FL+33138&t=&z=16&ie=UTF8&iwloc=&output=embed"
+                            width="100%" 
+                            height="300" 
+                            style="border:0; border-radius: 16px;" 
+                            allowfullscreen="" 
+                            loading="lazy" 
+                            referrerpolicy="no-referrer-when-downgrade"
+                            title="Miami Vape Smoke Shop #2 - LoveMeNow Pickup Location">
+                        </iframe>
+
                     </div>
                 </div>
             </div>
@@ -230,7 +241,7 @@
 {% include "login_register_modal.html" %}
 {% include "logged_in_modal.html" %}
 
-<script src="{{ url_for('static', filename='js/index.js') }}?v=20241220c"></script>
+<script src="{{ url_for('static', filename='js/index.js') }}?v=20250107c"></script>
 
 <style>
 /* Store Location Section Styles */
@@ -302,18 +313,66 @@
     gap: 0.5rem;
 }
 
-.location-map-placeholder {
-    background: hsla(var(--dark-color), 0.3);
+.location-map-container {
+    position: relative;
     border-radius: 16px;
-    padding: 3rem;
-    text-align: center;
-    border: 2px dashed hsla(var(--primary-color), 0.3);
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 2px solid hsla(var(--primary-color), 0.2);
     min-height: 300px;
+}
+
+.location-map-container iframe {
+    width: 100%;
+    height: 300px;
+    border: none;
+}
+
+.map-overlay {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: hsla(var(--surface-color), 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 1rem;
+    border: 1px solid hsla(var(--primary-color), 0.2);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    max-width: 250px;
+}
+
+.map-info h4 {
+    color: hsl(var(--text-color));
+    margin: 0 0 0.5rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.map-info p {
+    color: hsl(var(--muted-color));
+    margin: 0 0 0.75rem 0;
+    font-size: 0.9rem;
+}
+
+.map-directions-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: hsl(var(--primary-color));
+    color: white;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.map-directions-btn:hover {
+    background: hsl(var(--primary-color) / 0.8);
+    transform: translateY(-1px);
+    color: white;
+    text-decoration: none;
 }
 
 @media (max-width: 768px) {
@@ -327,6 +386,20 @@
     
     .location-item {
         padding: 0.75rem;
+    }
+    
+    .map-overlay {
+        position: static;
+        margin-top: 1rem;
+        max-width: none;
+    }
+    
+    .location-map-container {
+        min-height: 250px;
+    }
+    
+    .location-map-container iframe {
+        height: 250px;
     }
 }
 </style>

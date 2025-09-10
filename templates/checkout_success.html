@@ -341,9 +341,18 @@
                     <div class="info-item">
                         <div class="info-label">{% if order.delivery_type == 'delivery' %}Delivery Address{% else %}Pickup Location{% endif %}</div>
                         <div class="info-value">
-                            {{ order.shipping_address }}<br>
-                            {% if order.shipping_suite %}{{ order.shipping_suite }}<br>{% endif %}
-                            {{ order.shipping_city }}, {{ order.shipping_state }} {{ order.shipping_zip }}
+                            {% if order.delivery_type == 'delivery' %}
+                                {{ order.shipping_address }}<br>
+                                {% if order.shipping_suite %}{{ order.shipping_suite }}<br>{% endif %}
+                                {{ order.shipping_city }}, {{ order.shipping_state }} {{ order.shipping_zip }}
+                            {% else %}
+                                <strong>Miami Vape Smoke Shop #2</strong><br>
+                                351 NE 79th St Unit 101<br>
+                                Miami, FL 33138<br>
+                                <small style="color: hsl(var(--accent-color)); font-style: italic;">
+                                    📍 Look for LoveMeNow pickup counter inside
+                                </small>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="info-item">

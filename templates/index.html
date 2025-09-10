@@ -137,10 +137,9 @@
                         <iframe src="/miami-map"
                                 class="folium-map"
                                 frameborder="0"
-                                loading="lazy"
                                 title="Miami Coverage Map"
-                                onload="console.log('Map iframe loaded successfully')"
-                                onerror="console.error('Map iframe failed to load'); document.getElementById('map-fallback').style.display = 'flex';">
+                                onload="console.log('Map iframe loaded successfully'); document.getElementById('map-fallback').style.display = 'none';"
+                                onerror="console.error('Map iframe failed to load'); showMapFallback();">
                         </iframe>
                         
                         <!-- Fallback content if iframe fails -->
@@ -624,7 +623,7 @@
         // Load main JavaScript asynchronously after critical path
         function loadMainJS() {
             const script = document.createElement('script');
-            script.src = "{{ url_for('static', filename='js/index.js') }}?v=20250106b";
+            script.src = "{{ url_for('static', filename='js/index.js') }}?v=20250107c";
             script.async = true;
             document.head.appendChild(script);
         }
@@ -641,6 +640,17 @@
     
     <!-- Map debugging script - optimized for performance -->
     <script>
+        // Function to show map fallback
+        function showMapFallback() {
+            const mapIframe = document.querySelector('.folium-map');
+            const fallback = document.getElementById('map-fallback');
+            if (mapIframe && fallback) {
+                mapIframe.style.display = 'none';
+                fallback.style.display = 'flex';
+                console.log('Showing map fallback due to iframe error');
+            }
+        }
+        
         // Lazy load map only when user scrolls near it
         function initializeMap() {
             const mapIframe = document.querySelector('.folium-map');
@@ -655,7 +665,7 @@
                         mapIframe.style.display = 'none';
                         fallback.style.display = 'flex';
                     }
-                }, 3000); // Reduced timeout to 3 seconds for faster fallback
+                }, 8000); // Increased timeout to 8 seconds to give map more time to load
                 
                 mapIframe.onload = function() {
                     console.log('Map iframe loaded successfully');
