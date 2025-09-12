@@ -7045,6 +7045,33 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
   color: var(--auth-success);
 }
 
+/* Mobile-only sign in link - hidden by default */
+.mobile-signin-link {
+  display: none;
+  margin-top: 1.5rem;
+  text-align: center;
+  padding-top: 1rem;
+  border-top: 1px solid var(--auth-panel-border);
+}
+
+.mobile-signin-link p {
+  margin: 0;
+  color: var(--auth-text-muted);
+  font-size: 0.9rem;
+}
+
+.mobile-signin-link a {
+  color: hsl(var(--primary-color));
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.mobile-signin-link a:hover {
+  color: hsl(var(--accent-color));
+  text-decoration: underline;
+}
+
 /* Responsive: stack panels on narrow viewports */
 @media (max-width: 600px) {
   .auth-panels {
@@ -7060,6 +7087,11 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
   }
   .auth-field-group.two-col {
     grid-template-columns: 1fr; /* stack names */
+  }
+  
+  /* Show mobile sign in link only on mobile */
+  .mobile-signin-link {
+    display: block;
   }
 }
 

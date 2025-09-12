@@ -16,6 +16,10 @@
     <!-- Site CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}">
     
+    <!-- Mobile Optimizations CSS -->
+    <link rel="preload" href="{{ url_for('static', filename='css/mobile-optimizations.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/mobile-optimizations.css') }}"></noscript>
+    
     <!-- CSRF Protection -->
     {% include 'csrf_meta.html' %}
 </head>
@@ -679,7 +683,8 @@ function switchProductVariant(productId, variantId) {
 }
 </script>
 
-
+<!-- Mobile Menu JavaScript -->
+<script src="{{ url_for('static', filename='js/mobile-menu.js') }}" defer></script>
 
 </body>
 </html>

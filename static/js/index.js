@@ -253,6 +253,92 @@ window.closeAuthModal = function () {
     if (registerForm) registerForm.reset();
 };
 
+/**
+ * Scroll to login panel on mobile (for "Already have an account?" link)
+ */
+window.scrollToLogin = function() {
+    const loginPanel = document.querySelector('.login-panel');
+    const registerPanel = document.querySelector('.register-panel');
+    
+    if (loginPanel) {
+        // Check if we're on mobile (max-width: 768px)
+        if (window.innerWidth <= 768) {
+            // On mobile: hide register panel and show login panel
+            if (registerPanel) {
+                registerPanel.style.display = 'none';
+            }
+            loginPanel.style.display = 'block';
+            
+            // Show mobile register link
+            const mobileRegisterLink = document.querySelector('.mobile-register-link');
+            if (mobileRegisterLink) {
+                mobileRegisterLink.style.display = 'block';
+            }
+            
+            // Focus the email field
+            const emailField = document.getElementById('loginEmail');
+            if (emailField) {
+                setTimeout(() => emailField.focus(), 100);
+            }
+        } else {
+            // On desktop: scroll to login panel as before
+            loginPanel.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+            
+            // Focus the email field
+            const emailField = document.getElementById('loginEmail');
+            if (emailField) {
+                setTimeout(() => emailField.focus(), 300);
+            }
+        }
+    }
+};
+
+/**
+ * Scroll to register panel on mobile (for "Don't have an account?" link)
+ */
+window.scrollToRegister = function() {
+    const loginPanel = document.querySelector('.login-panel');
+    const registerPanel = document.querySelector('.register-panel');
+    
+    if (registerPanel) {
+        // Check if we're on mobile (max-width: 768px)
+        if (window.innerWidth <= 768) {
+            // On mobile: hide login panel and show register panel
+            if (loginPanel) {
+                loginPanel.style.display = 'none';
+            }
+            registerPanel.style.display = 'block';
+            
+            // Hide mobile register link and show mobile signin link
+            const mobileRegisterLink = document.querySelector('.mobile-register-link');
+            if (mobileRegisterLink) {
+                mobileRegisterLink.style.display = 'none';
+            }
+            
+            // Focus the first name field
+            const firstNameField = document.getElementById('regFirst');
+            if (firstNameField) {
+                setTimeout(() => firstNameField.focus(), 100);
+            }
+        } else {
+            // On desktop: scroll to register panel
+            registerPanel.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+            
+            // Focus the first name field
+            const firstNameField = document.getElementById('regFirst');
+            if (firstNameField) {
+                setTimeout(() => firstNameField.focus(), 300);
+            }
+        }
+    }
+};
+
 // Helper: blank out auth success / error banners
 function clearAuthMessages() {
     document.querySelectorAll('#authOverlay .error-message, #authOverlay .success-message')
@@ -1089,16 +1175,10 @@ window.openWishlistModal = function openWishlistModal() {
 
 function closeWishlistModal() {
     const modal = document.getElementById('wishlistModal');
-    const wishlistModalElement = modal ? modal.querySelector('.wishlist-modal') : null;
     
-    if (modal && wishlistModalElement) {
-        wishlistModalElement.classList.remove('show');
+    if (modal) {
         modal.classList.remove('active');
-
-        setTimeout(() => {
-            modal.style.display = 'none';
-        }, 300);
-    } else {
+        modal.style.display = 'none';
     }
 }
 
@@ -1939,13 +2019,7 @@ function closeQuickViewModal() {
     }
 }
 
-function closeWishlistModal() {
-    const modal = document.getElementById('wishlistModal');
-    if (modal) {
-        modal.style.display = 'none';
-        modal.classList.remove('active');
-    }
-}
+// closeWishlistModal function moved to line 1109 to avoid duplication
 
 function changeQuickViewImage(imageUrl) {
     const mainImage = document.querySelector('#quickViewModal .main-image img');

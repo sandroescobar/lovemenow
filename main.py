@@ -119,9 +119,7 @@ def index():
         # If there's any error, return template with empty products
         return render_template("index.html", featured_products=[], show_age_verification=True)
 
-@app.route("/products", methods = ['GET', 'POST'])
-def products():
-    return render_template("products.html")
+# Products route moved to routes/main.py blueprint
 
 @app.route("/cart")
 def cart_page():
@@ -170,7 +168,7 @@ def register_modal():
         db.session.add(user)
         db.session.commit()
 
-    return redirect(url_for("index"))
+    return redirect(url_for("main.index"))
 
 
 @app.route("/login_modal", methods = ['GET', 'POST'])
@@ -186,12 +184,12 @@ def login_modal():
             remember_flag = "remember" in request.form  # True if box checked
             login_user(user, remember=remember_flag)
             flash("you've logged in successfully", "success")
-            return redirect(url_for("index"))
+            return redirect(url_for("main.index"))
 
         flash("Incorrect email or password!", "danger")
 
     qs = urlencode({"modal": "login"})
-    return redirect(f"{url_for('index')}?{qs}")
+    return redirect(f"{url_for('main.index')}?{qs}")
 
 
 
@@ -208,7 +206,7 @@ def user_profile():
 def logout():
     logout_user()              # clears the session
     flash("You’ve been logged out.", "success")
-    return redirect(url_for("index"))
+    return redirect(url_for("main.index"))
 
 @app.route("/user_profile_button")
 def user_profile_button():
