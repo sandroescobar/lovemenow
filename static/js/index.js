@@ -1819,6 +1819,8 @@ window.filterProducts = function filterProducts(categorySlug) {
         // Updated mapping from slug to category ID based on actual database
         const categoryMap = {
             // Main categories
+            'bdsm': 1,
+            'toys': 2,
             'kits': 3,
             'lubricant': 4,
             'lingerie': 5,
