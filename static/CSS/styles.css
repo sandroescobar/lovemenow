@@ -1619,35 +1619,89 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 /* Mobile Responsiveness for Filter */
 @media (max-width: 768px) {
     .professional-filter-navbar {
-        padding: 0.75rem 0;
+        padding: 0.8rem 0;
+        top: 70px; /* Adjust for mobile navbar height */
     }
     
     .filter-navbar-content {
-        gap: 0.5rem;
+        gap: 0.75rem;
+        padding: 0 1rem;
     }
     
     .search-wrapper {
         max-width: 100%;
     }
     
+    .clean-search-input {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+    }
+    
     .filter-bottom-row {
-        gap: 0.4rem;
-        justify-content: flex-start;
+        gap: 0.5rem;
+        justify-content: center;
         overflow-x: auto;
         padding-bottom: 0.25rem;
+        flex-wrap: nowrap;
+    }
+    
+    .dropdown-toggle {
+        padding: 0.6rem 1rem;
+        font-size: 0.85rem;
+        flex-shrink: 0;
+        min-width: auto;
+        white-space: nowrap;
+    }
+    
+    .btn-clear-filters,
+    .results-info {
+        padding: 0.6rem 0.9rem;
+        font-size: 0.8rem;
+        flex-shrink: 0;
+    }
+    
+    .results-info {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        margin: 0 auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .professional-filter-navbar {
+        padding: 0.6rem 0;
+        top: 65px;
+    }
+    
+    .filter-navbar-content {
+        padding: 0 0.75rem;
+        gap: 0.6rem;
+    }
+    
+    .clean-search-input {
+        padding: 0.65rem 0.9rem;
+        font-size: 0.85rem;
     }
     
     .dropdown-toggle {
         padding: 0.5rem 0.8rem;
         font-size: 0.8rem;
-        flex-shrink: 0;
     }
     
     .btn-clear-filters,
     .results-info {
         padding: 0.5rem 0.7rem;
         font-size: 0.75rem;
-        flex-shrink: 0;
+    }
+    
+    .results-info {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        margin: 0 auto;
     }
 }
 
@@ -3557,9 +3611,9 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
     #accountModal.modal-overlay,
     #cartModal.modal-overlay,
     #loggedModal.modal-overlay {
-        align-items: center;
+        align-items: flex-start;
         justify-content: center;
-        padding: 1rem;
+        padding: 6rem 1rem 1rem 1rem; /* More top padding to move modal down */
     }
 
     #wishlistModal .modal,
@@ -3570,7 +3624,8 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
         right: auto;
         width: 95%;
         max-width: 400px;
-        transform: scale(0.9) translateY(20px);
+        transform: scale(0.9) translateY(0);
+        margin-top: 2rem; /* Additional top margin for wishlist modal */
     }
 
 
