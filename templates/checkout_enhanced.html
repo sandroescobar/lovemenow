@@ -15,8 +15,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}">
 
     <!-- Mobile Optimizations CSS -->
-    <link rel="preload" href="{{ url_for('static', filename='css/mobile-optimizations.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='css/mobile-optimizations.css') }}"></noscript>
+    <link rel="preload" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}"></noscript>
 
     <!-- CSRF Protection -->
     {% include 'csrf_meta.html' %}
