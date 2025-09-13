@@ -1799,11 +1799,11 @@ window.viewCart = function() {
 };
 
 /**
- * View orders (placeholder)
+ * View orders - redirect to order history page
  */
 window.viewOrders = function() {
     closeAccountModal();
-    showToast('Order history feature coming soon!', 'info');
+    window.location.href = '/my-orders';
 };
 
 // ============================================================================
