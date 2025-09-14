@@ -282,6 +282,19 @@ def create_app(config_name=None):
     # Register error handlers
     register_error_handlers(app)
 
+    # SEO Routes - Add these directly to the app
+    @app.route('/sitemap.xml')
+    def sitemap():
+        """Serve sitemap.xml for search engines"""
+        from flask import send_from_directory
+        return send_from_directory('.', 'sitemap.xml', mimetype='application/xml')
+
+    @app.route('/robots.txt')
+    def robots():
+        """Serve robots.txt for search engines"""
+        from flask import send_from_directory
+        return send_from_directory('.', 'robots.txt', mimetype='text/plain')
+
     # Install the final CSP middleware LAST so it wins over everything else
     app.wsgi_app = FinalCSPMiddleware(app.wsgi_app)
 

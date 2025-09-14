@@ -503,20 +503,6 @@ def api_cart_count():
         return jsonify({'count': 0, 'error': 'Error getting cart count'}), 500
 
 
-# ── SEO Routes ─────────────────────────────────────────────
-@app.route('/sitemap.xml')
-def sitemap():
-    """Serve sitemap.xml for search engines"""
-    from flask import send_from_directory
-    return send_from_directory('.', 'sitemap.xml', mimetype='application/xml')
-
-@app.route('/robots.txt')
-def robots():
-    """Serve robots.txt for search engines"""
-    from flask import send_from_directory
-    return send_from_directory('.', 'robots.txt', mimetype='text/plain')
-
-
 # ── run & create tables once ─────────────────────────────────
 if __name__ == "__main__":
     with app.app_context():
