@@ -8233,6 +8233,114 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 }
 .related-products h2{ margin-top: 0; }
 
+/* ═══════════════════════════════════════════════════════════════════
+   MOBILE RESPONSIVE FIXES FOR PRODUCT DETAIL PAGE
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+    /* Fix main layout - stack vertically */
+    .pdp-hero {
+        display: block !important;
+        gap: 0;
+    }
+    
+    .pdp-gallery {
+        position: static;
+        width: 100%;
+        margin-bottom: 1.5rem;
+    }
+    
+    .pdp-info {
+        width: 100%;
+        padding: 0;
+    }
+    
+    /* Fix rating stars - make them horizontal */
+    .pdp-price-rating-row {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0.5rem;
+    }
+    
+    .pdp-rating {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 0 !important;
+    }
+    
+    .pdp-rating .stars {
+        display: flex !important;
+        flex-direction: row !important;
+    }
+    
+    /* Move specifications higher up - reduce spacing */
+    .details-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .pdp-desc-panel {
+        order: -1; /* Move description to top */
+        margin-bottom: 1rem;
+        padding: 1rem;
+    }
+    
+    /* Make buy box more compact */
+    .pdp-buybox-premium {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    /* Stack quantity and add to cart */
+    .quantity-add-row {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .btn-add-cart {
+        width: 100%;
+        padding: 0.75rem;
+    }
+    
+    /* Compact sections */
+    .section-label {
+        font-size: 10px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .checklist li {
+        padding: 0.25rem 0;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .pdp {
+        padding: 0 0.5rem;
+    }
+    
+    .pdp-title {
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .pdp-price {
+        font-size: 1.4rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .pdp-buybox-premium {
+        padding: 0.75rem;
+    }
+    
+    .pdp-desc-panel {
+        padding: 0.75rem;
+    }
+}
+
 
 
 

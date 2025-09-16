@@ -14,11 +14,11 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <!-- Site CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}?v=20250116-2">
     
     <!-- Mobile Optimizations CSS -->
-    <link rel="preload" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}"></noscript>
+    <link rel="preload" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}?v=20250116-2" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}?v=20250116-2"></noscript>
     
     <!-- CSRF Protection -->
     {% include 'csrf_meta.html' %}
@@ -443,7 +443,7 @@
     {# ░░░ FOOTER ░░░ #}
     {% include "footer.html" %}
 
-<script defer src="{{ url_for('static', filename='js/index.js') }}?v=20250107d"></script>
+<script defer src="{{ url_for('static', filename='js/index.js') }}?v=20250116-2"></script>
 
 <script>
 // Initialize search functionality on page load

@@ -10,11 +10,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}?v=20250116-2">
     
     <!-- Mobile Optimizations CSS -->
-    <link rel="preload" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}"></noscript>
+    <link rel="preload" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}?v=20250116-2" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}?v=20250116-2"></noscript>
     
     <!-- CSRF Protection -->
     {% include 'csrf_meta.html' %}
@@ -26,43 +26,7 @@
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar">
-        <div class="navbar-container">
-            <a class="navbar-brand" href="{{url_for('main.index')}}">
-                <svg class="logo-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                </svg>
-                LoveMeNow
-            </a>
-
-            <div class="navbar-center">
-                <ul class="nav-links">
-                    <li><a class="nav-link" href="{{url_for('main.index')}}">Home</a></li>
-                    <li><a class="nav-link" href="{{url_for('main.products')}}">Shop</a></li>
-                    <li><a class="nav-link" href="{{url_for('main.about')}}">About</a></li>
-                    <li><a class="nav-link" href="{{url_for('main.support')}}">Support</a></li>
-                </ul>
-            </div>
-
-            <div class="navbar-actions">
-                <div class="nav-buttons">
-                    <button type="button" onclick="openWishlistModal()" class="nav-icon-btn" title="Wishlist">
-                        <i class="fas fa-heart"></i>
-                        <span class="icon-badge" id="wishlistCount">0</span>
-                    </button>
-                    <a href="{{ url_for('main.cart_page') }}" class="nav-icon-btn" title="Cart">
-                        <i class="fas fa-shopping-bag"></i>
-                        <span class="icon-badge" id="cartCount" style="display: inline-block;">0</span>
-                    </a>
-                    {% if current_user.is_authenticated %}
-                        <button class="btn btn-primary" id="userMenuButton">Account</button>
-                    {% else %}
-                        <button class="btn btn-primary" id="authButton">Sign In</button>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </nav>
+    {% include 'navbar.html' %}
 
     <main class="pdp" data-probe="pdp-v2">
         <div class="pdp-hero">
@@ -399,5 +363,17 @@
 
         })();
     </script>
+
+    <!-- Modals -->
+    {% include "wishlist_modal.html" %}
+    {% include "cart_modal.html" %}
+    {% include "login_register_modal.html" %}
+    {% include "logged_in_modal.html" %}
+
+    <!-- Footer -->
+    {% include "footer.html" %}
+
+    <!-- JavaScript -->
+    <script defer src="{{ url_for('static', filename='js/index.js') }}?v=20250116-2"></script>
 </body>
 </html>

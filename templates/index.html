@@ -15,8 +15,8 @@
     <link rel="dns-prefetch" href="https://js.stripe.com">
     
     <!-- Preload critical resources -->
-    <link rel="preload" href="{{ url_for('static', filename='js/index.js') }}" as="script">
-    <link rel="preload" href="{{ url_for('static', filename='CSS/styles.css') }}" as="style">
+    <link rel="preload" href="{{ url_for('static', filename='js/index.js') }}?v=20250116-2" as="script">
+    <link rel="preload" href="{{ url_for('static', filename='CSS/styles.css') }}?v=20250116-2" as="style">
 
     <!-- Font Awesome - async load for non-critical icons -->
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -32,12 +32,12 @@
     </style>
     
     <!-- Non-critical CSS loaded asynchronously -->
-    <link rel="preload" href="{{ url_for('static', filename='CSS/styles.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}"></noscript>
+    <link rel="preload" href="{{ url_for('static', filename='CSS/styles.css') }}?v=20250116-2" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}?v=20250116-2"></noscript>
     
     <!-- Mobile optimizations CSS -->
-    <link rel="preload" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}"></noscript>
+    <link rel="preload" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}?v=20250116-2" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}?v=20250116-2"></noscript>
     
     <!-- CSRF Protection -->
     {% include 'csrf_meta.html' %}
@@ -748,6 +748,9 @@
     </script>
     
     <!-- Mobile Menu JavaScript -->
-    <script src="{{ url_for('static', filename='js/mobile-menu.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/mobile-menu.js') }}?v=20250116-2" defer></script>
+    
+    <!-- Main JavaScript -->
+    <script src="{{ url_for('static', filename='js/index.js') }}?v=20250116-2" defer></script>
 </body>
 </html>
