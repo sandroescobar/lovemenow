@@ -262,7 +262,8 @@
                              src="{{ image_url if image_url.startswith('http') or image_url.startswith('/static/') else url_for('static', filename=image_url.lstrip('/')) }}"
                              alt="{{ p.name|e }}" 
                              loading="{{ 'eager' if loop.first else 'lazy' }}"
-                             style="width: 100%; height: 250px; object-fit: cover;">
+                             style="width: 100%; height: 250px; object-fit: cover;"
+                             onerror="handleImageError(this)">
                         {% endfor %}
                         
                         {% if all_images|length > 1 %}
@@ -281,7 +282,8 @@
                         <img class="product-slide active" 
                              src="{{ p.main_image_url }}" 
                              alt="{{ p.name|e }}" 
-                             loading="lazy" 
+                             loading="lazy"
+                             onerror="handleImageError(this)"
                              width="480" 
                              height="480">
                         
@@ -446,6 +448,47 @@
 <script defer src="{{ url_for('static', filename='js/index.js') }}?v=20250116-2"></script>
 
 <script>
+// Handle image loading errors - fallback from webp to jpeg
+function handleImageError(img) {
+    const src = img.src;
+    
+    // If it's a webp image that failed, try to load the jpeg version
+    if (src.includes('__alpha.webp')) {
+        const jpegSrc = src.replace('__alpha.webp', '.jpg');
+        console.log('WebP failed, trying JPEG:', jpegSrc);
+        img.src = jpegSrc;
+        img.onerror = function() {
+            // If JPEG also fails, try without __alpha
+            const fallbackSrc = src.replace('_alpha.webp', '.jpg').replace('__alpha.webp', '.jpg');
+            console.log('JPEG failed, trying fallback:', fallbackSrc);
+            img.src = fallbackSrc;
+            img.onerror = function() {
+                // Final fallback - show placeholder
+                img.style.display = 'none';
+                const placeholder = document.createElement('div');
+                placeholder.className = 'image-placeholder';
+                placeholder.style.cssText = 'width: 100%; height: 250px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #666; font-size: 14px;';
+                placeholder.textContent = 'Image not available';
+                img.parentNode.insertBefore(placeholder, img);
+            };
+        };
+    } else if (src.includes('.webp')) {
+        // Try replacing .webp with .jpg
+        const jpegSrc = src.replace('.webp', '.jpg');
+        console.log('WebP failed, trying JPEG:', jpegSrc);
+        img.src = jpegSrc;
+        img.onerror = function() {
+            // Final fallback - show placeholder
+            img.style.display = 'none';
+            const placeholder = document.createElement('div');
+            placeholder.className = 'image-placeholder';
+            placeholder.style.cssText = 'width: 100%; height: 250px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #666; font-size: 14px;';
+            placeholder.textContent = 'Image not available';
+            img.parentNode.insertBefore(placeholder, img);
+        };
+    }
+}
+
 // Initialize search functionality on page load
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('productSearch');
