@@ -480,12 +480,9 @@ function getCurrentCartQuantity(productId, variantId = null) {
 window.addToCart = function addToCart(productId, productName, price, variantId = null) {
     console.log('🛒 addToCart called with:', { productId, productName, price, variantId });
 
-    // Find the button that was clicked to check stock
+    // Find the button that was clicked
     const button = document.querySelector(`button.btn-add-cart[data-product-id="${productId}"]`);
     console.log('🔍 Found button:', button);
-    
-    const quantityOnHand = button ? parseInt(button.dataset.quantityOnHand) || 0 : 0;
-    console.log('📦 quantityOnHand from button:', quantityOnHand);
     
     // For product detail pages, always use null for variant ID since we work with products directly
     // For product cards, use the variant ID if provided
@@ -494,22 +491,15 @@ window.addToCart = function addToCart(productId, productName, price, variantId =
     console.log('🎨 currentVariantId:', currentVariantId);
     console.log('📄 isProductDetailPage:', isProductDetailPage);
     
-    // Check if product is in stock
-    if (quantityOnHand <= 0) {
-        console.log('❌ Product out of stock, showing toast');
-        showToast('This item is currently out of stock', 'error');
-        return;
-    }
-
     // Check if we're on a product detail page and get quantity from input
     const quantityInput = document.getElementById('quantityInput');
     const quantity = quantityInput ? parseInt(quantityInput.value) || 1 : 1;
     
-    console.log(`🔢 Attempting to add ${quantity} items. Stock available: ${quantityOnHand}`);
+    console.log(`🔢 Attempting to add ${quantity} items`);
     
-    // CRITICAL: Always let backend validate - it has the authoritative cart data
+    // CRITICAL: Let backend handle ALL validation - it has the authoritative cart and stock data
     // Frontend validation can be bypassed, backend validation cannot
-    console.log('🚀 Calling addToCartWithQuantity - backend will validate stock limits');
+    console.log('🚀 Calling addToCartWithQuantity - backend will validate stock and cart limits');
     addToCartWithQuantity(productId, productName, price, quantity, button, currentVariantId);
 }
 
@@ -528,22 +518,14 @@ window.addToCartDetail = function addToCartDetail(productId, productName, price)
     
     // Find the add to cart button
     const button = document.getElementById('addToCartBtn') || document.querySelector(`button[data-product-id="${productId}"]`);
-    const quantityOnHand = button ? parseInt(button.dataset.quantityOnHand) || 0 : 0;
     
-    
-    // Check if button is disabled
+    // Check if button is disabled (only for UI state, not stock validation)
     if (button && button.disabled) {
         showToast('This item is currently unavailable', 'error');
         return;
     }
-    
-    // Check if product is in stock
-    if (quantityOnHand <= 0) {
-        showToast('This item is currently out of stock', 'error');
-        return;
-    }
 
-    // Let the backend handle cart quantity validation - it has the authoritative data
+    // CRITICAL: Let backend handle ALL validation - it has the authoritative cart and stock data
     // Frontend validation can be bypassed, backend validation cannot
     console.log('🚀 Calling addToCartWithQuantity - backend will validate stock and cart limits');
     addToCartWithQuantity(productId, productName, price, quantity, button);
@@ -557,15 +539,11 @@ function getCSRFToken() {
 
 function addToCartWithQuantity(productId, productName, price, quantity = 1, buttonElement = null, variantId = null) {
 
-    // Check if product is in stock
-    const productCard = document.querySelector(`.product-card[data-product-id="${productId}"]`);
+    // Get button reference for UI updates
     const button = buttonElement || document.querySelector(`button[data-product-id="${productId}"]${variantId ? `[data-variant-id="${variantId}"]` : ''}`);
-    const isInStock = productCard ? productCard.dataset.inStock !== 'false' : true;
-
-    if (!isInStock) {
-        showToast('This item is currently out of stock', 'error');
-        return;
-    }
+    
+    // CRITICAL: Remove frontend stock validation - let backend handle it
+    // Backend has authoritative data about stock AND current cart contents
 
     // Show immediate visual feedback
     const cartCountElement = document.getElementById('cartCount');
@@ -638,10 +616,7 @@ function addToCartWithQuantity(productId, productName, price, quantity = 1, butt
                         }, 2000);
                     } else {
                         quantityInput.value = 1;
-                        // Show that item is already at max in cart
-                        setTimeout(() => {
-                            showToast('This item is already at maximum quantity in your cart', 'warning');
-                        }, 2000);
+                        // Backend already showed the error message, no need for duplicate
                     }
                 }
             }
