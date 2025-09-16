@@ -192,17 +192,40 @@
 
         <div class="product-grid">
             {% for product in featured_products %}
-            <div class="product-card fade-in-up" data-product-id="{{ product.id }}" data-in-stock="{{ product.in_stock|lower }}" data-product-quantity="{{ product.quantity_on_hand or 0 }}">
-                <div class="product-image">
+            <div class="product-card fade-in-up" 
+                 data-product-id="{{ product.id }}" 
+                 data-in-stock="{{ product.in_stock|lower }}" 
+                 data-product-quantity="{{ product.quantity_on_hand or 0 }}"
+                 data-has-variants="{{ 'true' if product.variants else 'false' }}">
+                
+                <!-- Product Image with Slideshow -->
+                <div class="product-image product-card-slideshow" data-product-id="{{ product.id }}">
                     {% set all_images = product.all_image_urls %}
                     {% if product.image_url and product.image_url not in all_images %}
                         {% set _ = all_images.append(product.image_url) %}
                     {% endif %}
 
                     {% if all_images %}
-                        <img style="width: 100%; height: 250px; object-fit: cover;"
-                             src="{{ all_images[0] if all_images[0].startswith('http') or all_images[0].startswith('/static/') else url_for('static', filename=all_images[0].lstrip('/')) }}"
-                             alt="{{ product.name|e }}" loading="lazy">
+                        {% for image_url in all_images %}
+                        <img class="product-slide {{ 'active' if loop.first else '' }}"
+                             src="{{ image_url if image_url.startswith('http') or image_url.startswith('/static/') else url_for('static', filename=image_url.lstrip('/')) }}"
+                             alt="{{ product.name|e }}" 
+                             loading="{{ 'eager' if loop.first else 'lazy' }}"
+                             style="width: 100%; height: 250px; object-fit: cover;">
+                        {% endfor %}
+                        
+                        {% if all_images|length > 1 %}
+                        <button class="product-card-nav-arrow prev" onclick="navigateProductCardImage({{ product.id }}, -1)" aria-label="Previous image">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="product-card-nav-arrow next" onclick="navigateProductCardImage({{ product.id }}, 1)" aria-label="Next image">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                        
+                        <div class="product-card-image-counter">
+                            <span class="current-image">1</span> / <span class="total-images">{{ all_images|length }}</span>
+                        </div>
+                        {% endif %}
                     {% else %}
                         <div class="placeholder-image">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -212,6 +235,7 @@
                             </svg>
                         </div>
                     {% endif %}
+                    
                     <div class="product-actions">
                         <button class="btn-quick-view" onclick="openQuickView({{ product.id }})">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -227,30 +251,26 @@
                         <a href="/product/{{ product.id }}">{{ product.clean_name }}</a>
                     </h3>
                     <div class="product-price">${{ '%.2f'|format(product.price) }}</div>
+                    <!-- Color Selection -->
+                    {% if product.variants %}
                     <div class="product-colors">
                         <span class="product-colors-label">Colors:</span>
-                        <div class="product-color-dots">
-                            {% if product.colors %}
-                                {% if product.colors|length == 1 %}
-                                    <div class="product-color-dot active"
-                                         style="background-color: {{ product.colors[0].hex }};"
-                                         title="{{ product.colors[0].name }}"></div>
-                                {% elif product.colors|length == 2 %}
-                                    <div class="product-color-dot active diagonal-split"
-                                         style="background: linear-gradient(135deg, {{ product.colors[0].hex }} 50%, {{ product.colors[1].hex }} 50%);"
-                                         title="{{ product.colors[0].name }} / {{ product.colors[1].name }}"></div>
-                                {% else %}
-                                    {% for color in product.colors[:3] %}
-                                        <div class="product-color-dot {{ 'active' if loop.first else '' }}"
-                                             style="background-color: {{ color.hex }};"
-                                             title="{{ color.name }}"></div>
-                                    {% endfor %}
-                                {% endif %}
-                            {% else %}
-                                <!-- No colors available yet -->
-                            {% endif %}
-                        </div>
-                    </div>
+                        <div class="color-swatches">
+                            {% for variant in product.variants %}
+                            {% if variant.color %}
+                            <button class="color-swatch {{ 'active' if loop.first else '' }}" 
+                                    data-variant-id="{{ variant.id }}"
+                                    data-color="{{ variant.color.name }}"
+                                    data-hex="{{ variant.color.hex }}"
+                                    style="background-color: {{ variant.color.hex }};"
+                                    title="{{ variant.color.name }}"
+                                    onclick="selectProductColor({{ product.id }}, {{ variant.id }}, '{{ variant.color.hex }}', '{{ variant.color.name }}')">
+                           </button>
+                             {% endif %}
+                            {% endfor %}
+                       </div>
+                     </div>
+                    {% endif %}
                     <!--
                     <p class="product-description">
                         {% if product.description %}

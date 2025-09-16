@@ -2344,9 +2344,146 @@ function initializeProductsPageSearch() {
     
     // Initialize product image navigation
     initializeProductImageNavigation();
+    
+    // Initialize enhanced product cards
+    initializeEnhancedProductCards();
 }
 
 // Make products page functions globally available
 window.initializeProductImageNavigation = initializeProductImageNavigation;
 window.navigateProductImage = navigateProductImage;
 window.initializeProductsPageSearch = initializeProductsPageSearch;
+
+/* ═══════════════════════════════════════════════════════════════════
+   ENHANCED PRODUCT CARD FUNCTIONS
+   ═══════════════════════════════════════════════════════════════════ */
+
+// Navigate product card images (for slideshow)
+function navigateProductCardImage(productId, direction) {
+    const slideshow = document.querySelector(`.product-card-slideshow[data-product-id="${productId}"]`);
+    if (!slideshow) return;
+    
+    const slides = slideshow.querySelectorAll('.product-slide');
+    if (slides.length <= 1) return;
+    
+    let currentIndex = 0;
+    slides.forEach((slide, index) => {
+        if (slide.classList.contains('active')) {
+            currentIndex = index;
+        }
+    });
+    
+    // Calculate new index
+    let newIndex = currentIndex + direction;
+    if (newIndex >= slides.length) newIndex = 0;
+    if (newIndex < 0) newIndex = slides.length - 1;
+    
+    // Update slides
+    slides[currentIndex].classList.remove('active');
+    slides[newIndex].classList.add('active');
+    
+    // Update counter
+    const counter = slideshow.querySelector('.product-card-image-counter');
+    if (counter) {
+        const currentSpan = counter.querySelector('.current-image');
+        if (currentSpan) {
+            currentSpan.textContent = newIndex + 1;
+        }
+    }
+}
+
+// Select product color (for color swatches)
+function selectProductColor(productId, variantId, colorHex, colorName) {
+    const productCard = document.querySelector(`.product-card[data-product-id="${productId}"]`);
+    if (!productCard) return;
+    
+    // Update active color swatch
+    const colorSwatches = productCard.querySelectorAll('.color-swatch');
+    colorSwatches.forEach(swatch => {
+        swatch.classList.remove('active');
+        if (swatch.dataset.variantId == variantId) {
+            swatch.classList.add('active');
+        }
+    });
+    
+    // Update add to cart button with new variant
+    const addToCartBtn = productCard.querySelector('.btn-add-cart');
+    if (addToCartBtn) {
+        addToCartBtn.dataset.variantId = variantId;
+    }
+    
+    // If this product has variant-specific images, update the slideshow
+    const slideshow = productCard.querySelector('.product-card-slideshow');
+    if (slideshow && productCard.dataset.hasVariants === 'true') {
+        // Try to find variant data script
+        const variantScript = productCard.querySelector('script[type="application/json"]');
+        if (variantScript) {
+            try {
+                const productData = JSON.parse(variantScript.textContent);
+                const selectedVariant = productData.variants.find(v => v.id == variantId);
+                
+                if (selectedVariant && selectedVariant.images && selectedVariant.images.length > 0) {
+                    // Update slideshow with variant images
+                    const slides = slideshow.querySelectorAll('.product-slide');
+                    slides.forEach((slide, index) => {
+                        slide.classList.remove('active');
+                        if (selectedVariant.images[index]) {
+                            slide.src = selectedVariant.images[index];
+                            if (index === 0) slide.classList.add('active');
+                        }
+                    });
+                    
+                    // Update counter
+                    const counter = slideshow.querySelector('.product-card-image-counter');
+                    if (counter) {
+                        const currentSpan = counter.querySelector('.current-image');
+                        const totalSpan = counter.querySelector('.total-images');
+                        if (currentSpan) currentSpan.textContent = '1';
+                        if (totalSpan) totalSpan.textContent = selectedVariant.images.length;
+                    }
+                }
+            } catch (e) {
+                console.warn('Could not parse variant data:', e);
+            }
+        }
+    }
+    
+    console.log(`Selected color: ${colorName} (${colorHex}) for product ${productId}, variant ${variantId}`);
+}
+
+// Initialize enhanced product cards
+function initializeEnhancedProductCards() {
+    // Initialize slideshows
+    const slideshows = document.querySelectorAll('.product-card-slideshow');
+    slideshows.forEach(slideshow => {
+        const slides = slideshow.querySelectorAll('.product-slide');
+        if (slides.length > 1) {
+            // Set first slide as active
+            slides[0].classList.add('active');
+            
+            // Update counter
+            const counter = slideshow.querySelector('.product-card-image-counter');
+            if (counter) {
+                const currentSpan = counter.querySelector('.current-image');
+                const totalSpan = counter.querySelector('.total-images');
+                if (currentSpan) currentSpan.textContent = '1';
+                if (totalSpan) totalSpan.textContent = slides.length;
+            }
+        }
+    });
+    
+    // Initialize color selection for products with variants
+    const productCards = document.querySelectorAll('.product-card[data-has-variants="true"]');
+    productCards.forEach(card => {
+        const colorSwatches = card.querySelectorAll('.color-swatch');
+        if (colorSwatches.length > 0) {
+            // Ensure first color is active
+            colorSwatches[0].classList.add('active');
+        }
+    });
+}
+
+// Make enhanced product card functions globally available
+window.navigateProductCardImage = navigateProductCardImage;
+window.selectProductColor = selectProductColor;
+window.initializeEnhancedProductCards = initializeEnhancedProductCards;

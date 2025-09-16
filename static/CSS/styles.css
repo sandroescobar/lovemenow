@@ -7970,6 +7970,116 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
   vertical-align: middle;
 }
 
+/* Enhanced Product Card Color Swatches */
+.color-swatches {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.color-swatches .color-swatch {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  background: none;
+  padding: 0;
+}
+
+.color-swatches .color-swatch:hover {
+  transform: scale(1.1);
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.color-swatches .color-swatch.active {
+  border-color: #fff;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.4);
+  transform: scale(1.05);
+}
+
+.color-swatches .color-swatch.active::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* Product Card Slideshow */
+.product-card-slideshow {
+  position: relative;
+  overflow: hidden;
+}
+
+.product-slide {
+  display: none;
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+}
+
+.product-slide.active {
+  display: block;
+}
+
+.product-card-nav-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 2;
+}
+
+.product-card-slideshow:hover .product-card-nav-arrow {
+  opacity: 1;
+}
+
+.product-card-nav-arrow:hover {
+  background: rgba(0, 0, 0, 0.8);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.product-card-nav-arrow.prev {
+  left: 8px;
+}
+
+.product-card-nav-arrow.next {
+  right: 8px;
+}
+
+.product-card-image-counter {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
 /* Premium Details - Two Column Checklist Layout */
 .pdp-details-premium{
   margin-top: 24px;

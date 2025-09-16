@@ -245,22 +245,41 @@
                  data-has-variants="{{ 'true' if p.variants|length > 1 else 'false' }}"
                  data-product-quantity="{{ p.quantity_on_hand or 0 }}">
 
-                {# ── IMAGE ──────────────────────── #}
+                {# ── IMAGE WITH SLIDESHOW ──────────────────────── #}
                 <div class="product-image product-card-slideshow" data-product-id="{{ p.id }}">
                     {% if p.variants|length > 1 and p.default_variant %}
                         {# Show only default variant images for multi-variant products #}
                         {% set default_variant_images = p.default_variant.images|map(attribute='url')|list %}
                         {% set all_images = default_variant_images %}
-                        {% set main_image = default_variant_images[0] if default_variant_images else p.main_image_url %}
                     {% else %}
                         {# Show all images for single-variant products #}
                         {% set all_images = p.all_image_urls %}
-                        {% set main_image = p.main_image_url %}
                     {% endif %}
 
-                    {% if main_image %}
-                        <img class="product-img" 
-                             src="{{ main_image }}" 
+                    {% if all_images %}
+                        {% for image_url in all_images %}
+                        <img class="product-slide {{ 'active' if loop.first else '' }}"
+                             src="{{ image_url if image_url.startswith('http') or image_url.startswith('/static/') else url_for('static', filename=image_url.lstrip('/')) }}"
+                             alt="{{ p.name|e }}" 
+                             loading="{{ 'eager' if loop.first else 'lazy' }}"
+                             style="width: 100%; height: 250px; object-fit: cover;">
+                        {% endfor %}
+                        
+                        {% if all_images|length > 1 %}
+                        <button class="product-card-nav-arrow prev" onclick="navigateProductCardImage({{ p.id }}, -1)" aria-label="Previous image">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="product-card-nav-arrow next" onclick="navigateProductCardImage({{ p.id }}, 1)" aria-label="Next image">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                        
+                        <div class="product-card-image-counter">
+                            <span class="current-image">1</span> / <span class="total-images">{{ all_images|length }}</span>
+                        </div>
+                        {% endif %}
+                    {% elif p.main_image_url %}
+                        <img class="product-slide active" 
+                             src="{{ p.main_image_url }}" 
                              alt="{{ p.name|e }}" 
                              loading="lazy" 
                              width="480" 
@@ -343,7 +362,27 @@
                         </h3>
 
                         <div class="product-price">${{ '%.2f'|format(p.price) }}</div>
-
+                        
+                        {# ── COLOR SELECTION ──────────────────────── #}
+                        {% if p.variants and p.variants|length > 1 %}
+                        <div class="product-colors">
+                            <span class="product-colors-label">Colors:</span>
+                            <div class="color-swatches">
+                                {% for variant in p.variants %}
+                                {% if variant.color %}
+                                <button class="color-swatch {{ 'active' if variant.id == p.default_variant.id else '' }}" 
+                                        data-variant-id="{{ variant.id }}"
+                                        data-color="{{ variant.color.name }}"
+                                        data-hex="{{ variant.color.hex }}"
+                                        style="background-color: {{ variant.color.hex }};"
+                                        title="{{ variant.color.name }}"
+                                        onclick="selectProductColor({{ p.id }}, {{ variant.id }}, '{{ variant.color.hex }}', '{{ variant.color.name }}')">
+                                </button>
+                                {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
 
                     </div>
                     <!--
