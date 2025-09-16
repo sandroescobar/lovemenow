@@ -259,9 +259,12 @@
                     {% endif %}
 
                     {% if main_image %}
-                        <img class="product-card-image" style="width: 100%; height: 250px; object-fit: cover;"
+                        <img class="product-img" 
                              src="{{ main_image }}" 
-                             alt="{{ p.name|e }}" loading="lazy">
+                             alt="{{ p.name|e }}" 
+                             loading="lazy" 
+                             width="480" 
+                             height="480">
                         
                         {% if all_images|length > 1 %}
                         <!-- Navigation Arrows -->
@@ -335,58 +338,13 @@
                 <div class="product-info">
                     <div class="product-content">
                         <div class="product-category">{{ p.category.name if p.category else 'Featured' }}</div>
-                        <h3 class="product-title"><a href="/product/{{ p.id }}">{{ p.name }}</a></h3>
+                        <h3 class="product-title">
+                            <a href="/product/{{ p.id }}">{{ p.name }}</a>
+                        </h3>
 
                         <div class="product-price">${{ '%.2f'|format(p.price) }}</div>
 
-                        {% if p.available_colors %}
-                            <div class="product-colors">
-                                <span class="product-colors-label">Colors:</span>
-                                <div class="product-color-dots">
-                                    {% if p.variants|length > 1 %}
-                                        {# Multiple variants - make color dots clickable #}
-                                        {% for variant in p.variants %}
-                                            {% if variant.color %}
-                                            <button class="color-dot clickable-color-dot {{ 'active' if variant.id == p.default_variant.id else '' }}" 
-                                                    style="background-color: {{ variant.color.hex }};" 
-                                                    title="{{ variant.color.name }} ({{ 'In Stock' if variant.is_available else 'Out of Stock' }})"
-                                                    data-variant-id="{{ variant.id }}"
-                                                    data-product-id="{{ p.id }}"
-                                                    data-color-id="{{ variant.color_id }}"
-                                                    data-available="{{ variant.is_available|lower }}"
-                                                    onclick="switchProductVariant({{ p.id }}, {{ variant.id }})">
-                                            </button>
-                                            {% endif %}
-                                        {% endfor %}
-                                    {% else %}
-                                        {# Single variant - show static color dot #}
-                                        {% set n = p.available_colors|length %}
-                                        {% if n == 1 %}
-                                            <span class="color-dot" 
-                                                 style="background-color: {{ p.available_colors[0].hex }};" 
-                                                 title="{{ p.available_colors[0].name }}"></span>
-                                        {% elif n == 2 %}
-                                            <span class="color-dot diagonal-split"
-                                                 style="background: linear-gradient(135deg, {{ p.available_colors[0].hex }} 0% 50%, {{ p.available_colors[1].hex }} 50% 100%);"
-                                                 title="{{ p.available_colors[0].name }} / {{ p.available_colors[1].name }}"></span>
-                                        {% else %}
-                                            {% set step = 100 // n %}
-                                            {% set stops = [] %}
-                                            {% for c in p.available_colors %}
-                                                {% set start = loop.index0 * step %}
-                                                {% set end = loop.index * step %}
-                                                {% set _ = stops.append(c.hex ~ ' ' ~ start ~ '% ' ~ end ~ '%') %}
-                                            {% endfor %}
-                                            <span class="color-dot"
-                                                 style="background: linear-gradient(135deg, {{ stops|join(', ') }});"
-                                                 title="{{ p.available_colors|map(attribute='name')|join(' / ') }}"></span>
-                                        {% endif %}
-                                    {% endif %}
-                                </div>
-                            </div>
-                        {% else %}
-                            <div class="product-colors colour-unavailable">Colour: (add in store)</div>
-                        {% endif %}
+
                     </div>
                     <!--
                     <p class="product-description">
@@ -492,7 +450,7 @@ function initializeProductCardSlideshows() {
                 productCardCurrentIndex[productId] = 0;
                 
                 // Set initial image
-                const img = slideshow.querySelector('.product-card-image');
+                const img = slideshow.querySelector('.product-img');
                 if (img && images.length > 0) {
                     img.src = images[0];
                 }
@@ -523,7 +481,7 @@ function navigateProductCardImage(productId, direction) {
     // Update image
     const slideshow = document.querySelector(`.product-card-slideshow[data-product-id="${productId}"]`);
     if (slideshow) {
-        const img = slideshow.querySelector('.product-card-image');
+        const img = slideshow.querySelector('.product-img');
         const counter = slideshow.querySelector('.current-index');
         
         if (img && images[newIndex]) {
@@ -568,7 +526,7 @@ function initializeProductVariants() {
                         
                         // Update the main image
                         const slideshow = card.querySelector('.product-card-slideshow');
-                        const img = slideshow?.querySelector('.product-card-image');
+                        const img = slideshow?.querySelector('.product-img');
                         if (img) {
                             img.src = defaultVariant.images[0];
                         }
@@ -625,7 +583,7 @@ function switchProductVariant(productId, variantId) {
     // Update product images if variant has images
     if (selectedVariant.images && selectedVariant.images.length > 0) {
         const slideshow = productCard.querySelector('.product-card-slideshow');
-        const img = slideshow.querySelector('.product-card-image');
+        const img = slideshow.querySelector('.product-img');
         
         if (img) {
             // Update main image

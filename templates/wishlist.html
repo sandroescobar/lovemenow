@@ -78,7 +78,7 @@
                         </div>
 
                         <div class="wishlist-info">
-                            <h3><a href="/product/{{ product.id }}">{{ product.name }}</a></h3>
+                            <h3><a href="/product/{{ product.id }}">{{ product.clean_name }}</a></h3>
                             <div class="wishlist-price">${{ '%.2f'|format(product.price) }}</div>
                             {% if product.in_stock %}
                                 <span class="stock-status in-stock">

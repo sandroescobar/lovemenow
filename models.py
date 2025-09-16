@@ -239,6 +239,7 @@ class Product(db.Model):
             sorted_images = sorted(variant.images, key=lambda x: x.sort_order)
             for img in sorted_images:
                 img_url = img.url
+                
                 # Ensure proper static path
                 if not img_url.startswith('/static/') and not img_url.startswith('http'):
                     img_url = f"/static/{img_url}"
@@ -299,6 +300,17 @@ class Product(db.Model):
             self.in_stock = False
         
         return True
+    
+    @property
+    def clean_name(self):
+        """Get product name without color suffix"""
+        import re
+        # Remove color patterns like ", Black", ", White", ", Beige", etc.
+        name = self.name
+        # Pattern to match ", [Color]" at the end of the name
+        color_pattern = r',\s*(Black|White|Beige|Red|Blue|Green|Pink|Purple|Brown|Gray|Grey|Clear|Transparent)$'
+        cleaned_name = re.sub(color_pattern, '', name, flags=re.IGNORECASE)
+        return cleaned_name.strip()
 
 
 class Wishlist(db.Model):
