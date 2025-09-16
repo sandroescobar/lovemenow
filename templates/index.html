@@ -42,6 +42,9 @@
     <!-- CSRF Protection -->
     {% include 'csrf_meta.html' %}
     
+    <!-- Google AdWords Tracking -->
+    {% include 'google_tag.html' %}
+    
     {% if show_age_verification %}
     <script>
         // Immediately block scrolling if age verification is needed
@@ -223,6 +226,7 @@
                     <h3 class="product-title">
                         <a href="/product/{{ product.id }}">{{ product.name }}</a>
                     </h3>
+                    <div class="product-price">${{ '%.2f'|format(product.price) }}</div>
                     <div class="product-colors">
                         <span class="product-colors-label">Colors:</span>
                         <div class="product-color-dots">
@@ -247,7 +251,6 @@
                             {% endif %}
                         </div>
                     </div>
-                    <div class="product-price">${{ '%.2f'|format(product.price) }}</div>
                     <!--
                     <p class="product-description">
                         {% if product.description %}

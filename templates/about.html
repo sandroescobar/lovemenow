@@ -22,7 +22,11 @@
     <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}"></noscript>
     
     <!-- CSRF Protection -->
-    {% include 'csrf_meta.html' %}</head>
+    {% include 'csrf_meta.html' %}
+    
+    <!-- Google AdWords Tracking -->
+    {% include 'google_tag.html' %}
+</head>
 <body>
 
 {% include "navbar.html" %}

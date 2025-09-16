@@ -19,6 +19,9 @@
     <!-- CSRF Protection -->
     {% include 'csrf_meta.html' %}
     
+    <!-- Google AdWords Tracking -->
+    {% include 'google_tag.html' %}
+    
     <style>
         .product-detail-container {
             max-width: 1400px;
@@ -721,6 +724,21 @@
                 
                 <h1 class="product-title">{{ product.name }}</h1>
                 
+                <div class="product-rating">
+                    <div class="stars">
+                        {% for i in range(5) %}
+                            {% if i < (product.rating or 0)|int %}
+                                <i class="fas fa-star star"></i>
+                            {% else %}
+                                <i class="far fa-star star"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <span class="rating-text">({{ product.review_count or 0 }} reviews)</span>
+                </div>
+                
+                <div class="product-price">${{ '%.2f'|format(product.price) }}</div>
+                
                 <!-- Color dots display like in product cards -->
                 <div class="product-colors">
                     <span class="product-colors-label">Colors:</span>
@@ -746,21 +764,6 @@
                         {% endif %}
                     </div>
                 </div>
-                
-                <div class="product-rating">
-                    <div class="stars">
-                        {% for i in range(5) %}
-                            {% if i < (product.rating or 0)|int %}
-                                <i class="fas fa-star star"></i>
-                            {% else %}
-                                <i class="far fa-star star"></i>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                    <span class="rating-text">({{ product.review_count or 0 }} reviews)</span>
-                </div>
-                
-                <div class="product-price">${{ '%.2f'|format(product.price) }}</div>
                 
                 <div class="stock-status {{ 'in-stock' if product.in_stock else 'out-of-stock' }}">
                     <i class="fas fa-{{ 'check-circle' if product.in_stock else 'times-circle' }}"></i>

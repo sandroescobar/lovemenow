@@ -22,6 +22,9 @@
     
     <!-- CSRF Protection -->
     {% include 'csrf_meta.html' %}
+    
+    <!-- Google AdWords Tracking -->
+    {% include 'google_tag.html' %}
 </head>
 <body>
 
@@ -334,6 +337,8 @@
                         <div class="product-category">{{ p.category.name if p.category else 'Featured' }}</div>
                         <h3 class="product-title"><a href="/product/{{ p.id }}">{{ p.name }}</a></h3>
 
+                        <div class="product-price">${{ '%.2f'|format(p.price) }}</div>
+
                         {% if p.available_colors %}
                             <div class="product-colors">
                                 <span class="product-colors-label">Colors:</span>
@@ -382,8 +387,6 @@
                         {% else %}
                             <div class="product-colors colour-unavailable">Colour: (add in store)</div>
                         {% endif %}
-
-                        <div class="product-price">${{ '%.2f'|format(p.price) }}</div>
                     </div>
                     <!--
                     <p class="product-description">
