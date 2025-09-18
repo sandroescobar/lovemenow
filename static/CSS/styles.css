@@ -7978,6 +7978,17 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
   box-shadow: 0 0 0 2px rgba(255,255,255,.2);
 }
 
+.color-option.display-only{
+  cursor: default;
+  background: rgba(255,255,255,.06);
+  color: #e8e8f2;
+}
+
+.color-option.display-only:hover{
+  background: rgba(255,255,255,.06);
+  color: #e8e8f2;
+}
+
 .color-swatch{
   width: 16px;
   height: 16px;
