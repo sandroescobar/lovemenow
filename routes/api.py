@@ -129,6 +129,33 @@ def single_variant_json(variant_id: int):
         current_app.logger.error(f"Error fetching variant {variant_id}: {str(e)}")
         return jsonify({'error': 'Variant not found'}), 404
 
+@api_bp.route('/variant/<int:variant_id>/images')
+def variant_images(variant_id: int):
+    """Get images for a specific product variant based on UPC"""
+    try:
+        variant = ProductVariant.query.get_or_404(variant_id)
+        
+        # Construct image paths based on UPC
+        upc = variant.upc
+        if upc:
+            images = [
+                f"/static/IMG/imagesForLovMeNow/{upc}/{upc}_Main_Photo.png",
+                f"/static/IMG/imagesForLovMeNow/{upc}/{upc}_2nd_Photo.png"
+            ]
+        else:
+            images = []
+        
+        return jsonify({
+            'success': True,
+            'images': images,
+            'variant_id': variant_id,
+            'upc': upc
+        })
+        
+    except Exception as e:
+        current_app.logger.error(f"Error fetching variant images {variant_id}: {str(e)}")
+        return jsonify({'success': False, 'error': 'Error fetching variant images'}), 500
+
 @api_bp.route('/deferred-content')
 def get_deferred_content():
     """Get deferred content for performance optimization"""

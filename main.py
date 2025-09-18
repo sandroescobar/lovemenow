@@ -503,6 +503,8 @@ def api_cart_count():
         return jsonify({'count': 0, 'error': 'Error getting cart count'}), 500
 
 
+
+
 # ── run & create tables once ─────────────────────────────────
 if __name__ == "__main__":
     with app.app_context():

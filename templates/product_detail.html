@@ -31,18 +31,23 @@
     <main class="pdp" data-probe="pdp-v2">
         <div class="pdp-hero">
             <section class="pdp-gallery">
-                {% set all_images = product.all_image_urls %}
-                {% if product.image_url and product.image_url not in all_images %}
-                    {% set _ = all_images.append(product.image_url) %}
+                {# For products with multiple variants, show only default variant images initially #}
+                {% if product.variants|length > 1 and product.default_variant %}
+                    {% set all_images = product.default_variant.images|map(attribute='url')|list %}
+                {% else %}
+                    {% set all_images = product.all_image_urls %}
+                    {% if product.image_url and product.image_url not in all_images %}
+                        {% set _ = all_images.append(product.image_url) %}
+                    {% endif %}
                 {% endif %}
-                {# Filter to only webp images #}
-                {% set webp_images = [] %}
+                {# Filter to only PNG images #}
+                {% set png_images = [] %}
                 {% for img in all_images %}
-                    {% if img.endswith('.webp') %}
-                        {% set _ = webp_images.append(img) %}
+                    {% if img.endswith('.png') %}
+                        {% set _ = png_images.append(img) %}
                     {% endif %}
                 {% endfor %}
-                {% set all_images = webp_images if webp_images else all_images %}
+                {% set all_images = png_images if png_images else all_images %}
                 
                 <div class="pdp-image-stage">
                     {% if all_images %}
@@ -144,10 +149,17 @@
                     <span class="colors-label">Colors:</span>
                     <div class="color-options">
                         {% for color in product.available_colors %}
-                            <span class="color-option">
-                                <span class="color-swatch" style="background-color: {{ color.hex }};"></span>
-                                {{ color.name }}
-                            </span>
+                            {% for variant in product.variants %}
+                                {% if variant.color_id == color.id %}
+                                <button class="color-option {{ 'active' if variant.id == product.default_variant.id else '' }}" 
+                                        data-variant-id="{{ variant.id }}"
+                                        data-color-id="{{ color.id }}"
+                                        onclick="switchColorVariant({{ variant.id }})">
+                                    <span class="color-swatch" style="background-color: {{ color.hex }};"></span>
+                                    {{ color.name }}
+                                </button>
+                                {% endif %}
+                            {% endfor %}
                         {% endfor %}
                     </div>
                 </div>
@@ -221,7 +233,7 @@
                         {% endif %}
 
                         {% if related_images %}
-                            <img style="width: 100%; height: 250px; object-fit: cover;"
+                            <img style="width: 100%; height: 240px; object-fit: contain; background: rgba(255, 255, 255, 0.02);"
                                  src="{{ related_images[0] if related_images[0].startswith('http') or related_images[0].startswith('/static/') else url_for('static', filename=related_images[0].lstrip('/')) }}"
                                  alt="{{ related_product.name|e }}" loading="lazy"
                                  onerror="handleImageError(this)">
@@ -405,6 +417,118 @@
             }
 
         })();
+
+        // Color variant switching function
+        window.switchColorVariant = function(variantId) {
+            // Update active color button
+            document.querySelectorAll('.color-option').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            const targetButton = document.querySelector(`[data-variant-id="${variantId}"]`);
+            if (targetButton) {
+                targetButton.classList.add('active');
+            }
+            
+            // Fetch variant images via AJAX
+            fetch(`/api/variant/${variantId}/images`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.images && data.images.length > 0) {
+                        // Filter to PNG images only
+                        const pngImages = data.images.filter(img => img.endsWith('.png'));
+                        const imagesToUse = pngImages.length > 0 ? pngImages : data.images;
+                        
+                        // Convert relative URLs to full URLs
+                        const fullImageUrls = imagesToUse.map(img => {
+                            if (img.startsWith('http') || img.startsWith('/static/')) {
+                                return img;
+                            } else {
+                                return `/static/${img.replace(/^\/+/, '')}`;
+                            }
+                        });
+                        
+                        // Update main image with forced refresh
+                        const mainImg = document.getElementById('pdp-main-img');
+                        if (mainImg && fullImageUrls.length > 0) {
+                            // Create a new image element to preload
+                            const newImg = new Image();
+                            newImg.onload = function() {
+                                // Once loaded, update the main image
+                                mainImg.src = this.src;
+                            };
+                            // Load with cache busting
+                            newImg.src = fullImageUrls[0] + '?v=' + Date.now();
+                        }
+                        
+                        // Update the image sequence for navigation
+                        // Find the existing slideshow logic and update it
+                        const swatchThumbs = document.querySelector('.pdp-swatch-thumbs');
+                        if (swatchThumbs) {
+                            // Clear existing thumbs
+                            swatchThumbs.innerHTML = '';
+                            
+                            // Add new thumbs
+                            fullImageUrls.forEach((img, index) => {
+                                const button = document.createElement('button');
+                                button.className = `swatch-thumb ${index === 0 ? 'is-active' : ''}`;
+                                button.setAttribute('data-full', img);
+                                swatchThumbs.appendChild(button);
+                            });
+                            
+                            // Re-initialize the slideshow with new images
+                            const newSeq = fullImageUrls;
+                            let newIdx = 0;
+                            
+                            function newShow(i) {
+                                if (!newSeq.length) return;
+                                newIdx = (i + newSeq.length) % newSeq.length;
+                                if (mainImg) mainImg.src = newSeq[newIdx];
+                                
+                                // Update thumb active states
+                                swatchThumbs.querySelectorAll('.swatch-thumb').forEach((b, k) => {
+                                    b.classList.toggle('is-active', k === newIdx);
+                                });
+                                
+                                // Update counter
+                                const counter = document.getElementById('pdp-image-counter');
+                                if (counter) {
+                                    counter.textContent = `${newIdx + 1}/${newSeq.length}`;
+                                }
+                            }
+                            
+                            // Re-attach click events to new thumbs
+                            swatchThumbs.querySelectorAll('.swatch-thumb').forEach((b, i) => {
+                                b.addEventListener('click', () => newShow(i));
+                            });
+                            
+                            // Update navigation arrows to use new sequence
+                            const leftNav = document.querySelector('.pdp-nav.left');
+                            const rightNav = document.querySelector('.pdp-nav.right');
+                            if (leftNav) {
+                                leftNav.onclick = () => newShow(newIdx - 1);
+                            }
+                            if (rightNav) {
+                                rightNav.onclick = () => newShow(newIdx + 1);
+                            }
+                        }
+                        
+                        // Update counter
+                        const counter = document.getElementById('pdp-image-counter');
+                        if (counter) {
+                            counter.textContent = `1/${fullImageUrls.length}`;
+                        }
+                        
+                        // Update add to cart button variant ID
+                        const addToCartBtn = document.getElementById('addToCartBtn');
+                        if (addToCartBtn) {
+                            addToCartBtn.setAttribute('data-variant-id', variantId);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching variant images:', error);
+                });
+        };
     </script>
 
     <!-- Modals -->

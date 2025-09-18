@@ -14,11 +14,11 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <!-- Site CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}?v=20250116-2">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}?v=20250116-3">
     
     <!-- Mobile Optimizations CSS -->
-    <link rel="preload" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}?v=20250116-2" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}?v=20250116-2"></noscript>
+    <link rel="preload" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}?v=20250116-3" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}?v=20250116-3"></noscript>
     
     <!-- CSRF Protection -->
     {% include 'csrf_meta.html' %}
@@ -262,7 +262,7 @@
                              src="{{ image_url if image_url.startswith('http') or image_url.startswith('/static/') else url_for('static', filename=image_url.lstrip('/')) }}"
                              alt="{{ p.name|e }}" 
                              loading="{{ 'eager' if loop.first else 'lazy' }}"
-                             style="width: 100%; height: 250px; object-fit: cover;"
+                             style="width: 100%; height: 240px; object-fit: contain; background: rgba(255, 255, 255, 0.02);"
                              onerror="handleImageError(this)">
                         {% endfor %}
                         
@@ -364,27 +364,6 @@
                         </h3>
 
                         <div class="product-price">${{ '%.2f'|format(p.price) }}</div>
-                        
-                        {# ── COLOR SELECTION ──────────────────────── #}
-                        {% if p.variants and p.variants|length > 1 %}
-                        <div class="product-colors">
-                            <span class="product-colors-label">Colors:</span>
-                            <div class="color-swatches">
-                                {% for variant in p.variants %}
-                                {% if variant.color %}
-                                <button class="color-swatch {{ 'active' if variant.id == p.default_variant.id else '' }}" 
-                                        data-variant-id="{{ variant.id }}"
-                                        data-color="{{ variant.color.name }}"
-                                        data-hex="{{ variant.color.hex }}"
-                                        style="background-color: {{ variant.color.hex }};"
-                                        title="{{ variant.color.name }}"
-                                        onclick="selectProductColor({{ p.id }}, {{ variant.id }}, '{{ variant.color.hex }}', '{{ variant.color.name }}')">
-                                </button>
-                                {% endif %}
-                                {% endfor %}
-                            </div>
-                        </div>
-                        {% endif %}
 
                     </div>
                     <!--
@@ -445,7 +424,7 @@
     {# ░░░ FOOTER ░░░ #}
     {% include "footer.html" %}
 
-<script defer src="{{ url_for('static', filename='js/index.js') }}?v=20250116-2"></script>
+<script defer src="{{ url_for('static', filename='js/index.js') }}?v=20250116-3"></script>
 
 <script>
 // Handle image loading errors - fallback from webp to jpeg
@@ -467,7 +446,7 @@ function handleImageError(img) {
                 img.style.display = 'none';
                 const placeholder = document.createElement('div');
                 placeholder.className = 'image-placeholder';
-                placeholder.style.cssText = 'width: 100%; height: 250px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #666; font-size: 14px;';
+                placeholder.style.cssText = 'width: 100%; height: 240px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #666; font-size: 14px;';
                 placeholder.textContent = 'Image not available';
                 img.parentNode.insertBefore(placeholder, img);
             };
@@ -482,7 +461,7 @@ function handleImageError(img) {
             img.style.display = 'none';
             const placeholder = document.createElement('div');
             placeholder.className = 'image-placeholder';
-            placeholder.style.cssText = 'width: 100%; height: 250px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #666; font-size: 14px;';
+            placeholder.style.cssText = 'width: 100%; height: 220px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #666; font-size: 14px;';
             placeholder.textContent = 'Image not available';
             img.parentNode.insertBefore(placeholder, img);
         };
