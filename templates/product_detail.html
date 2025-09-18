@@ -148,25 +148,38 @@
                 <div class="available-colors">
                     <span class="colors-label">Colors:</span>
                     <div class="color-options">
-                        {% for color in product.available_colors %}
-                            {% set variant_with_color = product.variants|selectattr('color_id', 'equalto', color.id)|first %}
-                            {% if variant_with_color %}
-                                {# Product has variants with color_id (like Du-Douche) - use existing logic #}
-                                <button class="color-option {{ 'active' if variant_with_color.id == product.default_variant.id else '' }}" 
-                                        data-variant-id="{{ variant_with_color.id }}"
-                                        data-color-id="{{ color.id }}"
-                                        onclick="switchColorVariant({{ variant_with_color.id }})">
-                                    <span class="color-swatch" style="background-color: {{ color.hex }};"></span>
-                                    {{ color.name }}
-                                </button>
-                            {% else %}
-                                {# Product doesn't have variants with color_id - show color as display only #}
-                                <div class="color-option display-only">
-                                    <span class="color-swatch" style="background-color: {{ color.hex }};"></span>
-                                    {{ color.name }}
-                                </div>
-                            {% endif %}
-                        {% endfor %}
+                        {% set has_color_variants = product.variants|selectattr('color_id', 'ne', none)|list|length > 0 %}
+                        {% if has_color_variants %}
+                            {# Product has color variants (like Du-Douche) - show individual clickable squares #}
+                            {% for color in product.available_colors %}
+                                {% set variant_with_color = product.variants|selectattr('color_id', 'equalto', color.id)|first %}
+                                {% if variant_with_color %}
+                                    <button class="color-option {{ 'active' if variant_with_color.id == product.default_variant.id else '' }}" 
+                                            data-variant-id="{{ variant_with_color.id }}"
+                                            data-color-id="{{ color.id }}"
+                                            onclick="switchColorVariant({{ variant_with_color.id }})">
+                                        <span class="color-swatch" style="background-color: {{ color.hex }};"></span>
+                                        {{ color.name }}
+                                    </button>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            {# Product has multiple colors but no variants - show combined gradient square #}
+                            <div class="color-option display-only">
+                                {% if product.available_colors|length == 1 %}
+                                    <span class="color-swatch" style="background-color: {{ product.available_colors[0].hex }};"></span>
+                                {% elif product.available_colors|length == 2 %}
+                                    <span class="color-swatch" style="background: linear-gradient(45deg, {{ product.available_colors[0].hex }} 50%, {{ product.available_colors[1].hex }} 50%);"></span>
+                                {% else %}
+                                    <span class="color-swatch" style="background: linear-gradient(to right, {% for color in product.available_colors %}{{ color.hex }}{% if not loop.last %}, {% endif %}{% endfor %});"></span>
+                                {% endif %}
+                                <span class="color-names">
+                                    {% for color in product.available_colors %}
+                                        {{ color.name }}{% if not loop.last %}, {% endif %}
+                                    {% endfor %}
+                                </span>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
                 {% endif %}

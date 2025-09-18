@@ -7989,6 +7989,18 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
   color: #e8e8f2;
 }
 
+.color-names{
+  font-size: 13px;
+  color: #e8e8f2;
+  font-weight: 500;
+}
+
+.color-option.display-only .color-swatch{
+  width: 32px;
+  height: 20px;
+  border-radius: 4px;
+}
+
 .color-swatch{
   width: 16px;
   height: 16px;
