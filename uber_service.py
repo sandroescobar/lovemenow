@@ -4,6 +4,7 @@ Uber Direct API Integration Service
 import requests
 import json
 import logging
+import math
 from datetime import datetime, timedelta
 from typing import Dict, Any, Optional, Tuple
 from flask import current_app
@@ -261,21 +262,20 @@ def init_uber_service(app):
 
 def get_miami_store_address():
     """Get the store pickup address in Miami"""
-    # You'll need to replace this with your actual store address
     return {
-        "street_address": ["1234 Biscayne Blvd", "Suite 100"],
+        "street_address": ["351 NE 79th St", "Unit 101"],
         "city": "Miami",
         "state": "FL", 
-        "zip_code": "33132",
+        "zip_code": "33138",
         "country": "US"
     }
 
 def get_miami_store_coordinates():
     """Get store coordinates for Miami location"""
-    # You'll need to replace with your actual store coordinates
+    # Coordinates for 351 NE 79th St Unit 101, Miami, FL 33138
     return {
-        "latitude": 25.7617,
-        "longitude": -80.1918
+        "latitude": 25.8465,
+        "longitude": -80.1917
     }
 
 def format_address_for_uber(address_dict: Dict) -> Dict:
@@ -309,3 +309,178 @@ def create_manifest_items(cart_items: list) -> list:
         })
     
     return manifest_items
+
+def calculate_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """
+    Calculate the great circle distance between two points 
+    on the earth (specified in decimal degrees) using Haversine formula
+    Returns distance in miles
+    """
+    # Convert decimal degrees to radians
+    lat1, lon1, lat2, lon2 = map(math.radians, [lat1, lon1, lat2, lon2])
+    
+    # Haversine formula
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+    a = math.sin(dlat/2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon/2)**2
+    c = 2 * math.asin(math.sqrt(a))
+    
+    # Radius of earth in miles
+    r = 3956
+    
+    return c * r
+
+def get_driving_distance(origin_address: str, destination_address: str) -> Optional[float]:
+    """
+    Get actual driving distance using Google Maps Distance Matrix API
+    Returns distance in miles or None if API call fails
+    """
+    try:
+        from flask import current_app
+        import requests
+        import urllib.parse
+        
+        api_key = current_app.config.get('GOOGLE_MAPS_API_KEY')
+        if not api_key:
+            logger.warning("Google Maps API key not configured, falling back to straight-line distance")
+            return None
+        
+        # Format addresses for Google Maps API
+        origin = urllib.parse.quote(origin_address)
+        destination = urllib.parse.quote(destination_address)
+        
+        # Google Maps Distance Matrix API endpoint
+        url = f"https://maps.googleapis.com/maps/api/distancematrix/json"
+        params = {
+            'origins': origin_address,
+            'destinations': destination_address,
+            'units': 'imperial',  # Get distance in miles
+            'mode': 'driving',
+            'key': api_key
+        }
+        
+        response = requests.get(url, params=params, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            
+            if data['status'] == 'OK' and data['rows']:
+                element = data['rows'][0]['elements'][0]
+                
+                if element['status'] == 'OK':
+                    # Distance is returned in meters, convert to miles
+                    distance_meters = element['distance']['value']
+                    distance_miles = distance_meters * 0.000621371  # Convert meters to miles
+                    
+                    logger.info(f"Google Maps driving distance: {distance_miles:.2f} miles from '{origin_address}' to '{destination_address}'")
+                    return distance_miles
+                else:
+                    logger.warning(f"Google Maps API element error: {element['status']}")
+                    return None
+            else:
+                logger.warning(f"Google Maps API error: {data.get('status', 'Unknown error')}")
+                return None
+        else:
+            logger.error(f"Google Maps API HTTP error: {response.status_code}")
+            return None
+            
+    except Exception as e:
+        logger.error(f"Error getting driving distance: {str(e)}")
+        return None
+
+def get_custom_delivery_price(distance_miles: float, is_peak_hours: bool = False) -> float:
+    """
+    Calculate custom delivery price for addresses outside 10-mile radius
+    Returns price in dollars
+    """
+    base_price = 12.99  # Base price for deliveries outside 10 miles
+    
+    # Distance-based pricing (additional cost per mile beyond 10 miles)
+    if distance_miles > 10:
+        extra_miles = distance_miles - 10
+        
+        # Tiered pricing for longer distances
+        if extra_miles <= 20:  # 10-30 miles
+            distance_fee = extra_miles * 1.50  # $1.50 per extra mile
+        else:  # 30-50 miles
+            distance_fee = (20 * 1.50) + ((extra_miles - 20) * 2.00)  # $2.00 per mile for 30+ miles
+        
+        base_price += distance_fee
+    
+    # Peak hours surcharge (3:30 PM - 6:00 PM)
+    if is_peak_hours:
+        peak_surcharge = base_price * 0.25  # 25% surcharge during peak hours
+        base_price += peak_surcharge
+    
+    # Cap the maximum delivery fee at $55 for extended range
+    return min(base_price, 55.00)
+
+def is_peak_hours() -> bool:
+    """Check if current time is during peak hours (3:30 PM - 6:00 PM Miami time)"""
+    try:
+        import pytz
+        miami_tz = pytz.timezone('America/New_York')  # Miami is in Eastern Time
+        current_time = datetime.now(miami_tz)
+        
+        # Peak hours: 3:30 PM (15:30) to 6:00 PM (18:00)
+        peak_start = current_time.replace(hour=15, minute=30, second=0, microsecond=0)
+        peak_end = current_time.replace(hour=18, minute=0, second=0, microsecond=0)
+        
+        return peak_start <= current_time <= peak_end
+    except ImportError:
+        # Fallback if pytz is not available - assume not peak hours
+        logger.warning("pytz not available, cannot determine peak hours")
+        return False
+
+def geocode_address(address_dict: Dict) -> Optional[Tuple[float, float]]:
+    """
+    Geocode an address to get latitude and longitude using a free geocoding service
+    Returns (latitude, longitude) tuple or None if geocoding fails
+    """
+    try:
+        # Format address for geocoding
+        address_parts = []
+        if address_dict.get('address'):
+            address_parts.append(address_dict['address'])
+        if address_dict.get('suite'):
+            address_parts.append(address_dict['suite'])
+        if address_dict.get('city'):
+            address_parts.append(address_dict['city'])
+        if address_dict.get('state'):
+            address_parts.append(address_dict['state'])
+        if address_dict.get('zip'):
+            address_parts.append(address_dict['zip'])
+        
+        full_address = ', '.join(address_parts)
+        logger.info(f"Geocoding address: {full_address}")
+        
+        # Use Nominatim (OpenStreetMap) free geocoding service
+        import requests
+        import urllib.parse
+        
+        encoded_address = urllib.parse.quote(full_address)
+        url = f"https://nominatim.openstreetmap.org/search?format=json&q={encoded_address}&limit=1"
+        
+        headers = {
+            'User-Agent': 'LoveMeNow-Delivery-Service/1.0'
+        }
+        
+        response = requests.get(url, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data and len(data) > 0:
+                lat = float(data[0]['lat'])
+                lon = float(data[0]['lon'])
+                logger.info(f"Geocoded {full_address} to ({lat}, {lon})")
+                return (lat, lon)
+            else:
+                logger.warning(f"No geocoding results for: {full_address}")
+                return None
+        else:
+            logger.error(f"Geocoding API error: {response.status_code}")
+            return None
+        
+    except Exception as e:
+        logger.error(f"Error geocoding address: {str(e)}")
+        return None
