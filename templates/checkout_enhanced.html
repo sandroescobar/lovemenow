@@ -461,6 +461,12 @@
                             <input type="text" id="zip" name="zip"{% if default_address %} value="{{ default_address.zip }}"{% endif %}>
                         </div>
                     </div>
+                    
+                    <!-- Delivery Error Display -->
+                    <div id="delivery-error-message" class="error-message" style="display: none;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span id="delivery-error-text"></span>
+                    </div>
                 </div>
 
                 <!-- Payment -->
@@ -610,6 +616,9 @@
                         document.getElementById('city').required = false;
                         document.getElementById('zip').required = false;
 
+                        // Hide any delivery error messages
+                        hideDeliveryError();
+                        
                         deliveryQuote = null;
                     }
 
@@ -665,21 +674,52 @@
                     deliveryQuote = data.quote;
                     updateOrderSummary();
                     
+                    // Hide any previous error messages
+                    hideDeliveryError();
+                    
                     // Show success message
                     console.log(`✅ Got delivery quote: $${data.quote.fee_dollars.toFixed(2)} for ${data.quote.duration} minutes`);
                 } else {
                     deliveryQuote = null;
                     updateOrderSummary();
                     console.error('Quote error:', data.error);
+                    
+                    // Show user-friendly error message
+                    showDeliveryError(data.error);
                 }
 
             } catch (error) {
                 deliveryQuote = null;
                 updateOrderSummary();
                 console.error('Network error getting quote:', error);
+                
+                // Show network error message
+                showDeliveryError('Unable to get delivery quote. Please check your internet connection and try again.');
             } finally {
                 // Always reset the flag when done
                 isGettingQuote = false;
+            }
+        }
+
+        // Show delivery error message to user
+        function showDeliveryError(errorMessage) {
+            const errorDiv = document.getElementById('delivery-error-message');
+            const errorText = document.getElementById('delivery-error-text');
+            
+            if (errorDiv && errorText) {
+                errorText.textContent = errorMessage;
+                errorDiv.style.display = 'block';
+                
+                // Scroll to error message so user sees it
+                errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        // Hide delivery error message
+        function hideDeliveryError() {
+            const errorDiv = document.getElementById('delivery-error-message');
+            if (errorDiv) {
+                errorDiv.style.display = 'none';
             }
         }
 
