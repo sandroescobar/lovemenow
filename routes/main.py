@@ -996,26 +996,56 @@ def create_checkout_session():
                 'quantity': quantity,
             })
         
-        # Add shipping if needed (only for delivery orders under $50)
-        # TODO: Get delivery method from request - for now, don't add shipping for pickup
-        delivery_method = request.form.get('delivery_method', 'pickup')  # Default to pickup
+        # Add delivery fee if needed - get from request JSON
+        request_data = request.get_json() or {}
+        delivery_type = request_data.get('delivery_type', 'pickup')
+        delivery_quote = request_data.get('delivery_quote', {})
         
-        if delivery_method == 'delivery' and subtotal < 50:
-            line_items.append({
-                'price_data': {
-                    'currency': 'usd',
-                    'product_data': {
-                        'name': 'Shipping',
-                        'description': 'Standard shipping',
+        current_app.logger.info(f"🚚 DELIVERY DEBUG:")
+        current_app.logger.info(f"   Request data: {request_data}")
+        current_app.logger.info(f"   Delivery type: {delivery_type}")
+        current_app.logger.info(f"   Delivery quote: {delivery_quote}")
+        current_app.logger.info(f"   Quote has fee_dollars: {'fee_dollars' in delivery_quote if delivery_quote else False}")
+        
+        if delivery_type == 'delivery':
+            # Use actual Uber delivery fee from quote
+            if delivery_quote and 'fee_dollars' in delivery_quote:
+                delivery_fee_dollars = float(delivery_quote['fee_dollars'])
+                delivery_fee_cents = int(delivery_fee_dollars * 100)
+                current_app.logger.info(f"Using Uber delivery fee: ${delivery_fee_dollars:.2f}")
+                
+                line_items.append({
+                    'price_data': {
+                        'currency': 'usd',
+                        'product_data': {
+                            'name': 'Uber Direct Delivery',
+                            'description': f'Same-day delivery via Uber Direct',
+                        },
+                        'unit_amount': delivery_fee_cents,
                     },
-                    'unit_amount': 999,  # $9.99 in cents
-                },
-                'quantity': 1,
-            })
+                    'quantity': 1,
+                })
+            else:
+                # Fallback delivery fee if no quote available
+                current_app.logger.warning("No delivery quote provided, using fallback fee")
+                line_items.append({
+                    'price_data': {
+                        'currency': 'usd',
+                        'product_data': {
+                            'name': 'Delivery Fee',
+                            'description': 'Standard delivery',
+                        },
+                        'unit_amount': 999,  # $9.99 in cents
+                    },
+                    'quantity': 1,
+                })
         
         # Create Stripe checkout session for embedded checkout
         current_app.logger.info("Creating Stripe checkout session...")
-        current_app.logger.info(f"Line items: {line_items}")
+        current_app.logger.info(f"Line items count: {len(line_items)}")
+        for i, item in enumerate(line_items):
+            current_app.logger.info(f"Line item {i}: {item['price_data']['product_data']['name']} - ${item['price_data']['unit_amount']/100:.2f} x {item['quantity']}")
+        current_app.logger.info(f"Full line items: {line_items}")
         
         # Prepare metadata with cart information for webhook processing
         cart_metadata = {}
@@ -1036,11 +1066,34 @@ def create_checkout_session():
         if current_user.is_authenticated:
             cart_metadata['user_id'] = str(current_user.id)
         
-        # Calculate total amount in cents
-        total_amount = 0
+        # Calculate subtotal amount in cents
+        subtotal_amount = 0
         for item in line_items:
-            total_amount += item['price_data']['unit_amount'] * item['quantity']
+            subtotal_amount += item['price_data']['unit_amount'] * item['quantity']
         
+        # Add Miami-Dade County sales tax (8.75%)
+        tax_rate = 0.0875
+        tax_amount = int(subtotal_amount * tax_rate)
+        
+        # Add tax as a separate line item
+        if tax_amount > 0:
+            line_items.append({
+                'price_data': {
+                    'currency': 'usd',
+                    'product_data': {
+                        'name': 'Sales Tax',
+                        'description': 'Miami-Dade County Tax (8.75%)',
+                    },
+                    'unit_amount': tax_amount,
+                },
+                'quantity': 1,
+            })
+        
+        # Calculate total amount in cents (including tax)
+        total_amount = subtotal_amount + tax_amount
+        
+        current_app.logger.info(f"Subtotal amount in cents: {subtotal_amount}")
+        current_app.logger.info(f"Tax amount in cents: {tax_amount}")
         current_app.logger.info(f"Total amount in cents: {total_amount}")
         
         try:

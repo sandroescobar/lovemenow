@@ -68,16 +68,19 @@ class Config:
     UBER_CUSTOMER_ID = os.getenv('UBER_CUSTOMER_ID')
     UBER_SANDBOX = os.getenv('UBER_SANDBOX', 'true').lower() == 'true'
     
+    # Google Maps API configuration
+    GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY')
+    
     # Store information
     STORE_NAME = os.getenv('STORE_NAME', 'LoveMeNow Miami')
     STORE_PHONE = os.getenv('STORE_PHONE', '+1234567890')
-    STORE_ADDRESS = os.getenv('STORE_ADDRESS', '1234 Biscayne Blvd')
-    STORE_SUITE = os.getenv('STORE_SUITE', 'Suite 100')
+    STORE_ADDRESS = os.getenv('STORE_ADDRESS', '351 NE 79th St')
+    STORE_SUITE = os.getenv('STORE_SUITE', 'Unit 101')
     STORE_CITY = os.getenv('STORE_CITY', 'Miami')
     STORE_STATE = os.getenv('STORE_STATE', 'FL')
-    STORE_ZIP = os.getenv('STORE_ZIP', '33132')
-    STORE_LATITUDE = float(os.getenv('STORE_LATITUDE', '25.7617'))
-    STORE_LONGITUDE = float(os.getenv('STORE_LONGITUDE', '-80.1918'))
+    STORE_ZIP = os.getenv('STORE_ZIP', '33138')
+    STORE_LATITUDE = float(os.getenv('STORE_LATITUDE', '25.8465'))
+    STORE_LONGITUDE = float(os.getenv('STORE_LONGITUDE', '-80.1917'))
     
     # Slack integration
     SLACK_WEBHOOK_URL = os.getenv('SLACK_WEBHOOK_URL')

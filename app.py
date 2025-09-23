@@ -1,7 +1,4 @@
-"""
-LoveMeNow - Secure E-commerce Application
-Production-ready Flask application with comprehensive security measures
-"""
+
 import os
 import logging
 from datetime import datetime, timedelta

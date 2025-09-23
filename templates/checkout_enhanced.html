@@ -499,11 +499,20 @@
                     <span id="delivery-fee">$9.99</span>
                 </div>
 
+                <div class="summary-row">
+                    <span>Tax (8.75%):</span>
+                    <span id="tax-amount">$0.00</span>
+                </div>
+
                 <div class="summary-row total">
                     <span>Total:</span>
                     <span id="total">$0.00</span>
                 </div>
 
+                <div id="checkout-status" class="checkout-status" style="text-align: center; margin-bottom: 1rem; color: #666; font-size: 0.9rem;">
+                    Please select a delivery option to continue
+                </div>
+                
                 <button id="checkout-button" class="checkout-btn" disabled>
                     <i class="loading-spinner fas fa-spinner fa-spin"></i>
                     Complete Order
@@ -521,6 +530,7 @@
         let cartData = null;
         let deliveryQuote = null;
         let isGettingQuote = false; // Flag to prevent infinite loops
+        let stripeInitialized = false; // Flag to prevent multiple Stripe initializations
 
         // DOM elements
         const deliveryOptions = document.querySelectorAll('.delivery-option');
@@ -536,7 +546,7 @@
             resetCheckoutButton();
             loadCart();
             setupDeliveryOptions();
-            initializeStripe();
+            // DON'T initialize Stripe immediately - wait for user to select delivery option
             updateCartCount();
             updateWishlistCount();
         });
@@ -607,6 +617,9 @@
                         document.getElementById('address').required = true;
                         document.getElementById('city').required = true;
                         document.getElementById('zip').required = true;
+                        
+                        // For delivery, we'll initialize Stripe after getting the quote
+                        document.getElementById('checkout-status').textContent = 'Please enter your delivery address';
                     } else {
                         deliveryAddressSection.style.display = 'none';
                         deliveryFeeRow.style.display = 'none';
@@ -620,14 +633,20 @@
                         hideDeliveryError();
                         
                         deliveryQuote = null;
+                        
+                        // For pickup, initialize Stripe immediately since no quote needed
+                        document.getElementById('checkout-status').textContent = 'Initializing payment system...';
+                        initializeStripe();
                     }
 
                     updateOrderSummary();
                 });
             });
 
-            // Set default to pickup
-            document.querySelector('[data-type="pickup"]').click();
+            // Set default to pickup (but don't trigger click to avoid premature Stripe initialization)
+            selectedDeliveryType = 'pickup';
+            document.querySelector('[data-type="pickup"]').classList.add('active');
+            updateOrderSummary();
         }
 
 
@@ -679,6 +698,9 @@
                     
                     // Show success message
                     console.log(`✅ Got delivery quote: $${data.quote.fee_dollars.toFixed(2)} for ${data.quote.duration} minutes`);
+                    
+                    // Now that we have the delivery quote, initialize Stripe with the correct total
+                    initializeStripe();
                 } else {
                     deliveryQuote = null;
                     updateOrderSummary();
@@ -754,26 +776,48 @@
                 }
             }
 
-            const total = subtotal + deliveryFee;
+            // Calculate Miami-Dade County sales tax (8.75%)
+            const taxRate = 0.0875;
+            const taxableAmount = subtotal + deliveryFee; // Tax applies to subtotal + delivery
+            const taxAmount = taxableAmount * taxRate;
+            const total = subtotal + deliveryFee + taxAmount;
 
             document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
             document.getElementById('delivery-fee').textContent = deliveryFeeText;
+            document.getElementById('tax-amount').textContent = `$${taxAmount.toFixed(2)}`;
             document.getElementById('total').textContent = `$${total.toFixed(2)}`;
         }
 
         // Initialize Stripe Elements
         async function initializeStripe() {
+            // Prevent multiple initializations
+            if (stripeInitialized) {
+                console.log('⚠️ Stripe already initialized, skipping...');
+                return;
+            }
+            
+            stripeInitialized = true;
+            console.log('🚀 Initializing Stripe with delivery data...');
+            
             try {
                 // Create checkout session
+                console.log('🚚 FRONTEND DELIVERY DEBUG:');
+                console.log('   selectedDeliveryType:', selectedDeliveryType);
+                console.log('   deliveryQuote:', deliveryQuote);
+                console.log('   deliveryQuote has fee_dollars:', deliveryQuote && 'fee_dollars' in deliveryQuote);
+                
+                const requestBody = {
+                    delivery_type: selectedDeliveryType,
+                    delivery_quote: deliveryQuote
+                };
+                console.log('   Full request body:', requestBody);
+                
                 const response = await fetch('/create-checkout-session', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        delivery_type: selectedDeliveryType,
-                        delivery_quote: deliveryQuote
-                    })
+                    body: JSON.stringify(requestBody)
                 });
 
                 const responseData = await response.json();
@@ -862,6 +906,7 @@
                 paymentElement.mount('#stripe-checkout');
 
                 checkoutButton.disabled = false;
+                document.getElementById('checkout-status').textContent = 'Ready to complete your order';
 
             } catch (error) {
                 showError('Failed to initialize payment system: ' + error.message);
@@ -1207,7 +1252,7 @@
 
             // Initialize the page
             loadCart();
-            initializeStripe();
+            // DON'T initialize Stripe here - wait for user to select delivery option
         });
     </script>
 
