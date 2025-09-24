@@ -380,7 +380,7 @@ function showToast(message, type = 'success') {
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
     toast.innerHTML = `
-        <button class="flash_message_close" onclick="this.parentElement.remove()">
+        <button class="flash_message_close" onclick="closeToast(this.parentElement)">
             <i class="fas fa-times"></i>
         </button>
         ${message}
@@ -389,12 +389,21 @@ function showToast(message, type = 'success') {
     // Add to stack
     toastStack.appendChild(toast);
     
-    // Auto-remove after 5 seconds
+    // Auto-remove after 5 seconds with slide-out animation
     setTimeout(() => {
         if (toast.parentElement) {
-            toast.remove();
+            toast.style.animation = "slideOut 0.4s forwards";
+            toast.addEventListener("animationend", () => toast.remove());
         }
     }, 5000);
+}
+
+// Close toast with animation
+function closeToast(toast) {
+    if (toast && toast.parentElement) {
+        toast.style.animation = "slideOut 0.4s forwards";
+        toast.addEventListener("animationend", () => toast.remove());
+    }
 }
 
 // ============================================================================

@@ -15,11 +15,25 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <!-- Site CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="preload" href="{{ url_for('static', filename='CSS/performance.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/performance.css') }}"></noscript>
     
     <!-- Mobile Optimizations CSS -->
     <link rel="preload" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}"></noscript>
+    
+    <!-- Critical Toast Styling -->
+    <style>
+        /* Critical toast styling - inline for immediate availability */
+        .toast-stack{position:fixed;top:2rem;right:2rem;z-index:99999;display:flex;flex-direction:column;gap:0.5rem}
+        .toast{background:#ef4444!important;color:white!important;border:none!important;border-radius:8px;padding:1rem 1.5rem;min-width:300px;position:relative;animation:slideInRight 0.3s ease;font-size:1rem;font-weight:600;z-index:99999;box-shadow:0 4px 12px rgba(239,68,68,0.3)!important}
+        .toast-success,.toast-danger,.toast-error,.toast-warning,.toast-info,.toast-message{background:#ef4444!important;color:white!important;border:none!important;box-shadow:0 4px 12px rgba(239,68,68,0.3)!important}
+        .flash_message_close{position:absolute;top:0.5rem;right:0.5rem;background:none;border:none;color:rgba(255,255,255,0.8)!important;cursor:pointer;padding:0.25rem;border-radius:4px;transition:color 0.2s ease;font-size:1rem;z-index:100000}
+        .flash_message_close:hover{color:rgba(255,255,255,1)!important}
+        @keyframes slideInRight{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+        @keyframes slideOut{from{transform:translateX(0);opacity:1}to{transform:translateX(100%);opacity:0}}
+        @media (max-width:768px){.toast-stack{right:1rem;left:1rem;top:1rem}.toast{min-width:auto}}
+    </style>
     
     <!-- CSRF Protection -->
     {% include 'csrf_meta.html' %}
@@ -329,7 +343,25 @@
 {% include "login_register_modal.html" %}
 {% include "logged_in_modal.html" %}
 
+<!-- Flash Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="toast-stack" id="flashStack">
+      {% for category, msg in messages %}
+        <div class="toast toast-{{ category }}">
+            <button class="flash_message_close" onclick="closeToast(this.parentElement)">
+                <i class="fas fa-times"></i>
+            </button>
+          {{ msg }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
 <script src="{{ url_for('static', filename='js/index.js') }}?v=20241220c"></script>
+
+
 
 <style>
 /* Store Location Section Styles */

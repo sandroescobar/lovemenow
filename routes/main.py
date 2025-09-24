@@ -662,6 +662,13 @@ def support():
     """Support page"""
     return render_template('support.html')
 
+@main_bp.route('/test-homepage-flash')
+def test_homepage_flash():
+    """Test route to flash a message and redirect to homepage"""
+    from flask import flash, redirect, url_for
+    flash('This is a test flash message on the homepage!', 'error')
+    return redirect(url_for('main.index'))
+
 @main_bp.route('/return')
 def return_policy():
     """Return policy page"""

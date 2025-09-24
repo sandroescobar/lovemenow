@@ -19,6 +19,43 @@
     <!-- Google AdWords Tracking -->
     {% include 'google_tag.html' %}
     
+    <!-- Google Ads Conversion Tracking -->
+    {% if order %}
+    <script>
+        // Google Ads Purchase Conversion
+        gtag('event', 'conversion', {
+            'send_to': 'AW-17555943226/Q9ItCKrBg5obELreqbNB',
+            'transaction_id': '{{ order.order_number }}',
+            'value': {{ order.total_amount }},
+            'currency': 'USD'
+        });
+        
+        // Debug log for verification
+        console.log('Google Ads Conversion Fired:', {
+            transaction_id: '{{ order.order_number }}',
+            value: {{ order.total_amount }},
+            currency: 'USD'
+        });
+    </script>
+    {% elif checkout_session %}
+    <script>
+        // Google Ads Purchase Conversion
+        gtag('event', 'conversion', {
+            'send_to': 'AW-17555943226/Q9ItCKrBg5obELreqbNB',
+            'transaction_id': '{{ checkout_session.id }}',
+            'value': {{ (checkout_session.amount_total / 100) if checkout_session.amount_total else 0 }},
+            'currency': '{{ checkout_session.currency.upper() if checkout_session.currency else "USD" }}'
+        });
+        
+        // Debug log for verification
+        console.log('Google Ads Conversion Fired:', {
+            transaction_id: '{{ checkout_session.id }}',
+            value: {{ (checkout_session.amount_total / 100) if checkout_session.amount_total else 0 }},
+            currency: '{{ checkout_session.currency.upper() if checkout_session.currency else "USD" }}'
+        });
+    </script>
+    {% endif %}
+    
     <style>
         .success-container {
             max-width: 800px;

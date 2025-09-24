@@ -16,7 +16,7 @@
     
     <!-- Preload critical resources -->
     <link rel="preload" href="{{ url_for('static', filename='js/index.js') }}?v=20250116-2" as="script">
-    <link rel="preload" href="{{ url_for('static', filename='CSS/styles.css') }}?v=20250116-2" as="style">
+    <link rel="preload" href="{{ url_for('static', filename='CSS/performance.css') }}?v=20250116-2" as="style">
 
     <!-- Font Awesome - async load for non-critical icons -->
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -29,11 +29,21 @@
     <!-- Critical CSS inline for faster rendering -->
     <style>
         :root{--primary-color:280 100% 70%;--accent-color:320 100% 70%;--dark-color:220 13% 18%;--background-color:220 13% 15%;--text-color:220 13% 91%;--muted-color:220 9% 46%;--border-color:220 13% 31%;--surface-color:220 13% 24%;--glass-bg:rgba(255,255,255,0.1);--glass-border:rgba(255,255,255,0.2);--radius-sm:0.5rem;--radius-md:0.75rem;--radius-lg:1rem}*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI','Roboto',sans-serif;line-height:1.6;color:hsl(var(--text-color));background:linear-gradient(135deg,hsl(var(--dark-color)),hsl(220 13% 12%));min-height:100vh}.container{max-width:1200px;margin:0 auto;padding:0 1rem}.d-flex{display:flex}.justify-content-between{justify-content:space-between}.align-items-center{align-items:center}
+        
+        /* Critical toast styling - inline for immediate availability */
+        .toast-stack{position:fixed;top:2rem;right:2rem;z-index:99999;display:flex;flex-direction:column;gap:0.5rem}
+        .toast{background:#ef4444!important;color:white!important;border:none!important;border-radius:8px;padding:1rem 1.5rem;min-width:300px;position:relative;animation:slideInRight 0.3s ease;font-size:1rem;font-weight:600;z-index:99999;box-shadow:0 4px 12px rgba(239,68,68,0.3)!important}
+        .toast-success,.toast-danger,.toast-error,.toast-warning,.toast-info,.toast-message{background:#ef4444!important;color:white!important;border:none!important;box-shadow:0 4px 12px rgba(239,68,68,0.3)!important}
+        .flash_message_close{position:absolute;top:0.5rem;right:0.5rem;background:none;border:none;color:rgba(255,255,255,0.8)!important;cursor:pointer;padding:0.25rem;border-radius:4px;transition:color 0.2s ease;font-size:1rem;z-index:100000}
+        .flash_message_close:hover{color:rgba(255,255,255,1)!important}
+        @keyframes slideInRight{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+        @keyframes slideOut{from{transform:translateX(0);opacity:1}to{transform:translateX(100%);opacity:0}}
+        @media (max-width:768px){.toast-stack{right:1rem;left:1rem;top:1rem}.toast{min-width:auto}}
     </style>
     
     <!-- Non-critical CSS loaded asynchronously -->
-    <link rel="preload" href="{{ url_for('static', filename='CSS/styles.css') }}?v=20250116-2" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}?v=20250116-2"></noscript>
+    <link rel="preload" href="{{ url_for('static', filename='CSS/performance.css') }}?v=20250116-2" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/performance.css') }}?v=20250116-2"></noscript>
     
     <!-- Mobile optimizations CSS -->
     <link rel="preload" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}?v=20250116-2" as="style" onload="this.onload=null;this.rel='stylesheet'">
