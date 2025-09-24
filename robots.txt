@@ -9,6 +9,8 @@ Allow: /register
 Disallow: /admin/
 Disallow: /api/
 Disallow: /profile/
+Disallow: /settings/
+Disallow: /user-profile/
 Disallow: /checkout/
 Disallow: /cart/
 Disallow: /wishlist/

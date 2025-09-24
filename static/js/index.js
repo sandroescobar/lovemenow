@@ -1799,6 +1799,8 @@ window.filterProducts = function filterProducts(categorySlug) {
             'kits': 3,
             'lubricant': 4,
             'lingerie': 5,
+            'anal-toys': 58,
+            'sexual-enhancements': 59,
             
             // Subcategories with actual products
             'roleplay-kit': 6,
@@ -1883,62 +1885,13 @@ window.clearAllFilters = function clearAllFilters() {
         searchInput.value = '';
     }
     
-    // Clear filter dropdowns
-    const inStockFilter = document.getElementById('inStockFilter');
-    const brandFilter = document.getElementById('brandFilter');
-    const priceSort = document.getElementById('priceSort');
-    
-    if (inStockFilter) inStockFilter.checked = false;
-    if (brandFilter) brandFilter.value = '';
-    if (priceSort) priceSort.value = '';
-    
-    // Clear color selections (if any)
-    const colorDots = document.querySelectorAll('.color-dot.selected');
-    colorDots.forEach(dot => dot.classList.remove('selected'));
+
     
     // Redirect to products page without any filters
     window.location.href = '/products';
 }
 
-// Additional filter functions that might be called from the template
-window.handleInStockFilter = function handleInStockFilter() {
-    const checkbox = document.getElementById('inStockFilter');
-    const url = new URL(window.location);
-    
-    if (checkbox && checkbox.checked) {
-        url.searchParams.set('in_stock', 'true');
-    } else {
-        url.searchParams.delete('in_stock');
-    }
-    
-    window.location.href = url.toString();
-}
 
-window.handleBrandFilter = function handleBrandFilter() {
-    const select = document.getElementById('brandFilter');
-    const url = new URL(window.location);
-    
-    if (select && select.value) {
-        url.searchParams.set('brand', select.value);
-    } else {
-        url.searchParams.delete('brand');
-    }
-    
-    window.location.href = url.toString();
-}
-
-window.handlePriceSort = function handlePriceSort() {
-    const select = document.getElementById('priceSort');
-    const url = new URL(window.location);
-    
-    if (select && select.value) {
-        url.searchParams.set('sort', select.value);
-    } else {
-        url.searchParams.delete('sort');
-    }
-    
-    window.location.href = url.toString();
-}
 
 // Individual filter clear functions
 window.clearCategoryFilter = function clearCategoryFilter() {
@@ -1947,45 +1900,7 @@ window.clearCategoryFilter = function clearCategoryFilter() {
     window.location.href = url.toString();
 }
 
-window.clearBrandFilter = function clearBrandFilter() {
-    const brandSelect = document.getElementById('brandFilter');
-    if (brandSelect) {
-        brandSelect.value = '';
-    }
-    const url = new URL(window.location);
-    url.searchParams.delete('brand');
-    window.location.href = url.toString();
-}
 
-window.clearPriceSortFilter = function clearPriceSortFilter() {
-    const priceSelect = document.getElementById('priceSort');
-    if (priceSelect) {
-        priceSelect.value = '';
-    }
-    const url = new URL(window.location);
-    url.searchParams.delete('sort');
-    window.location.href = url.toString();
-}
-
-window.clearInStockFilter = function clearInStockFilter() {
-    const checkbox = document.getElementById('inStockFilter');
-    if (checkbox) {
-        checkbox.checked = false;
-    }
-    const url = new URL(window.location);
-    url.searchParams.delete('in_stock');
-    window.location.href = url.toString();
-}
-
-window.clearColorFilter = function clearColorFilter() {
-    // Clear selected color dots
-    const colorDots = document.querySelectorAll('.color-dot.selected');
-    colorDots.forEach(dot => dot.classList.remove('selected'));
-    
-    const url = new URL(window.location);
-    url.searchParams.delete('color');
-    window.location.href = url.toString();
-}
 
 // Modal functions
 function closeQuickViewModal() {

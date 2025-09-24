@@ -1,74 +1,63 @@
 #!/usr/bin/env python3
 """
-Script to check what products exist in the database and their identifiers
+Check what products and variants exist in the database
 """
-
 import os
-from dotenv import load_dotenv
-from flask import Flask
+import sys
+from app import create_app
 from models import db, Product, ProductVariant, ProductImage
 
-# Load environment variables
-load_dotenv()
-
-def create_flask_app():
-    """Create Flask app similar to main.py"""
-    app = Flask(__name__)
-    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev_key")
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
-        "DB_URL",
-        "mysql+pymysql://root:Ae9542790079@127.0.0.1:3306/love_me_now_db",
-    )
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    
-    # Initialize extensions
-    from routes import bcrypt, login_mgr
-    db.init_app(app)
-    bcrypt.init_app(app)
-    login_mgr.init_app(app)
-    
-    return app
-
 def check_products():
-    """Check what products exist in the database"""
-    app = create_flask_app()
+    """Check all products and their variants"""
+    app = create_app()
     
     with app.app_context():
-        print("=== PRODUCTS IN DATABASE ===")
+        print("🔍 Checking all products and variants...")
+        
+        # Get all products
         products = Product.query.all()
-        print(f"Total products: {len(products)}")
+        print(f"\n📦 Found {len(products)} products total")
         
-        print("\n=== PRODUCT DETAILS ===")
+        # Look for products that might match our UPCs
+        target_upcs = ['657447102905', '657447102899']
+        
         for product in products:
-            print(f"ID: {product.id}")
-            print(f"Name: {product.name}")
-            print(f"UPC: {product.upc}")
-            print(f"Base UPC: {product.base_upc}")
-            print(f"Wholesale ID: {product.wholesale_id}")
-            print(f"Variants: {len(product.variants)}")
+            # Check if product UPC matches
+            if product.upc in target_upcs:
+                print(f"\n✅ FOUND PRODUCT with UPC {product.upc}:")
+                print(f"   ID: {product.id}")
+                print(f"   Name: {product.name}")
+                print(f"   Variants: {len(product.variants)}")
+                
+                for variant in product.variants:
+                    print(f"   - Variant ID: {variant.id}, UPC: {variant.upc}")
+                    images = ProductImage.query.filter_by(product_variant_id=variant.id).all()
+                    print(f"     Images: {len(images)}")
+                    for img in images:
+                        print(f"       - {img.url}")
             
-            # Check images for each variant
+            # Check if any variant UPC matches
             for variant in product.variants:
-                images = ProductImage.query.filter_by(product_variant_id=variant.id).all()
-                print(f"  Variant {variant.id}: {len(images)} images")
-            
-            print("-" * 50)
+                if variant.upc in target_upcs:
+                    print(f"\n✅ FOUND VARIANT with UPC {variant.upc}:")
+                    print(f"   Product ID: {product.id}")
+                    print(f"   Product Name: {product.name}")
+                    print(f"   Variant ID: {variant.id}")
+                    images = ProductImage.query.filter_by(product_variant_id=variant.id).all()
+                    print(f"   Images: {len(images)}")
+                    for img in images:
+                        print(f"     - {img.url}")
         
-        print("\n=== IMAGE STATISTICS ===")
-        total_images = ProductImage.query.count()
-        print(f"Total images in database: {total_images}")
-        
-        # Check for variants with no images
-        variants_without_images = []
+        # Also show products that contain these numbers in their name
+        print(f"\n🔍 Searching for products containing '102905' or '102899' in name...")
         for product in products:
-            for variant in product.variants:
-                images = ProductImage.query.filter_by(product_variant_id=variant.id).all()
-                if len(images) == 0:
-                    variants_without_images.append((product, variant))
-        
-        print(f"Variants without images: {len(variants_without_images)}")
-        for product, variant in variants_without_images:
-            print(f"  - {product.name} (Variant ID: {variant.id})")
+            if '102905' in product.name or '102899' in product.name:
+                print(f"\n📦 Product: {product.name}")
+                print(f"   ID: {product.id}")
+                print(f"   UPC: {product.upc}")
+                print(f"   Variants: {len(product.variants)}")
+                for variant in product.variants:
+                    print(f"   - Variant ID: {variant.id}, UPC: {variant.upc}")
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     check_products()

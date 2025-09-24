@@ -291,6 +291,328 @@ def products():
         current_app.logger.error(f"Error loading products page: {str(e)}")
         return render_template('errors/500.html'), 500
 
+def process_product_details(product):
+    """Process product data to extract the most important features, specifications, and dimensions"""
+    import re
+    
+    # Check if this is a lubricant product
+    lubricant_categories = [4, 55, 56, 57]  # lubricant, water-based, oil-based, massage oil
+    is_lubricant = product.category_id in lubricant_categories
+    
+    def smart_shorten_text(text, max_length=35):
+        """Intelligently shorten text by summarizing instead of just truncating"""
+        if len(text) <= max_length:
+            return text
+            
+        # If it has a colon, preserve the key and create a meaningful summary
+        if ':' in text:
+            key, value = text.split(':', 1)
+            key = key.strip()
+            value = value.strip()
+            
+            # Special handling for lubricants - avoid "waterproof" and focus on relevant info
+            if is_lubricant:
+                if 'water resistance' in key.lower() or 'waterproof' in key.lower():
+                    # For lubricants, show formula type instead of water resistance
+                    if 'not water resistant' in value.lower():
+                        return f"{key}: Formula-based"
+                    else:
+                        return f"{key}: Specialty formula"
+                elif 'type' in key.lower():
+                    # Show lubricant type clearly
+                    if 'water' in value.lower():
+                        return f"{key}: Water-based"
+                    elif 'silicone' in value.lower():
+                        return f"{key}: Silicone-based"
+                    elif 'hybrid' in value.lower():
+                        return f"{key}: Hybrid formula"
+                    elif 'oil' in value.lower():
+                        return f"{key}: Oil-based"
+                    else:
+                        return f"{key}: {value[:15]}"
+                elif 'size' in key.lower() or 'fluid' in key.lower():
+                    return f"{key}: {value}"
+                elif 'collection' in key.lower() or 'category' in key.lower():
+                    # Simplify collection/category info
+                    if 'lubricant' in value.lower():
+                        return f"{key}: Premium line"
+                    else:
+                        return f"{key}: {value[:15]}"
+            
+            # Create intelligent summaries based on content (for non-lubricants)
+            if 'dual-density' in key.lower():
+                return "Dual-density construction"
+            elif 'material' in value.lower():
+                # Extract material type
+                if 'silicone' in value.lower():
+                    return f"{key}: Silicone"
+                elif 'tpe' in value.lower() or 'elastomer' in value.lower():
+                    return f"{key}: TPE elastomer"
+                else:
+                    return f"{key}: Premium material"
+            elif 'soft' in value.lower() and 'firm' in value.lower():
+                return f"{key}: Soft & firm design"
+            elif not is_lubricant and ('waterproof' in value.lower() or 'water' in value.lower()):
+                return f"{key}: Waterproof"
+            elif 'rechargeable' in value.lower() or 'usb' in value.lower():
+                return f"{key}: USB rechargeable"
+            else:
+                # Keep key and first meaningful words
+                words = [w for w in value.split() if len(w) > 2]
+                if len(words) >= 2:
+                    return f"{key}: {' '.join(words[:2])}"
+                else:
+                    return f"{key}: {value[:15]}"
+        else:
+            # For regular text without colon, create meaningful summaries
+            text_lower = text.lower()
+            if 'dual-density' in text_lower:
+                return "Dual-density design"
+            elif 'soft' in text_lower and 'firm' in text_lower:
+                return "Soft exterior, firm core"
+            elif not is_lubricant and 'waterproof' in text_lower:
+                return "Waterproof design"
+            elif 'rechargeable' in text_lower:
+                return "Rechargeable battery"
+            elif 'silicone' in text_lower:
+                return "Premium silicone material"
+            else:
+                # Keep first meaningful words
+                words = [w for w in text.split() if len(w) > 2]
+                if len(words) >= 3:
+                    return ' '.join(words[:3])
+                elif len(words) >= 2:
+                    return ' '.join(words[:2])
+                else:
+                    return text[:max_length]
+    
+    # Process Features (from description field)
+    features = []
+    if product.description:
+        desc_text = product.description.lower()
+        
+        # Different feature keywords for lubricants vs other products
+        if is_lubricant:
+            # Lubricant-specific features - focus on formula, safety, and benefits
+            feature_keywords = {
+                'long-lasting': 'Long-Lasting Formula',
+                'glycerin-free': 'Glycerin-Free',
+                'paraben-free': 'Paraben-Free',
+                'toy-safe': 'Toy-Safe',
+                'latex-safe': 'Latex Compatible',
+                'water-based': 'Water-Based Formula',
+                'silicone-based': 'Silicone-Based',
+                'hybrid': 'Hybrid Formula',
+                'oil-based': 'Oil-Based',
+                'natural': 'Natural Ingredients',
+                'flavored': 'Flavored',
+                'warming': 'Warming Sensation',
+                'cooling': 'Cooling Effect',
+                'edible': 'Edible Formula',
+                'massage': 'Massage Oil',
+                'premium': 'Premium Quality',
+                'smooth': 'Smooth Glide',
+                'slippery': 'Silky Feel',
+                'non-sticky': 'Non-Sticky',
+                'easy cleanup': 'Easy Cleanup',
+                'body-safe': 'Body-Safe',
+                'usa': 'Made in USA'
+            }
+        else:
+            # Standard features for non-lubricant products
+            feature_keywords = {
+                'rechargeable': 'USB Rechargeable',
+                'waterproof': 'Waterproof Design',
+                'quiet': 'Quiet Operation',
+                'body-safe': 'Body-Safe Materials',
+                'silicone': 'Premium Silicone',
+                'multiple': 'Multiple Settings',
+                'remote': 'Remote Control',
+                'suction': 'Suction Cup Base',
+                'harness': 'Harness Compatible',
+                'flexible': 'Flexible Design',
+                'realistic': 'Lifelike Feel',
+                'textured': 'Textured Surface',
+                'vibrating': 'Vibrating Function',
+                'adjustable': 'Adjustable Fit',
+                'beginner': 'Beginner Friendly',
+                'comfortable': 'Comfortable Fit',
+                'elegant': 'Elegant Design',
+                'beautiful': 'Beautiful Aesthetics',
+                'soft': 'Soft Touch',
+                'silk': 'Silk Material',
+                'metal': 'Metal Accents',
+                'lined': 'Lined Interior',
+                'wire': 'Structured Support',
+                'light': 'Light Control',
+                'senses': 'Sensory Enhancement'
+            }
+        
+        for keyword, feature in feature_keywords.items():
+            if keyword in desc_text and feature not in features:
+                features.append(feature)
+                if len(features) >= 4:
+                    break
+        
+        # Extract key phrases from description if we don't have enough features
+        if len(features) < 4:
+            # Look for descriptive phrases that could be features
+            desc_sentences = product.description.split('.')
+            for sentence in desc_sentences:
+                sentence = sentence.strip()
+                if sentence and len(sentence) < 50:  # Keep it concise
+                    # Clean up the sentence to make it feature-like
+                    if 'allow' in sentence.lower():
+                        feature = sentence.replace('allow women to', '').replace('allows', '').strip()
+                        if feature and len(feature) < 40:
+                            features.append(feature.capitalize())
+                    elif any(word in sentence.lower() for word in ['made from', 'material', 'fabric']):
+                        features.append(sentence.strip().capitalize())
+                    elif any(word in sentence.lower() for word in ['comfortable', 'elegant', 'beautiful', 'soft']):
+                        features.append(sentence.strip().capitalize())
+                    
+                    if len(features) >= 4:
+                        break
+        
+        # If we still don't have enough features, add some generic ones
+        if len(features) < 4:
+            if is_lubricant:
+                # Lubricant-specific generic features
+                generic_features = ['Premium Formula', 'Body-Safe', 'Easy Application', 'Discreet Packaging']
+            else:
+                # Standard generic features
+                generic_features = ['Premium Quality', 'Easy to Clean', 'Discreet Packaging', 'Body-Safe Design']
+            
+            for feature in generic_features:
+                if feature not in features:
+                    features.append(feature)
+                    if len(features) >= 4:
+                        break
+    
+    # Check if material is already mentioned in features
+    material_in_features = any('material' in feature.lower() or 'silicone' in feature.lower() or 'tpe' in feature.lower() 
+                             for feature in (features if features else []))
+    
+    # Check if this is a dildo product (category ID 33)
+    is_dildo_product = product.category_id == 33
+    
+    # Process Specifications
+    specs = []
+    dimensions_keywords = ['insertable', 'length', 'width', 'height', 'diameter', 'weight', 'total']
+    
+    if product.specifications:
+        spec_lines = product.specifications.split('\n')
+        
+        # Priority specifications - NEVER include dimensions in specs for ANY product
+        if is_lubricant:
+            # Lubricant-specific priority specs - avoid "Water Resistance" which is misleading
+            priority_specs = ['Type:', 'Brand:', 'Size:', 'Collection:', 'Category:', 'Manufacturer:']
+        else:
+            # Standard priority specs for other products
+            priority_specs = ['Brand:', 'Power:', 'Water Resistance:', 'Collection:', 'Color:', 'Warranty:']
+        
+        # Don't add material to specs if it's already in features
+        if not material_in_features:
+            priority_specs.insert(1, 'Material:')
+        
+        for line in spec_lines:
+            line = line.strip()
+            if line and any(priority in line for priority in priority_specs):
+                # ALWAYS skip ALL dimensions for ALL products (including width for dildos)
+                if any(dim_word in line.lower() for dim_word in dimensions_keywords):
+                    continue
+                
+                # Skip material if it's already mentioned in features
+                if material_in_features and line.lower().startswith('material:'):
+                    continue
+                    
+                # Clean up the line and keep it concise using smart shortening
+                specs.append(smart_shorten_text(line, 35))
+                
+                if len(specs) >= 4:
+                    break
+        
+        # If we don't have enough specs, add remaining non-dimension lines
+        if len(specs) < 4:
+            for line in spec_lines:
+                line = line.strip()
+                if (line and line not in specs and 
+                    not any(spec.split(':')[0].strip() == line.split(':')[0].strip() for spec in specs if ':' in spec and ':' in line)):
+                    
+                    # NEVER allow dimensions in specs for ANY product
+                    if not any(dim_word in line.lower() for dim_word in dimensions_keywords):
+                        # Skip material if already in features
+                        if material_in_features and line.lower().startswith('material:'):
+                            continue
+                        specs.append(smart_shorten_text(line, 35))
+                    
+                    if len(specs) >= 4:
+                        break
+    
+    # Process Dimensions - Extract ALL dimensional data from specifications first
+    dims = []
+    
+    if product.specifications:
+        spec_lines = product.specifications.split('\n')
+        dimension_patterns = [
+            r'Insertable.*?:\s*([^;,\n]+)',
+            r'Total.*?length:\s*([^;,\n]+)',
+            r'Length:\s*([^;,\n]+)',
+            r'Width:\s*([^;,\n]+)',
+            r'Diameter:\s*([^;,\n]+)',
+            r'Height:\s*([^;,\n]+)',
+            r'Weight:\s*([^;,\n]+)'
+        ]
+        
+        for line in spec_lines:
+            line = line.strip()
+            for pattern in dimension_patterns:
+                match = re.search(pattern, line, re.IGNORECASE)
+                if match and len(dims) < 4:
+                    dim_value = match.group(0).strip()
+                    # Avoid duplicates by checking if similar dimension already exists
+                    is_duplicate = False
+                    for existing_dim in dims:
+                        if (dim_value.lower().replace(' ', '') in existing_dim.lower().replace(' ', '') or
+                            existing_dim.lower().replace(' ', '') in dim_value.lower().replace(' ', '')):
+                            is_duplicate = True
+                            break
+                    if not is_duplicate:
+                        dims.append(dim_value)
+    
+    # Then check dimensions field for additional info
+    if product.dimensions and len(dims) < 4:
+        dim_text = product.dimensions
+        
+        # If dimensions field contains descriptive text, intelligently shorten it
+        separators = ['\n\n', '\n', ';', ',']
+        for sep in separators:
+            if sep in dim_text:
+                parts = dim_text.split(sep)
+                for part in parts:
+                    part = part.strip()
+                    if part and len(dims) < 4:
+                        dims.append(smart_shorten_text(part, 35))
+                break
+        
+        # If still no dimensions from descriptive text, use the whole string (but shorten intelligently)
+        if len(dims) < 4 and not any(sep in dim_text for sep in separators) and dim_text.strip():
+            dims.append(smart_shorten_text(dim_text.strip(), 35))
+    
+    # Ensure we have exactly 4 items in each list (or whatever is available)
+    if is_lubricant:
+        # Lubricant-specific defaults
+        features = features[:4] if features else ['Premium Formula', 'Body-Safe', 'Easy Application', 'Discreet Packaging']
+        specs = specs[:4] if specs else ['Professional Grade', 'Quality Formula', 'Tested & Certified', 'Satisfaction Guaranteed']
+        dims = dims[:4] if dims else ['Standard Size', 'Portable Design', 'Easy Storage', 'Travel Friendly']
+    else:
+        # Standard defaults for other products
+        features = features[:4] if features else ['Premium Quality', 'Body-Safe Design', 'Easy to Clean', 'Discreet Packaging']
+        specs = specs[:4] if specs else ['Professional Grade', 'Quality Assured', 'Manufacturer Warranty', 'Tested & Certified']
+        dims = dims[:4] if dims else ['Standard Size', 'Ergonomic Design', 'Lightweight', 'Compact Storage']
+    
+    return features, specs, dims
+
 @main_bp.route('/product/<int:product_id>')
 @require_age_verification
 def product_detail(product_id):
@@ -306,6 +628,9 @@ def product_detail(product_id):
             .get_or_404(product_id)
         )
         
+        # Process product details to extract features, specs, and dimensions
+        features, specs, dims = process_product_details(product)
+        
         # Get related products from same category that are in stock
         related_products = (
             Product.query
@@ -318,6 +643,9 @@ def product_detail(product_id):
         
         return render_template('product_detail.html',
                              product=product,
+                             features=features,
+                             specs=specs,
+                             dims=dims,
                              related_products=related_products)
     
     except Exception as e:
@@ -1282,11 +1610,13 @@ def process_payment_success():
 
 
 @main_bp.route('/settings')
+@login_required
 def settings():
     """User settings page"""
     return render_template('settings.html')
 
 @main_bp.route('/user-profile')
+@login_required
 def user_profile():
     """User profile page"""
     return render_template('user_profile.html')
