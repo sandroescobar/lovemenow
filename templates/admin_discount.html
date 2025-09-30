@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discount Code Management · LoveMeNow Admin</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <!-- CSRF Protection -->
+    {% include 'csrf_meta.html' %}
+    
+    <style>
+        :root {
+            --primary-color: #8b5cf6;
+            --secondary-color: #ec4899;
+            --background-dark: #0f0f23;
+            --surface-dark: #1a1a2e;
+            --text-light: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --success-color: #10b981;
+            --error-color: #ef4444;
+            --warning-color: #f59e0b;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background-dark);
+            color: var(--text-light);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .admin-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .admin-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+        
+        .admin-header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+        
+        .admin-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .admin-card {
+            background: var(--surface-dark);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid var(--border-color);
+        }
+        
+        .admin-card h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .admin-card h2 i {
+            color: var(--primary-color);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-light);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--background-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-light);
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+        
+        .form-check {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .form-check input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary-color);
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+        }
+        
+        .btn-danger {
+            background: var(--error-color);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--surface-dark);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        
+        .usage-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        
+        .usage-table th,
+        .usage-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .usage-table th {
+            background: var(--background-dark);
+            font-weight: 600;
+            color: var(--text-light);
+        }
+        
+        .usage-table td {
+            color: var(--text-muted);
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status-enabled {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success-color);
+        }
+        
+        .status-disabled {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--error-color);
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--success-color);
+        }
+        
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--error-color);
+        }
+        
+        @media (max-width: 768px) {
+            .admin-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .admin-container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1><i class="fas fa-tags"></i> Discount Code Management</h1>
+            <p>Manage discount codes, usage limits, and view analytics</p>
+        </div>
+        
+        <!-- Alerts -->
+        <div id="successAlert" class="alert alert-success">
+            <i class="fas fa-check-circle"></i> <span id="successMessage"></span>
+        </div>
+        <div id="errorAlert" class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i> <span id="errorMessage"></span>
+        </div>
+        
+        <!-- Statistics -->
+        <div class="stats-grid" id="statsGrid">
+            <!-- Stats will be loaded here -->
+        </div>
+        
+        <div class="admin-grid">
+            <!-- Settings Card -->
+            <div class="admin-card">
+                <h2><i class="fas fa-cog"></i> Discount Settings</h2>
+                
+                <form id="settingsForm">
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input type="checkbox" id="discountsEnabled" name="discounts_enabled">
+                            <label for="discountsEnabled">Enable Discount Codes</label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="maxUses">Maximum Uses Per Code</label>
+                        <input type="number" id="maxUses" name="max_uses_per_code" class="form-control" min="1" max="1000" value="100">
+                    </div>
+                    
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Settings
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Actions Card -->
+            <div class="admin-card">
+                <h2><i class="fas fa-tools"></i> Actions</h2>
+                
+                <div class="form-group">
+                    <button type="button" class="btn btn-danger" onclick="resetUsage()">
+                        <i class="fas fa-redo"></i> Reset All Usage Data
+                    </button>
+                    <small style="display: block; margin-top: 0.5rem; color: var(--text-muted);">
+                        This will reset all discount code usage counters to zero.
+                    </small>
+                </div>
+                
+                <div class="form-group">
+                    <button type="button" class="btn btn-primary" onclick="refreshData()">
+                        <i class="fas fa-sync"></i> Refresh Data
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Usage Statistics -->
+        <div class="admin-card">
+            <h2><i class="fas fa-chart-bar"></i> Usage Statistics</h2>
+            <div id="usageTableContainer">
+                <!-- Usage table will be loaded here -->
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Load initial data
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDiscountData();
+        });
+        
+        // Settings form submission
+        document.getElementById('settingsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveSettings();
+        });
+        
+        function loadDiscountData() {
+            fetch('/api/admin/discount-settings', {
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': document.querySelector('meta[name=csrf-token]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateUI(data);
+                } else {
+                    showAlert('Error loading discount data', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('Error loading discount data', 'error');
+            });
+        }
+        
+        function updateUI(data) {
+            // Update settings form
+            document.getElementById('discountsEnabled').checked = data.settings.discounts_enabled;
+            document.getElementById('maxUses').value = data.settings.max_uses_per_code;
+            
+            // Update statistics
+            updateStats(data);
+            
+            // Update usage table
+            updateUsageTable(data.usage_stats);
+        }
+        
+        function updateStats(data) {
+            const statsGrid = document.getElementById('statsGrid');
+            const totalCodes = Object.keys(data.usage_stats).length;
+            const totalUses = Object.values(data.usage_stats).reduce((sum, stat) => sum + stat.total_uses, 0);
+            const enabledStatus = data.settings.discounts_enabled;
+            const maxUses = data.settings.max_uses_per_code;
+            
+            statsGrid.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${totalCodes}</div>
+                    <div class="stat-label">Active Codes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${totalUses}</div>
+                    <div class="stat-label">Total Uses</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${maxUses}</div>
+                    <div class="stat-label">Max Uses Per Code</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">
+                        <span class="status-badge ${enabledStatus ? 'status-enabled' : 'status-disabled'}">
+                            ${enabledStatus ? 'Enabled' : 'Disabled'}
+                        </span>
+                    </div>
+                    <div class="stat-label">Discount Status</div>
+                </div>
+            `;
+        }
+        
+        function updateUsageTable(usageStats) {
+            const container = document.getElementById('usageTableContainer');
+            
+            if (Object.keys(usageStats).length === 0) {
+                container.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 2rem;">No discount codes have been used yet.</p>';
+                return;
+            }
+            
+            let tableHTML = `
+                <table class="usage-table">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Total Uses</th>
+                            <th>Remaining Uses</th>
+                            <th>Usage %</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            Object.entries(usageStats).forEach(([code, stats]) => {
+                const usagePercent = Math.round((stats.total_uses / (stats.total_uses + stats.remaining_uses)) * 100);
+                tableHTML += `
+                    <tr>
+                        <td><strong>${code}</strong></td>
+                        <td>${stats.total_uses}</td>
+                        <td>${stats.remaining_uses}</td>
+                        <td>${usagePercent}%</td>
+                    </tr>
+                `;
+            });
+            
+            tableHTML += '</tbody></table>';
+            container.innerHTML = tableHTML;
+        }
+        
+        function saveSettings() {
+            const formData = {
+                discounts_enabled: document.getElementById('discountsEnabled').checked,
+                max_uses_per_code: parseInt(document.getElementById('maxUses').value)
+            };
+            
+            fetch('/api/admin/discount-settings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('meta[name=csrf-token]').getAttribute('content')
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('Settings saved successfully!', 'success');
+                    loadDiscountData(); // Refresh data
+                } else {
+                    showAlert(data.message || 'Error saving settings', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('Error saving settings', 'error');
+            });
+        }
+        
+        function resetUsage() {
+            if (!confirm('Are you sure you want to reset all discount code usage data? This action cannot be undone.')) {
+                return;
+            }
+            
+            fetch('/api/admin/discount-settings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('meta[name=csrf-token]').getAttribute('content')
+                },
+                body: JSON.stringify({ reset_usage: true })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('Usage data reset successfully!', 'success');
+                    loadDiscountData(); // Refresh data
+                } else {
+                    showAlert(data.message || 'Error resetting usage data', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('Error resetting usage data', 'error');
+            });
+        }
+        
+        function refreshData() {
+            loadDiscountData();
+            showAlert('Data refreshed successfully!', 'success');
+        }
+        
+        function showAlert(message, type) {
+            const alertId = type === 'success' ? 'successAlert' : 'errorAlert';
+            const messageId = type === 'success' ? 'successMessage' : 'errorMessage';
+            
+            document.getElementById(messageId).textContent = message;
+            document.getElementById(alertId).style.display = 'block';
+            
+            // Hide after 0.4 seconds
+            setTimeout(() => {
+                document.getElementById(alertId).style.display = 'none';
+            }, 400);
+        }
+    </script>
+</body>
+</html>

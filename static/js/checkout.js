@@ -1,0 +1,511 @@
+// static/js/checkout.js
+
+(() => {
+  // ----- Bootstrap -----
+  const bootEl = document.getElementById('checkout-bootstrap');
+  const BOOT = bootEl ? JSON.parse(bootEl.textContent || '{}') : {};
+  const cartData = BOOT.cart || { items: [], subtotal: 0 };
+  const STRIPE_KEY = BOOT.stripePublishableKey;
+  let selectedDeliveryType = (BOOT.defaultDeliveryType || 'pickup').toLowerCase();
+
+  // ----- Stripe -----
+  const stripe = STRIPE_KEY ? Stripe(STRIPE_KEY) : null;
+  let elements = null;
+  let clientSecret = null;
+  let stripeInitialized = false;
+
+  // ----- State -----
+  let deliveryQuote = null;  // { fee_dollars }
+  let isGettingQuote = false;
+
+  // ----- DOM -----
+  const deliveryOptions = document.querySelectorAll('.delivery-option');
+  const deliveryAddressSection = document.getElementById('delivery-address-section');
+  const deliveryFeeRow = document.getElementById('delivery-fee-row');
+  const checkoutButton = document.getElementById('checkout-button');
+  const errorMessage = document.getElementById('error-message');
+  const successMessage = document.getElementById('success-message');
+
+  const subtotalEl = document.getElementById('subtotal');
+  const discountRow = document.getElementById('discount-row');
+  const discountAmtEl = document.getElementById('discount-amount');
+  const discountLblEl = document.getElementById('discount-code-label');
+  const deliveryFeeEl = document.getElementById('delivery-fee');
+  const taxEl = document.getElementById('tax-amount');
+  const totalEl = document.getElementById('total');
+  const statusEl = document.getElementById('checkout-status');
+
+  // ----- Helpers -----
+  function resetCheckoutButton() {
+    if (!checkoutButton) return;
+    checkoutButton.disabled = true;
+    const spinner = document.querySelector('.loading-spinner');
+    if (spinner) spinner.style.display = 'none';
+  }
+
+  function money(x) {
+    const n = Number(x || 0);
+    return n.toLocaleString(undefined, { style: 'currency', currency: 'USD' });
+  }
+
+  function renderTotals(t) {
+    if (subtotalEl) subtotalEl.textContent = money(t.subtotal || 0);
+
+    const hasDiscount = Number(t.discount_amount || 0) > 0;
+    if (discountRow) {
+      discountRow.style.display = hasDiscount ? 'flex' : 'none';
+      if (discountAmtEl) discountAmtEl.textContent = `-${money(t.discount_amount || 0)}`;
+      if (discountLblEl) discountLblEl.textContent = t.discount_code ? `(${t.discount_code})` : '';
+    }
+
+    // Show the delivery row whenever "delivery" is selected (even if $0 before quote)
+    if (selectedDeliveryType === 'delivery') {
+      if (deliveryFeeRow) deliveryFeeRow.style.display = 'flex';
+      if (deliveryFeeEl) deliveryFeeEl.textContent = money(t.delivery_fee || 0);
+    } else {
+      if (deliveryFeeRow) deliveryFeeRow.style.display = 'none';
+      if (deliveryFeeEl) deliveryFeeEl.textContent = money(0);
+    }
+
+    if (taxEl)  taxEl.textContent  = money(t.tax || 0);
+    if (totalEl) totalEl.textContent = money(t.total || 0);
+  }
+
+  // Canonical source of truth: always ask /api/cart/totals
+  async function updateOrderSummary() {
+    const type = (selectedDeliveryType || 'pickup').toLowerCase();
+
+    try {
+      let res;
+      if (type === 'delivery' && deliveryQuote && typeof deliveryQuote.fee_dollars !== 'undefined') {
+        // We have a quote: POST it so backend includes delivery fee with discount/tax
+        res = await fetch('/api/cart/totals', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            delivery_type: 'delivery',
+            delivery_quote: { fee_dollars: Number(deliveryQuote.fee_dollars) }
+          })
+        });
+      } else {
+        // Pickup or delivery before quote (delivery fee = $0)
+        res = await fetch(`/api/cart/totals?delivery_type=${encodeURIComponent(type)}`);
+      }
+      if (!res.ok) throw new Error(`Totals fetch failed (${res.status})`);
+      const totals = await res.json();
+      renderTotals(totals);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  function showError(msg) {
+    if (!errorMessage) return;
+    errorMessage.textContent = msg;
+    errorMessage.style.display = 'block';
+    if (successMessage) successMessage.style.display = 'none';
+    errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => { errorMessage.style.display = 'none'; }, 5000);
+  }
+
+  function hideDeliveryError() {
+    const errorDiv = document.getElementById('delivery-error-message');
+    if (errorDiv) errorDiv.style.display = 'none';
+  }
+
+  function showDeliveryError(msg) {
+    const errorDiv = document.getElementById('delivery-error-message');
+    const errorText = document.getElementById('delivery-error-text');
+    if (errorDiv && errorText) {
+      errorText.textContent = msg;
+      errorDiv.style.display = 'block';
+      errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+
+  function displayCartItems(items) {
+    const cartItemsEl = document.getElementById('cart-items');
+    if (!cartItemsEl) return;
+    cartItemsEl.innerHTML = '';
+    (items || []).forEach(item => {
+      const el = document.createElement('div');
+      el.className = 'order-item';
+      el.innerHTML = `
+        <div class="item-details">
+          <div class="item-name">${item.name}</div>
+          <div class="item-quantity">Qty: ${item.quantity}</div>
+        </div>
+        <div class="item-price">${money(Number(item.price) * Number(item.quantity))}</div>
+      `;
+      cartItemsEl.appendChild(el);
+    });
+  }
+
+  // ----- Delivery option wiring -----
+  function setupDeliveryOptions() {
+    deliveryOptions.forEach(opt => {
+      opt.addEventListener('click', () => {
+        deliveryOptions.forEach(o => o.classList.remove('active'));
+        opt.classList.add('active');
+        selectedDeliveryType = (opt.dataset.type || 'pickup').toLowerCase();
+
+        if (selectedDeliveryType === 'delivery') {
+          if (deliveryAddressSection) deliveryAddressSection.style.display = 'block';
+          if (deliveryFeeRow) deliveryFeeRow.style.display = 'flex';
+          document.getElementById('address').required = true;
+          document.getElementById('city').required = true;
+          document.getElementById('zip').required = true;
+          if (statusEl) statusEl.textContent = 'Please enter your delivery address';
+        } else {
+          if (deliveryAddressSection) deliveryAddressSection.style.display = 'none';
+          if (deliveryFeeRow) deliveryFeeRow.style.display = 'none';
+          document.getElementById('address').required = false;
+          document.getElementById('city').required = false;
+          document.getElementById('zip').required = false;
+          hideDeliveryError();
+          deliveryQuote = null;
+          if (statusEl) statusEl.textContent = 'Initializing payment system...';
+          initializeStripe(); // pickup can init immediately
+        }
+
+        updateOrderSummary();
+      });
+    });
+
+    // Default selection — simulate click to run the same code path
+    const defaultBtn =
+      document.querySelector(`.delivery-option[data-type="${selectedDeliveryType}"]`) ||
+      document.querySelector('.delivery-option[data-type="pickup"]') ||
+      document.querySelector('.delivery-option');
+    if (defaultBtn) defaultBtn.click();
+    else updateOrderSummary(); // fallback
+  }
+
+  // ----- Address helpers -----
+  function handleSavedAddressChange() {
+    const savedAddressSelect = document.getElementById('saved-address');
+    const manualAddressFields = document.getElementById('manual-address-fields');
+    const addressField = document.getElementById('address');
+    const suiteField = document.getElementById('suite');
+    const cityField = document.getElementById('city');
+    const stateField = document.getElementById('state');
+    const zipField = document.getElementById('zip');
+
+    if (!savedAddressSelect) return;
+
+    if (savedAddressSelect.value === 'manual' || savedAddressSelect.value === '') {
+      manualAddressFields.style.display = 'block';
+      if (savedAddressSelect.value === 'manual') {
+        addressField.value = '';
+        suiteField.value = '';
+        cityField.value = 'Miami';
+        stateField.value = 'FL';
+        zipField.value = '';
+      }
+    } else {
+      const opt = savedAddressSelect.options[savedAddressSelect.selectedIndex];
+      addressField.value = opt.dataset.address || '';
+      suiteField.value   = opt.dataset.suite || '';
+      cityField.value    = opt.dataset.city || 'Miami';
+      stateField.value   = opt.dataset.state || 'FL';
+      zipField.value     = opt.dataset.zip || '';
+      manualAddressFields.style.display = 'block';
+    }
+  }
+
+  function debounce(fn, wait) {
+    let t;
+    return (...args) => {
+      clearTimeout(t);
+      t = setTimeout(() => fn(...args), wait);
+    };
+  }
+  const debouncedGetQuote = debounce(getDeliveryQuote, 500);
+
+  async function getDeliveryQuote() {
+    if (selectedDeliveryType !== 'delivery' || isGettingQuote) return;
+
+    const address = document.getElementById('address').value;
+    const city    = document.getElementById('city').value;
+    const zip     = document.getElementById('zip').value;
+    const state   = document.getElementById('state').value;
+
+    if (!address || !city || !zip) {
+      deliveryQuote = null;
+      updateOrderSummary();
+      return;
+    }
+
+    isGettingQuote = true;
+    try {
+      const r = await fetch('/api/uber/quote', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          delivery_address:{ address, city, state, zip, country:'US' }
+        })
+      });
+      const data = await r.json();
+      if (data.success) {
+        deliveryQuote = data.quote;
+        hideDeliveryError();
+        updateOrderSummary();
+        // Now that we have the delivery quote, init Stripe with correct total on server
+        initializeStripe();
+      } else {
+        deliveryQuote = null;
+        updateOrderSummary();
+        showDeliveryError(data.error || 'Unable to get delivery quote.');
+      }
+    } catch (e) {
+      deliveryQuote = null;
+      updateOrderSummary();
+      showDeliveryError('Unable to get delivery quote. Please try again.');
+    } finally {
+      isGettingQuote = false;
+    }
+  }
+
+  // ----- Stripe (backend owns totals incl. discount) -----
+  async function initializeStripe() {
+    if (stripeInitialized) return;
+    if (!stripe) { showError('Stripe not loaded'); return; }
+
+    stripeInitialized = true;
+    if (statusEl) statusEl.textContent = 'Setting up payment...';
+
+    try {
+      const body = {
+        delivery_type: selectedDeliveryType,
+        // send quote so backend can include delivery fee in server-side calculation
+        delivery_quote: deliveryQuote || null
+        // NOTE: discount is NOT sent; backend reads session and re-validates
+      };
+      const r = await fetch('/create-checkout-session', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(body)
+      });
+      const data = await r.json();
+      if (!r.ok || data.error) throw new Error(data.error || 'Failed to create checkout session');
+
+      clientSecret = data.clientSecret;
+      if (!clientSecret || !clientSecret.startsWith('pi_') || !clientSecret.includes('_secret_')) {
+        throw new Error('Invalid Payment Intent client secret');
+      }
+
+      elements = stripe.elements({
+        clientSecret,
+        appearance: { theme: 'stripe', variables: { colorPrimary: 'hsl(var(--primary-color))' } }
+      });
+
+      const paymentElement = elements.create('payment');
+      paymentElement.mount('#stripe-checkout');
+
+      checkoutButton.disabled = false;
+      if (statusEl) statusEl.textContent = 'Ready to complete your order';
+    } catch (e) {
+      showError('Failed to initialize payment system: ' + e.message);
+      const box = document.getElementById('stripe-checkout');
+      if (box) {
+        box.innerHTML = `<div style="color:red;text-align:center;padding:20px;">
+          Failed to initialize payment system<br><small>${e.message}</small></div>`;
+      }
+    }
+  }
+
+  // ----- Checkout click -----
+  checkoutButton?.addEventListener('click', async () => {
+    if (!elements || !clientSecret) { showError('Payment system not ready'); return; }
+    if (!validateForm()) return;
+
+    checkoutButton.disabled = true;
+    const spinner = document.querySelector('.loading-spinner');
+    if (spinner) spinner.style.display = 'inline-block';
+
+    try {
+      const fullNameEl = document.getElementById('fullName');
+      const name = fullNameEl
+        ? fullNameEl.value
+        : `${document.getElementById('firstName').value} ${document.getElementById('lastName').value}`;
+
+      const { error, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: window.location.origin + '/checkout-success',
+          payment_method_data: {
+            billing_details: {
+              name,
+              email: document.getElementById('email').value,
+              phone: document.getElementById('phone').value
+            }
+          }
+        },
+        redirect: 'if_required'
+      });
+
+      if (error) {
+        showError(error.message);
+        checkoutButton.disabled = false;
+        if (spinner) spinner.style.display = 'none';
+        return;
+      }
+
+      if (paymentIntent.status === 'succeeded') {
+        await createOrder(paymentIntent.id);
+        return;
+      }
+
+      showError('Payment was not completed successfully');
+      checkoutButton.disabled = false;
+      if (spinner) spinner.style.display = 'none';
+    } catch (_) {
+      showError('Payment processing failed');
+      checkoutButton.disabled = false;
+      const spinner = document.querySelector('.loading-spinner');
+      if (spinner) spinner.style.display = 'none';
+    }
+  });
+
+  async function createOrder(paymentIntentId) {
+    try {
+      const orderData = {
+        payment_intent_id: paymentIntentId,
+        delivery_type: selectedDeliveryType,
+        customer_info: {
+          email: document.getElementById('email').value,
+          first_name: document.getElementById('fullName')
+            ? document.getElementById('fullName').value.split(' ')[0]
+            : document.getElementById('firstName').value,
+          last_name: document.getElementById('fullName')
+            ? document.getElementById('fullName').value.split(' ').slice(1).join(' ')
+            : document.getElementById('lastName').value,
+          phone: document.getElementById('phone').value
+        }
+      };
+
+      if (selectedDeliveryType === 'delivery') {
+        orderData.delivery_address = {
+          address: document.getElementById('address').value,
+          suite: document.getElementById('suite').value,
+          city: document.getElementById('city').value,
+          state: document.getElementById('state').value,
+          zip: document.getElementById('zip').value,
+          country: 'US'
+        };
+        if (deliveryQuote) orderData.delivery_quote = deliveryQuote;
+      }
+
+      const r = await fetch('/api/create-order', {
+        method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(orderData)
+      });
+      const result = await r.json();
+
+      if (result.success) {
+        try {
+          await fetch('/api/cart/clear', { method:'POST', headers:{'Content-Type':'application/json'} });
+          localStorage.removeItem('cartCount'); localStorage.removeItem('cart');
+          const cartCountEl = document.getElementById('cartCount');
+          if (cartCountEl) { cartCountEl.textContent = '0'; cartCountEl.style.display = 'none'; cartCountEl.classList.remove('has-items'); }
+        } catch (_) {}
+
+        if (result.tracking_url) {
+          window.location.href = result.tracking_url; // delivery
+        } else {
+          window.location.href = `/checkout-success?order_id=${result.order_id}`; // pickup
+        }
+      } else {
+        showError('Failed to create order: ' + (result.error || 'Unknown error'));
+        checkoutButton.disabled = false;
+        const spinner = document.querySelector('.loading-spinner');
+        if (spinner) spinner.style.display = 'none';
+      }
+    } catch (_) {
+      showError('Failed to create order');
+      checkoutButton.disabled = false;
+      const spinner = document.querySelector('.loading-spinner');
+      if (spinner) spinner.style.display = 'none';
+    }
+  }
+
+  function validateForm() {
+    const isLoggedIn = document.getElementById('fullName') !== null;
+    let required = isLoggedIn ? ['phone'] : ['email','firstName','lastName','phone'];
+    if (selectedDeliveryType === 'delivery') required = required.concat(['address','city','zip']);
+
+    for (const id of required) {
+      const f = document.getElementById(id);
+      if (!f || !f.value.trim()) {
+        const name = f?.labels?.[0]?.textContent || id;
+        showError(`Please fill in ${name}`);
+        f?.focus();
+        return false;
+      }
+    }
+
+    if (!isLoggedIn) {
+      const email = document.getElementById('email').value;
+      const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRe.test(email)) {
+        showError('Please enter a valid email address');
+        document.getElementById('email').focus();
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function updateCartCount() {
+    fetch('/api/cart/count')
+      .then(r => r.json())
+      .then(d => {
+        const el = document.getElementById('cartCount');
+        if (!el) return;
+        el.textContent = d.count;
+        el.style.display = d.count > 0 ? 'inline-block' : 'none';
+      }).catch(()=>{});
+  }
+
+  function updateWishlistCount() {
+    fetch('/api/wishlist/count')
+      .then(r => r.json())
+      .then(d => {
+        const el = document.getElementById('wishlistCount');
+        if (!el) return;
+        el.textContent = d.count;
+        el.style.display = d.count > 0 ? 'inline-block' : 'none';
+      }).catch(()=>{});
+  }
+
+  // Wire up address field listeners
+  function setupAddressListeners() {
+    ['address','city','zip','state'].forEach(id => {
+      const f = document.getElementById(id);
+      if (!f) return;
+      f.addEventListener('input', () => {
+        if (selectedDeliveryType === 'delivery') debouncedGetQuote();
+      });
+      f.addEventListener('blur', () => {
+        if (selectedDeliveryType === 'delivery') debouncedGetQuote();
+      });
+    });
+
+    const saved = document.getElementById('saved-address');
+    if (saved) {
+      saved.addEventListener('change', () => {
+        handleSavedAddressChange();
+        if (selectedDeliveryType === 'delivery') setTimeout(() => debouncedGetQuote(), 100);
+      });
+    }
+  }
+
+  // ----- Init -----
+  document.addEventListener('DOMContentLoaded', () => {
+    resetCheckoutButton();
+    displayCartItems(cartData.items || []);
+    setupDeliveryOptions();
+    setupAddressListeners();
+    updateCartCount();
+    updateWishlistCount();
+  });
+})();

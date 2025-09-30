@@ -10,118 +10,132 @@ from routes import db
 from models import Product, ProductVariant, Cart
 from security import validate_input
 from routes.main import invalidate_user_counts_cache
+from routes.checkout_totals import compute_totals
 
 cart_bp = Blueprint('cart', __name__)
 
 @cart_bp.route('/add', methods=['POST'])
 def add_to_cart():
-    """Add item to cart"""
+    """Add item to cart with per-product stock enforcement across all variants."""
     try:
-        data = request.get_json()
-        
+        data = request.get_json() or {}
+
         # Validate input
         required_fields = ['product_id']
         errors = validate_input(data, required_fields)
-        
         if errors:
             return jsonify({'error': '; '.join(errors)}), 400
-        
-        product_id = data['product_id']
+
+        try:
+            product_id = int(data['product_id'])
+        except (TypeError, ValueError):
+            return jsonify({'error': 'Invalid product_id'}), 400
+
         variant_id = data.get('variant_id')
-        quantity = data.get('quantity', 1)
-        
+        try:
+            # allow null/empty variant_id
+            variant_id = int(variant_id) if variant_id not in (None, '', 'null') else None
+        except (TypeError, ValueError):
+            return jsonify({'error': 'Invalid variant_id'}), 400
+
+        try:
+            quantity = int(data.get('quantity', 1))
+        except (TypeError, ValueError):
+            return jsonify({'error': 'Quantity must be a number'}), 400
+
         if quantity <= 0:
             return jsonify({'error': 'Quantity must be positive'}), 400
-        
-        # Check if product exists
+
+        # Check product
         product = Product.query.get(product_id)
         if not product:
             return jsonify({'error': 'Product not found'}), 404
-        
-        # Handle variant_id for products with color variants
-        
-        # Check if product is available
-        if not product.is_available:
+        if not product.is_available or (product.quantity_on_hand or 0) <= 0:
             return jsonify({'error': 'This item is currently out of stock'}), 400
-        
+
+        total_stock = int(product.quantity_on_hand or 0)
+
+        # ---- Compute how many of THIS PRODUCT are already in the cart (all variants) ----
         if current_user.is_authenticated:
-            # For logged-in users, save to database
-            existing = Cart.query.filter_by(user_id=current_user.id, product_id=product_id, variant_id=variant_id).first()
-            current_cart_quantity = existing.quantity if existing else 0
-            
-            # Check if requested quantity can be added
-            can_add, message = product.can_add_to_cart(quantity, current_cart_quantity)
-            if not can_add:
-                available = product.quantity_on_hand - current_cart_quantity
-                if available <= 0:
-                    return jsonify({'error': message}), 400
-                else:
-                    return jsonify({
-                        'error': message,
-                        'max_additional': available
-                    }), 400
-            
-            new_total_quantity = current_cart_quantity + quantity
-            
+            # Sum all rows for this product for this user
+            current_total_for_product = (
+                db.session.query(func.coalesce(func.sum(Cart.quantity), 0))
+                .filter(Cart.user_id == current_user.id, Cart.product_id == product_id)
+                .scalar()
+                or 0
+            )
+        else:
+            cart_map = session.get('cart', {}) or {}
+            prefix = f"{product_id}:"
+            current_total_for_product = 0
+            for k, q in cart_map.items():
+                try:
+                    if k == str(product_id) or str(k).startswith(prefix):
+                        current_total_for_product += int(q or 0)
+                except (TypeError, ValueError):
+                    continue
+
+        # How many more we can add of this product (regardless of variant)
+        max_additional = max(0, total_stock - int(current_total_for_product))
+        if max_additional <= 0:
+            return jsonify({'error': 'This item is out of stock in your cart.'}), 400
+        if quantity > max_additional:
+            return jsonify({
+                'error': f'Only {max_additional} left in stock (you already have {current_total_for_product} in cart).',
+                'max_additional': max_additional
+            }), 400
+
+        # ---- Update the specific row (variant-specific key) ----
+        if current_user.is_authenticated:
+            existing = (
+                Cart.query
+                .filter_by(user_id=current_user.id, product_id=product_id, variant_id=variant_id)
+                .first()
+            )
             if existing:
-                existing.quantity = new_total_quantity
+                existing.quantity = int(existing.quantity or 0) + quantity
             else:
-                cart_item = Cart(user_id=current_user.id, product_id=product_id, variant_id=variant_id, quantity=quantity)
-                db.session.add(cart_item)
-            
+                db.session.add(Cart(
+                    user_id=current_user.id,
+                    product_id=product_id,
+                    variant_id=variant_id,
+                    quantity=quantity
+                ))
+
             db.session.commit()
-            
             # Invalidate cache after cart update
             invalidate_user_counts_cache()
-            
-            # Get updated count
-            count = db.session.query(func.sum(Cart.quantity)).filter_by(user_id=current_user.id).scalar() or 0
-            
-            # Get remaining stock after this addition
-            remaining_stock = product.quantity_on_hand - new_total_quantity
-            
-            return jsonify({
-                'message': 'Added to cart', 
-                'count': count,
-                'remaining_stock': remaining_stock
-            })
+
+            count = (
+                db.session.query(func.coalesce(func.sum(Cart.quantity), 0))
+                .filter(Cart.user_id == current_user.id)
+                .scalar()
+                or 0
+            )
         else:
-            # For guest users, use session storage
             if 'cart' not in session:
                 session['cart'] = {}
-            
             cart = session['cart']
-            # Use product_id as key, include variant_id if provided for color variants
-            cart_key = f"{product_id}:{variant_id}" if variant_id else str(product_id)
-            current_cart_quantity = cart.get(cart_key, 0)
-            
-            # Check if requested quantity can be added
-            can_add, message = product.can_add_to_cart(quantity, current_cart_quantity)
-            if not can_add:
-                available = product.quantity_on_hand - current_cart_quantity
-                if available <= 0:
-                    return jsonify({'error': message}), 400
-                else:
-                    return jsonify({
-                        'error': message,
-                        'max_additional': available
-                    }), 400
-            
-            new_total_quantity = current_cart_quantity + quantity
-            
-            cart[cart_key] = new_total_quantity
+
+            cart_key = f"{product_id}:{variant_id}" if variant_id is not None else str(product_id)
+            current_row_qty = int(cart.get(cart_key, 0) or 0)
+            cart[cart_key] = current_row_qty + quantity
             session.modified = True
-            count = sum(cart.values())
-            
-            # Get remaining stock after this addition
-            remaining_stock = product.quantity_on_hand - new_total_quantity
-            
-            return jsonify({
-                'message': 'Added to cart', 
-                'count': count,
-                'remaining_stock': remaining_stock
-            })
-    
+
+            try:
+                count = sum(int(v or 0) for v in session.get('cart', {}).values())
+            except Exception:
+                count = 0
+
+        # Remaining stock for the product overall (not per row)
+        remaining_stock = max(0, total_stock - (int(current_total_for_product) + quantity))
+
+        return jsonify({
+            'message': 'Added to cart',
+            'count': int(count),
+            'remaining_stock': int(remaining_stock)
+        })
+
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(f"Error adding to cart: {str(e)}")
@@ -186,87 +200,220 @@ def remove_from_cart():
         current_app.logger.error(f"Error removing from cart: {str(e)}")
         return jsonify({'error': 'Failed to remove item from cart'}), 500
 
+
+@cart_bp.route('/totals', methods=['GET', 'POST'])
+def cart_totals():
+    """
+    Return the canonical pricing breakdown for the current cart.
+    Accepts optional delivery quote so we always compute:
+      subtotal - discount + delivery + tax -> total
+    """
+    payload = {}
+    if request.method == 'POST':
+        payload = request.get_json(silent=True) or {}
+
+    delivery_type = request.args.get('delivery_type') or payload.get('delivery_type') or 'pickup'
+
+    delivery_quote = None
+    # Accept either {delivery_quote: {fee_dollars: ...}} or {delivery_fee: ...}
+    if 'delivery_quote' in payload and isinstance(payload['delivery_quote'], dict):
+        delivery_quote = payload['delivery_quote']
+    elif 'delivery_fee' in payload:
+        try:
+            delivery_quote = {"fee_dollars": float(payload['delivery_fee'])}
+        except Exception:
+            delivery_quote = None
+
+    # NEW: also support delivery_fee sent as a GET param
+    if delivery_quote is None:
+        fee_arg = request.args.get('delivery_fee')
+        if fee_arg is not None:
+            try:
+                delivery_quote = {"fee_dollars": float(fee_arg)}
+            except Exception:
+                pass
+    # -----
+
+    totals = compute_totals(delivery_type=delivery_type, delivery_quote=delivery_quote)
+
+    return jsonify({
+        "subtotal": totals["subtotal"],
+        "discount_amount": totals["discount_amount"],
+        "discount_code": totals["discount_code"],
+        "delivery_fee": totals["delivery_fee"],
+        "tax": totals["tax"],
+        "total": totals["total"],
+        "amount_cents": totals["amount_cents"],
+    })
+
+
+
 @cart_bp.route('/update', methods=['POST'])
 def update_cart_quantity():
-    """Update cart item quantity"""
+    """Update cart item quantity with per-product stock enforcement across variants."""
     try:
-        data = request.get_json()
-        
+        data = request.get_json() or {}
+
         # Validate input
         required_fields = ['product_id', 'quantity']
         errors = validate_input(data, required_fields)
-        
         if errors:
             return jsonify({'error': '; '.join(errors)}), 400
-        
-        product_id = data['product_id']
+
+        # Parse inputs safely
+        try:
+            product_id = int(data['product_id'])
+        except (TypeError, ValueError):
+            return jsonify({'error': 'Invalid product_id'}), 400
+
         variant_id = data.get('variant_id')
-        quantity = data['quantity']
-        
+        try:
+            variant_id = int(variant_id) if variant_id not in (None, '', 'null') else None
+        except (TypeError, ValueError):
+            return jsonify({'error': 'Invalid variant_id'}), 400
+
+        try:
+            quantity = int(data['quantity'])
+        except (TypeError, ValueError):
+            return jsonify({'error': 'Quantity must be a number'}), 400
+
         if quantity < 0:
             return jsonify({'error': 'Invalid quantity'}), 400
-        
+
+        # If quantity == 0, remove this specific row (respect variant_id)
         if quantity == 0:
-            # If quantity is 0, remove the item directly
             if current_user.is_authenticated:
-                cart_item = Cart.query.filter_by(user_id=current_user.id, product_id=product_id).first()
+                cart_item = Cart.query.filter_by(
+                    user_id=current_user.id,
+                    product_id=product_id,
+                    variant_id=variant_id
+                ).first()
                 if cart_item:
                     db.session.delete(cart_item)
                     db.session.commit()
-                    # Invalidate cache after cart update
                     invalidate_user_counts_cache()
-                
-                count = db.session.query(func.sum(Cart.quantity)).filter_by(user_id=current_user.id).scalar() or 0
-                return jsonify({'message': 'Removed from cart', 'count': count})
+
+                count = (
+                    db.session.query(func.coalesce(func.sum(Cart.quantity), 0))
+                    .filter(Cart.user_id == current_user.id)
+                    .scalar() or 0
+                )
+                return jsonify({'message': 'Removed from cart', 'count': int(count)})
             else:
-                # For guest users, use just product_id as key
-                cart_key = str(product_id)
+                cart_key = f"{product_id}:{variant_id}" if variant_id is not None else str(product_id)
                 if 'cart' in session and cart_key in session['cart']:
                     del session['cart'][cart_key]
                     session.modified = True
-                
-                count = sum(session.get('cart', {}).values())
-                return jsonify({'message': 'Removed from cart', 'count': count})
-        
-        # Check product stock availability
+
+                try:
+                    count = sum(int(v or 0) for v in session.get('cart', {}).values())
+                except Exception:
+                    count = 0
+                return jsonify({'message': 'Removed from cart', 'count': int(count)})
+
+        # For positive quantities, validate product & stock
         product = Product.query.get(product_id)
         if not product:
             return jsonify({'error': 'Product not found'}), 404
-        
-        if not product.is_available:
+        if not product.is_available or (product.quantity_on_hand or 0) <= 0:
             return jsonify({'error': 'Product is out of stock'}), 400
-        
-        if quantity > product.quantity_on_hand:
-            return jsonify({
-                'error': f'Only {product.quantity_on_hand} item(s) available in stock',
-                'max_quantity': product.quantity_on_hand
-            }), 400
-        
+
+        total_on_hand = int(product.quantity_on_hand or 0)
+
+        # ---- Compute quantity already in cart for this product EXCLUDING the row being updated ----
         if current_user.is_authenticated:
-            # Update product in cart with variant_id
-            cart_item = Cart.query.filter_by(user_id=current_user.id, product_id=product_id, variant_id=variant_id).first()
+            q = db.session.query(func.coalesce(func.sum(Cart.quantity), 0)).filter(
+                Cart.user_id == current_user.id,
+                Cart.product_id == product_id
+            )
+            if variant_id is None:
+                # Exclude the "no-variant" row itself; count only rows that DO have a variant_id
+                q = q.filter(Cart.variant_id.isnot(None))
+            else:
+                # Count rows that are not this variant OR are the "no-variant" row
+                q = q.filter((Cart.variant_id != variant_id) | (Cart.variant_id.is_(None)))
+            other_qty = q.scalar() or 0
+        else:
+            cart_map = session.get('cart', {}) or {}
+            prefix = f"{product_id}:"
+            other_qty = 0
+            for k, q in cart_map.items():
+                try:
+                    qi = int(q or 0)
+                except (TypeError, ValueError):
+                    continue
+
+                if k == str(product_id):
+                    # plain (no-variant) row
+                    if variant_id is not None:
+                        # we're updating a variant row → the plain row counts as "other"
+                        other_qty += qi
+                    # else we're updating the plain row → exclude it (do nothing)
+                elif str(k).startswith(prefix):
+                    # key like "product_id:vid"
+                    try:
+                        vid = int(str(k).split(':', 1)[1])
+                    except Exception:
+                        vid = None
+                    # if it's not the same variant row, count it as "other"
+                    if vid != variant_id:
+                        other_qty += qi
+
+        # Max allowed for THIS row given what's already in cart for the same product
+        max_allowed_for_this_row = max(0, total_on_hand - int(other_qty))
+        if quantity > max_allowed_for_this_row:
+            return jsonify({
+                'error': f'Only {max_allowed_for_this_row} available given what’s already in your cart.',
+                'max_quantity': int(max_allowed_for_this_row)
+            }), 400
+
+        # ---- Apply update ----
+        if current_user.is_authenticated:
+            cart_item = Cart.query.filter_by(
+                user_id=current_user.id, product_id=product_id, variant_id=variant_id
+            ).first()
+
             if cart_item:
                 cart_item.quantity = quantity
-                db.session.commit()
-                # Invalidate cache after cart update
-                invalidate_user_counts_cache()
-            
-            count = db.session.query(func.sum(Cart.quantity)).filter_by(user_id=current_user.id).scalar() or 0
-            return jsonify({'message': 'Cart updated', 'count': count})
+            else:
+                # Create row if it doesn't exist yet
+                db.session.add(Cart(
+                    user_id=current_user.id,
+                    product_id=product_id,
+                    variant_id=variant_id,
+                    quantity=quantity
+                ))
+
+            db.session.commit()
+            invalidate_user_counts_cache()
+
+            count = (
+                db.session.query(func.coalesce(func.sum(Cart.quantity), 0))
+                .filter(Cart.user_id == current_user.id)
+                .scalar() or 0
+            )
+            return jsonify({'message': 'Cart updated', 'count': int(count)})
+
         else:
-            # For guest users, use product_id:variant_id as key
-            cart_key = f"{product_id}:{variant_id}" if variant_id else str(product_id)
-            if 'cart' in session and cart_key in session['cart']:
-                session['cart'][cart_key] = quantity
-                session.modified = True
-            
-            count = sum(session.get('cart', {}).values())
-            return jsonify({'message': 'Cart updated', 'count': count})
-    
+            # Guests: set the row to the new quantity
+            if 'cart' not in session:
+                session['cart'] = {}
+            cart_key = f"{product_id}:{variant_id}" if variant_id is not None else str(product_id)
+            session['cart'][cart_key] = quantity
+            session.modified = True
+
+            try:
+                count = sum(int(v or 0) for v in session.get('cart', {}).values())
+            except Exception:
+                count = 0
+
+            return jsonify({'message': 'Cart updated', 'count': int(count)})
+
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(f"Error updating cart: {str(e)}")
         return jsonify({'error': 'Failed to update cart'}), 500
+
 
 @cart_bp.route('/')
 def get_cart():

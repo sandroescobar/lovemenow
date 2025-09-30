@@ -1,534 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shopping Cart - LoveMeNow</title>
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v=20250116-2">
-    
-    <!-- Mobile Optimizations CSS -->
-    <link rel="preload" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}"></noscript>
-    
-    <!-- CSRF Protection -->
-    {% include 'csrf_meta.html' %}
-    
-    <!-- Google AdWords Tracking -->
-    {% include 'google_tag.html' %}
-    
-    <style>
-        .cart-container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-        }
-        
-        .cart-header {
-            text-align: center;
-            margin-bottom: 3rem;
-        }
-        
-        .cart-header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .cart-content {
-            display: grid;
-            grid-template-columns: 1fr 400px;
-            gap: 3rem;
-            align-items: start;
-        }
-        
-        .cart-items {
-            background: hsl(var(--surface-color));
-            border-radius: var(--radius-lg);
-            padding: 2rem;
-        }
-        
-        .cart-item {
-            display: grid;
-            grid-template-columns: 80px 1fr auto auto auto;
-            gap: 1rem;
-            align-items: center;
-            padding: 1.5rem 0;
-            border-bottom: 1px solid hsl(var(--border-color));
-        }
-        
-        .cart-item:last-child {
-            border-bottom: none;
-        }
-        
-        .cart-item-image {
-            width: 80px;
-            height: 80px;
-            border-radius: var(--radius-md);
-            overflow: hidden;
-        }
-        
-        .cart-item-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .cart-item-details h3 {
-            margin: 0 0 0.5rem 0;
-            font-size: 1.1rem;
-        }
-        
-        .cart-item-size {
-            font-size: 0.9rem;
-            color: hsl(var(--muted-color));
-            margin-bottom: 0.5rem;
-        }
-        
-        .cart-item-price {
-            font-weight: 600;
-            color: hsl(var(--primary-color));
-        }
-        
-        .quantity-controls {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .quantity-input {
-            width: 50px;
-            height: 32px;
-            text-align: center;
-            background: hsl(var(--surface-color));
-            border: 1px solid hsl(var(--border-color));
-            border-radius: var(--radius-sm);
-            color: hsl(var(--text-color));
-            font-weight: 600;
-            font-size: 0.95rem;
-        }
-        
-        .quantity-input:focus {
-            outline: none;
-            border-color: hsl(var(--primary-color));
-        }
-        
-        .quantity-buttons {
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        .quantity-btn {
-            width: 32px;
-            height: 28px;
-            border: none;
-            background: hsl(var(--border-color));
-            color: hsl(var(--text-color));
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-            font-size: 0.8rem;
-        }
-        
-        .quantity-btn:hover:not(:disabled) {
-            background: hsl(var(--primary-color));
-            color: white;
-        }
-        
-        .quantity-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            background: hsl(var(--border-color));
-        }
-        
-        .cart-item-total {
-            font-weight: 600;
-            font-size: 1.1rem;
-        }
-        
-        .remove-btn {
-            background: none;
-            border: none;
-            color: hsl(var(--muted-color));
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: var(--radius-sm);
-            transition: all 0.2s ease;
-        }
-        
-        .remove-btn:hover {
-            color: #ff4757;
-            background: rgba(255, 71, 87, 0.1);
-        }
-        
-        .cart-summary {
-            background: hsl(var(--surface-color));
-            border-radius: var(--radius-lg);
-            padding: 2rem;
-            height: fit-content;
-            position: sticky;
-            top: 2rem;
-        }
-        
-        .summary-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-            padding-bottom: 1rem;
-        }
-        
-        .summary-row.total {
-            border-top: 1px solid hsl(var(--border-color));
-            padding-top: 1rem;
-            font-weight: 600;
-            font-size: 1.2rem;
-        }
-        
-        .checkout-btn {
-            width: 100%;
-            padding: 1rem;
-            background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
-            color: white;
-            border: none;
-            border-radius: var(--radius-md);
-            font-weight: 600;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            margin-top: 1rem;
-        }
-        
-        .checkout-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
-        
-        .empty-cart {
-            text-align: center;
-            padding: 4rem 2rem;
-            color: hsl(var(--muted-color));
-        }
-        
-        .empty-cart i {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            opacity: 0.5;
-        }
-        
-        .continue-shopping {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
-            background: hsl(var(--border-color));
-            color: hsl(var(--text-color));
-            text-decoration: none;
-            border-radius: var(--radius-md);
-            transition: all 0.2s ease;
-            margin-top: 1rem;
-        }
-        
-        .continue-shopping:hover {
-            background: hsl(var(--primary-color));
-            transform: translateY(-2px);
-        }
-        
-        @media (max-width: 768px) {
-            .cart-content {
-                grid-template-columns: 1fr;
-                gap: 2rem;
-            }
-            
-            .cart-item {
-                grid-template-columns: 60px 1fr;
-                gap: 1rem;
-            }
-            
-            .cart-item-controls {
-                grid-column: 1 / -1;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-top: 1rem;
-            }
-        }
-    </style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Shopping Cart - LoveMeNow</title>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+
+  <!-- Site CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v=20250116-2"/>
+
+  <!-- Mobile Optimizations CSS -->
+  <link rel="preload" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}"></noscript>
+
+  <!-- CSRF -->
+  {% include 'csrf_meta.html' %}
+
+  <!-- Google AdWords / GTM -->
+  {% include 'google_tag.html' %}
+
+  <style>
+    .cart-container{max-width:1200px;margin:2rem auto;padding:0 1rem}
+    .cart-header{text-align:center;margin-bottom:3rem}
+    .cart-header h1{font-size:2.5rem;margin-bottom:.5rem;background:linear-gradient(135deg,hsl(var(--primary-color)),hsl(var(--accent-color)));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .cart-content{display:grid;grid-template-columns:1fr 400px;gap:3rem;align-items:start}
+    .cart-items{background:hsl(var(--surface-color));border-radius:var(--radius-lg);padding:2rem}
+    .cart-item{display:grid;grid-template-columns:80px 1fr auto auto auto;gap:1rem;align-items:center;padding:1.5rem 0;border-bottom:1px solid hsl(var(--border-color))}
+    .cart-item:last-child{border-bottom:none}
+    .cart-item-image{width:80px;height:80px;border-radius:var(--radius-md);overflow:hidden}
+    .cart-item-image img{width:100%;height:100%;object-fit:cover}
+    .cart-item-details h3{margin:0 0 .5rem 0;font-size:1.1rem}
+    .cart-item-size{font-size:.9rem;color:hsl(var(--muted-color));margin-bottom:.5rem}
+    .cart-item-price{font-weight:600;color:hsl(var(--primary-color))}
+    .quantity-controls{display:flex;flex-direction:column;align-items:center;gap:.5rem}
+    .quantity-input{width:50px;height:32px;text-align:center;background:hsl(var(--surface-color));border:1px solid hsl(var(--border-color));border-radius:var(--radius-sm);color:hsl(var(--text-color));font-weight:600;font-size:.95rem}
+    .quantity-input:focus{outline:none;border-color:hsl(var(--primary-color))}
+    .quantity-buttons{display:flex;gap:.5rem}
+    .quantity-btn{width:32px;height:28px;border:none;background:hsl(var(--border-color));color:hsl(var(--text-color));border-radius:var(--radius-sm);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s ease;font-size:.8rem}
+    .quantity-btn:hover:not(:disabled){background:hsl(var(--primary-color));color:#fff}
+    .quantity-btn:disabled{opacity:.5;cursor:not-allowed;background:hsl(var(--border-color))}
+    .cart-item-total{font-weight:600;font-size:1.1rem}
+    .remove-btn{background:none;border:none;color:hsl(var(--muted-color));cursor:pointer;padding:.5rem;border-radius:var(--radius-sm);transition:all .2s ease}
+    .remove-btn:hover{color:#ff4757;background:rgba(255,71,87,.1)}
+    .cart-summary{background:hsl(var(--surface-color));border-radius:var(--radius-lg);padding:2rem;height:fit-content;position:sticky;top:2rem}
+    .summary-row{display:flex;justify-content:space-between;margin-bottom:1rem;padding-bottom:1rem}
+    .summary-row.total{border-top:1px solid hsl(var(--border-color));padding-top:1rem;font-weight:600;font-size:1.2rem}
+    .checkout-btn{width:100%;padding:1rem;background:linear-gradient(135deg,hsl(var(--primary-color)),hsl(var(--accent-color)));color:#fff;border:none;border-radius:var(--radius-md);font-weight:600;font-size:1.1rem;cursor:pointer;transition:all .2s ease;margin-top:1rem}
+    .checkout-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+    .empty-cart{text-align:center;padding:4rem 2rem;color:hsl(var(--muted-color))}
+    .empty-cart i{font-size:4rem;margin-bottom:1rem;opacity:.5}
+    .continue-shopping{display:inline-flex;align-items:center;gap:.5rem;padding:.75rem 1.5rem;background:hsl(var(--border-color));color:hsl(var(--text-color));text-decoration:none;border-radius:var(--radius-md);transition:all .2s ease;margin-top:1rem}
+    .continue-shopping:hover{background:hsl(var(--primary-color));transform:translateY(-2px)}
+
+    /* Discount Code */
+    .discount-code-section{margin:1.5rem 0;padding:1.5rem 0;border-top:1px solid hsl(var(--border-color));border-bottom:1px solid hsl(var(--border-color))}
+    .discount-label{color:hsl(var(--muted-color));font-size:.9rem;margin-bottom:.75rem;font-weight:500}
+    .discount-form{width:100%}
+    .discount-input-group{display:flex;gap:.5rem;width:100%}
+    .discount-input{flex:1;padding:.75rem 1rem;background:rgba(255,255,255,.05);border:2px solid rgba(168,85,247,.2);border-radius:var(--radius-md);color:hsl(var(--text-color));font-size:.9rem;transition:all .3s ease;outline:none}
+    .discount-input:focus{border-color:hsl(var(--primary-color));background:rgba(255,255,255,.08);box-shadow:0 0 0 4px rgba(168,85,247,.1)}
+    .discount-input::placeholder{color:hsl(var(--muted-color))}
+    .discount-submit-btn{display:inline-flex;align-items:center;gap:.5rem;padding:.75rem 1.5rem;background:linear-gradient(135deg,hsl(var(--primary-color)),hsl(var(--accent-color)));color:#fff;border:none;border-radius:var(--radius-md);font-weight:600;font-size:.9rem;cursor:pointer;transition:all .2s ease;outline:none;white-space:nowrap}
+    .discount-submit-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+    .discount-submit-btn:focus,.discount-submit-btn:active{border:none;outline:none;box-shadow:var(--shadow-lg)}
+
+    @media (max-width:768px){
+      .cart-content{grid-template-columns:1fr;gap:2rem}
+      .cart-item{grid-template-columns:60px 1fr;gap:1rem}
+      .cart-item-controls{grid-column:1 / -1;display:flex;justify-content:space-between;align-items:center;margin-top:1rem}
+      .discount-input-group{flex-direction:column}
+      .discount-submit-btn{width:100%;justify-content:center}
+    }
+  </style>
 </head>
 <body>
-    {% include "navbar.html" %}
+  {% include "navbar.html" %}
 
-    <div class="cart-container">
-        <div class="cart-header">
-            <h1>Shopping Cart</h1>
-            <p>Review your items before checkout</p>
-        </div>
-
-        <div id="cartContent">
-            <!-- Cart content will be loaded here -->
-        </div>
+  <div class="cart-container">
+    <div class="cart-header">
+      <h1>Shopping Cart</h1>
+      <p>Review your items before checkout</p>
     </div>
 
-    <!-- Include modals -->
-    {% include 'login_register_modal.html' %}
-    {% include 'logged_in_modal.html' %}
-    {% include 'wishlist_modal.html' %}
+    <div id="cartContent"><!-- rendered by cart.js --></div>
+  </div>
 
-    <!-- JavaScript -->
-    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
-    
-    <script>
-        // Load cart on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            loadCart();
-            updateCartCount();
-            updateWishlistCount();
-        });
+  <!-- Modals -->
+  {% include 'login_register_modal.html' %}
+  {% include 'logged_in_modal.html' %}
+  {% include 'wishlist_modal.html' %}
 
-        function loadCart() {
-            
-            // First, let's debug the current state
-            fetch('/api/cart/debug')
-                .then(response => response.json())
-                .then(debugData => {
-                })
-                .catch(error => {
-                });
-            
-            // Show loading state immediately
-            const cartContent = document.getElementById('cartContent');
-            if (cartContent) {
-                cartContent.innerHTML = `
-                    <div class="loading-cart" style="text-align: center; padding: 2rem;">
-                        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: hsl(var(--primary-color)); margin-bottom: 1rem;"></i>
-                        <p>Loading your cart...</p>
-                    </div>
-                `;
-            }
-            
-            fetch('/api/cart/')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    displayCart(data);
-                })
-                .catch(error => {
-                    // Show error message to user
-                    if (cartContent) {
-                        cartContent.innerHTML = `
-                            <div class="empty-cart">
-                                <i class="fas fa-exclamation-triangle"></i>
-                                <h2>Error loading cart</h2>
-                                <p>Please refresh the page or try again later.</p>
-                                <button onclick="loadCart()" class="continue-shopping">
-                                    <i class="fas fa-refresh"></i>
-                                    Retry
-                                </button>
-                            </div>
-                        `;
-                    }
-                });
-        }
-
-        function displayCart(cartData) {
-            
-            const cartContent = document.getElementById('cartContent');
-            
-            if (!cartContent) {
-                return;
-            }
-            
-            if (!cartData.products || cartData.products.length === 0) {
-                cartContent.innerHTML = `
-                    <div class="empty-cart">
-                        <i class="fas fa-shopping-cart"></i>
-                        <h2>Your cart is empty</h2>
-                        <p>Add some products to get started!</p>
-                        <a href="${window.location.origin}/products" class="continue-shopping">
-                            <i class="fas fa-arrow-left"></i>
-                            Continue Shopping
-                        </a>
-                    </div>
-                `;
-                return;
-            }
-
-            const subtotal = cartData.subtotal;
-            const taxRate = 0.0875; // 8.75% Miami-Dade tax
-            const taxAmount = subtotal * taxRate;
-            const shippingAmount = cartData.shipping;
-            const total = cartData.total + taxAmount;
-
-            cartContent.innerHTML = `
-                <div class="cart-content">
-                    <div class="cart-items">
-                        ${cartData.products.map(item => {
-                            // Determine size display
-                            let sizeDisplay = '';
-                            if (item.dimensions && item.dimensions.trim()) {
-                                sizeDisplay = `<div class="cart-item-size"><strong>Size:</strong> ${item.dimensions}</div>`;
-                            } else {
-                                sizeDisplay = `<div class="cart-item-size"><strong>Sizing:</strong> One size fits all / Adjustable</div>`;
-                            }
-                            
-                            return `
-                            <div class="cart-item" data-product-id="${item.id}">
-                                <div class="cart-item-image">
-                                    <img src="${item.image_url || '/static/img/placeholder.svg'}" alt="${item.name}" onerror="this.src='/static/img/placeholder.svg'">
-                                </div>
-                                <div class="cart-item-details">
-                                    <h3>${item.name}</h3>
-                                    ${sizeDisplay}
-                                    <div class="cart-item-price">$${item.price.toFixed(2)}</div>
-                                </div>
-                                <div class="quantity-controls">
-                                    <input type="number" class="quantity-input" value="${item.quantity}" 
-                                           onchange="updateQuantity(${item.id}, this.value, ${item.variant_id || 'null'})" 
-                                           min="1" max="${item.max_quantity}">
-                                    <div class="quantity-buttons">
-                                        <button class="quantity-btn" onclick="updateQuantity(${item.id}, ${item.quantity - 1}, ${item.variant_id || 'null'})">
-                                            <i class="fas fa-minus"></i>
-                                        </button>
-                                        <button class="quantity-btn" onclick="updateQuantity(${item.id}, ${item.quantity + 1}, ${item.variant_id || 'null'})" 
-                                                ${item.quantity >= item.max_quantity ? 'disabled' : ''}>
-                                            <i class="fas fa-plus"></i>
-                                        </button>
-                                    </div>
-                                    ${item.max_quantity <= 5 ? `<small style="color: #ff6b6b; font-size: 0.8rem; margin-top: 0.25rem;">Only ${item.max_quantity} left in stock</small>` : ''}
-                                </div>
-                                <div class="cart-item-total">$${item.item_total.toFixed(2)}</div>
-                                <button class="remove-btn" onclick="removeFromCart(${item.id}, ${item.variant_id || 'null'})">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                            `;
-                        }).join('')}
-                    </div>
-                    
-                    <div class="cart-summary">
-                        <h3>Order Summary</h3>
-                        <div class="summary-row">
-                            <span>Subtotal:</span>
-                            <span>$${subtotal.toFixed(2)}</span>
-                        </div>
-                        <div class="summary-row">
-                            <span>Tax (8.75%):</span>
-                            <span>$${taxAmount.toFixed(2)}</span>
-                        </div>
-                        <div class="summary-row">
-                            <span>Shipping:</span>
-                            <span>Calculated at checkout</span>
-                        </div>
-                        <div class="summary-row total">
-                            <span>Total:</span>
-                            <span>$${total.toFixed(2)}</span>
-                        </div>
-                        <button class="checkout-btn" onclick="proceedToCheckout()">
-                            <i class="fas fa-lock"></i>
-                            Secure Checkout
-                        </button>
-                        <a href="${window.location.origin}/products" class="continue-shopping" style="width: 100%; justify-content: center; margin-top: 1rem;">
-                            <i class="fas fa-arrow-left"></i>
-                            Continue Shopping
-                        </a>
-                    </div>
-                </div>
-            `;
-        }
-
-        function updateQuantity(productId, newQuantity, variantId = null) {
-            if (newQuantity < 1) {
-                removeFromCart(productId, variantId);
-                return;
-            }
-
-            const requestBody = {
-                product_id: productId,
-                quantity: parseInt(newQuantity)
-            };
-            
-            // Add variant_id if provided and not null
-            if (variantId && variantId !== 'null') {
-                requestBody.variant_id = variantId;
-            }
-
-            fetch('/api/cart/update', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(requestBody)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(errorData => {
-                        throw new Error(errorData.error || 'Failed to update quantity');
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.message) {
-                    loadCart(); // Reload cart
-                    updateCartCount();
-                    showToast('Cart updated successfully', 'success');
-                }
-            })
-            .catch(error => {
-                showToast(error.message, 'error');
-                loadCart(); // Reload cart to revert any changes
-            });
-        }
-
-        function removeFromCart(productId, variantId = null) {
-            const requestBody = {
-                product_id: productId
-            };
-            
-            // Add variant_id if provided and not null
-            if (variantId && variantId !== 'null') {
-                requestBody.variant_id = variantId;
-            }
-            
-            fetch('/api/cart/remove', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(requestBody)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.message) {
-                    loadCart(); // Reload cart
-                    updateCartCount();
-                }
-            })
-            .catch(error => {
-            });
-        }
-
-        function proceedToCheckout() {
-            window.location.href = '/checkout';
-        }
-
-        // updateCartCount() is now available globally from index.js
-    </script>
-    
-    <!-- Mobile Menu JavaScript -->
-    <script src="{{ url_for('static', filename='js/mobile-menu.js') }}" defer></script>
+  <!-- JS: helpers, csrf, then cart -->
+  <script src="{{ url_for('static', filename='js/index.js') }}?v=20250116-3" defer></script>
+  <script src="{{ url_for('static', filename='js/csrf-handler.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/cart.js') }}?v=20250929-2" defer></script>
+  <script src="{{ url_for('static', filename='js/mobile-menu.js') }}" defer></script>
 </body>
 </html>

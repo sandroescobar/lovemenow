@@ -1201,349 +1201,58 @@ def my_orders():
 @main_bp.route('/create-checkout-session', methods=['POST'])
 @csrf.exempt
 def create_checkout_session():
-    """Create Stripe checkout session"""
+    """Create a Stripe PaymentIntent based on server-side totals and return its client secret."""
     try:
-        # Get Stripe API key from config with better error handling
         stripe_secret_key = current_app.config.get('STRIPE_SECRET_KEY')
-        
-        # Enhanced debug logging for Render deployment
-        import os
-        current_app.logger.info(f"🔍 STRIPE DEBUG - Environment STRIPE_SECRET_KEY: {os.getenv('STRIPE_SECRET_KEY')[:10] if os.getenv('STRIPE_SECRET_KEY') else 'NOT SET'}...")
-        current_app.logger.info(f"🔍 STRIPE DEBUG - Config STRIPE_SECRET_KEY: {stripe_secret_key[:10] if stripe_secret_key else 'NOT SET'}...")
-        current_app.logger.info(f"🔍 STRIPE DEBUG - Full key ending: ...{stripe_secret_key[-10:] if stripe_secret_key else 'NO KEY'}")
-        current_app.logger.info(f"🔍 STRIPE DEBUG - Key length: {len(stripe_secret_key) if stripe_secret_key else 0}")
-        
-        # Verify Stripe is properly configured
         if not stripe_secret_key:
-            current_app.logger.error("❌ Stripe API key is not set in configuration")
-            return jsonify({'error': 'Payment system not configured - missing API key'}), 500
-            
-        # Set Stripe API key
-        stripe.api_key = stripe_secret_key
-        
-        # Verify the key was actually set
-        current_app.logger.info(f"🔍 STRIPE DEBUG - stripe.api_key after setting: {stripe.api_key[:10] if stripe.api_key else 'NOT SET'}...{stripe.api_key[-10:] if stripe.api_key else ''}")
-        
-        # Verify the key was set correctly
-        if not stripe.api_key:
-            current_app.logger.error("Stripe API key is still not set after assignment")
             return jsonify({'error': 'Payment system not configured'}), 500
-            
-        # Verify Stripe is properly imported
-        try:
-            current_app.logger.info("Testing Stripe import...")
-            test_session = stripe.checkout.Session
-            current_app.logger.info("Stripe checkout.Session is available")
-        except Exception as e:
-            current_app.logger.error(f"Stripe import error: {e}")
-            return jsonify({'error': f'Payment system not available: {str(e)}'}), 500
-        
-        # Get cart data - simplified approach
-        current_app.logger.info("Loading cart data...")
-        cart_items = []
-        
-        try:
-            if current_user.is_authenticated:
-                # Get cart from database
-                db_cart_items = Cart.query.filter_by(user_id=current_user.id).all()
-                cart_items = db_cart_items
-                current_app.logger.info(f"Found {len(cart_items)} items in user cart")
-            else:
-                # Get cart from session
-                cart_data = session.get('cart', {})
-                current_app.logger.info(f"Session cart data: {cart_data}")
-                for cart_key, quantity in cart_data.items():
-                    # Handle both formats: "product_id" and "product_id:variant_id"
-                    if ':' in str(cart_key):
-                        product_id = int(cart_key.split(':')[0])
-                    else:
-                        product_id = int(cart_key)
-                    product = Product.query.get(product_id)
-                    if product:
-                        # Create a simple cart item object
-                        cart_item = type('CartItem', (), {
-                            'product': product,
-                            'quantity': quantity
-                        })()
-                        cart_items.append(cart_item)
-                current_app.logger.info(f"Found {len(cart_items)} items in session cart")
-                    
-        except Exception as e:
-            current_app.logger.error(f"Error getting cart data: {e}")
-            # Create fallback mock product
-            current_app.logger.info("Using fallback mock product due to cart error")
-            mock_product = type('Product', (), {
-                'id': 1,
-                'name': 'Test Product',
-                'description': 'Test product for checkout',
-                'price': 29.99
-            })()
-            cart_item = type('CartItem', (), {
-                'product': mock_product,
-                'quantity': 1
-            })()
-            cart_items = [cart_item]
-        
-        # If cart is empty, create a test item for checkout testing
-        if not cart_items:
-            current_app.logger.info("Cart is empty, creating test product for checkout")
-            # Create mock product for testing
-            mock_product = type('Product', (), {
-                'id': 1,
-                'name': 'Test Product',
-                'description': 'Test product for checkout',
-                'price': 29.99
-            })()
-            cart_item = type('CartItem', (), {
-                'product': mock_product,
-                'quantity': 1
-            })()
-            cart_items = [cart_item]
-            current_app.logger.info("Created test product for checkout")
-        
-        # Calculate totals
-        current_app.logger.info("Calculating totals and creating line items...")
-        line_items = []
-        subtotal = 0
-        
-        for item in cart_items:
-            if hasattr(item, 'product'):
-                # Database cart item
-                product = item.product
-                quantity = item.quantity
-            else:
-                # Session cart item
-                product = item['product']
-                quantity = item['quantity']
-            
-            price_cents = int(product.price * 100)  # Convert to cents
-            subtotal += product.price * quantity
-            
-            line_items.append({
-                'price_data': {
-                    'currency': 'usd',
-                    'product_data': {
-                        'name': product.name,
-                        'description': product.description[:100] if product.description else '',
-                    },
-                    'unit_amount': price_cents,
-                },
-                'quantity': quantity,
-            })
-        
-        # Add delivery fee if needed - get from request JSON
-        request_data = request.get_json() or {}
-        delivery_type = request_data.get('delivery_type', 'pickup')
-        delivery_quote = request_data.get('delivery_quote', {})
-        
-        current_app.logger.info(f"🚚 DELIVERY DEBUG:")
-        current_app.logger.info(f"   Request data: {request_data}")
-        current_app.logger.info(f"   Delivery type: {delivery_type}")
-        current_app.logger.info(f"   Delivery quote: {delivery_quote}")
-        current_app.logger.info(f"   Quote has fee_dollars: {'fee_dollars' in delivery_quote if delivery_quote else False}")
-        
-        if delivery_type == 'delivery':
-            # Use actual Uber delivery fee from quote
-            if delivery_quote and 'fee_dollars' in delivery_quote:
-                delivery_fee_dollars = float(delivery_quote['fee_dollars'])
-                delivery_fee_cents = int(delivery_fee_dollars * 100)
-                current_app.logger.info(f"Using Uber delivery fee: ${delivery_fee_dollars:.2f}")
-                
-                line_items.append({
-                    'price_data': {
-                        'currency': 'usd',
-                        'product_data': {
-                            'name': 'Uber Direct Delivery',
-                            'description': f'Same-day delivery via Uber Direct',
-                        },
-                        'unit_amount': delivery_fee_cents,
-                    },
-                    'quantity': 1,
-                })
-            else:
-                # Fallback delivery fee if no quote available
-                current_app.logger.warning("No delivery quote provided, using fallback fee")
-                line_items.append({
-                    'price_data': {
-                        'currency': 'usd',
-                        'product_data': {
-                            'name': 'Delivery Fee',
-                            'description': 'Standard delivery',
-                        },
-                        'unit_amount': 999,  # $9.99 in cents
-                    },
-                    'quantity': 1,
-                })
-        
-        # Create Stripe checkout session for embedded checkout
-        current_app.logger.info("Creating Stripe checkout session...")
-        current_app.logger.info(f"Line items count: {len(line_items)}")
-        for i, item in enumerate(line_items):
-            current_app.logger.info(f"Line item {i}: {item['price_data']['product_data']['name']} - ${item['price_data']['unit_amount']/100:.2f} x {item['quantity']}")
-        current_app.logger.info(f"Full line items: {line_items}")
-        
-        # Prepare metadata with cart information for webhook processing
-        cart_metadata = {}
-        for i, item in enumerate(cart_items):
-            if hasattr(item, 'product'):
-                # Database cart item
-                product = item.product
-                quantity = item.quantity
-            else:
-                # Session cart item
-                product = item['product']
-                quantity = item['quantity']
-            
-            cart_metadata[f'item_{i}_product_id'] = str(product.id)
-            cart_metadata[f'item_{i}_quantity'] = str(quantity)
-        
-        cart_metadata['item_count'] = str(len(cart_items))
-        if current_user.is_authenticated:
-            cart_metadata['user_id'] = str(current_user.id)
-        
-        # Calculate subtotal amount in cents
-        subtotal_amount = 0
-        for item in line_items:
-            subtotal_amount += item['price_data']['unit_amount'] * item['quantity']
-        
-        # Add Miami-Dade County sales tax (8.75%)
-        tax_rate = 0.0875
-        tax_amount = int(subtotal_amount * tax_rate)
-        
-        # Add tax as a separate line item
-        if tax_amount > 0:
-            line_items.append({
-                'price_data': {
-                    'currency': 'usd',
-                    'product_data': {
-                        'name': 'Sales Tax',
-                        'description': 'Miami-Dade County Tax (8.75%)',
-                    },
-                    'unit_amount': tax_amount,
-                },
-                'quantity': 1,
-            })
-        
-        # Calculate total amount in cents (including tax)
-        total_amount = subtotal_amount + tax_amount
-        
-        current_app.logger.info(f"Subtotal amount in cents: {subtotal_amount}")
-        current_app.logger.info(f"Tax amount in cents: {tax_amount}")
-        current_app.logger.info(f"Total amount in cents: {total_amount}")
-        
-        try:
-            # Create Stripe Payment Intent for Elements integration (NOT Checkout Session!)
-            current_app.logger.info("🚀 CREATING PAYMENT INTENT (NOT CHECKOUT SESSION) FOR ELEMENTS INTEGRATION...")
-            
-            # Calculate total amount in cents
-            total_amount_cents = int(total_amount)
-            
-            payment_intent = stripe.PaymentIntent.create(
-                amount=total_amount_cents,
-                currency='usd',
-                metadata=cart_metadata,
-                payment_method_types=['card'],  # Only allow card payments (no CashApp, Klarna, Apple Pay)
-                # Add shipping and billing info if available
-                description=f"LoveMeNow order - {len(line_items)} items"
-            )
-            
-            current_app.logger.info(f"🎉 PAYMENT INTENT CREATED SUCCESSFULLY: {payment_intent.id} (NOT CHECKOUT SESSION!)")
-            
-            # Return the client secret
-            client_secret = payment_intent.client_secret
-            if client_secret:
-                current_app.logger.info(f"🔑 PAYMENT INTENT CLIENT SECRET OBTAINED: {client_secret[:20]}... (SHOULD START WITH 'pi_')")
-                
-                # Debug: Log the full client secret to check for encoding issues
-                current_app.logger.info(f"Full client secret (first 50 chars): {client_secret[:50]}")
-                current_app.logger.info(f"Client secret type: {type(client_secret)}")
-                
-                # Aggressively decode the client secret (it's getting encoded somewhere)
-                import urllib.parse
-                import json
-                
-                current_app.logger.info(f"🔍 Raw client secret from Stripe: {repr(client_secret)}")
-                
-                # Try multiple decoding attempts
-                decoded_secret = client_secret
-                decode_attempts = 0
-                max_attempts = 3
-                
-                while decode_attempts < max_attempts:
-                    try:
-                        before_decode = decoded_secret
-                        decoded_secret = urllib.parse.unquote(decoded_secret)
-                        decode_attempts += 1
-                        
-                        current_app.logger.info(f"🔄 Decode attempt {decode_attempts}:")
-                        current_app.logger.info(f"   Before: {before_decode[:50]}...")
-                        current_app.logger.info(f"   After:  {decoded_secret[:50]}...")
-                        
-                        # If no change, we're done
-                        if before_decode == decoded_secret:
-                            current_app.logger.info("✅ No more decoding needed")
-                            break
-                            
-                        # If it looks valid and has no encoding, we're done
-                        if decoded_secret.startswith('cs_') and '_secret_' in decoded_secret and '%' not in decoded_secret:
-                            current_app.logger.info("✅ Valid client secret format achieved")
-                            break
-                            
-                    except Exception as decode_error:
-                        current_app.logger.error(f"❌ Decode attempt {decode_attempts + 1} failed: {decode_error}")
-                        break
-                
-                client_secret = decoded_secret
-                current_app.logger.info(f"🎯 Final client secret: {client_secret[:50]}...")
-                
-                # Validate client secret format (Payment Intent client secrets start with 'pi_')
-                if not (client_secret.startswith('pi_') and '_secret_' in client_secret):
-                    current_app.logger.error(f"❌ Invalid Payment Intent client secret format: {client_secret[:50]}...")
-                    return jsonify({'error': 'Invalid Payment Intent client secret format'}), 500
-                
-                current_app.logger.info("✅ Client secret format is valid")
-                
-                # Create response with explicit JSON encoding to prevent further encoding
-                response_data = {'clientSecret': client_secret}
-                
-                # Use explicit JSON response to avoid any middleware encoding
-                from flask import Response
-                response = Response(
-                    json.dumps(response_data, ensure_ascii=False),
-                    mimetype='application/json',
-                    headers={
-                        'Content-Type': 'application/json; charset=utf-8',
-                        'Cache-Control': 'no-cache, no-store, must-revalidate'
-                    }
-                )
-                
-                current_app.logger.info(f"📤 Sending response: {json.dumps(response_data)[:100]}...")
-                return response
-            else:
-                current_app.logger.error("No client secret found in Payment Intent")
-                return jsonify({'error': 'No client secret found in Payment Intent'}), 500
-            
-        except Exception as payment_error:
-            current_app.logger.error(f"Error creating Payment Intent: {payment_error}")
-            import traceback
-            current_app.logger.error(f"Payment Intent error traceback: {traceback.format_exc()}")
-            return jsonify({'error': f'Failed to create Payment Intent: {str(payment_error)}'}), 500
-    
-    except Exception as e:
-        import traceback
-        error_details = traceback.format_exc()
-        current_app.logger.error(f"Error creating checkout session: {str(e)}")
-        current_app.logger.error(f"Full traceback: {error_details}")
 
-        
-        # Check if the error is related to the client_secret access
-        if "'NoneType' object has no attribute 'Secret'" in str(e):
-            current_app.logger.error("Error seems to be related to client_secret access")
-            current_app.logger.error(f"Full error: {str(e)}")
-            current_app.logger.error(f"Error type: {type(e)}")
-            # Don't return here, let it fall through to see the actual error
-        
-        return jsonify({'error': f'Failed to create checkout session: {str(e)}'}), 500
+        stripe.api_key = stripe_secret_key
+
+        data = request.get_json(silent=True) or {}
+        delivery_type = (data.get('delivery_type') or 'pickup').strip().lower()
+        delivery_quote = data.get('delivery_quote') or None
+
+        # 🧮 source of truth: compute totals on the server
+        from routes.checkout_totals import compute_totals
+        breakdown = compute_totals(delivery_type=delivery_type, delivery_quote=delivery_quote)
+
+        if breakdown['amount_cents'] <= 0:
+            return jsonify({'error': 'Cart is empty or total is zero'}), 400
+
+        # Create/renew a PaymentIntent (simple create; you can add idempotency if you like)
+        intent = stripe.PaymentIntent.create(
+            amount=breakdown['amount_cents'],
+            currency='usd',
+            automatic_payment_methods={'enabled': True},
+            description='LoveMeNow order',
+            metadata={
+                'delivery_type': delivery_type,
+                'delivery_fee': str(breakdown['delivery_fee']),
+                'subtotal': str(breakdown['subtotal']),
+                'discount_amount': str(breakdown['discount_amount']),
+                'discount_code': breakdown['discount_code'] or '',
+                'tax': str(breakdown['tax']),
+                'total': str(breakdown['total']),
+                'user_id': str(current_user.id) if current_user.is_authenticated else 'guest',
+            }
+        )
+
+        return jsonify({
+            'clientSecret': intent.client_secret,
+            # optional: handy for debugging in your console
+            'amount': breakdown['amount_cents'],
+            'total': breakdown['total'],
+            'tax': breakdown['tax'],
+            'delivery_fee': breakdown['delivery_fee'],
+            'discount': breakdown['discount_amount'],
+        })
+    except stripe.error.StripeError as e:
+        current_app.logger.error(f"Stripe error creating intent: {str(e)}")
+        return jsonify({'error': 'Payment service unavailable'}), 502
+    except Exception as e:
+        current_app.logger.error(f"Create PI error: {str(e)}")
+        return jsonify({'error': 'Failed to initialize payment'}), 500
 
 @main_bp.route('/checkout/return')
 def checkout_return():

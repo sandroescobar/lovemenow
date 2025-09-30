@@ -127,16 +127,16 @@ class CartManager {
                 localStorage.setItem('cartCount', this.count.toString());
                 this.updateDisplay();
                 
-                showToast(`${productName} added to cart!`, 'success');
+                window.showFlash?.(message, type, opts);
                 return true;
             } else {
                 const error = await response.json();
-                showToast(error.message || 'Failed to add item to cart', 'error');
+                window.showFlash?.(message, type, opts);
                 return false;
             }
         } catch (error) {
             console.error('Add to cart error:', error);
-            showToast('Network error. Please try again.', 'error');
+            window.showFlash?.(message, type, opts);
             return false;
         }
     }
@@ -188,11 +188,11 @@ class WishlistManager {
                 if (isInWishlist) {
                     this.items.delete(productId);
                     button.classList.remove('active');
-                    showToast(`${productName} removed from wishlist`, 'info');
+                    window.showFlash?.(message, type, opts);
                 } else {
                     this.items.add(productId);
                     button.classList.add('active');
-                    showToast(`${productName} added to wishlist!`, 'success');
+                    window.showFlash?.(message, type, opts);
                 }
                 
                 // Update localStorage
@@ -200,11 +200,11 @@ class WishlistManager {
                 this.updateCount();
             } else {
                 const error = await response.json();
-                showToast(error.message || 'Wishlist update failed', 'error');
+                window.showFlash?.(message, type, opts);
             }
         } catch (error) {
             console.error('Wishlist error:', error);
-            showToast('Network error. Please try again.', 'error');
+            window.showFlash?.(message, type, opts);
         }
     }
 
@@ -241,12 +241,7 @@ function getCSRFToken() {
 const toastQueue = [];
 let isShowingToast = false;
 
-function showToast(message, type = 'success') {
-    toastQueue.push({ message, type });
-    if (!isShowingToast) {
-        processToastQueue();
-    }
-}
+
 
 function processToastQueue() {
     if (toastQueue.length === 0) {
@@ -366,7 +361,7 @@ async function openQuickView(productId) {
         }
 
         // Show loading state
-        showToast('Loading product details...', 'info');
+        window.showFlash?.(message, type, opts);
 
         const response = await fetch(`/api/product/${productId}`, {
             credentials: 'same-origin',
@@ -384,11 +379,11 @@ async function openQuickView(productId) {
             
             displayQuickView(product);
         } else {
-            showToast('Failed to load product details', 'error');
+            window.showFlash?.(message, type, opts);
         }
     } catch (error) {
         console.error('Quick view error:', error);
-        showToast('Network error. Please try again.', 'error');
+        window.showFlash?.(message, type, opts);
     }
 }
 
@@ -642,15 +637,15 @@ function addToCartFromQuickView(productId) {
                 window.cartManager.updateDisplay();
             }
             
-            showToast(data.message || 'Added to cart!', 'success');
+           window.showFlash?.(message, type, opts);
             closeQuickViewModal();
         } else if (data.error) {
-            showToast(data.error, 'error');
+            window.showFlash?.(message, type, opts);
         }
     })
     .catch(error => {
         console.error('Add to cart error:', error);
-        showToast('Error adding to cart', 'error');
+        window.showFlash?.(message, type, opts);
     });
 }
 
@@ -723,7 +718,7 @@ if ('performance' in window) {
 window.cartManager = cartManager;
 window.wishlistManager = wishlistManager;
 window.openQuickView = openQuickView;
-window.showToast = showToast;
+window.showFlash?.(message, type, opts);
 window.selectQuickViewColor = selectQuickViewColor;
 window.changeQuickViewImage = changeQuickViewImage;
 window.changeQuickViewQuantity = changeQuickViewQuantity;

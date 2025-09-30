@@ -6,6 +6,9 @@
     <meta name="description" content="Browse our complete collection of premium adult products – LoveMeNow">
     <title>Products · LoveMeNow</title>
 
+    <!-- Favicon (prevents /favicon.ico 404s) -->
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,54 +16,77 @@
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
     <!-- Site CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}?v=20250116-3">
-    
+
     <!-- Mobile Optimizations CSS -->
     <link rel="preload" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}?v=20250116-3" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}?v=20250116-3"></noscript>
-    
+
     <!-- CSRF Protection -->
     {% include 'csrf_meta.html' %}
-    
+
     <!-- Google AdWords Tracking -->
     {% include 'google_tag.html' %}
+
+    <!-- Minimal toast styles -->
+    <style>
+      .toast-stack{
+        position:fixed; top:16px; right:16px;
+        display:flex; flex-direction:column; gap:10px;
+        z-index:2147483647; pointer-events:none;
+      }
+      .toast,.flash-message,.notification{
+        pointer-events:auto;
+        display:flex; align-items:flex-start; gap:12px;
+        min-width:260px; max-width:460px;
+        background:#111; color:#fff; border-radius:12px;
+        padding:12px 14px; box-shadow:0 8px 30px rgba(0,0,0,.25);
+        font: 500 14px/1.35 Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      }
+      .toast.success,.flash-message.success{ background:#10b981!important;box-shadow:0 4px 12px rgba(16,185,129,.35)!important; }
+      .toast.error,.flash-message.error{ background:#dc2626; }
+      .toast.info,.flash-message.info{ background:#3b82f6; }
+      .toast .msg,.flash-message .msg{ flex:1 1 auto; }
+      .toast .close,.flash-message .close,[data-close]{
+        margin-left:auto; border:0; background:transparent; color:inherit;
+        font-size:16px; cursor:pointer; opacity:.85;
+      }
+      .toast.fade-out,.flash-message.fade-out,.notification.fade-out{
+        opacity:0; transform:translateY(-6px);
+        transition:opacity .25s ease, transform .25s ease;
+      }
+    </style>
 </head>
 <body>
 
 {# ──────────────────────────────────────────────────────────────────
    GLOBAL MACROS
    ----------------------------------------------------------------- #}
-    {% macro render_colour_dots(product) -%}
-        {% set n = product.colors|length %}
-        {# ───── 0 colours ───────────────────────────── #}
-        {% if n == 0 %}
-            <span class="colour-unavailable">Colour N/A</span>
-
-        {# ───── exactly 2 colours → diagonal split ──── #}
-        {% elif n == 2 %}
-            <span class="color-dot diagonal-split"
-                  style="background:linear-gradient(135deg,
-                         {{ product.colors[0].hex }} 0% 50%,
-                         {{ product.colors[1].hex }} 50% 100%);"
-                  title="{{ product.colors[0].name }} / {{ product.colors[1].name }}"></span>
-
-        {# ───── 3-plus colours → one striped gradient ─ #}
-        {% else %}
-            {# build “hex stop%, nextStop%” segments #}
-            {% set step = 100 // n %}
-            {% set stops = [] %}
-            {% for c in product.colors %}
-                {% set start = loop.index0 * step %}
-                {% set end   = loop.index * step %}
-                {% set _ = stops.append(c.hex ~ ' ' ~ start ~ '% ' ~ end ~ '%') %}
-            {% endfor %}
-            <span class="color-dot"
-                  style="background:linear-gradient(135deg, {{ stops|join(', ') }});"
-                  title="{{ product.colors|map(attribute='name')|join(' / ') }}"></span>
-        {% endif %}
-    {%- endmacro %}
-
+{% macro render_colour_dots(product) -%}
+    {% set n = product.colors|length %}
+    {% if n == 0 %}
+        <span class="colour-unavailable">Colour N/A</span>
+    {% elif n == 2 %}
+        <span class="color-dot diagonal-split"
+              style="background:linear-gradient(135deg,
+                     {{ product.colors[0].hex }} 0% 50%,
+                     {{ product.colors[1].hex }} 50% 100%);"
+              title="{{ product.colors[0].name }} / {{ product.colors[1].name }}"></span>
+    {% else %}
+        {% set step = 100 // n %}
+        {% set stops = [] %}
+        {% for c in product.colors %}
+            {% set start = loop.index0 * step %}
+            {% set end   = loop.index * step %}
+            {% set _ = stops.append(c.hex ~ ' ' ~ start ~ '% ' ~ end ~ '%') %}
+        {% endfor %}
+        <span class="color-dot"
+              style="background:linear-gradient(135deg, {{ stops|join(', ') }});"
+              title="{{ product.colors|map(attribute='name')|join(' / ') }}"></span>
+    {% endif %}
+{%- endmacro %}
 
 {# ░░░ NAVBAR ░░░ #}
 {% include "navbar.html" %}
@@ -163,14 +189,12 @@
                  data-has-variants="{{ 'true' if p.variants|length > 1 else 'false' }}"
                  data-product-quantity="{{ p.quantity_on_hand or 0 }}">
 
-                {# ── IMAGE WITH SLIDESHOW ──────────────────────── #}
+                <!-- IMAGE WITH SLIDESHOW -->
                 <div class="product-image product-card-slideshow" data-product-id="{{ p.id }}">
                     {% if p.variants|length > 1 and p.default_variant %}
-                        {# Show only default variant images for multi-variant products #}
                         {% set default_variant_images = p.default_variant.images|map(attribute='url')|list %}
                         {% set all_images = default_variant_images %}
                     {% else %}
-                        {# Show all images for single-variant products #}
                         {% set all_images = p.all_image_urls %}
                     {% endif %}
 
@@ -178,12 +202,12 @@
                         {% for image_url in all_images %}
                         <img class="product-slide {{ 'active' if loop.first else '' }}"
                              src="{{ image_url if image_url.startswith('http') or image_url.startswith('/static/') else url_for('static', filename=image_url.lstrip('/')) }}"
-                             alt="{{ p.name|e }}" 
+                             alt="{{ p.name|e }}"
                              loading="{{ 'eager' if loop.first else 'lazy' }}"
                              style="width: 100%; height: 240px; object-fit: contain; background: rgba(255, 255, 255, 0.02);"
                              onerror="handleImageError(this)">
                         {% endfor %}
-                        
+
                         {% if all_images|length > 1 %}
                         <button class="product-card-nav-arrow prev" onclick="navigateProductCardImage({{ p.id }}, -1)" aria-label="Previous image">
                             <i class="fas fa-chevron-left"></i>
@@ -191,35 +215,29 @@
                         <button class="product-card-nav-arrow next" onclick="navigateProductCardImage({{ p.id }}, 1)" aria-label="Next image">
                             <i class="fas fa-chevron-right"></i>
                         </button>
-                        
+
                         <div class="product-card-image-counter">
                             <span class="current-image">1</span> / <span class="total-images">{{ all_images|length }}</span>
                         </div>
                         {% endif %}
                     {% elif p.main_image_url %}
-                        <img class="product-slide active" 
-                             src="{{ p.main_image_url }}" 
-                             alt="{{ p.name|e }}" 
+                        <img class="product-slide active"
+                             src="{{ p.main_image_url }}"
+                             alt="{{ p.name|e }}"
                              loading="lazy"
                              onerror="handleImageError(this)"
-                             width="480" 
+                             width="480"
                              height="480">
-                        
                         {% if all_images|length > 1 %}
-                        <!-- Navigation Arrows -->
                         <button class="product-card-nav-arrow prev" onclick="navigateProductCardImage({{ p.id }}, -1)" aria-label="Previous image">
                             <i class="fas fa-chevron-left"></i>
                         </button>
                         <button class="product-card-nav-arrow next" onclick="navigateProductCardImage({{ p.id }}, 1)" aria-label="Next image">
                             <i class="fas fa-chevron-right"></i>
                         </button>
-                        
-                        <!-- Image Counter -->
                         <div class="product-card-image-counter">
                             <span class="current-index">1</span> / <span class="total-images">{{ all_images|length }}</span>
                         </div>
-                        
-                        <!-- Store images data for JavaScript -->
                         <script type="application/json" class="product-images-data">
                         [
                             {% for image in all_images %}
@@ -228,8 +246,7 @@
                         ]
                         </script>
                         {% endif %}
-                        
-                        <!-- Store variant data for color switching -->
+
                         {% if p.variants|length > 1 %}
                         <script type="application/json" class="product-variants-data">
                         {
@@ -273,25 +290,17 @@
                     {% endif %}
                 </div>
 
-                {# ── INFO ───────────────────────── #}
+                <!-- INFO -->
                 <div class="product-info">
                     <div class="product-content">
                         <div class="product-category">{{ p.category.name if p.category else 'Featured' }}</div>
                         <h3 class="product-title">
                             <a href="/product/{{ p.id }}">{{ p.name }}</a>
                         </h3>
-
                         <div class="product-price">${{ '%.2f'|format(p.price) }}</div>
-
                     </div>
-                    <!--
-                    <p class="product-description">
-                        {% if p.description %}{{ p.description|truncate(80, True, '...') }}{% else %}Premium quality product for your intimate moments.{% endif %}
-                    </p>
-                    -->
+
                     <div class="product-buttons">
-                        {# products.html ─ inside each product‑card #}
-                        <!-- inside each product card -->
 <button class="btn-add-cart"
         data-product-id="{{ p.id }}"
         data-variant-id="{{ p.default_variant.id if p.default_variant else '' }}"
@@ -307,12 +316,11 @@
     <span class="btn-text">{% if p.is_available %}Add&nbsp;to&nbsp;Cart{% else %}Out&nbsp;of&nbsp;Stock{% endif %}</span>
 </button>
 
-
-                        <button class="btn-wishlist" data-product-id="{{ p.id }}" data-product-name="{{ p.name|e }}">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                            </svg>
-                        </button>
+<button class="btn-wishlist" data-product-id="{{ p.id }}" data-product-name="{{ p.name|e }}">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+    </svg>
+</button>
                     </div>
                 </div>
             </div>
@@ -325,302 +333,143 @@
 </section>
 
 {# ░░░ MODALS & SCRIPTS (unchanged) ░░░ #}
-<!-- (unchanged content omitted for brevity) -->
+{% include "wishlist_modal.html" %}
+{% include "cart_modal.html" %}
+{% include "login_register_modal.html" %}
+{% include "logged_in_modal.html" %}
+{% include "footer.html" %}
 
+<!-- Global toast/flash stack -->
+<div id="flashStack" class="toast-stack" aria-live="polite" aria-atomic="true"></div>
 
-
-{# ░░░ WISHLIST MODAL ░░░ #}
-    {% include "wishlist_modal.html" %}
-
-    {# ░░░ CART MODAL ░░░ #}
-    {% include "cart_modal.html" %}
-
-    {# ░░░ AUTH MODALS ░░░ #}
-    {% include "login_register_modal.html" %}
-    {% include "logged_in_modal.html" %}
-
-    {# ░░░ FOOTER ░░░ #}
-    {% include "footer.html" %}
-
+<!-- Main site JS (deferred) -->
 <script defer src="{{ url_for('static', filename='js/index.js') }}?v=20250116-3"></script>
 
+<!-- Tiny image error handler used by onerror="" -->
 <script>
-// Handle image loading errors - fallback from webp to jpeg
-function handleImageError(img) {
-    const src = img.src;
-    
-    // If it's a webp image that failed, try to load the jpeg version
-    if (src.includes('__alpha.webp')) {
-        const jpegSrc = src.replace('__alpha.webp', '.jpg');
-        console.log('WebP failed, trying JPEG:', jpegSrc);
-        img.src = jpegSrc;
-        img.onerror = function() {
-            // If JPEG also fails, try without __alpha
-            const fallbackSrc = src.replace('_alpha.webp', '.jpg').replace('__alpha.webp', '.jpg');
-            console.log('JPEG failed, trying fallback:', fallbackSrc);
-            img.src = fallbackSrc;
-            img.onerror = function() {
-                // Final fallback - show placeholder
-                img.style.display = 'none';
-                const placeholder = document.createElement('div');
-                placeholder.className = 'image-placeholder';
-                placeholder.style.cssText = 'width: 100%; height: 240px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #666; font-size: 14px;';
-                placeholder.textContent = 'Image not available';
-                img.parentNode.insertBefore(placeholder, img);
-            };
-        };
-    } else if (src.includes('.webp')) {
-        // Try replacing .webp with .jpg
-        const jpegSrc = src.replace('.webp', '.jpg');
-        console.log('WebP failed, trying JPEG:', jpegSrc);
-        img.src = jpegSrc;
-        img.onerror = function() {
-            // Final fallback - show placeholder
-            img.style.display = 'none';
-            const placeholder = document.createElement('div');
-            placeholder.className = 'image-placeholder';
-            placeholder.style.cssText = 'width: 100%; height: 220px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #666; font-size: 14px;';
-            placeholder.textContent = 'Image not available';
-            img.parentNode.insertBefore(placeholder, img);
-        };
+function handleImageError(img){
+  const original = img.getAttribute('data-original-src') || img.src || '';
+  if (!img.getAttribute('data-original-src')) img.setAttribute('data-original-src', original);
+
+  const candidates = [
+    s => s.replace('__alpha.webp', '.jpg'),
+    s => s.replace('_alpha.webp',  '.jpg'),
+    s => s.endsWith('.webp') ? s.slice(0, -5) + '.jpg' : s
+  ];
+  let i = 0;
+  function tryNext(){
+    if (i >= candidates.length){
+      img.style.display = 'none';
+      const ph = document.createElement('div');
+      ph.className = 'image-placeholder';
+      ph.style.cssText = 'width:100%;height:240px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;color:#666;font-size:14px;';
+      ph.textContent = 'Image not available';
+      if (img.parentNode) img.parentNode.insertBefore(ph, img);
+      return;
     }
+    img.onerror = tryNext;
+    img.src = candidates[i++](original);
+  }
+  tryNext();
 }
+</script>
 
-// Initialize search functionality on page load
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('productSearch');
-    const clearButton = document.querySelector('.clear-search-btn');
-    
-    // Show clear button if there's a search term
-    if (searchInput && clearButton) {
-        if (searchInput.value.trim()) {
-            clearButton.style.display = 'block';
-        }
+<!-- Lightweight, page-local flash/toast controller -->
+<script>
+(function(){
+  const stack = document.getElementById('flashStack');
+  if (!stack) return;
+
+  function dismiss(el){
+    if (!el || el.__closing) return;
+    el.__closing = true;
+    el.classList.add('fade-out');
+    setTimeout(()=>{ try{ el.remove(); }catch(_){} }, 260);
+  }
+
+  function wire(el){
+    if (!el || el.__wired) return;
+    el.__wired = true;
+    const autohide = (el.dataset.persist !== 'true');
+    const timeoutMs = parseInt(el.dataset.timeout || '2500', 10);
+    if (autohide){
+      let t = setTimeout(()=>dismiss(el), timeoutMs);
+      el.addEventListener('mouseenter', ()=>clearTimeout(t));
+      el.addEventListener('mouseleave', ()=>{ t = setTimeout(()=>dismiss(el), 800); });
+      el.addEventListener('focusin',    ()=>clearTimeout(t));
+      el.addEventListener('focusout',   ()=>{ t = setTimeout(()=>dismiss(el), 800); });
     }
-    
-    // Initialize product card slideshows
-    initializeProductCardSlideshows();
-});
+  }
 
-// Product Card Slideshow Functionality
-const productCardImages = {};
-const productCardCurrentIndex = {};
-
-function initializeProductCardSlideshows() {
-    // Find all product cards with slideshows
-    const slideshows = document.querySelectorAll('.product-card-slideshow');
-    
-    slideshows.forEach(slideshow => {
-        const productId = slideshow.getAttribute('data-product-id');
-        const imagesScript = slideshow.querySelector('.product-images-data');
-        
-        if (imagesScript && productId) {
-            try {
-                // Parse the JSON data
-                const images = JSON.parse(imagesScript.textContent);
-                
-                // Fix HTML entity encoding in URLs
-                for (let i = 0; i < images.length; i++) {
-                    images[i] = images[i].replace(/&amp;/g, '&');
-                }
-                
-                // Store images and initialize index
-                productCardImages[productId] = images;
-                productCardCurrentIndex[productId] = 0;
-                
-                // Set initial image
-                const img = slideshow.querySelector('.product-img');
-                if (img && images.length > 0) {
-                    img.src = images[0];
-                }
-            } catch (e) {
-                console.error('Error parsing product images data:', e);
-            }
+  // Only observe the toast stack (not the whole document)
+  const mo = new MutationObserver(muts=>{
+    muts.forEach(m=>{
+      m.addedNodes.forEach(n=>{
+        if (n.nodeType===1){
+          if (n.matches?.('.toast, .flash-message, .notification')) wire(n);
+          n.querySelectorAll?.('.toast, .flash-message, .notification').forEach(wire);
         }
+      });
     });
-}
+  });
+  mo.observe(stack, {childList:true, subtree:true});
 
-function navigateProductCardImage(productId, direction) {
-    const images = productCardImages[productId];
-    if (!images || images.length <= 1) return;
-    
-    // Calculate new index
-    let newIndex = productCardCurrentIndex[productId] + direction;
-    
-    // Handle looping
-    if (newIndex >= images.length) {
-        newIndex = 0;
-    } else if (newIndex < 0) {
-        newIndex = images.length - 1;
+  // Wire any existing toasts
+  stack.querySelectorAll('.toast, .flash-message, .notification').forEach(wire);
+
+  // Public API
+  window.showFlash = function(message, type='info', opts={}){
+    const msgText = String(message ?? '').trim();
+    if (!msgText) return;
+    const existing = Array.from(stack.querySelectorAll('.toast')).find(e =>
+      e.classList.contains(type) &&
+      (e.querySelector('.msg')?.textContent || e.textContent).trim() === msgText
+    );
+    if (existing){
+      existing.classList.remove('fade-out');
+      existing.__closing = false;
+      existing.__wired = false;
+      wire(existing);
+      return existing;
     }
-    
-    // Update current index
-    productCardCurrentIndex[productId] = newIndex;
-    
-    // Update image
-    const slideshow = document.querySelector(`.product-card-slideshow[data-product-id="${productId}"]`);
-    if (slideshow) {
-        const img = slideshow.querySelector('.product-img');
-        const counter = slideshow.querySelector('.current-index');
-        
-        if (img && images[newIndex]) {
-            img.src = images[newIndex];
-        }
-        
-        if (counter) {
-            counter.textContent = newIndex + 1;
-        }
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.innerHTML = `<div class="msg">${msgText}</div><button class="close" data-close>×</button>`;
+    if (opts.persist) el.dataset.persist = 'true';
+    if (opts.timeout) el.dataset.timeout = String(opts.timeout);
+    stack.appendChild(el);
+
+    // Cap stack size
+    const toasts = stack.querySelectorAll('.toast');
+    if (toasts.length > 4) toasts[0].remove();
+
+    wire(el);
+    return el;
+  };
+
+  // Click-to-close via delegation
+  stack.addEventListener('click', (e)=>{
+    const btn = e.target.closest('[data-close]');
+    if (!btn) return;
+    const toast = btn.closest('.toast, .flash-message, .notification');
+    dismiss(toast);
+  });
+
+  // ESC closes the latest
+  window.addEventListener('keydown', (e)=>{
+    if (e.key === 'Escape'){
+      const last = stack.querySelector('.toast:last-child');
+      if (last) dismiss(last);
     }
-}
+  });
+})();
+</script>
 
-// Product Variant Switching Functionality
-const productVariantsData = {};
-
-// Initialize variant data on page load
-document.addEventListener('DOMContentLoaded', function() {
-    initializeProductVariants();
-});
-
-function initializeProductVariants() {
-    // Find all product cards with variants
-    const productCards = document.querySelectorAll('.product-card[data-has-variants="true"]');
-    
-    productCards.forEach(card => {
-        const productId = card.getAttribute('data-product-id');
-        const variantsScript = card.querySelector('.product-variants-data');
-        
-        if (variantsScript && productId) {
-            try {
-                // Parse the JSON data
-                const variantData = JSON.parse(variantsScript.textContent);
-                productVariantsData[productId] = variantData;
-                
-                // Set default variant as active and initialize images
-                if (variantData.default_variant_id) {
-                    const defaultVariant = variantData.variants.find(v => v.id === variantData.default_variant_id);
-                    if (defaultVariant && defaultVariant.images && defaultVariant.images.length > 0) {
-                        // Update the product card images to show only default variant images
-                        productCardImages[productId] = defaultVariant.images;
-                        productCardCurrentIndex[productId] = 0;
-                        
-                        // Update the main image
-                        const slideshow = card.querySelector('.product-card-slideshow');
-                        const img = slideshow?.querySelector('.product-img');
-                        if (img) {
-                            img.src = defaultVariant.images[0];
-                        }
-                        
-                        // Update counter
-                        const counter = slideshow?.querySelector('.current-index');
-                        const totalCounter = slideshow?.querySelector('.total-images');
-                        if (counter) counter.textContent = '1';
-                        if (totalCounter) totalCounter.textContent = defaultVariant.images.length;
-                        
-                        console.log(`🎯 PRODUCT CARD INIT: ${productId}`, {
-                            defaultVariantId: variantData.default_variant_id,
-                            imagesCount: defaultVariant.images.length,
-                            colorName: defaultVariant.color_name
-                        });
-                    }
-                    
-                    // Set the default color dot as active
-                    const colorDots = card.querySelectorAll('.clickable-color-dot');
-                    colorDots.forEach(dot => {
-                        dot.classList.remove('active');
-                        if (parseInt(dot.getAttribute('data-variant-id')) === variantData.default_variant_id) {
-                            dot.classList.add('active');
-                        }
-                    });
-                }
-            } catch (e) {
-                console.error('Error parsing product variants data:', e);
-            }
-        }
-    });
-}
-
-function switchProductVariant(productId, variantId) {
-    const variantData = productVariantsData[productId];
-    if (!variantData) return;
-    
-    // Find the selected variant
-    const selectedVariant = variantData.variants.find(v => v.id === variantId);
-    if (!selectedVariant) return;
-    
-    const productCard = document.querySelector(`.product-card[data-product-id="${productId}"]`);
-    if (!productCard) return;
-    
-    // Update active color dot
-    const colorDots = productCard.querySelectorAll('.clickable-color-dot');
-    colorDots.forEach(dot => {
-        dot.classList.remove('active');
-        if (parseInt(dot.getAttribute('data-variant-id')) === variantId) {
-            dot.classList.add('active');
-        }
-    });
-    
-    // Update product images if variant has images
-    if (selectedVariant.images && selectedVariant.images.length > 0) {
-        const slideshow = productCard.querySelector('.product-card-slideshow');
-        const img = slideshow.querySelector('.product-img');
-        
-        if (img) {
-            // Update main image
-            img.src = selectedVariant.images[0];
-            
-            // Update slideshow data
-            productCardImages[productId] = selectedVariant.images;
-            productCardCurrentIndex[productId] = 0;
-            
-            // Update counter
-            const counter = slideshow.querySelector('.current-index');
-            const totalCounter = slideshow.querySelector('.total-images');
-            if (counter) counter.textContent = '1';
-            if (totalCounter) totalCounter.textContent = selectedVariant.images.length;
-            
-            // Show/hide navigation arrows based on image count
-            const prevArrow = slideshow.querySelector('.prev');
-            const nextArrow = slideshow.querySelector('.next');
-            const imageCounter = slideshow.querySelector('.product-card-image-counter');
-            
-            if (selectedVariant.images.length > 1) {
-                if (prevArrow) prevArrow.style.display = 'block';
-                if (nextArrow) nextArrow.style.display = 'block';
-                if (imageCounter) imageCounter.style.display = 'block';
-            } else {
-                if (prevArrow) prevArrow.style.display = 'none';
-                if (nextArrow) nextArrow.style.display = 'none';
-                if (imageCounter) imageCounter.style.display = 'none';
-            }
-        }
-    }
-    
-    // Update add to cart button
-    const addToCartBtn = productCard.querySelector('.btn-add-cart');
-    if (addToCartBtn) {
-        addToCartBtn.setAttribute('data-variant-id', variantId);
-        // Since inventory is at product level, get it from the product data
-        const productCard = addToCartBtn.closest('.product-card');
-        const productQuantity = productCard ? productCard.dataset.productQuantity : 0;
-        addToCartBtn.setAttribute('data-quantity-on-hand', productQuantity);
-        
-        // Update button state based on availability
-        const btnText = addToCartBtn.querySelector('.btn-text');
-        if (selectedVariant.is_available) {
-            addToCartBtn.disabled = false;
-            addToCartBtn.classList.remove('disabled');
-            if (btnText) btnText.textContent = 'Add to Cart';
-        } else {
-            addToCartBtn.disabled = true;
-            addToCartBtn.classList.add('disabled');
-            if (btnText) btnText.textContent = 'Out of Stock';
-        }
-    }
-    
-    // Update product card data attributes
-    productCard.setAttribute('data-in-stock', selectedVariant.is_available.toString());
-    productCard.setAttribute('data-default-variant-id', variantId);
-}
+<!-- Ensure this wins over any showToast defined in index.js -->
+<script>
+  window.addEventListener('load', () => {
+    window.showToast = (msg, type='info', opts={}) => window.showFlash(msg, type, opts);
+  });
 </script>
 
 <!-- Mobile Menu JavaScript -->

@@ -1,0 +1,25 @@
+/* Shared toast styles */
+.toast-stack{position:fixed;top:2rem;right:2rem;z-index:99999;display:flex;flex-direction:column;gap:.5rem}
+.toast{
+  color:#fff;border:none;border-radius:8px;padding:1rem 1.5rem;min-width:300px;position:relative;font-size:1rem;font-weight:600;
+  will-change:transform,opacity;animation:toastSlideInRight .3s ease both;box-shadow:0 4px 12px rgba(0,0,0,.25);
+  transform:translateZ(0);backface-visibility:hidden
+}
+.flash_message_close{position:absolute;top:.5rem;right:.5rem;background:none;border:none;color:rgba(255,255,255,.85);
+  cursor:pointer;padding:.25rem;border-radius:4px;transition:opacity .2s;font-size:1rem}
+.flash_message_close:hover{opacity:1}
+
+/* Colors (STANDARDIZED) */
+.toast-success,.toast.success{background:#10b981!important;box-shadow:0 4px 12px rgba(16,185,129,.35)!important} /* green */
+.toast-info,.toast.info{background:#3b82f6!important;box-shadow:0 4px 12px rgba(59,130,246,.35)!important}      /* blue  */
+.toast-warning,.toast.warning{background:#f59e0b!important;box-shadow:0 4px 12px rgba(245,158,11,.35)!important}  /* amber */
+.toast-error,.toast-danger,.toast.error,.toast.danger{background:#ef4444!important;box-shadow:0 4px 12px rgba(239,68,68,.35)!important} /* red */
+
+/* IMPORTANT: map Flask's 'message' to the SAME GREEN */
+.toast.toast-message{background:#10b981!important;box-shadow:0 4px 12px rgba(16,185,129,.35)!important}
+
+/* Animations */
+@keyframes toastSlideInRight{from{transform:translateX(110%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes toastSlideOutRight{from{transform:translateX(0);opacity:1}to{transform:translateX(110%);opacity:0}}
+
+@media (max-width:768px){.toast-stack{right:1rem;left:1rem;top:1rem}.toast{min-width:auto}}

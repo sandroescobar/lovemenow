@@ -1,0 +1,181 @@
+/* ═══════════════════════════════════════════════════════════════════
+   DISCOUNT CODE SECTION STYLES
+   ═══════════════════════════════════════════════════════════════════ */
+
+.pdp-discount-section {
+    margin: 1.5rem 0;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.08), rgba(236, 72, 153, 0.08));
+    border: 1px solid rgba(168, 85, 247, 0.2);
+    border-radius: 1rem;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.pdp-discount-section:hover {
+    border-color: rgba(168, 85, 247, 0.3);
+    box-shadow: 0 4px 20px rgba(168, 85, 247, 0.15);
+}
+
+.discount-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    color: hsl(220 13% 91%);
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.discount-header i {
+    color: hsl(280 100% 70%);
+    font-size: 1.1rem;
+}
+
+.discount-input-group {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.discount-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    background: hsl(220 13% 24%);
+    border: 1px solid hsl(220 13% 31%);
+    border-radius: 0.75rem;
+    color: hsl(220 13% 91%);
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.discount-input:focus {
+    border-color: hsl(280 100% 70%);
+    box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1);
+    background: hsl(220 13% 18%);
+}
+
+.discount-input::placeholder {
+    color: hsl(220 9% 46%);
+}
+
+.discount-apply-btn {
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, hsl(280 100% 70%), hsl(320 100% 70%));
+    border: none;
+    border-radius: 0.75rem;
+    color: white;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    min-width: 80px;
+}
+
+.discount-apply-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(168, 85, 247, 0.3);
+}
+
+.discount-apply-btn:active {
+    transform: translateY(0);
+}
+
+.discount-apply-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.discount-message {
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    padding: 0.5rem 0;
+    min-height: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.discount-message.success {
+    color: #10b981;
+}
+
+.discount-message.error {
+    color: #ef4444;
+}
+
+.discount-savings {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 0.75rem;
+    color: #10b981;
+    font-size: 0.9rem;
+    margin-top: 0.75rem;
+    animation: slideInDown 0.4s ease;
+}
+
+.discount-savings i {
+    color: #10b981;
+    margin-right: 0.5rem;
+}
+
+.remove-discount-btn {
+    background: none;
+    border: none;
+    color: rgba(16, 185, 129, 0.7);
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+}
+
+.remove-discount-btn:hover {
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.1);
+}
+
+/* Animation for discount savings */
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .pdp-discount-section {
+        margin: 1rem 0;
+        padding: 1rem;
+    }
+    
+    .discount-input-group {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .discount-apply-btn {
+        width: 100%;
+        padding: 0.875rem;
+    }
+    
+    .discount-savings {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .remove-discount-btn {
+        align-self: flex-end;
+    }
+}

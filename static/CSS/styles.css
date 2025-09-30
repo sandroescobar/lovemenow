@@ -9303,8 +9303,49 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
     text-transform: uppercase;
     letter-spacing: 0.5px;
     box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
-    width: 270px;
+    width: -webkit-fill-available;
 }
+
+ /* PDP Discount Code (scoped to avoid collisions with global/mobile CSS) */
+  .pdp .discount-code-section{
+    margin-top:1.5rem; padding-top:1.5rem;
+    border-top:1px solid rgba(255,255,255,.1);
+  }
+  .pdp .discount-label{
+    color:hsl(var(--muted-color));
+    font-size:.9rem; margin-bottom:.75rem; font-weight:500;
+  }
+  .pdp .discount-form{ width:100%; }
+  .pdp .discount-input-group{ display:flex; gap:.5rem; width:100%; }
+  .pdp .discount-input{
+    flex:1; padding:.75rem 1rem;
+    background:rgba(255,255,255,.05);
+    border:2px solid rgba(168,85,247,.2);
+    border-radius:var(--radius-md);
+    color:hsl(var(--text-color));
+    font-size:.9rem; transition:all .3s ease; outline:0;
+  }
+  .pdp .discount-input:focus{
+    border-color:hsl(var(--primary-color));
+    background:rgba(255,255,255,.08);
+    box-shadow:0 0 0 4px rgba(168,85,247,.1);
+  }
+  .pdp .discount-input::placeholder{ color:hsl(var(--muted-color)); }
+  .pdp .discount-submit-btn{
+    display:inline-flex; align-items:center; gap:.5rem;
+    padding:.75rem 1.5rem;
+    background:linear-gradient(135deg,hsl(var(--primary-color)),hsl(var(--accent-color)));
+    color:#fff; border:0; border-radius:var(--radius-md);
+    font-weight:600; font-size:.9rem; cursor:pointer;
+    transition:all .2s ease; outline:0; white-space:nowrap;
+  }
+  .pdp .discount-submit-btn:hover{ transform:translateY(-2px); box-shadow:var(--shadow-lg); }
+  .pdp .discount-submit-btn:focus,.pdp .discount-submit-btn:active{ border:0; outline:0; box-shadow:var(--shadow-lg); }
+
+  @media (max-width:768px){
+    .pdp .discount-input-group{ flex-direction:column; }
+    .pdp .discount-submit-btn{ width:100%; justify-content:center; }
+  }
 
 .btn-add-cart:hover {
     transform: translateY(-2px);
@@ -9414,6 +9455,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
     opacity: 0.6;
     cursor: not-allowed;
     pointer-events: none;
+
 }
 
 /* Mobile responsive improvements */
@@ -12363,6 +12405,25 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
         right: 1rem;
         left: 1rem;
     }
+
+    /* scope to your toast wrapper, adjust selector if needed */
+.flash-toast .flash-close {
+  background: none;
+  border: 0;
+  font: inherit;
+  font-size: 20px;
+  line-height: 1;
+  color: #fff;
+  cursor: pointer;
+  opacity: .9;
+}
+.flash-toast .flash-close:hover { opacity: 1; }
+
+/* nuke any framework-provided symbols */
+.flash-toast .flash-close::before,
+.flash-toast .flash-close::after { content: none !important; }
+
+
 
     .toast {
         min-width: auto;

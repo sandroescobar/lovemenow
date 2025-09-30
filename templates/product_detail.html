@@ -1,562 +1,540 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ product.name }} - LoveMeNow</title>
-    <meta name="description" content="{{ product.description[:150] if product.description else 'Premium quality adult product from LoveMeNow' }}">
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}?v=20250116-2">
-    
-    <!-- Mobile Optimizations CSS -->
-    <link rel="preload" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}?v=20250116-2" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}?v=20250116-2"></noscript>
-    
-    <!-- CSRF Protection -->
-    {% include 'csrf_meta.html' %}
-    
-    <!-- Google AdWords Tracking -->
-    {% include 'google_tag.html' %}
-    
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>{{ product.name }} - LoveMeNow</title>
+  <meta name="description" content="{{ (product.description[:150] if product and product.description else 'Premium quality adult product from LoveMeNow') }}"/>
 
+  <!-- Favicon -->
+  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" />
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+
+  <!-- Base CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}?v=20250116-2"/>
+
+  <!-- Mobile Optimizations CSS -->
+  <link rel="preload" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}?v=20250116-2" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}?v=20250116-2"></noscript>
+
+  <!-- CSRF -->
+  {% include 'csrf_meta.html' %}
+
+  <!-- Google Ads -->
+  {% include 'google_tag.html' %}
+
+  <!-- Toast / Flash styles -->
+  <style>
+    .toast-stack{
+      position: fixed;
+      top: clamp(12px, 2vh, 24px);
+      right: clamp(12px, 2vw, 24px);
+      width: min(86vw, 480px);
+      display: flex; flex-direction: column; align-items: flex-end; gap: 12px;
+      z-index: 2147483647; pointer-events: none;
+    }
+    .toast,.flash-message,.notification{
+      position: relative; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px;
+      padding: 14px 16px; border-radius: 16px; color: #fff; font-weight: 600; line-height: 1.2;
+      box-shadow: 0 18px 50px rgba(0,0,0,.35); pointer-events: auto; backdrop-filter: saturate(130%) blur(4px);
+      animation: toastIn .25s ease-out; width: 100%; max-width: 480px; background:#111;
+    }
+    .toast .msg{ font-size: 1.05rem; margin-right: 8px; }
+    .toast [data-close]{ appearance:none;border:0;outline:0;background:transparent;width:28px;height:28px;
+      display:inline-grid;place-items:center;border-radius:999px;cursor:pointer;color:inherit;opacity:.9;font-size:16px;font-weight:700;line-height:1; }
+    .toast [data-close]:hover{ background: rgba(255,255,255,.15); opacity: 1; }
+    .toast.success,.flash-message.success{ background:#10b981; }
+    .toast.error,.flash-message.error{ background:#ef4444; }
+    .toast.info,.flash-message.info{ background:#6366f1; }
+    .toast.fade-out,.flash-message.fade-out{ animation: toastOut .3s ease forwards; }
+    @keyframes toastIn{ from{ transform: translateY(-4px); opacity: 0 } to{ transform: translateY(0); opacity: 1 } }
+    @keyframes toastOut{ to{ transform: translateY(-6px); opacity: 0 } }
+    @media (max-width:640px){
+      .toast-stack{ left:50%; right:auto; transform:translateX(-50%); width:min(92vw,520px); align-items:stretch; }
+    }
+  </style>
 </head>
+
 <body>
-    <!-- Navigation -->
-    {% include 'navbar.html' %}
+  {% include 'navbar.html' %}
 
-    <main class="pdp" data-probe="pdp-v2">
-        <div class="pdp-hero">
-            <section class="pdp-gallery">
-                {# For products with multiple variants, show only default variant images initially #}
-                {% if product.variants|length > 1 and product.default_variant %}
-                    {% set all_images = product.default_variant.images|map(attribute='url')|list %}
-                {% else %}
-                    {% set all_images = product.all_image_urls %}
-                    {% if product.image_url and product.image_url not in all_images %}
-                        {% set _ = all_images.append(product.image_url) %}
-                    {% endif %}
-                {% endif %}
-                {# Filter to only PNG images #}
-                {% set png_images = [] %}
-                {% for img in all_images %}
-                    {% if img.endswith('.png') %}
-                        {% set _ = png_images.append(img) %}
-                    {% endif %}
-                {% endfor %}
-                {% set all_images = png_images if png_images else all_images %}
-                
-                <div class="pdp-image-stage">
-                    {% if all_images %}
-                        <button class="pdp-nav left" aria-label="Previous image">‹</button>
-                        
-                        <picture>
-                            <img id="pdp-main-img"
-                                 src="{{ all_images[0] if all_images[0].startswith('http') or all_images[0].startswith('/static/') else url_for('static', filename=all_images[0].lstrip('/')) }}"
-                                 alt="{{ product.name|e }}"
-                                 loading="eager"
-                                 width="960" height="960"
-                                 onerror="handleImageError(this)">
-                        </picture>
-                        
-                        {% if all_images|length > 1 %}
-                        <button class="pdp-nav right" aria-label="Next image">›</button>
-                        <div class="pdp-image-counter" id="pdp-image-counter">1/{{ all_images|length }}</div>
-                        {% endif %}
-                    {% else %}
-                        <div style="display: flex; align-items: center; justify-content: center; color: hsl(var(--muted-color));">
-                            <i class="fas fa-image" style="font-size: 4rem;"></i>
-                        </div>
-                    {% endif %}
-                </div>
+  <!-- Flash / Toast stack -->
+  <div id="flashStack" class="toast-stack" aria-live="polite" aria-atomic="true"></div>
 
-                <!-- Description under image (LEFT COLUMN) -->
-                {% if product.description %}
-                <section class="pdp-desc-panel" aria-label="Description">
-                    <h3>Description</h3>
-                    <div class="desc-clamp" data-collapsed="true">
-                        <p class="desc-text">
-                            {{ (product.description)|replace('\n','<br>')|safe }}
-                        </p>
-                        <button type="button" class="desc-toggle" aria-expanded="false">Read more</button>
-                    </div>
-                </section>
-                {% endif %}
+  <main class="pdp" data-probe="pdp-v2">
+    <div class="pdp-hero">
+      <section class="pdp-gallery">
+        {% if product and product.variants|length > 1 and product.default_variant %}
+          {% set all_images = product.default_variant.images|map(attribute='url')|list %}
+        {% else %}
+          {% set all_images = product.all_image_urls if product else [] %}
+          {% if product and product.image_url and product.image_url not in all_images %}
+            {% set _ = all_images.append(product.image_url) %}
+          {% endif %}
+        {% endif %}
 
-                <!-- Hidden image data for sliding (no visible thumbnails) -->
-                {% if all_images|length > 1 %}
-                <div class="pdp-swatch-thumbs" style="display: none;">
-                    {% for img in all_images %}
-                    <button class="swatch-thumb {{ 'is-active' if loop.first else '' }}"
-                            data-full="{{ img if img.startswith('http') or img.startswith('/static/') else url_for('static', filename=img.lstrip('/')) }}">
-                    </button>
-                    {% endfor %}
-                </div>
-                {% endif %}
-            </section>
+        {% set png_images = [] %}
+        {% for img in all_images %}
+          {% if img.endswith('.png') %}{% set _ = png_images.append(img) %}{% endif %}
+        {% endfor %}
+        {% set all_images = png_images if png_images else all_images %}
 
-            <aside class="pdp-info">
-                <h1 class="pdp-title">{{ product.clean_name }}</h1>
-
-                <!-- Price + Rating must be in same row -->
-                <div class="pdp-price-row">
-                    <div class="pdp-price">${{ '%.2f'|format(product.price) }}</div>
-                    <div class="pdp-rating">
-                        <span>
-                            {% for i in range(5) %}
-                                {% if i < (product.rating or 5)|int %}★{% else %}☆{% endif %}
-                            {% endfor %}
-                        </span>
-                        <span class="pdp-reviews">({{ product.review_count or 0 }} reviews)</span>
-                    </div>
-                </div>
-
-                <!-- Premium Buy Box - Floating Card -->
-                <section class="pdp-buybox-premium">
-                    <!-- Add to Cart -->
-                    <form class="pdp-atc">
-                        <input type="hidden" name="product_id" value="{{ product.id }}">
-                        <button class="btn-add-cart" type="button" 
-                                id="addToCartBtn"
-                                data-product-id="{{ product.id }}" 
-                                data-product-name="{{ product.name|e }}" 
-                                data-product-price="{{ product.price }}" 
-                                data-quantity-on-hand="{{ product.quantity_on_hand or 0 }}"
-                                data-variant-id="{{ product.default_variant.id if product.default_variant else '' }}"
-                                {% if not product.in_stock or (product.quantity_on_hand and product.quantity_on_hand <= 0) %}disabled{% endif %}>
-                            <i class="fas fa-shopping-cart"></i>
-                            {% if product.in_stock and (not product.quantity_on_hand or product.quantity_on_hand > 0) %}Add to Cart{% else %}Out of Stock{% endif %}
-                        </button>
-                    </form>
-
-                    <!-- Shipping note -->
-                    <div class="ship-note">Free shipping on orders over $50</div>
-                    
-                    <!-- Trust badges as subtle chips -->
-                    <div class="trust-chips">
-                        <span class="trust-chip"><i class="fas fa-lock"></i> Secure Payment</span>
-                        <span class="trust-chip"><i class="fas fa-box"></i> Discreet Shipping</span>
-                        <span class="trust-chip"><i class="fas fa-undo"></i> Easy Returns</span>
-                    </div>
-                </section>
-
-                <!-- Available Colors Section -->
-                {% if product.available_colors %}
-                <div class="available-colors">
-                    <span class="colors-label">Colors:</span>
-                    <div class="color-options">
-                        {% set has_color_variants = product.variants|selectattr('color_id', 'ne', none)|list|length > 0 %}
-                        {% if has_color_variants %}
-                            {# Product has color variants (like Du-Douche) - show individual clickable squares #}
-                            {% for color in product.available_colors %}
-                                {% set variant_with_color = product.variants|selectattr('color_id', 'equalto', color.id)|first %}
-                                {% if variant_with_color %}
-                                    <button class="color-option {{ 'active' if variant_with_color.id == product.default_variant.id else '' }}" 
-                                            data-variant-id="{{ variant_with_color.id }}"
-                                            data-color-id="{{ color.id }}"
-                                            onclick="switchColorVariant({{ variant_with_color.id }})">
-                                        <span class="color-swatch" style="background-color: {{ color.hex }};"></span>
-                                        {{ color.name }}
-                                    </button>
-                                {% endif %}
-                            {% endfor %}
-                        {% else %}
-                            {# Product has multiple colors but no variants - show combined gradient square #}
-                            <div class="color-option display-only">
-                                {% if product.available_colors|length == 1 %}
-                                    <span class="color-swatch" style="background-color: {{ product.available_colors[0].hex }};"></span>
-                                {% elif product.available_colors|length == 2 %}
-                                    <span class="color-swatch" style="background: linear-gradient(45deg, {{ product.available_colors[0].hex }} 50%, {{ product.available_colors[1].hex }} 50%);"></span>
-                                {% else %}
-                                    <span class="color-swatch" style="background: linear-gradient(to right, {% for color in product.available_colors %}{{ color.hex }}{% if not loop.last %}, {% endif %}{% endfor %});"></span>
-                                {% endif %}
-                                <span class="color-names">
-                                    {% for color in product.available_colors %}
-                                        {{ color.name }}{% if not loop.last %}, {% endif %}
-                                    {% endfor %}
-                                </span>
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-                {% endif %}
-
-
-
-
-
-                <!-- Premium Details - Two Column Checklist -->
-                <section class="pdp-details-premium" aria-label="Product details">
-                    <div class="details-grid">
-
-                        <!-- Left Column: Features + Specifications -->
-                        <div class="details-left">
-                            <!-- Features Section -->
-                            {% if features %}
-                            <div class="detail-section">
-                                <h5 class="section-label"><i class="fas fa-check-circle"></i> FEATURES</h5>
-                                <ul class="checklist">
-                                    {% for f in features[:4] %}<li><i class="fas fa-check"></i> {{ f }}</li>{% endfor %}
-                                </ul>
-                            </div>
-                            {% endif %}
-
-                            <!-- Specifications Section -->
-                            {% if specs %}
-                            <div class="detail-section">
-                                <h5 class="section-label"><i class="fas fa-cog"></i> SPECIFICATIONS</h5>
-                                <ul class="checklist">
-                                    {% for s in specs[:4] %}<li><i class="fas fa-check"></i> {{ s }}</li>{% endfor %}
-                                </ul>
-                            </div>
-                            {% endif %}
-                        </div>
-
-                        <!-- Right Column: Dimensions -->
-                        <div class="details-right">
-                            {% if dims %}
-                            <div class="detail-section">
-                                <h5 class="section-label"><i class="fas fa-ruler"></i> DIMENSIONS</h5>
-                                <ul class="checklist">
-                                    {% for d in dims[:4] %}<li><i class="fas fa-check"></i> {{ d }}</li>{% endfor %}
-                                </ul>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </section>
-            </aside>
+        <div class="pdp-image-stage">
+          {% if all_images %}
+            <button class="pdp-nav left" aria-label="Previous image">‹</button>
+            <picture>
+              <img id="pdp-main-img"
+                   src="{{ all_images[0] if all_images[0].startswith('http') or all_images[0].startswith('/static/') else url_for('static', filename=all_images[0].lstrip('/')) }}"
+                   alt="{{ product.name|e }}" loading="eager" width="960" height="960"
+                   onerror="handleImageError(this)">
+            </picture>
+            {% if all_images|length > 1 %}
+              <button class="pdp-nav right" aria-label="Next image">›</button>
+              <div class="pdp-image-counter" id="pdp-image-counter">1/{{ all_images|length }}</div>
+            {% endif %}
+          {% else %}
+            <div style="display:flex;align-items:center;justify-content:center;color:hsl(var(--muted-color));">
+              <i class="fas fa-image" style="font-size:4rem;"></i>
+            </div>
+          {% endif %}
         </div>
 
-
-
-
-
-        <!-- Related Products -->
-        {% if related_products %}
-        <div class="related-products">
-            <h2>You Might Also Like</h2>
-            <div class="related-grid">
-                {% for related_product in related_products %}
-                <div class="product-card fade-in-up" data-product-id="{{ related_product.id }}" data-in-stock="{{ related_product.in_stock|lower }}">
-                    <div class="product-image">
-                        {% set related_images = related_product.all_image_urls %}
-                        {% if related_product.image_url and related_product.image_url not in related_images %}
-                            {% set _ = related_images.append(related_product.image_url) %}
-                        {% endif %}
-
-                        {% if related_images %}
-                            <img style="width: 100%; height: 240px; object-fit: contain; background: rgba(255, 255, 255, 0.02);"
-                                 src="{{ related_images[0] if related_images[0].startswith('http') or related_images[0].startswith('/static/') else url_for('static', filename=related_images[0].lstrip('/')) }}"
-                                 alt="{{ related_product.name|e }}" loading="lazy"
-                                 onerror="handleImageError(this)">
-                        {% else %}
-                            <div class="placeholder-image">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                    <circle cx="9" cy="9" r="2"></circle>
-                                    <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
-                                </svg>
-                            </div>
-                        {% endif %}
-
-                    </div>
-                    <div class="product-info">
-                        <div class="product-category">{{ related_product.category.name if related_product.category else 'Featured' }}</div>
-                        <h3 class="product-title">
-                            <a href="/product/{{ related_product.id }}">{{ related_product.name }}</a>
-                        </h3>
-                        <div class="product-price">${{ '%.2f'|format(related_product.price) }}</div>
-                        <div class="product-buttons">
-                            <button class="btn-add-cart" 
-                                    data-product-id="{{ related_product.id }}"
-                                    data-product-name="{{ related_product.name|e }}"
-                                    data-product-price="{{ related_product.price }}"
-                                    data-quantity-on-hand="{{ related_product.quantity_on_hand or 0 }}"
-                                    {% if not related_product.is_available %}disabled{% endif %}>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <circle cx="9" cy="21" r="1"></circle>
-                                    <circle cx="20" cy="21" r="1"></circle>
-                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                                </svg>
-                                {{ 'Add to Cart' if related_product.is_available else 'Out of Stock' }}
-                            </button>
-                            <button class="btn-wishlist" 
-                                    data-product-id="{{ related_product.id }}"
-                                    data-product-name="{{ related_product.name|e }}">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
+        {% if product and product.description %}
+          <section class="pdp-desc-panel" aria-label="Description">
+            <h3>Description</h3>
+            <div class="desc-clamp" data-collapsed="true">
+              <p class="desc-text">{{ (product.description)|replace('\n','<br>')|safe }}</p>
+              <button type="button" class="desc-toggle" aria-expanded="false">Read more</button>
             </div>
+          </section>
+        {% endif %}
+
+        {% if all_images|length > 1 %}
+          <div class="pdp-swatch-thumbs" style="display:none;">
+            {% for img in all_images %}
+            <button class="swatch-thumb {{ 'is-active' if loop.first else '' }}"
+                    data-full="{{ img if img.startswith('http') or img.startswith('/static/') else url_for('static', filename=img.lstrip('/')) }}">
+            </button>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </section>
+
+      <aside class="pdp-info">
+        <h1 class="pdp-title">{{ product.clean_name if product else 'Product' }}</h1>
+
+        <div class="pdp-price-row">
+          <div class="pdp-price">
+            {% if product %}${{ '%.2f'|format(product.price) }}{% else %}—{% endif %}
+          </div>
+          <div class="pdp-rating">
+            <span>
+              {% for i in range(5) %}{% if product and i < (product.rating or 5)|int %}★{% else %}☆{% endif %}{% endfor %}
+            </span>
+            <span class="pdp-reviews">({{ product.review_count or 0 if product else 0 }} reviews)</span>
+          </div>
+        </div>
+
+        <section class="pdp-buybox-premium">
+          <form class="pdp-atc">
+            <input type="hidden" name="product_id" value="{{ product.id if product else '' }}">
+            <button class="btn-add-cart" type="button"
+                    id="addToCartBtn"
+                    data-product-id="{{ product.id if product else '' }}"
+                    data-product-name="{{ product.name|e if product else '' }}"
+                    data-product-price="{{ product.price if product else '' }}"
+                    data-quantity-on-hand="{{ product.quantity_on_hand or 0 if product else 0 }}"
+                    data-variant-id="{{ product.default_variant.id if product and product.default_variant else '' }}"
+                    {% if not product or (not product.in_stock or (product.quantity_on_hand is not none and product.quantity_on_hand <= 0)) %}disabled{% endif %}>
+              <i class="fas fa-shopping-cart"></i>
+              {% if product and product.in_stock and (product.quantity_on_hand is none or product.quantity_on_hand > 0) %}
+                Add to Cart
+              {% else %}
+                Out of Stock
+              {% endif %}
+            </button>
+          </form>
+
+          <div class="ship-note">Free shipping on orders over $50</div>
+
+          <div class="trust-chips">
+            <span class="trust-chip"><i class="fas fa-lock"></i> Secure Payment</span>
+            <span class="trust-chip"><i class="fas fa-box"></i> Discreet Shipping</span>
+            <span class="trust-chip"><i class="fas fa-undo"></i> Easy Returns</span>
+          </div>
+
+          <!-- Discount -->
+          <div class="discount-code-section">
+            <div class="discount-label">Have a discount code?</div>
+            <form class="discount-form" id="pdpDiscountForm" novalidate>
+              <div class="discount-input-group">
+                <input type="text" class="discount-input" placeholder="Enter discount code" id="pdpDiscountInput" autocomplete="off" inputmode="text">
+                <button type="submit" class="discount-submit-btn" id="pdpDiscountSubmit">
+                  <i class="fas fa-check"></i> Apply
+                </button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        {% if product and product.available_colors %}
+        <div class="available-colors">
+          <span class="colors-label">Colors:</span>
+          <div class="color-options">
+            {% set has_color_variants = product.variants|selectattr('color_id', 'ne', none)|list|length > 0 %}
+            {% if has_color_variants %}
+              {% for color in product.available_colors %}
+                {% set variant_with_color = product.variants|selectattr('color_id', 'equalto', color.id)|first %}
+                {% if variant_with_color %}
+                  <button class="color-option {{ 'active' if variant_with_color.id == product.default_variant.id else '' }}"
+                          data-variant-id="{{ variant_with_color.id }}"
+                          data-color-id="{{ color.id }}"
+                          onclick="switchColorVariant({{ variant_with_color.id }})">
+                    <span class="color-swatch" style="background-color: {{ color.hex }};"></span>
+                    {{ color.name }}
+                  </button>
+                {% endif %}
+              {% endfor %}
+            {% else %}
+              <div class="color-option display-only">
+                {% if product.available_colors|length == 1 %}
+                  <span class="color-swatch" style="background-color: {{ product.available_colors[0].hex }};"></span>
+                {% elif product.available_colors|length == 2 %}
+                  <span class="color-swatch" style="background: linear-gradient(45deg, {{ product.available_colors[0].hex }} 50%, {{ product.available_colors[1].hex }} 50%);"></span>
+                {% else %}
+                  <span class="color-swatch" style="background: linear-gradient(to right, {% for color in product.available_colors %}{{ color.hex }}{% if not loop.last %}, {% endif %}{% endfor %});"></span>
+                {% endif %}
+                <span class="color-names">
+                  {% for color in product.available_colors %}
+                    {{ color.name }}{% if not loop.last %}, {% endif %}
+                  {% endfor %}
+                </span>
+              </div>
+            {% endif %}
+          </div>
         </div>
         {% endif %}
-    </main>
 
-    <!-- Include modals and other components -->
-    {% include 'wishlist_modal.html' %}
+        <section class="pdp-details-premium" aria-label="Product details">
+          <div class="details-grid">
+            <div class="details-left">
+              {% if features %}
+              <div class="detail-section">
+                <h5 class="section-label"><i class="fas fa-check-circle"></i> FEATURES</h5>
+                <ul class="checklist">
+                  {% for f in features[:4] %}<li><i class="fas fa-check"></i> {{ f }}</li>{% endfor %}
+                </ul>
+              </div>
+              {% endif %}
+              {% if specs %}
+              <div class="detail-section">
+                <h5 class="section-label"><i class="fas fa-cog"></i> SPECIFICATIONS</h5>
+                <ul class="checklist">
+                  {% for s in specs[:4] %}<li><i class="fas fa-check"></i> {{ s }}</li>{% endfor %}
+                </ul>
+              </div>
+              {% endif %}
+            </div>
+            <div class="details-right">
+              {% if dims %}
+              <div class="detail-section">
+                <h5 class="section-label"><i class="fas fa-ruler"></i> DIMENSIONS</h5>
+                <ul class="checklist">
+                  {% for d in dims[:4] %}<li><i class="fas fa-check"></i> {{ d }}</li>{% endfor %}
+                </ul>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </section>
+      </aside>
+    </div>
 
-    <!-- JavaScript -->
-    <script src="{{ url_for('static', filename='js/csrf-handler.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/mobile-menu.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/index.js', v='20250107d') }}"></script>
+    {% if related_products %}
+    <div class="related-products">
+      <h2>You Might Also Like</h2>
+      <div class="related-grid">
+        {% for related_product in related_products %}
+        <div class="product-card fade-in-up" data-product-id="{{ related_product.id }}" data-in-stock="{{ related_product.in_stock|lower }}">
+          <div class="product-image">
+            {% set related_images = related_product.all_image_urls %}
+            {% if related_product.image_url and related_product.image_url not in related_images %}{% set _ = related_images.append(related_product.image_url) %}{% endif %}
+            {% if related_images %}
+              <img style="width:100%;height:240px;object-fit:contain;background:rgba(255,255,255,.02)"
+                   src="{{ related_images[0] if related_images[0].startswith('http') or related_images[0].startswith('/static/') else url_for('static', filename=related_images[0].lstrip('/')) }}"
+                   alt="{{ related_product.name|e }}" loading="lazy" onerror="handleImageError(this)">
+            {% else %}
+              <div class="placeholder-image">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <circle cx="9" cy="9" r="2"></circle>
+                  <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
+                </svg>
+              </div>
+            {% endif %}
+          </div>
+          <div class="product-info">
+            <div class="product-category">{{ related_product.category.name if related_product.category else 'Featured' }}</div>
+            <h3 class="product-title"><a href="/product/{{ related_product.id }}">{{ related_product.name }}</a></h3>
+            <div class="product-price">${{ '%.2f'|format(related_product.price) }}</div>
+            <div class="product-buttons">
+              <button class="btn-add-cart"
+                      data-product-id="{{ related_product.id }}"
+                      data-product-name="{{ related_product.name|e }}"
+                      data-product-price="{{ related_product.price }}"
+                      data-quantity-on-hand="{{ related_product.quantity_on_hand or 0 }}"
+                      {% if not related_product.is_available %}disabled{% endif %}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <circle cx="9" cy="21" r="1"></circle>
+                  <circle cx="20" cy="21" r="1"></circle>
+                  <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                </svg>
+                {{ 'Add to Cart' if related_product.is_available else 'Out of Stock' }}
+              </button>
+              <button class="btn-wishlist" data-product-id="{{ related_product.id }}" data-product-name="{{ related_product.name|e }}">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </main>
 
-    <!-- PDP JavaScript -->
-    <script>
-        // Handle image loading errors - fallback from webp to jpeg
-        function handleImageError(img) {
-            const src = img.src;
-            
-            // If it's a webp image that failed, try to load the jpeg version
-            if (src.includes('__alpha.webp')) {
-                const jpegSrc = src.replace('__alpha.webp', '.jpg');
-                console.log('WebP failed, trying JPEG:', jpegSrc);
-                img.src = jpegSrc;
-                img.onerror = function() {
-                    // If JPEG also fails, try without __alpha
-                    const fallbackSrc = src.replace('_alpha.webp', '.jpg').replace('__alpha.webp', '.jpg');
-                    console.log('JPEG failed, trying fallback:', fallbackSrc);
-                    img.src = fallbackSrc;
-                    img.onerror = function() {
-                        // Final fallback - show placeholder
-                        img.style.display = 'none';
-                        const placeholder = document.createElement('div');
-                        placeholder.className = 'image-placeholder';
-                        placeholder.style.cssText = 'width: 100%; height: 100%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #666; font-size: 14px;';
-                        placeholder.textContent = 'Image not available';
-                        img.parentNode.insertBefore(placeholder, img);
-                    };
-                };
-            } else if (src.includes('.webp')) {
-                // Try replacing .webp with .jpg
-                const jpegSrc = src.replace('.webp', '.jpg');
-                console.log('WebP failed, trying JPEG:', jpegSrc);
-                img.src = jpegSrc;
-                img.onerror = function() {
-                    // Final fallback - show placeholder
-                    img.style.display = 'none';
-                    const placeholder = document.createElement('div');
-                    placeholder.className = 'image-placeholder';
-                    placeholder.style.cssText = 'width: 100%; height: 100%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #666; font-size: 14px;';
-                    placeholder.textContent = 'Image not available';
-                    img.parentNode.insertBefore(placeholder, img);
-                };
-            }
+  <!-- Modals -->
+  {% include "wishlist_modal.html" %}
+  {% include "cart_modal.html" %}
+  {% include "login_register_modal.html" %}
+  {% include "logged_in_modal.html" %}
+
+  {% include "footer.html" %}
+
+  <!-- Core JS -->
+  <script src="{{ url_for('static', filename='js/csrf-handler.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/mobile-menu.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/index.js') }}?v=20250116-3" defer></script>
+
+  <!-- Image error fallback (used by onerror="handleImageError(this)") -->
+  <script>
+    function handleImageError(img){
+      const original = img.getAttribute('data-original-src') || img.src || '';
+      if (!img.getAttribute('data-original-src')) img.setAttribute('data-original-src', original);
+      const candidates = [
+        s => s.replace('__alpha.webp', '.jpg'),
+        s => s.replace('_alpha.webp',  '.jpg'),
+        s => s.endsWith('.webp') ? s.slice(0, -5) + '.jpg' : s
+      ];
+      let i = 0;
+      function next(){
+        if (i >= candidates.length){
+          img.style.display='none';
+          const ph = document.createElement('div');
+          ph.className='image-placeholder';
+          ph.style.cssText='width:100%;height:100%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;color:#666;font-size:14px;';
+          ph.textContent='Image not available';
+          img.parentNode?.insertBefore(ph,img);
+          return;
         }
+        img.onerror = next;
+        img.src = candidates[i++](original);
+      }
+      next();
+    }
+  </script>
 
-        (function(){
-            const main = document.getElementById('pdp-main-img');
-            const sw = document.querySelectorAll('.pdp-swatch-thumbs .swatch-thumb');
-            const seq = sw.length ? Array.from(sw).map(b => b.dataset.full) : [main?.src].filter(Boolean);
-            let idx = 0;
+  <!-- Page-local toast controller (dedup + optional server-flash bridge) -->
+  <script>
+  (function(){
+    const stack = document.getElementById('flashStack');
+    if (!stack) return;
 
-            function show(i){
-                if (!seq.length) return;
-                idx = (i + seq.length) % seq.length;
-                if (main) main.src = seq[idx];
-                sw.forEach((b,k)=>b.classList.toggle('is-active', k===idx));
-                
-                // Update counter
-                const counter = document.getElementById('pdp-image-counter');
-                if (counter) {
-                    counter.textContent = `${idx + 1}/${seq.length}`;
-                }
-            }
-            
-            sw.forEach((b,i)=>b.addEventListener('click', ()=>show(i)));
+    function dismiss(el){
+      if (!el || el.__closing) return;
+      el.__closing = true;
+      el.classList.add('fade-out');
+      setTimeout(()=>{ try{ el.remove(); }catch(_){} }, 300);
+    }
 
-            const left = document.querySelector('.pdp-nav.left');
-            const right = document.querySelector('.pdp-nav.right');
-            left && left.addEventListener('click', ()=>show(idx-1));
-            right && right.addEventListener('click', ()=>show(idx+1));
+    function wire(el){
+      if (!el || el.__wired) return;
+      el.__wired = true;
+      const autohide = (el.dataset.persist !== 'true');
+      const timeoutMs = parseInt(el.dataset.timeout || '3000', 10);
+      if (autohide){
+        let t = setTimeout(()=>dismiss(el), timeoutMs);
+        el.addEventListener('mouseenter', ()=>clearTimeout(t));
+        el.addEventListener('mouseleave', ()=>{ t = setTimeout(()=>dismiss(el), 800); });
+        el.addEventListener('focusin',    ()=>clearTimeout(t));
+        el.addEventListener('focusout',   ()=>{ t = setTimeout(()=>dismiss(el), 800); });
+      }
+    }
 
-            // Add to cart functionality - EXACT COPY FROM WORKING COMMIT 2317ab9
-            window.addToCartDetail = function addToCartDetail(productId, productName, price) {
-                
-                // Validate input parameters
-                if (!productId || !productName || !price) {
-                    showToast('Error: Invalid product information', 'error');
-                    return;
-                }
+    // Observe only the stack
+    const mo = new MutationObserver(muts=>{
+      muts.forEach(m=>{
+        m.addedNodes.forEach(n=>{
+          if (n.nodeType===1){
+            if (n.matches?.('.toast, .flash-message, .notification')) wire(n);
+            n.querySelectorAll?.('.toast, .flash-message, .notification').forEach(wire);
+          }
+        });
+      });
+    });
+    mo.observe(stack, {childList:true, subtree:true});
 
-                // Get quantity from the quantity selector if it exists
-                const quantityInput = document.getElementById('quantityInput');
-                const quantity = quantityInput ? parseInt(quantityInput.value) || 1 : 1;
-                
-                // Find the add to cart button
-                const button = document.getElementById('addToCartBtn') || document.querySelector(`button[data-product-id="${productId}"]`);
-                const quantityOnHand = button ? parseInt(button.dataset.quantityOnHand) || 0 : 0;
-                
-                // Get the variant ID from the button's data attribute
-                const variantId = button ? parseInt(button.dataset.variantId) || null : null;
-                
-                // Check if button is disabled
-                if (button && button.disabled) {
-                    showToast('This item is currently unavailable', 'error');
-                    return;
-                }
-                
-                // Check if product is in stock
-                if (quantityOnHand <= 0) {
-                    showToast('This item is currently out of stock', 'error');
-                    return;
-                }
+    // Wire existing toasts
+    stack.querySelectorAll('.toast, .flash-message, .notification').forEach(wire);
 
-                // Let the backend handle cart quantity validation - it has the authoritative data
-                // Frontend validation can be bypassed, backend validation cannot
-                console.log('🚀 Product detail: Calling addToCartWithQuantity with variant ID:', variantId);
-                
-                // Use the same robust function as the products page, passing the variant ID
-                addToCartWithQuantity(productId, productName, price, quantity, button, variantId);
-            }
-            
-            // Note: Event listener is handled by global setupButtonEventListeners() in index.js
-            // No need for duplicate event listener here
+    // Global API with dedup (text + type)
+    window.showFlash = function(message, type='info', opts={}){
+      const msgText = String(message ?? '').trim();
+      if (!msgText) return;
+      const existing = Array.from(stack.querySelectorAll('.toast')).find(e =>
+        e.classList.contains(type) &&
+        (e.querySelector('.msg')?.textContent || e.textContent).trim() === msgText
+      );
+      if (existing){
+        existing.classList.remove('fade-out');
+        existing.__closing = false;
+        existing.__wired = false;
+        wire(existing);
+        return existing;
+      }
+      const el = document.createElement('div');
+      el.className = `toast ${type}`;
+      el.innerHTML = `<div class="msg">${msgText}</div><button class="close" data-close aria-label="Close">×</button>`;
+      if (opts.persist) el.dataset.persist = 'true';
+      if (opts.timeout) el.dataset.timeout = String(opts.timeout);
+      stack.appendChild(el);
+      const toasts = stack.querySelectorAll('.toast');
+      if (toasts.length > 4) toasts[0].remove();
+      wire(el);
+      return el;
+    };
 
-            // Read more toggle (left-column description)
-            const d = document.querySelector('.desc-clamp');
-            const t = document.querySelector('.desc-toggle');
-            if (d && t){
-                t.addEventListener('click', ()=>{
-                    const open = d.getAttribute('data-collapsed') === 'false';
-                    d.setAttribute('data-collapsed', open ? 'true' : 'false');
-                    t.setAttribute('aria-expanded', open ? 'false' : 'true');
-                    t.textContent = open ? 'Read more' : 'Show less';
-                });
-            }
+    // Bridge: custom event → toast
+    window.addEventListener('lmn:flash', (e)=>{
+      const {message, type='info', timeout, persist} = e.detail || {};
+      window.showFlash(message || '', type, {timeout, persist});
+    });
 
-        })();
+    // If server rendered any .flash-message somewhere (e.g., navbar), convert & remove
+    document.querySelectorAll('.flash-message').forEach(el=>{
+      const t = (['success','error','info','warning'].find(c=>el.classList.contains(c)) || 'info');
+      const text = (el.querySelector('.msg')?.textContent || el.textContent || '').trim();
+      if (text) window.showFlash(text, t);
+      el.remove();
+    });
 
-        // Color variant switching function
-        window.switchColorVariant = function(variantId) {
-            // Update active color button
-            document.querySelectorAll('.color-option').forEach(btn => {
-                btn.classList.remove('active');
+    // Click-to-close
+    stack.addEventListener('click', (e)=>{
+      const btn = e.target.closest('[data-close]');
+      if (btn){
+        const toast = btn.closest('.toast, .flash-message, .notification');
+        dismiss(toast);
+      }
+    });
+
+    // ESC closes the latest
+    window.addEventListener('keydown', (e)=>{
+      if (e.key === 'Escape'){
+        const last = stack.querySelector('.toast:last-child');
+        if (last) dismiss(last);
+      }
+    });
+  })();
+  </script>
+
+  <!-- Ensure any showToast defined elsewhere points to our dedupbed showFlash -->
+  <script>
+    window.addEventListener('load', () => {
+      window.showToast = (msg, type='info', opts={}) => window.showFlash(msg, type, opts);
+    });
+  </script>
+
+  <!-- PDP interactions -->
+  <script>
+    // PDP carousel/basic interactions
+    (function(){
+      const main = document.getElementById('pdp-main-img');
+      const sw = document.querySelectorAll('.pdp-swatch-thumbs .swatch-thumb');
+      const seq = sw.length ? Array.from(sw).map(b=>b.dataset.full) : [main?.src].filter(Boolean);
+      let idx = 0;
+      function show(i){
+        if(!seq.length) return;
+        idx = (i + seq.length) % seq.length;
+        if(main) main.src = seq[idx];
+        sw.forEach((b,k)=>b.classList.toggle('is-active',k===idx));
+        const c = document.getElementById('pdp-image-counter'); if(c){ c.textContent = `${idx+1}/${seq.length}`; }
+      }
+      sw.forEach((b,i)=>b.addEventListener('click',()=>show(i)));
+      document.querySelector('.pdp-nav.left')?.addEventListener('click',()=>show(idx-1));
+      document.querySelector('.pdp-nav.right')?.addEventListener('click',()=>show(idx+1));
+
+      // read-more toggle
+      const d = document.querySelector('.desc-clamp');
+      const t = document.querySelector('.desc-toggle');
+      if(d && t){
+        t.addEventListener('click',()=>{
+          const open = d.getAttribute('data-collapsed')==='false';
+          d.setAttribute('data-collapsed', open ? 'true':'false');
+          t.setAttribute('aria-expanded', open ? 'false':'true');
+          t.textContent = open ? 'Read more' : 'Show less';
+        });
+      }
+    })();
+
+    // Color variant switcher
+    window.switchColorVariant = function(variantId){
+      document.querySelectorAll('.color-option').forEach(b=>b.classList.remove('active'));
+      document.querySelector(`[data-variant-id="${variantId}"]`)?.classList.add('active');
+
+      fetch(`/api/variant/${variantId}/images`)
+        .then(r=>r.json())
+        .then(data=>{
+          if(!(data.success && data.images && data.images.length)) return;
+          const png = data.images.filter(i=>i.endsWith('.png'));
+          const srcs = (png.length ? png : data.images).map(img => (img.startsWith('http')||img.startsWith('/static/')) ? img : `/static/${img.replace(/^\/+/, '')}`);
+
+          const mainImg = document.getElementById('pdp-main-img');
+          if(mainImg && srcs.length){
+            const preload = new Image();
+            preload.onload = function(){ mainImg.src = this.src; };
+            preload.src = srcs[0] + '?v=' + Date.now();
+          }
+
+          const swatchThumbs = document.querySelector('.pdp-swatch-thumbs');
+          if(swatchThumbs){
+            swatchThumbs.innerHTML = '';
+            let cur = 0;
+            srcs.forEach((img,i)=>{
+              const b = document.createElement('button');
+              b.className = `swatch-thumb ${i===0?'is-active':''}`;
+              b.dataset.full = img;
+              b.addEventListener('click',()=>show(i));
+              swatchThumbs.appendChild(b);
             });
-            const targetButton = document.querySelector(`[data-variant-id="${variantId}"]`);
-            if (targetButton) {
-                targetButton.classList.add('active');
+            function show(i){
+              if(!srcs.length) return;
+              cur = (i + srcs.length) % srcs.length;
+              if(mainImg) mainImg.src = srcs[cur];
+              Array.from(swatchThumbs.querySelectorAll('.swatch-thumb')).forEach((b,k)=>b.classList.toggle('is-active',k===cur));
+              const c = document.getElementById('pdp-image-counter'); if(c){ c.textContent = `${cur+1}/${srcs.length}`; }
             }
-            
-            // Fetch variant images via AJAX
-            fetch(`/api/variant/${variantId}/images`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success && data.images && data.images.length > 0) {
-                        // Filter to PNG images only
-                        const pngImages = data.images.filter(img => img.endsWith('.png'));
-                        const imagesToUse = pngImages.length > 0 ? pngImages : data.images;
-                        
-                        // Convert relative URLs to full URLs
-                        const fullImageUrls = imagesToUse.map(img => {
-                            if (img.startsWith('http') || img.startsWith('/static/')) {
-                                return img;
-                            } else {
-                                return `/static/${img.replace(/^\/+/, '')}`;
-                            }
-                        });
-                        
-                        // Update main image with forced refresh
-                        const mainImg = document.getElementById('pdp-main-img');
-                        if (mainImg && fullImageUrls.length > 0) {
-                            // Create a new image element to preload
-                            const newImg = new Image();
-                            newImg.onload = function() {
-                                // Once loaded, update the main image
-                                mainImg.src = this.src;
-                            };
-                            // Load with cache busting
-                            newImg.src = fullImageUrls[0] + '?v=' + Date.now();
-                        }
-                        
-                        // Update the image sequence for navigation
-                        // Find the existing slideshow logic and update it
-                        const swatchThumbs = document.querySelector('.pdp-swatch-thumbs');
-                        if (swatchThumbs) {
-                            // Clear existing thumbs
-                            swatchThumbs.innerHTML = '';
-                            
-                            // Add new thumbs
-                            fullImageUrls.forEach((img, index) => {
-                                const button = document.createElement('button');
-                                button.className = `swatch-thumb ${index === 0 ? 'is-active' : ''}`;
-                                button.setAttribute('data-full', img);
-                                swatchThumbs.appendChild(button);
-                            });
-                            
-                            // Re-initialize the slideshow with new images
-                            const newSeq = fullImageUrls;
-                            let newIdx = 0;
-                            
-                            function newShow(i) {
-                                if (!newSeq.length) return;
-                                newIdx = (i + newSeq.length) % newSeq.length;
-                                if (mainImg) mainImg.src = newSeq[newIdx];
-                                
-                                // Update thumb active states
-                                swatchThumbs.querySelectorAll('.swatch-thumb').forEach((b, k) => {
-                                    b.classList.toggle('is-active', k === newIdx);
-                                });
-                                
-                                // Update counter
-                                const counter = document.getElementById('pdp-image-counter');
-                                if (counter) {
-                                    counter.textContent = `${newIdx + 1}/${newSeq.length}`;
-                                }
-                            }
-                            
-                            // Re-attach click events to new thumbs
-                            swatchThumbs.querySelectorAll('.swatch-thumb').forEach((b, i) => {
-                                b.addEventListener('click', () => newShow(i));
-                            });
-                            
-                            // Update navigation arrows to use new sequence
-                            const leftNav = document.querySelector('.pdp-nav.left');
-                            const rightNav = document.querySelector('.pdp-nav.right');
-                            if (leftNav) {
-                                leftNav.onclick = () => newShow(newIdx - 1);
-                            }
-                            if (rightNav) {
-                                rightNav.onclick = () => newShow(newIdx + 1);
-                            }
-                        }
-                        
-                        // Update counter
-                        const counter = document.getElementById('pdp-image-counter');
-                        if (counter) {
-                            counter.textContent = `1/${fullImageUrls.length}`;
-                        }
-                        
-                        // Update add to cart button variant ID
-                        const addToCartBtn = document.getElementById('addToCartBtn');
-                        if (addToCartBtn) {
-                            addToCartBtn.setAttribute('data-variant-id', variantId);
-                        }
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching variant images:', error);
-                });
-        };
-    </script>
-
-    <!-- Modals -->
-    {% include "wishlist_modal.html" %}
-    {% include "cart_modal.html" %}
-    {% include "login_register_modal.html" %}
-    {% include "logged_in_modal.html" %}
-
-    <!-- Footer -->
-    {% include "footer.html" %}
-
-    <!-- JavaScript -->
-    <script defer src="{{ url_for('static', filename='js/index.js') }}?v=20250116-2"></script>
+            document.querySelector('.pdp-nav.left').onclick  = ()=>show(cur-1);
+            document.querySelector('.pdp-nav.right').onclick = ()=>show(cur+1);
+            const c = document.getElementById('pdp-image-counter'); if(c){ c.textContent = `1/${srcs.length}`; }
+          }
+          const addBtn = document.getElementById('addToCartBtn'); if(addBtn){ addBtn.setAttribute('data-variant-id', variantId); }
+        })
+        .catch(()=>{});
+    };
+  </script>
 </body>
 </html>
