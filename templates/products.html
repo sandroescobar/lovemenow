@@ -1,36 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
+
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-WW7VC75G');</script>
+
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <meta name="description" content="Browse our complete collection of premium adult products – LoveMeNow">
     <title>Products · LoveMeNow</title>
 
-    <!-- Favicon (prevents /favicon.ico 404s) -->
+
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-WW7VC75G');</script>
+
+
+
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
 
-    <!-- Google Fonts -->
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Font Awesome -->
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
-    <!-- Site CSS -->
+
     <link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}?v=20250116-3">
 
-    <!-- Mobile Optimizations CSS -->
+
     <link rel="preload" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}?v=20250116-3" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}?v=20250116-3"></noscript>
 
-    <!-- CSRF Protection -->
+
     {% include 'csrf_meta.html' %}
 
-    <!-- Google AdWords Tracking -->
+
     {% include 'google_tag.html' %}
 
-    <!-- Minimal toast styles -->
+
     <style>
       .toast-stack{
         position:fixed; top:16px; right:16px;
@@ -60,6 +77,11 @@
     </style>
 </head>
 <body>
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WW7VC75G"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
 
 {# ──────────────────────────────────────────────────────────────────
    GLOBAL MACROS
@@ -472,8 +494,12 @@ function handleImageError(img){
   });
 </script>
 
+
+
 <!-- Mobile Menu JavaScript -->
 <script src="{{ url_for('static', filename='js/mobile-menu.js') }}" defer></script>
+
+
 
 </body>
 </html>
