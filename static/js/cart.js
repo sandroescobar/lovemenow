@@ -1,10 +1,7 @@
 // static/js/cart.js
-// Renders cart items, applies/locks discounts, and syncs totals with server.
+// Cart rendering + server-truth discount UI + event wiring (updated)
 
 (() => {
-  console.log('cart.js loading…');
-
-  const LS_DISCOUNT_KEY = 'lmn_discount_applied';
   const $  = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
   const fmt = (n) => `$${Number(n || 0).toFixed(2)}`;
@@ -14,12 +11,16 @@
       ? window.getCSRFToken()
       : document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')) || '';
 
+  // ---- Boot ----
   document.addEventListener('DOMContentLoaded', () => {
     loadCart();
-    if (window.updateCartCount) updateCartCount();
-    if (window.updateWishlistCount) updateWishlistCount();
+    // react to discount applied/removed from promo modal or DiscountManager
+    window.addEventListener('lmn:discount:applied', syncDiscountUIFromServer, { passive: true });
+    document.addEventListener('discountApplied',     syncDiscountUIFromServer, { passive: true });
+    document.addEventListener('discountRemoved',     syncDiscountUIFromServer, { passive: true });
   });
 
+  // ---- Load + Render ----
   async function loadCart() {
     const mount = $('#cartContent');
     if (!mount) return;
@@ -32,17 +33,14 @@
     `;
 
     try {
-      // Non-blocking debug call
-      fetch('/api/cart/debug').catch(() => {});
-
-      const res = await fetch('/api/cart/');
+      const res = await fetch('/api/cart/', { cache: 'no-store' });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
 
       renderCart(mount, data);
       attachHandlers();
-      await refreshCartSummary();  // server-truth numbers incl. discount/tax
-      enforceAlreadyAppliedState();
+      await refreshCartSummary();          // pulls /api/cart/totals
+      await syncDiscountUIFromServer();    // fills input/sets button state from server
     } catch (err) {
       mount.innerHTML = `
         <div class="empty-cart">
@@ -61,6 +59,7 @@
     const products = cartData?.products || [];
 
     if (!products.length) {
+      // If cart empty, ensure discount input is unlocked on this page (user must re-enter)
       mount.innerHTML = `
         <div class="empty-cart">
           <i class="fas fa-shopping-cart"></i>
@@ -169,7 +168,7 @@
             <span id="total">$0.00</span>
           </div>
 
-          <div class="discount-code-section">
+          <div class="discount-code-section cart-discount-section">
             <div class="discount-label">Have a discount code?</div>
             <form id="cartDiscountForm" class="discount-form">
               <div class="discount-input-group">
@@ -177,12 +176,12 @@
                        class="discount-input"
                        id="cartDiscountCodeInput"
                        placeholder="Enter discount code">
-                <button type="submit" class="discount-submit-btn" id="cartDiscountApplyBtn">
+                <button type="submit" class="discount-submit-btn apply-discount-btn" id="cartDiscountApplyBtn">
                   <i class="fas fa-check"></i> Apply
                 </button>
               </div>
             </form>
-            <small id="cart-discount-message" style="display:none;"></small>
+            <small class="discount-message" id="cart-discount-message" style="display:none;"></small>
           </div>
 
           <button class="checkout-btn" id="checkoutBtn">
@@ -199,8 +198,8 @@
     `;
   }
 
+  // ---- Totals (server-truth) ----
   async function refreshCartSummary() {
-    // Prefer server totals: keeps discount/tax logic identical to checkout
     try {
       const res = await fetch('/api/cart/totals', { cache: 'no-store' });
       if (!res.ok) throw new Error('no totals endpoint');
@@ -213,9 +212,9 @@
       const ship     = t.delivery_fee ?? t.shipping_fee ?? null;
       const total    = t.total ?? 0;
 
-      if ($('#subtotal'))         $('#subtotal').textContent = fmt(subtotal);
-      if ($('#tax-amount'))       $('#tax-amount').textContent = fmt(tax);
-      if ($('#total'))            $('#total').textContent = fmt(total);
+      $('#subtotal')?.replaceChildren(document.createTextNode(fmt(subtotal)));
+      $('#tax-amount')?.replaceChildren(document.createTextNode(fmt(tax)));
+      $('#total')?.replaceChildren(document.createTextNode(fmt(total)));
       if ($('#shipping-amount') && ship != null) $('#shipping-amount').textContent = fmt(ship);
 
       if (discount && discount > 0) {
@@ -226,20 +225,118 @@
         $('#discount-row').style.display = 'none';
       }
     } catch {
-      // Fallback if /api/cart/totals isn’t available: basic client calc
+      // minimal fallback (no server)
       const subText = $('#subtotal')?.textContent || '$0.00';
       const sub = Number(subText.replace(/[^0-9.]/g, '') || 0);
-      const tax = sub * 0.0875; // Miami-Dade
-      if ($('#tax-amount')) $('#tax-amount').textContent = fmt(tax);
-      if ($('#total')) $('#total').textContent = fmt(sub + tax);
+      const tax = sub * 0.0875;
+      $('#tax-amount') && ($('#tax-amount').textContent = fmt(tax));
+      $('#total') && ($('#total').textContent = fmt(sub + tax));
     }
   }
 
+  // ---- Discount UI syncing (server is source of truth) ----
+  async function getServerDiscount() {
+    // 1) Prefer the canonical discount endpoint (has_discount flag)
+    try {
+      const r = await fetch('/api/cart/discount-status', { cache: 'no-store' });
+      if (r.ok) {
+        const d = await r.json();
+        if (d.success && d.has_discount && d.discount?.code) {
+          return {
+            code: String(d.discount.code).toUpperCase(),
+            amount: Number(d.discount.discount_amount || d.discount.amount || 0)
+          };
+        }
+      }
+    } catch {}
+
+    // 2) Fallback to totals
+    try {
+      const r = await fetch('/api/cart/totals', { cache: 'no-store' });
+      if (r.ok) {
+        const t = await r.json();
+        if ((t.discount_amount || 0) > 0 && t.discount_code) {
+          return {
+            code: String(t.discount_code).toUpperCase(),
+            amount: Number(t.discount_amount)
+          };
+        }
+      }
+    } catch {}
+
+    return null;
+  }
+
+  async function getSubtotal() {
+    try {
+      const r = await fetch('/api/cart/totals', { cache: 'no-store' });
+      if (r.ok) {
+        const t = await r.json();
+        return Number(t.subtotal || 0);
+      }
+    } catch {}
+    return 0;
+  }
+
+  async function syncDiscountUIFromServer() {
+    const section = $('.cart-discount-section');
+    if (!section) return;
+
+    const input  = section.querySelector('#cartDiscountCodeInput');
+    const button = section.querySelector('#cartDiscountApplyBtn');
+    const msg    = section.querySelector('.discount-message');
+
+    // If subtotal is 0, always unlock/clear (user must re-enter after empty cart + refresh)
+    const subtotal = await getSubtotal();
+    if (subtotal <= 0) {
+      unlockInput(); clearMessage(); return;
+    }
+
+    const d = await getServerDiscount();
+
+    if (d) {
+      // server says: discount is active
+      if (input) {
+        input.value = d.code;
+        input.disabled = true;
+        input.placeholder = 'Discount already applied';
+      }
+      if (button) {
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-badge-check"></i> Applied';
+      }
+      if (msg) {
+        msg.style.display = '';
+        msg.style.color = 'var(--muted-color)';
+        msg.textContent = `Code ${d.code} is active on your cart.`;
+      }
+    } else {
+      // no active discount → allow typing
+      unlockInput(); clearMessage();
+    }
+
+    function unlockInput() {
+      if (input) {
+        input.disabled = false;
+        input.value = '';
+        input.placeholder = 'Enter discount code';
+      }
+      if (button) {
+        button.disabled = false;
+        button.innerHTML = '<i class="fas fa-check"></i> Apply';
+      }
+    }
+    function clearMessage() {
+      if (msg) { msg.style.display = 'none'; msg.textContent = ''; }
+    }
+  }
+
+  // ---- Handlers ----
   function attachHandlers() {
     const root = $('.cart-content');
     if (!root) return;
 
-    // Quantity + remove (event delegation)
+    // qty + remove
     root.addEventListener('click', async (e) => {
       const btn = e.target.closest('[data-action]');
       if (!btn) return;
@@ -268,85 +365,78 @@
       await updateQuantity(id, Number(input.value || 1), variant);
     });
 
-    // Discount apply
+    // Apply discount (cart)
     const form = $('#cartDiscountForm');
     if (form) form.addEventListener('submit', onApplyDiscount);
 
     // Checkout
-    $('#checkoutBtn')?.addEventListener('click', () => {
-      window.location.href = '/checkout';
-    });
+    $('#checkoutBtn')?.addEventListener('click', () => { window.location.href = '/checkout'; });
   }
 
   async function onApplyDiscount(e) {
     e.preventDefault();
-    const input  = $('#cartDiscountCodeInput');
-    const button = $('#cartDiscountApplyBtn');
-    const msg    = $('#cart-discount-message');
+    const section = $('.cart-discount-section');
+    const input  = section?.querySelector('#cartDiscountCodeInput');
+    const button = section?.querySelector('#cartDiscountApplyBtn');
+    const msg    = section?.querySelector('.discount-message');
 
     const code = input?.value.trim().toUpperCase();
     if (!code) return;
 
     button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Applying…';
 
     try {
-      const res = await fetch('/api/cart/apply-discount', {
+      // Validate then apply — same endpoints as promo modal / PDP
+      let r = await fetch('/api/validate-discount', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCSRF()
-        },
-        body: JSON.stringify({ code })
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRF() },
+        body: JSON.stringify({ code, cart_total: await getCurrentCartTotal() })
       });
-
-      const data = await res.json();
-      if (!res.ok || data.success === false) {
-        throw new Error(data.error || 'Invalid or expired discount code.');
+      const v = await r.json();
+      if (!r.ok || v.valid === false || v.success === false) {
+        throw new Error(v.error || v.message || 'Invalid or ineligible discount code.');
       }
 
-      localStorage.setItem(LS_DISCOUNT_KEY, code);
+      r = await fetch('/api/cart/apply-discount', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRF() },
+        body: JSON.stringify({ code, cart_total: await getCurrentCartTotal() })
+      });
+      const a = await r.json();
+      if (!r.ok || a.success === false) {
+        throw new Error(a.error || a.message || 'Could not apply the code.');
+      }
 
       if (msg) {
         msg.style.display = '';
         msg.style.color = 'var(--success-text, #166534)';
         msg.textContent = `Discount ${code} applied.`;
       }
-      if (window.showToast) showToast(`Discount ${code} applied`, 'success');
+      if (typeof window.showToast === 'function') window.showToast(`Discount ${code} applied`, 'success');
 
       await refreshCartSummary();
-      enforceAlreadyAppliedState();
+      await syncDiscountUIFromServer();
+
+      // Tell other scripts (PDP / checkout)
+      document.dispatchEvent(new CustomEvent('discountApplied', { detail: { code } }));
+      window.dispatchEvent(new CustomEvent('lmn:discount:applied', { detail: { code } }));
     } catch (err) {
       if (msg) {
         msg.style.display = '';
         msg.style.color = '#b91c1c';
         msg.textContent = err.message;
       }
-      if (window.showToast) showToast(err.message, 'error');
-    } finally {
-      button.disabled = false;
-    }
-  }
-
-  function enforceAlreadyAppliedState() {
-    const applied = localStorage.getItem(LS_DISCOUNT_KEY);
-    const input  = $('#cartDiscountCodeInput');
-    const button = $('#cartDiscountApplyBtn');
-    const msg    = $('#cart-discount-message');
-
-    if (applied && input && button) {
-      input.disabled = true;
-      input.value = applied;
-      input.placeholder = 'Discount already applied';
-      button.disabled = true;
-      if (msg) {
-        msg.style.display = '';
-        msg.style.color = 'var(--muted-color)';
-        msg.textContent = `Code ${applied} is active on your cart.`;
+      if (typeof window.showToast === 'function') window.showToast(err.message, 'error');
+      // Re-enable so user can retry
+      if (button) {
+        button.disabled = false;
+        button.innerHTML = '<i class="fas fa-check"></i> Apply';
       }
     }
   }
 
-  // --- Server calls ---
+  // ---- Server calls: qty / remove ----
   async function updateQuantity(productId, newQty, variantId = null) {
     if (newQty < 1) return removeFromCart(productId, variantId);
 
@@ -361,29 +451,46 @@
 
     const data = await res.json();
     if (!res.ok) {
-      if (window.showToast) showToast(data.error || 'Failed to update quantity', 'error');
-      return loadCart(); // revert UI to server state
+      if (window.showToast) window.showToast(data.error || 'Failed to update quantity', 'error');
+      return;
     }
-
-    if (data.message && window.showToast) showToast('Cart updated', 'success');
-    if (window.updateCartCount) updateCartCount();
-    await loadCart();
+    await loadCart();           // re-render items
+    await refreshCartSummary(); // re-calc totals
+    await syncDiscountUIFromServer();
   }
 
   async function removeFromCart(productId, variantId = null) {
     const body = { product_id: productId };
     if (variantId) body.variant_id = variantId;
 
-    await fetch('/api/cart/remove', {
+    const res = await fetch('/api/cart/remove', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRF() },
       body: JSON.stringify(body)
     });
+    const data = await res.json();
+    if (!res.ok) {
+      if (window.showToast) window.showToast(data.error || 'Failed to remove item', 'error');
+      return;
+    }
 
-    if (window.updateCartCount) updateCartCount();
     await loadCart();
+    await refreshCartSummary();
+    await syncDiscountUIFromServer();
   }
 
-  // Legacy global (if anything still calls it)
-  window.proceedToCheckout = () => { window.location.href = '/checkout'; };
+  // ---- Helpers ----
+  async function getCurrentCartTotal() {
+    try {
+      const res = await fetch('/api/cart/totals', { cache: 'no-store' });
+      if (res.ok) {
+        const t = await res.json();
+        return Number(t.subtotal || 0);
+      }
+    } catch {}
+    // fallback: parse UI
+    const totalEl = $('#subtotal');
+    if (!totalEl) return 0;
+    return Number((totalEl.textContent || '').replace(/[^0-9.]/g, '')) || 0;
+  }
 })();

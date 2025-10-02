@@ -6,11 +6,13 @@ from datetime import datetime, timedelta
 from flask import Blueprint, request, jsonify, session, current_app, redirect, url_for, flash
 from flask_login import login_user, logout_user, current_user, login_required
 from sqlalchemy.exc import IntegrityError
+from flask import make_response
 
 from routes import db, bcrypt
 from models import User, UserAddress, AuditLog
 from security import validate_input, is_safe_url
 from email_utils import send_email_sendlayer
+
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -652,64 +654,69 @@ def age_verification():
     current_app.logger.info("Showing age verification template")
     return render_template('age_verification.html')
 
+# routes/auth.py
+
+
 @auth_bp.route('/verify-age', methods=['POST'])
 def verify_age():
-    """Process age verification"""
     try:
-        data = request.form.to_dict()
-        
-        if data.get('verified') == 'true':
-            # Set session flag for age verification
+        # Read from form, but also accept ?next=... from the query as fallback
+        form = request.form
+        verified = (form.get('verified') == 'true')
+        next_page = form.get('next') or request.args.get('next') or url_for('main.index')
+        if not is_safe_url(next_page):
+            next_page = url_for('main.index')
+
+        if verified:
+            # Mark session
             session['age_verified'] = True
             session['age_verification_date'] = datetime.utcnow().isoformat()
-            # DO NOT make session permanent - it should expire when browser closes
-            
-            # If user is logged in, update their record
+            session.modified = True
+
+            # Persist on user if logged in
             if current_user.is_authenticated:
                 current_user.age_verified = True
                 current_user.age_verification_date = datetime.utcnow()
                 db.session.commit()
-                
-                # Log the age verification
-                AuditLog.log_action(
-                    action='age_verification',
-                    user_id=current_user.id,
-                    details=f'User {current_user.email} completed age verification',
-                    ip_address=request.remote_addr,
-                    user_agent=request.headers.get('User-Agent'),
-                    status='success'
-                )
-            else:
-                # Log anonymous age verification
-                AuditLog.log_action(
-                    action='age_verification',
-                    details='Anonymous user completed age verification',
-                    ip_address=request.remote_addr,
-                    user_agent=request.headers.get('User-Agent'),
-                    status='success'
-                )
-            
-            # Redirect to intended page
-            next_page = data.get('next', url_for('main.index'))
-            current_app.logger.info(f"Age verification successful, redirecting to: {next_page}")
-            if is_safe_url(next_page):
-                return redirect(next_page)
-            return redirect(url_for('main.index'))
-        else:
-            # User indicated they are under 18
-            AuditLog.log_action(
-                action='age_verification_denied',
-                details='User indicated they are under 18',
-                ip_address=request.remote_addr,
-                user_agent=request.headers.get('User-Agent'),
-                status='denied'
+
+            # Build redirect response
+            resp = make_response(redirect(next_page))
+
+            # Long-lived "age verified" cookie (read by server if you need it)
+            resp.set_cookie(
+                'age_verified',
+                '1',
+                max_age=60 * 60 * 24 * 365,  # 1 year
+                path='/',
+                samesite='Lax',
+                secure=request.is_secure,     # True on HTTPS
+                httponly=False                # keep False so client code can read if desired
             )
-            # Redirect away from the site
-            return redirect('https://www.google.com')
-    
+
+            # 🔑 Short-lived ONE-TIME promo trigger cookie (read by promo_modal.js)
+            # promo_modal.js will erase this cookie after showing the modal once.
+            resp.set_cookie(
+                'lmn_show_promo',
+                '1',
+                max_age=300,                  # 5 minutes is plenty
+                path='/',
+                samesite='Lax',
+                secure=request.is_secure,
+                httponly=False                # must be readable by JS
+            )
+
+            return resp
+
+        # Not verified (under age path)
+        return redirect('https://www.google.com')
+
     except Exception as e:
-        current_app.logger.error(f"Age verification error: {str(e)}")
-        return redirect(url_for('auth.age_verification'))
+        current_app.logger.error(f"Age verification error: {e}")
+        # Preserve ?next on error so user can complete flow
+        fallback_next = request.args.get('next') or url_for('main.index')
+        return redirect(url_for('auth.age_verification', next=fallback_next))
+
+
 
 def require_age_verification(f):
     """Decorator to require age verification for routes"""

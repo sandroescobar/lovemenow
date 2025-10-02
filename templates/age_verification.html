@@ -190,15 +190,18 @@
             </div>
             
             <div class="age-verification-buttons">
-                <form method="POST" action="{{ url_for('auth.verify_age') }}" class="overAgeButton">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <input type="hidden" name="verified" value="true">
-                    <input type="hidden" name="next" value="{{ request.args.get('next', url_for('main.index')) }}">
-                    <button type="submit" class="age-btn age-btn-yes">
-                        <i class="fas fa-check"></i>
-                        I am 18+
-                    </button>
-                </form>
+                <form method="POST"
+      action="{{ url_for('auth.verify_age') }}"
+      id="ageForm"
+      class="overAgeButton">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="verified" value="true">
+  <input type="hidden" name="next" value="{{ request.args.get('next', url_for('main.index')) }}">
+  <button type="submit" class="age-btn age-btn-yes">
+    <i class="fas fa-check"></i>
+    I am 18+
+  </button>
+</form>
                 
                 <a href="https://www.google.com" class="age-btn age-btn-no">
                     <i class="fas fa-times"></i>
@@ -211,6 +214,18 @@
             </div>
         </div>
     </div>
+
+    <script>
+  // Persist decision before navigating away
+  document.getElementById('ageForm')?.addEventListener('submit', () => {
+    try {
+      localStorage.setItem('lmn:age_verified', '1');
+      document.cookie = "age_verified=1; path=/; max-age=31536000";
+      // This event is only useful if you ever convert to an on-page modal
+      window.dispatchEvent(new CustomEvent('lmn:agegate:passed'));
+    } catch (e) {}
+  });
+</script>
     
     <!-- Mobile Menu JavaScript -->
     <script src="{{ url_for('static', filename='js/mobile-menu.js') }}" defer></script>

@@ -1,0 +1,119 @@
+<!-- Promo Discount Modal (DARK CARD) -->
+<div id="promoOverlay" class="promo-overlay" hidden aria-hidden="true">
+  <div class="promo-dialog" role="dialog" aria-modal="true" aria-labelledby="promoTitle">
+    <button class="promo-close" type="button" aria-label="Close" id="promoCloseBtn">×</button>
+
+    <div class="promo-badge">Launch special</div>
+
+    <h2 id="promoTitle" class="promo-title">
+      <span class="promo-title-lg">20% Off</span><br/>
+      Your First Order
+    </h2>
+    <p class="promo-sub">Limited to the first 100 customers.</p>
+
+    <div class="promo-code-row">
+      <input id="promoCodeInput" class="promo-code" type="text" value="WELCOME20" readonly>
+      <button class="promo-copy" type="button" id="promoCopyBtn">Copy</button>
+    </div>
+
+    <div class="promo-progress-wrap" aria-label="Discount redemptions remaining">
+      <div class="promo-progress">
+        <div id="promoBar" class="promo-bar" style="width: 100%"></div>
+      </div>
+      <div class="promo-left"><span id="promoLeft">100</span> left</div>
+    </div>
+
+    <button class="promo-apply" type="button" id="promoApplyBtn">Apply 20% now</button>
+    <button class="promo-later" type="button" id="promoLaterBtn">Remind me later</button>
+  </div>
+</div>
+
+<style>
+/* ===== Overlay (dim background, still visible) ===== */
+.promo-overlay{
+  position:fixed; inset:0; display:grid; place-items:center;
+  background: rgba(0,0,0,.72);
+  backdrop-filter: blur(2px);
+  z-index: 2147483000;
+}
+.promo-overlay[hidden]{display:none}
+
+/* ===== Dialog (SOLID card so nothing bleeds through) ===== */
+.promo-dialog{
+  width: min(92vw, 520px);
+  background: #0f1220;           /* solid dark */
+  color: #fff;
+  border-radius: 20px;
+  padding: 24px 22px 18px;
+  box-shadow:
+    0 24px 70px rgba(0,0,0,.55),
+    0 0 0 1px rgba(255,255,255,.06);
+  position: relative;
+}
+
+/* Close button */
+.promo-close{
+  position:absolute; right:10px; top:10px;
+  background: transparent; border: 0; color: #fff;
+  opacity: .85; font-size: 20px; line-height: 1; cursor: pointer;
+  width:28px; height:28px; border-radius: 999px; display:grid; place-items:center;
+}
+.promo-close:hover{ opacity: 1; background: rgba(255,255,255,.08); }
+
+/* Badge / title / subtitle */
+.promo-badge{
+  display:inline-block; padding:6px 12px; border-radius:999px;
+  background: rgba(255,255,255,.08);
+  font-weight:600; font-size:.85rem; margin-bottom:10px;
+}
+.promo-title{ margin: 4px 0; line-height: 1.15; }
+.promo-title-lg{ font-size: 2.15rem; font-weight: 800; letter-spacing: .2px; display:block; }
+.promo-sub{ margin: 6px 0 16px; color: #cbd5e1; }
+
+/* Code row */
+.promo-code-row{ display:flex; gap:8px; align-items:center; margin: 8px 0 14px; }
+.promo-code{
+  flex:1;
+  background: #111827;
+  border: 1px solid rgba(255,255,255,.12);
+  color:#fff; padding: 12px 14px; border-radius: 12px;
+  font-weight: 700; letter-spacing: .02em;
+}
+.promo-copy{
+  padding: 10px 14px; border-radius: 12px; border:0; cursor:pointer;
+  font-weight: 700; color:#fff; background: rgba(255,255,255,.12);
+}
+.promo-copy:hover{ background: rgba(255,255,255,.2); }
+
+/* Progress / remaining */
+.promo-progress-wrap{ margin: 6px 2px 4px; }
+.promo-progress{ height:8px; border-radius:999px; background: rgba(255,255,255,.12); overflow:hidden; }
+.promo-bar{
+  height:100%; border-radius:999px;
+  background: linear-gradient(90deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+  transition: width .25s ease;
+}
+.promo-left{ margin-top:8px; opacity:.9; color:#e5e7eb; }
+
+/* Primary & secondary actions */
+.promo-apply{
+  width:100%; margin:14px 0 8px; padding:14px 16px; border-radius:14px;
+  border:0; cursor:pointer; color:#fff; font-weight:800; font-size:1rem;
+  background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+  box-shadow: 0 10px 28px rgba(0,0,0,.25);
+}
+.promo-apply:hover{ transform: translateY(-1px); }
+.promo-apply:focus-visible{ outline:2px solid rgba(255,255,255,.5); outline-offset:2px; }
+
+.promo-later{
+  width:100%; padding:10px 12px; border-radius:12px; border:0;
+  background: transparent; color:#cbd5e1; font-weight:600; opacity:.9; cursor:pointer;
+}
+.promo-later:hover{ opacity:1; }
+
+/* Small screens */
+@media (max-width: 480px){
+  .promo-title-lg{ font-size: 1.8rem; }
+  .promo-dialog{ padding: 20px 18px 16px; }
+}
+</style>

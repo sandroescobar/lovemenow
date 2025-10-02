@@ -1124,6 +1124,9 @@ function initializeAuthForms() {
         sessionStorage.setItem('authMessage', res.message || 'Registration successful!');
         sessionStorage.setItem('authMessageType', 'success');
 
+        // ⛳️ IMPORTANT: skip promo once on the auth-triggered reload
+        sessionStorage.setItem('lmn_skip_promo_once', '1');
+
         setTimeout(() => { closeAuthModal(); location.reload(); }, 1200);
       } catch {
         showAuthError('registerError', 'Registration failed');
@@ -1161,6 +1164,9 @@ function initializeAuthForms() {
           cartCountLastFetch = 0;
         }
 
+        // ⛳️ IMPORTANT: skip promo once on the auth-triggered reload
+        sessionStorage.setItem('lmn_skip_promo_once', '1');
+
         setTimeout(() => { closeAuthModal(); location.reload(); }, 1200);
       } catch {
         showAuthError('loginError', 'Login failed');
@@ -1168,6 +1174,7 @@ function initializeAuthForms() {
     });
   }
 }
+
 
 function initializeAuthModalHandlers() {
   const authOverlay = document.getElementById('authOverlay');

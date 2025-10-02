@@ -2,13 +2,11 @@
 <html lang="en">
 <head>
 
-
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-WW7VC75G');</script>
-
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,17 +17,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-    <!-- Custom CSS -->
+    <!-- ✅ MAIN SITE STYLES (needed for layout, variables, navbar, etc.) -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}?v=20250116-3">
+
+    <!-- Performance & mobile layers -->
     <link rel="preload" href="{{ url_for('static', filename='CSS/performance.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/performance.css') }}"></noscript>
-    
-    <!-- Mobile Optimizations CSS -->
+
     <link rel="preload" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}"></noscript>
-    
+
     <!-- Critical Toast Styling -->
     <style>
-        /* Critical toast styling - inline for immediate availability */
         .toast-stack{position:fixed;top:2rem;right:2rem;z-index:99999;display:flex;flex-direction:column;gap:0.5rem}
         .toast{background:#ef4444!important;color:white!important;border:none!important;border-radius:8px;padding:1rem 1.5rem;min-width:300px;position:relative;animation:slideInRight 0.3s ease;font-size:1rem;font-weight:600;z-index:99999;box-shadow:0 4px 12px rgba(239,68,68,0.3)!important}
         .toast-success,.toast-danger,.toast-error,.toast-warning,.toast-info,.toast-message{background:#ef4444!important;color:white!important;border:none!important;box-shadow:0 4px 12px rgba(239,68,68,0.3)!important}
@@ -39,10 +38,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         @keyframes slideOut{from{transform:translateX(0);opacity:1}to{transform:translateX(100%);opacity:0}}
         @media (max-width:768px){.toast-stack{right:1rem;left:1rem;top:1rem}.toast{min-width:auto}}
     </style>
-    
+
     <!-- CSRF Protection -->
     {% include 'csrf_meta.html' %}
-    
+
     <!-- Google AdWords Tracking -->
     {% include 'google_tag.html' %}
 </head>
@@ -52,6 +51,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WW7VC75G"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
+
     <!-- Navigation -->
     {% include "navbar.html" %}
 
@@ -77,11 +77,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="container profile-container">
         <div class="profile-layout">
             <!-- Navigation Breadcrumb -->
-            <div class="settings-breadcrumb">
-
-
-
-            </div>
+            <div class="settings-breadcrumb"></div>
 
             <!-- Security Section -->
             <section class="profile-section">
@@ -96,13 +92,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                 <h3>Change Password</h3>
                                 <p>Update your account password</p>
                             </div>
-                            <button class="btn btn-outline" id="changePassword">Change</button>
+                            <button class="btn btn-outline" id="changePassword" onclick="openPasswordModal()">Change</button>
                         </div>
                     </div>
                 </div>
             </section>
-
-
 
             <!-- Danger Zone Section -->
             <section class="profile-section danger-zone">
@@ -130,11 +124,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
 
     {% include "change_password_modal.html" %}
-    
-    {# ░░░ AUTH MODALS ░░░ #}
     {% include "login_register_modal.html" %}
-    
-    {# ░░░ WISHLIST MODAL ░░░ #}
     {% include "wishlist_modal.html" %}
 
     <!-- Flash Messages -->
@@ -143,9 +133,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="toast-stack" id="flashStack">
           {% for category, msg in messages %}
             <div class="toast toast-{{ category }}">
-                <button class="flash_message_close" onclick="closeToast(this.parentElement)">
-                    <i class="fas fa-times"></i>
-                </button>
+              <button class="flash_message_close" onclick="closeToast(this.parentElement)">
+                <i class="fas fa-times"></i>
+              </button>
               {{ msg }}
             </div>
           {% endfor %}
@@ -156,11 +146,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- Global JS bundle -->
     <script src="{{ url_for('static', filename='js/index.js') }}"></script>
 
-
-    
     <!-- Mobile Menu JavaScript -->
     <script src="{{ url_for('static', filename='js/mobile-menu.js') }}" defer></script>
-
 
 </body>
 </html>

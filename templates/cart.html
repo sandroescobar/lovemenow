@@ -1,15 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-WW7VC75G');</script>
-
-
+  <!-- GTM (leave as-is) -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-WW7VC75G');</script>
 
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -63,8 +60,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     .empty-cart i{font-size:4rem;margin-bottom:1rem;opacity:.5}
     .continue-shopping{display:inline-flex;align-items:center;gap:.5rem;padding:.75rem 1.5rem;background:hsl(var(--border-color));color:hsl(var(--text-color));text-decoration:none;border-radius:var(--radius-md);transition:all .2s ease;margin-top:1rem}
     .continue-shopping:hover{background:hsl(var(--primary-color));transform:translateY(-2px)}
-
-    /* Discount Code */
     .discount-code-section{margin:1.5rem 0;padding:1.5rem 0;border-top:1px solid hsl(var(--border-color));border-bottom:1px solid hsl(var(--border-color))}
     .discount-label{color:hsl(var(--muted-color));font-size:.9rem;margin-bottom:.75rem;font-weight:500}
     .discount-form{width:100%}
@@ -75,7 +70,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     .discount-submit-btn{display:inline-flex;align-items:center;gap:.5rem;padding:.75rem 1.5rem;background:linear-gradient(135deg,hsl(var(--primary-color)),hsl(var(--accent-color)));color:#fff;border:none;border-radius:var(--radius-md);font-weight:600;font-size:.9rem;cursor:pointer;transition:all .2s ease;outline:none;white-space:nowrap}
     .discount-submit-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
     .discount-submit-btn:focus,.discount-submit-btn:active{border:none;outline:none;box-shadow:var(--shadow-lg)}
-
     @media (max-width:768px){
       .cart-content{grid-template-columns:1fr;gap:2rem}
       .cart-item{grid-template-columns:60px 1fr;gap:1rem}
@@ -86,12 +80,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   </style>
 </head>
 <body>
-
-
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WW7VC75G"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-
-
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WW7VC75G"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   {% include "navbar.html" %}
 
@@ -109,10 +99,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   {% include 'logged_in_modal.html' %}
   {% include 'wishlist_modal.html' %}
 
-  <!-- JS: helpers, csrf, then cart -->
+  <!-- JS: helpers, csrf, then cart (NO discount.js here) -->
   <script src="{{ url_for('static', filename='js/index.js') }}?v=20250116-3" defer></script>
   <script src="{{ url_for('static', filename='js/csrf-handler.js') }}" defer></script>
-  <script src="{{ url_for('static', filename='js/cart.js') }}?v=20250929-2" defer></script>
+  <script src="{{ url_for('static', filename='js/discount.js') }}?v=20251001-4" defer></script>
+
+  <script src="{{ url_for('static', filename='js/cart.js') }}?v=20251001-1" defer></script>
   <script src="{{ url_for('static', filename='js/mobile-menu.js') }}" defer></script>
 </body>
 </html>

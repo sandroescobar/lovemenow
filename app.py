@@ -87,6 +87,11 @@ def create_app(config_name=None):
     """Application factory pattern for creating Flask app"""
     app = Flask(__name__)
 
+    @app.context_processor
+    def inject_age_verified():
+        av = bool(session.get('age_verified') or (request.cookies.get('age_verified') == '1'))
+        return {'age_verified': av}
+
     # Determine environment
     if config_name is None:
         config_name = os.getenv('FLASK_ENV', 'development')
@@ -181,6 +186,8 @@ def create_app(config_name=None):
         ]
         app.config['COMPRESS_LEVEL'] = 6  # Good balance between compression and speed
         app.config['COMPRESS_MIN_SIZE'] = 500  # Only compress files larger than 500 bytes
+
+
 
         Compress(app)
         app.logger.info("Response compression enabled with optimized settings")
@@ -308,6 +315,34 @@ def create_app(config_name=None):
     from routes import csrf
     csrf.exempt(app.view_functions['webhooks.stripe_webhook'])
 
+    EXEMPT_PATH_PREFIXES = (
+        '/static/',  # assets
+        '/api/',  # your APIs
+        '/webhooks/',  # webhooks
+    )
+    EXEMPT_PATHS = {
+        '/auth/age-verification',
+        '/auth/verify-age',
+        '/robots.txt',
+        '/sitemap.xml',
+        '/favicon.ico',
+    }
+
+    @app.before_request
+    def enforce_age_gate_everywhere():
+        # allow exempt
+        path = request.path or '/'
+        if path in EXEMPT_PATHS or any(path.startswith(p) for p in EXEMPT_PATH_PREFIXES):
+            return
+
+        # already verified?
+        if session.get('age_verified') or request.cookies.get('age_verified') == '1':
+            return
+
+        # block everything else
+        current_app.logger.info(f"[AGE-GATE] redirecting {path} -> /auth/age-verification")
+        return redirect(url_for('auth.age_verification', next=request.url))
+
     # Register error handlers
     register_error_handlers(app)
 
@@ -328,6 +363,8 @@ def create_app(config_name=None):
     app.wsgi_app = FinalCSPMiddleware(app.wsgi_app)
 
     return app
+
+
 
 
 def register_blueprints(app):

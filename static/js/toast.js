@@ -1,4 +1,4 @@
-<script>
+
 (function(){
   function normalizeFlashStack(){
     const stack = document.getElementById('flashStack');
@@ -73,4 +73,3 @@
 
   document.addEventListener('DOMContentLoaded', normalizeFlashStack);
 })();
-</script>

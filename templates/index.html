@@ -3,26 +3,24 @@
 <head>
 
 
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-WW7VC75G');</script>
+
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-WW7VC75G');</script>
+
+  <!-- End Google Tag Manager -->
+
+
 
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="LoveMeNow - Premium quality adult products for your intimate moments" />
   <title>LoveMeNow - Premium Adult Products</title>
-
-
-  <!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-WW7VC75G');</script>
-<!-- End Google Tag Manager —>
 
   <!-- Preconnects -->
   <link rel="preconnect" href="https://cdnjs.cloudflare.com">
@@ -32,10 +30,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   <link rel="dns-prefetch" href="https://api.mapbox.com">
   <link rel="dns-prefetch" href="https://js.stripe.com">
 
-  <!-- Styles (keep your own paths) -->
+  <!-- CSS -->
   <link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}">
-
-
   <link rel="preload" href="{{ url_for('static', filename='CSS/performance.css') }}?v=20250116-2" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/performance.css') }}?v=20250116-2"></noscript>
   <link rel="preload" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}?v=20250116-2" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -57,15 +53,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   {% include 'csrf_meta.html' %}
   {% include 'google_tag.html' %}
 
-  {% if show_age_verification %}
-  <script>
-    document.documentElement.style.overflow = 'hidden';
-    document.body.style.overflow = 'hidden';
-    document.addEventListener('DOMContentLoaded', () => document.body.classList.add('no-scroll'));
-  </script>
-  {% endif %}
 
-  <!-- Toast styles (local) -->
+
+  <!-- Toast styles (kept local) -->
   <style>
     .toast-stack{position:fixed;top:2rem;right:2rem;z-index:99999;display:flex;flex-direction:column;gap:.5rem}
     .toast{color:#fff;border:none;border-radius:8px;padding:1rem 1.5rem;min-width:300px;position:relative;font-size:1rem;font-weight:600;will-change:transform,opacity;animation:toastSlideInRight .3s ease both;box-shadow:0 4px 12px rgba(0,0,0,.25);transform:translateZ(0);backface-visibility:hidden}
@@ -79,62 +69,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     @keyframes toastSlideOutRight{from{transform:translateX(0);opacity:1}to{transform:translateX(110%);opacity:0}}
     @media (max-width:768px){.toast-stack{right:1rem;left:1rem;top:1rem}.toast{min-width:auto}}
   </style>
-
-  <!-- Page-scoped toast controller -->
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const stack = document.getElementById('flashStack');
-
-      // If server rendered a toast, kill the client-stored one to avoid double-pop/flicker
-      if (stack && stack.querySelector('.toast')) {
-        sessionStorage.removeItem('authMessage');
-        sessionStorage.removeItem('authMessageType');
-      }
-
-      // Normalize / de-dupe and schedule exit with smooth slide-out
-      if (stack) {
-        const seen = new Set();
-        const toasts = Array.from(stack.querySelectorAll('.toast'));
-        toasts.forEach((el, i) => {
-          if (el.classList.contains('toast-message')) el.classList.add('toast-success','success');
-          const key = (el.textContent || '').replace(/\s+/g,' ').trim().toLowerCase();
-          if (seen.has(key)) { el.remove(); return; }
-          seen.add(key);
-          requestAnimationFrame(() => {
-            setTimeout(() => {
-              el.style.animation = 'toastSlideOutRight .35s forwards';
-              el.addEventListener('animationend', () => el.remove(), { once: true });
-            }, 3000 + i * 120);
-          });
-        });
-      }
-    });
-
-    // Global hook used by index.js -> showToast()
-    window.showFlash = function(msg, type='info', opts={}) {
-      const map = { message:'success', info:'info', success:'success', error:'error', danger:'error', warning:'warning' };
-      const t = map[type] || 'info';
-      let stack = document.getElementById('flashStack');
-      if (!stack) { stack = document.createElement('div'); stack.id='flashStack'; stack.className='toast-stack'; document.body.appendChild(stack); }
-      const key = String(msg).replace(/\s+/g,' ').trim().toLowerCase();
-      if ([...stack.querySelectorAll('.toast')].some(n => (n.textContent||'').replace(/\s+/g,' ').trim().toLowerCase()===key)) return null;
-      const el = document.createElement('div');
-      el.className = `toast toast-${t} ${t}`;
-      el.setAttribute('role','status'); el.setAttribute('aria-live','polite');
-      el.innerHTML = `<button class="flash_message_close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>${String(msg)}`;
-      stack.appendChild(el);
-      const ttl = Number(opts.ttl ?? 3000);
-      if (ttl>0){ setTimeout(()=>{ el.style.animation='toastSlideOutRight .35s forwards'; el.addEventListener('animationend', ()=>el.remove(), {once:true}); }, ttl); }
-      return el;
-    };
-  </script>
 </head>
 <body>
 
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WW7VC75G"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WW7VC75G"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
 
   <!-- NAV -->
   {% include "navbar.html" %}
@@ -259,15 +200,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   {% include "login_register_modal.html" %}
   {% include "logged_in_modal.html" %}
 
-  <!-- Age Verification -->
-  {% if show_age_verification %}
-    <!-- (your age verification overlay + styles exactly as before) -->
-  {% endif %}
+
+
+
+
+
 
   <!-- FOOTER -->
   {% include "footer.html" %}
 
-  <!-- Flash Messages (delete this if your base layout already renders flashes) -->
+  <!-- Flash Messages -->
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
       <div class="toast-stack" id="flashStack" role="status" aria-live="polite">
@@ -283,47 +225,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     {% endif %}
   {% endwith %}
 
-  <!-- Map helpers -->
-  <script>
-    function showMapFallback(){
-      const mapIframe=document.querySelector('.folium-map');
-      const fallback=document.getElementById('map-fallback');
-      if(mapIframe&&fallback){ mapIframe.style.display='none'; fallback.style.display='flex'; }
-    }
-    function initializeMap(){
-      const mapIframe=document.querySelector('.folium-map');
-      const fallback=document.getElementById('map-fallback');
-      if(!mapIframe) return;
-      const timeout=setTimeout(()=>{ if(fallback){ mapIframe.style.display='none'; fallback.style.display='flex'; }},8000);
-      mapIframe.onload=()=>clearTimeout(timeout);
-      mapIframe.onerror=()=>{ clearTimeout(timeout); if(fallback){ mapIframe.style.display='none'; fallback.style.display='flex'; } };
-    }
-    document.addEventListener('DOMContentLoaded',()=>{
-      const mapContainer=document.getElementById('map-container');
-      if(!mapContainer) return;
-      const obs=new IntersectionObserver(entries=>{
-        entries.forEach(e=>{ if(e.isIntersecting){ setTimeout(initializeMap,100); obs.unobserve(e.target); }});
-      },{rootMargin:'50px'});
-      obs.observe(mapContainer);
-    });
-    function handleImageError(img){
-      const src=img.src;
-      if(src.includes('__alpha.webp')){
-        const jpeg=src.replace('__alpha.webp','.jpg'); img.src=jpeg; img.onerror=function(){ const fb=src.replace('_alpha.webp','.jpg').replace('__alpha.webp','.jpg'); img.src=fb; img.onerror=function(){ img.style.display='none'; const p=document.createElement('div'); p.className='image-placeholder'; p.style.cssText='width:100%;height:240px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;color:#666;font-size:14px;'; p.textContent='Image not available'; img.parentNode.insertBefore(p,img); }; };
-      } else if (src.includes('.webp')) {
-        const jpeg=src.replace('.webp','.jpg'); img.src=jpeg; img.onerror=function(){ img.style.display='none'; const p=document.createElement('div'); p.className='image-placeholder'; p.style.cssText='width:100%;height:250px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;color:#666;font-size:14px;'; p.textContent='Image not available'; img.parentNode.insertBefore(p,img); };
-      }
-    }
-  </script>
+  {% if age_verified %}
+  {% include "promo_modal.html" %}
+  <script src="{{ url_for('static', filename='js/promo_modal.js') }}?v=20251002-4" defer></script>
+  {% endif %}
 
-
-
-  <!-- Scripts -->
-
+  <!-- JS (order matters) -->
+  <script src="{{ url_for('static', filename='js/csrf-handler.js') }}?v=20250116-2" defer></script>
+  <script src="{{ url_for('static', filename='js/toast.js') }}?v=20250116-2" defer></script>
   <script src="{{ url_for('static', filename='js/mobile-menu.js') }}?v=20250116-2" defer></script>
   <script src="{{ url_for('static', filename='js/index.js') }}?v=20250116-2" defer></script>
-
-
+  <script src="{{ url_for('static', filename='js/home.js') }}?v=20250116-2" defer></script>
+<script src="{{ url_for('static', filename='js/discount.js') }}?v=20251001-4" defer></script>
 
 </body>
 </html>

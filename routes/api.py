@@ -5,6 +5,7 @@ API routes for AJAX requests
 from datetime import datetime, timedelta
 from decimal import Decimal, ROUND_HALF_UP
 
+import stripe
 from flask import Blueprint, jsonify, url_for, current_app, request, session
 from flask_login import login_required, current_user
 from sqlalchemy.orm import joinedload
@@ -18,6 +19,7 @@ from models import (
 from .discount_utils import record_discount_redemption
 from security import sanitize_input, validate_input
 from routes.discount import discount_bp
+from .discount_utils import get_redemptions_for
 
 # IMPORTANT: mount all routes under /api
 api_bp = Blueprint('api', __name__, url_prefix='/api')
@@ -499,6 +501,23 @@ def create_order():
         db.session.rollback()
         current_app.logger.error(f"Error creating order: {str(e)}")
         return jsonify({'error': f'Failed to create order: {str(e)}'}), 500
+
+
+
+@api_bp.get("/discount/stats")   # << use api_bp and no extra /api
+def discount_stats():
+    code = (request.args.get("code") or "").upper()
+    if code != "WELCOME20":
+        return jsonify({"ok": False, "error": "Unknown code"}), 404
+
+    TOTAL = 100
+    used = 0
+    try:
+        used = int(get_redemptions_for(code) or 0)
+    except Exception as e:
+        current_app.logger.warning(f"discount_stats fallback for {code}: {e}")
+    remaining = max(0, TOTAL - used)
+    return jsonify({"ok": True, "code": code, "total": TOTAL, "remaining": remaining})
 
 
 

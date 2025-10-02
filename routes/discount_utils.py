@@ -33,3 +33,7 @@ def record_discount_redemption(order, order_subtotal, discount_amount):
     # clear the cart discount for this session so it can't be reused
     session.pop('discount', None)
     session.modified = True
+
+def get_redemptions_for(code: str) -> int:
+    dc = DiscountCode.query.filter_by(code=code.upper()).first()
+    return int(dc.current_uses or 0) if dc else 0
