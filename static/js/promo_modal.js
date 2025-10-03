@@ -3,7 +3,7 @@
 // - Show ONLY on home page
 // - Show ONLY immediately after age verification (short-lived cookie set by /verify-age)
 // - Show ONLY once per browser session (reappears only after the browser is closed)
-// - Do not alter modal functionality or HTML; only gate visibility
+// - Do not alter modal gating or existing cart functionality; only wire the modal's Apply button to existing APIs
 
 (() => {
   const LOG = (...args) => { try { console.log('[PROMO]', ...args); } catch {} };
@@ -37,8 +37,8 @@
   }
 
   function selectOverlay() {
-    // Your modal markup uses #promoOverlay
-    return document.getElementById('promoOverlay');
+    // Prefer ID, but fall back to class selector to handle markup variants
+    return document.getElementById('promoOverlay') || document.querySelector('.promo-overlay');
   }
 
   function openOverlay(overlay) {
@@ -73,6 +73,94 @@
     });
   }
 
+  // Minimal server helpers (mirrors discount.js behavior)
+  function getCSRFToken() {
+    const t = document.querySelector('meta[name="csrf-token"]');
+    return t ? t.getAttribute('content') : '';
+  }
+
+  async function safeJSON(res) {
+    const text = await res.text();
+    try { return JSON.parse(text); }
+    catch { throw new Error(`${res.status} ${res.statusText}: Non-JSON response`); }
+  }
+
+  async function fetchTotals() {
+    const res = await fetch('/api/cart/totals', { cache: 'no-store' });
+    const data = await safeJSON(res);
+    if (!res.ok) throw new Error('Failed to get cart totals');
+    return data;
+  }
+
+  async function validateCode(code, cartTotal) {
+    const res = await fetch('/api/validate-discount', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+      body: JSON.stringify({ code, cart_total: cartTotal })
+    });
+    const data = await safeJSON(res);
+    if (!res.ok || data.success === false || data.valid === false) {
+      throw new Error(data?.message || 'Invalid or ineligible discount code.');
+    }
+    return data;
+  }
+
+  async function applyCode(code, cartTotal) {
+    const res = await fetch('/api/cart/apply-discount', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+      body: JSON.stringify({ code, cart_total: cartTotal })
+    });
+    const data = await safeJSON(res);
+    if (!res.ok || data.success === false) {
+      throw new Error(data?.message || 'Could not apply the code.');
+    }
+    return data;
+  }
+
+  function wireApplyHandler(overlay) {
+    const applyBtn = overlay.querySelector('#promoApplyBtn');
+    const input = overlay.querySelector('#promoCodeInput');
+    if (!applyBtn || !input) return;
+
+    applyBtn.addEventListener('click', async () => {
+      const code = (input.value || '').trim().toUpperCase();
+      if (!code) return;
+      if (applyBtn.disabled) return;
+
+      const originalText = applyBtn.textContent;
+      try {
+        // Apply even if cart is empty — persist code now; totals will update when items are added
+        const cartTotal = 0;
+
+        applyBtn.disabled = true;
+        applyBtn.textContent = 'Applying…';
+
+        await validateCode(code, cartTotal);
+        const res = await applyCode(code, cartTotal);
+
+        // Reflect applied state locally
+        applyBtn.textContent = 'Applied';
+
+        // Global notifications and sync so existing UIs update themselves
+        if (typeof window.showToast === 'function') window.showToast(res.message || `Discount "${code}" applied!`, 'success');
+        document.dispatchEvent(new CustomEvent('discountApplied', { detail: { code } }));
+        window.dispatchEvent(new CustomEvent('lmn:discount:applied', { detail: { code } }));
+        if (window.discountManager && typeof window.discountManager.syncFromServer === 'function') {
+          window.discountManager.syncFromServer();
+        }
+
+        // Lock button to avoid re-applying
+        applyBtn.disabled = true;
+      } catch (e) {
+        console.error('[PROMO] apply error', e);
+        if (typeof window.showToast === 'function') window.showToast(e.message || 'Error applying discount code. Please try again.', 'error');
+        applyBtn.disabled = false;
+        applyBtn.textContent = originalText;
+      }
+    });
+  }
+
   // Decide if we should show the promo now.
   // Primary: show on home, once per session, and immediately after AV when trigger cookie is set.
   // Fallback: if we're on the home page and the overlay is present (server renders it only after AV)
@@ -94,6 +182,7 @@
     }
 
     wireCloseHandlers(overlay);
+    wireApplyHandler(overlay);
 
     if (shouldShow(true)) {
       openOverlay(overlay);
