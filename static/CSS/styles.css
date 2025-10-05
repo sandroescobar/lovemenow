@@ -14506,7 +14506,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -14700,7 +14700,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
     
     /* Compact sections */
     .section-label {
-        font-size: 10px;
+        font-size: 13px;
         margin-bottom: 0.5rem;
     }
     

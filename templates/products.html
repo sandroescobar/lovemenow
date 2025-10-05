@@ -29,6 +29,9 @@
   <link rel="preload" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}?v=20250116-3" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}?v=20250116-3"></noscript>
 
+  <!-- NEW: mobile filter sheet styles -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/filters-sheet.css') }}?v=20251004-1">
+
   <!-- CSRF + Tags -->
   {% include 'csrf_meta.html' %}
   {% include 'google_tag.html' %}
@@ -103,7 +106,21 @@
           </div>
         </div>
 
-        <!-- Bottom Row: Category Navigation First -->
+        <!-- MOBILE: category toolbar (hidden on desktop via CSS) -->
+        <div class="mobile-category-toolbar">
+          <button id="openCategorySheet" class="btn-category-picker" type="button">
+            <span id="mobileCategoryLabel">Category · {{ current_filters.category_name or 'All Products' }}</span>
+            <i class="fas fa-chevron-down" aria-hidden="true"></i>
+          </button>
+          <div class="mobile-toolbar-meta">
+            <span class="mobile-sort">Sort: Featured</span>
+            <span class="mobile-count" id="mobileResultCount">
+              {{ products.total }} product{{ 's' if products.total != 1 else '' }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Bottom Row (desktop / tablet): Category Navigation First -->
         <div class="filter-bottom-row">
           <a href="#" class="dropdown-toggle" onclick="filterProducts('all')" style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(236, 72, 153, 0.2)); border-color: hsl(var(--primary-color));">
             <span>All Products</span>
@@ -241,7 +258,7 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <circle cx="9" cy="21" r="1"></circle>
                   <circle cx="20" cy="21" r="1"></circle>
-                  <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                  <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6"></path>
                 </svg>
                 <span class="btn-text">{% if p.is_available %}Add&nbsp;to&nbsp;Cart{% else %}Out&nbsp;of&nbsp;Stock{% endif %}</span>
               </button>
@@ -273,6 +290,68 @@
   <!-- Optional server-rendered stack (empty is fine) -->
   <div id="flashStack" class="toast-stack" aria-live="polite" aria-atomic="true"></div>
 
+  <!-- NEW: Category / Subcategory bottom sheet -->
+  <!-- NEW: Category / Subcategory bottom sheet -->
+<div id="categorySheet" class="filter-sheet" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="sheet-backdrop" data-close-sheet></div>
+  <div class="sheet-panel" role="document" tabindex="-1">
+    <div class="sheet-grabber" aria-hidden="true"></div>
+
+    <header class="sheet-header">
+      <button class="sheet-back" type="button" hidden aria-label="Back">‹ Back</button>
+      <h3 class="sheet-title">Choose Category</h3>
+      <button class="sheet-close" type="button" aria-label="Close">×</button>
+    </header>
+
+    <div class="sheet-content">
+      <!-- Header for main list -->
+      <h4 class="section-label" id="mainHeader">Main Categories</h4>
+
+      <!-- Level 1: parents -->
+      <ul class="category-list level-1" id="catLevel1">
+        <li>
+          <button type="button" class="row" data-category="all" data-has-children="false">
+            <span class="label">All Products</span><span class="chevron">›</span>
+          </button>
+        </li>
+        {% for category in categories %}
+          {% set children_slim = [] %}
+          {% for sc in (category.children or []) %}
+            {% set _ = children_slim.append({'slug': sc.slug, 'name': sc.name}) %}
+          {% endfor %}
+          {% set has_children = (children_slim|length) > 0 %}
+          <li>
+            <button
+              type="button"
+              class="row"
+              data-category="{{ category.slug }}"
+              data-has-children="{{ 'true' if has_children else 'false' }}"
+              data-children='{{ children_slim|tojson }}'
+              data-category-name="{{ category.name|e }}">
+              <span class="label">{{ category.name }}</span>
+              <span class="chevron">›</span>
+            </button>
+          </li>
+        {% endfor %}
+      </ul>
+
+      <!-- Divider + Sub header (shown after choosing a parent) -->
+      <div class="section-divider" id="sectionDivider" hidden></div>
+      <h4 class="section-label" id="subHeader" hidden>
+        Subcategories — <span id="subHeaderName"></span>
+      </h4>
+
+      <!-- Level 2: subcategories (built by JS) -->
+      <ul class="category-list level-2" id="catLevel2" hidden></ul>
+    </div>
+
+    <footer class="sheet-footer">
+      <button class="btn-apply" type="button" id="applyCategory" disabled>Apply</button>
+    </footer>
+  </div>
+</div>
+
+
   <!-- JS (order matters) -->
   <script src="{{ url_for('static', filename='js/csrf-handler.js') }}?v=20250116-3" defer></script>
   <script src="{{ url_for('static', filename='js/toast.js') }}?v=20250116-3" defer></script>
@@ -280,5 +359,16 @@
   <script src="{{ url_for('static', filename='js/index.js') }}?v=20250116-3" defer></script>
   <!-- products page–only helpers -->
   <script src="{{ url_for('static', filename='js/products.js') }}?v=20250116-3" defer></script>
+
+  <!-- Expose a SAFE, minimal filter state for the sheet -->
+  <script>
+    window.current_filters = {
+      category: {{ (current_filters.category|tojson) if current_filters and current_filters.category else 'null' }},
+      category_name: {{ (current_filters.category_name|tojson) if current_filters and current_filters.category_name else 'null' }}
+    };
+  </script>
+
+  <!-- NEW: category sheet controller (loads after products.js so it can call filterProducts) -->
+  <script src="{{ url_for('static', filename='js/filters.js') }}?v=20251004-5" defer></script>
 </body>
 </html>
