@@ -12,7 +12,24 @@
   'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
   })(window,document,'script','dataLayer','GTM-WW7VC75G');</script>
 
+  
+
   <!-- End Google Tag Manager -->
+
+
+  {% if not request.args.get('ad_preview') %}
+  <script>
+    (function () {
+      var p = location.pathname;
+      if (p.startsWith('/auth/age-verification') || p.startsWith('/auth/verify-age')) return;
+      if (document.cookie.split(';').some(s => s.trim() === 'age_verified=1')) return;
+
+      // No age cookie → normally redirect, but NOT when ad_preview is present
+      var next = encodeURIComponent(location.href);
+      location.replace('/auth/age-verification?next=' + next);
+    })();
+  </script>
+  {% endif %}
 
 
 
