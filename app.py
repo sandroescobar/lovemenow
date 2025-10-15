@@ -169,6 +169,34 @@ def create_app(config_name=None):
     bcrypt.init_app(app)
     login_mgr.init_app(app)
 
+    # Ensure critical DB columns exist (idempotent) so app doesn't crash on startup
+    try:
+        from sqlalchemy import text
+        with app.app_context():
+            check_sql = text("""
+                SELECT 1
+                FROM INFORMATION_SCHEMA.COLUMNS
+                WHERE TABLE_NAME = 'products'
+                  AND COLUMN_NAME = 'features'
+                  AND TABLE_SCHEMA = DATABASE()
+            """)
+            if not db.session.execute(check_sql).fetchone():
+                app.logger.info("DB schema: adding missing column products.features")
+                alter_sql = text("""
+                    ALTER TABLE products
+                    ADD COLUMN features TEXT NULL COMMENT 'Primary bullet features (newline/semicolon separated)'
+                """)
+                db.session.execute(alter_sql)
+                db.session.commit()
+            else:
+                app.logger.info("DB schema: products.features present")
+    except Exception as e:
+        app.logger.warning(f"DB schema check failed (non-fatal): {e}")
+        try:
+            db.session.rollback()
+        except Exception:
+            pass
+
     # Add response compression for better performance
     try:
         from flask_compress import Compress

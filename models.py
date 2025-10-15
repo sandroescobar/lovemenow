@@ -158,6 +158,7 @@ class Product(db.Model):
     upc = db.Column(db.String(50), nullable=True)
     base_upc = db.Column(db.String(50), nullable=True)
     description = db.Column(db.Text, nullable=True)
+    features = db.Column(db.Text, nullable=True)  # newline-separated or JSON-like text of feature bullets
     specifications = db.Column(db.Text, nullable=True)
     dimensions = db.Column(db.String(200), nullable=True)
     price = db.Column(db.Numeric(10, 2), nullable=False)
