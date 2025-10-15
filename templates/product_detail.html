@@ -94,7 +94,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         {% set png_images = [] %}
         {% for img in all_images %}
-          {% if img.endswith('.png') %}{% set _ = png_images.append(img) %}{% endif %}
+          {% set img_l = img.lower() %}
+          {% if img_l.endswith('.png') %}{% set _ = png_images.append(img) %}{% endif %}
         {% endfor %}
         {% set all_images = png_images if png_images else all_images %}
 

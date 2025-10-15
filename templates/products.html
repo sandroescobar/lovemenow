@@ -195,8 +195,16 @@
             {% if p.variants|length > 1 and p.default_variant %}
               {% set default_variant_images = p.default_variant.images|map(attribute='url')|list %}
               {% set all_images = default_variant_images %}
+              {% if not all_images and p.image_url %}
+                {# Fallback: show product.image_url even when variants exist but have no images yet #}
+                {% set all_images = [p.image_url] %}
+              {% endif %}
             {% else %}
               {% set all_images = p.all_image_urls %}
+              {% if not all_images and p.image_url %}
+                {# Fallback: show product.image_url if no variant images yet #}
+                {% set all_images = [p.image_url] %}
+              {% endif %}
             {% endif %}
 
             {% if all_images %}

@@ -216,7 +216,7 @@ def products():
     """Products listing page with filtering and pagination"""
     try:
         page = request.args.get('page', 1, type=int)
-        per_page = 100  # Show all products on one page
+        per_page = 5000  # Show all products on one page (raise limit to avoid missing items)
 
         # Build query - show all products including out of stock
         query = Product.query
@@ -406,9 +406,13 @@ def process_product_details(product):
                 else:
                     return text[:max_length]
 
-    # Process Features (from description field)
+    # Process Features (prefer DB field, fall back to computed from description)
     features = []
-    if product.description:
+    # If DB-backed features provided, split into a clean list (supports newline or semicolon-separated)
+    if getattr(product, 'features', None) and product.features and product.features.strip():
+        parts = re.split(r'[\n;]+', product.features)
+        features = [p.strip() for p in parts if p and p.strip()]
+    elif product.description:
         desc_text = product.description.lower()
 
         # Different feature keywords for lubricants vs other products

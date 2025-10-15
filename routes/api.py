@@ -10,6 +10,9 @@ from flask import Blueprint, jsonify, url_for, current_app, request, session
 from flask_login import login_required, current_user
 from sqlalchemy.orm import joinedload
 from sqlalchemy import func, text
+from flask import render_template
+from types import SimpleNamespace
+from email_utils import send_email_sendlayer as send_email_sendlayer_console
 
 from routes import db
 from models import (
@@ -126,7 +129,9 @@ def single_product_json(product_id: int):
             "name": product.name,
             "price": float(product.price),
             "description": product.description,
+            "features": (product.features or ""),
             "specifications": product.specifications or "",
+            "dimensions": product.dimensions or "",
             "is_available": product.is_available,
             "total_quantity_on_hand": product.total_quantity_on_hand,
             "main_image_url": product.main_image_url,
@@ -368,9 +373,11 @@ def user_address():
         return jsonify({'error': 'Failed to save address'}), 500
 
 
+
+
 @api_bp.route('/create-order', methods=['POST'])
 def create_order():
-    """Create order after successful payment (server-trusted totals)."""
+    """Create order after successful payment (server-trusted totals) and send confirmation email (guest or signed-in)."""
     try:
         data = request.get_json() or {}
         required = ['delivery_type', 'customer_info', 'payment_intent_id']
@@ -397,13 +404,13 @@ def create_order():
             return jsonify({'error': 'Order total mismatch. Please refresh and try again.'}), 400
 
         # 3) Build and save the order
-        cust = data['customer_info']
+        cust = data['customer_info'] or {}
         order = Order(
             user_id=current_user.id if current_user.is_authenticated else None,
             order_number=f"LMN{datetime.now().strftime('%Y%m%d%H%M%S')}",
-            email=cust.get('email', ''),
-            full_name=f"{cust.get('first_name','')} {cust.get('last_name','')}".strip(),
-            phone=cust.get('phone', ''),
+            email=cust.get('email', '').strip(),
+            full_name=f"{cust.get('first_name','').strip()} {cust.get('last_name','').strip()}".strip(),
+            phone=cust.get('phone', '').strip(),
             delivery_type=delivery_type,
             subtotal=totals['subtotal'],
             shipping_amount=totals['delivery_fee'],
@@ -416,7 +423,7 @@ def create_order():
 
         # shipping / pickup address
         if delivery_type == 'delivery' and 'delivery_address' in data:
-            addr = data['delivery_address']
+            addr = data['delivery_address'] or {}
             order.shipping_address = addr.get('address')
             order.shipping_suite = addr.get('suite', '')
             order.shipping_city = addr.get('city')
@@ -437,7 +444,6 @@ def create_order():
         db.session.flush()  # get order.id
 
         # Items + inventory updates (same as before)
-        items_for_inv = []
         if current_user.is_authenticated:
             items_for_inv = Cart.query.filter_by(user_id=current_user.id).all()
         else:
@@ -470,7 +476,7 @@ def create_order():
 
         # Record discount redemption (fix call signature)
         try:
-            if totals['discount_amount'] > 0:
+            if totals.get('discount_amount', 0) > 0:
                 from .discount_utils import record_discount_redemption
                 record_discount_redemption(
                     order=order,
@@ -490,6 +496,65 @@ def create_order():
         session['recent_order_id'] = order.id
 
         db.session.commit()
+
+        # 4) Send order confirmation email (guest or signed-in)
+        try:
+            buyer_email = (order.email or '').strip()
+            if buyer_email:
+                # Build a light-weight items list from what we just saved
+                # (avoids another query; uses the same data we inserted)
+                email_items = []
+                for it in items_for_inv:
+                    prod = it.product if hasattr(it, 'product') else it["product"]
+                    qty = int(it.quantity if hasattr(it, 'quantity') else it["quantity"])
+                    unit_price = float(prod.price)
+                    email_items.append({
+                        "name": prod.name,
+                        "quantity": qty,
+                        "unit_price": unit_price
+                    })
+
+                # Delivery address for template
+                delivery_address = {
+                    "address": order.shipping_address,
+                    "suite": order.shipping_suite or '',
+                    "city": order.shipping_city,
+                    "state": order.shipping_state,
+                    "zip": order.shipping_zip
+                }
+
+                # Context mirrors your success page
+                # Wrap to avoid Jinja colliding with dict.items; expose attributes like order.items
+                order_ns = SimpleNamespace(
+                    public_id=order.order_number,
+                    items=email_items,
+                    delivery_type=order.delivery_type,
+                    delivery_address=delivery_address,
+                    tracking_url=None,
+                )
+                totals_ns = SimpleNamespace(
+                    subtotal=totals['subtotal'],
+                    discount_amount=totals.get('discount_amount', 0),
+                    discount_code=totals.get('discount_code'),
+                    delivery_fee=totals.get('delivery_fee', 0),
+                    tax=totals.get('tax', 0),
+                    total=totals['total'],
+                )
+
+                ctx = {
+                    "customer_name": order.full_name or None,
+                    "order": order_ns,
+                    "totals": totals_ns,
+                    "now": datetime.utcnow,  # expose callable for {{ now().year }} in template
+                }
+
+                html_body = render_template("email_confirmation.html", **ctx)
+
+                subject = f"Order #{order.order_number} confirmed — {current_app.config.get('BRAND_NAME', 'LoveMeNow Miami')}"
+                send_email_sendlayer_console(order.full_name or "Customer", buyer_email, subject, html_body)
+        except Exception as e:
+            # Don't fail the order if email send has issues
+            current_app.logger.exception(f"Failed to send order confirmation email: {e}")
 
         return jsonify({
             'success': True,

@@ -350,16 +350,19 @@ def change_password():
         current_app.logger.error(f"Password change error: {str(e)}")
         return jsonify({'error': 'Failed to change password'}), 500
 
-@auth_bp.route('/delete-account', methods=['POST'])
+@auth_bp.route('/delete-account', methods=['GET', 'POST'])
 @login_required
 def delete_account():
     """Delete user account"""
     try:
-        data = request.get_json()
-        
-        # Verify password
-        if not data.get('password') or not current_user.check_password(data['password']):
-            return jsonify({'error': 'Password is required to delete account'}), 400
+        # If POST, support JSON or form and require password
+        if request.method == 'POST':
+            data = request.get_json() or request.form.to_dict()
+            if not data.get('password') or not current_user.check_password(data['password']):
+                if request.is_json:
+                    return jsonify({'error': 'Password is required to delete account'}), 400
+                flash('Password is required to delete account', 'error')
+                return redirect(url_for('main.settings'))
         
         user_email = current_user.email
         user_id = current_user.id
@@ -374,12 +377,20 @@ def delete_account():
         
         current_app.logger.info(f"Account deleted: {user_email}")
         
-        return jsonify({'message': 'Account deleted successfully'})
+        # Respond appropriately based on request type
+        if request.is_json:
+            return jsonify({'message': 'Account deleted successfully'})
+        else:
+            return redirect(url_for('main.index'))
     
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(f"Account deletion error: {str(e)}")
-        return jsonify({'error': 'Failed to delete account'}), 500
+        if request.is_json:
+            return jsonify({'error': 'Failed to delete account'}), 500
+        else:
+            flash('Failed to delete account', 'error')
+            return redirect(url_for('main.settings'))
 
 @auth_bp.route('/profile', methods=['GET', 'POST'])
 @login_required
@@ -490,9 +501,8 @@ def merge_guest_data(user):
 def send_welcome_email(user):
     """Send welcome email to new user"""
     try:
-        if not os.getenv('SENDLAYER_API_KEY'):
-            return
-        
+        current_app.logger.info(f"Attempting to send welcome email to {user.email}")
+
         subject = "Welcome to LoveMeNow!"
         html_content = f"""
         <h2>Welcome to LoveMeNow, {user.full_name}!</h2>
@@ -502,13 +512,15 @@ def send_welcome_email(user):
         <p>Happy shopping!</p>
         <p>The LoveMeNow Team</p>
         """
-        
-        send_email_sendlayer(
-            to_email=user.email,
-            subject=subject,
-            html_content=html_content
+
+        result = send_email_sendlayer(
+            user.full_name or user.email,
+            user.email,
+            subject,
+            html_content
         )
-        
+        current_app.logger.info(f"Welcome email queued/sent via SendLayer for {user.email}: {result}")
+
     except Exception as e:
         current_app.logger.warning(f"Failed to send welcome email: {str(e)}")
 
