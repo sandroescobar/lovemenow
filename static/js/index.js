@@ -1343,7 +1343,11 @@ window.filterProducts = function filterProducts(categorySlug) {
     'strap-on-kits': 54,
     'Water Based Lubricant': 55,
     'oil based': 56,
-    'Massage Oil': 57
+    'Massage Oil': 57,
+    // Toys subcategories reported missing
+    'vibrators': 36,
+    'wands': 39,
+    'cock-rings': 60
   };
 
   const categoryId = categoryMap[categorySlug];
