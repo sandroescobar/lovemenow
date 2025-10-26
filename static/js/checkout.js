@@ -14,9 +14,14 @@
   let clientSecret = null;
   let stripeInitialized = false;
 
+  // Payment Request (Apple/Google Pay)
+  let paymentRequest = null;
+  let prButton = null;
+
   // ----- State -----
   let deliveryQuote = null;  // { fee_dollars }
   let isGettingQuote = false;
+  let latestTotals = null;   // keep last totals for PR amount
 
   // ----- DOM -----
   const deliveryOptions = document.querySelectorAll('.delivery-option');
@@ -36,6 +41,8 @@
   const statusEl = document.getElementById('checkout-status');
 
   // ----- Helpers -----
+  function cents(x) { return Math.round(Number(x || 0) * 100); }
+
   function resetCheckoutButton() {
     if (!checkoutButton) return;
     checkoutButton.disabled = true;
@@ -48,7 +55,15 @@
     return n.toLocaleString(undefined, { style: 'currency', currency: 'USD' });
   }
 
+  function refreshExpressTotal() {
+    if (!paymentRequest || !latestTotals) return;
+    try {
+      paymentRequest.update({ total: { label: 'LoveMeNow', amount: cents(latestTotals.total) } });
+    } catch (_) {}
+  }
+
   function renderTotals(t) {
+    latestTotals = t;
     if (subtotalEl) subtotalEl.textContent = money(t.subtotal || 0);
 
     const hasDiscount = Number(t.discount_amount || 0) > 0;
@@ -69,6 +84,9 @@
 
     if (taxEl)  taxEl.textContent  = money(t.tax || 0);
     if (totalEl) totalEl.textContent = money(t.total || 0);
+
+    // keep PR total in sync
+    refreshExpressTotal();
   }
 
   // Canonical source of truth: always ask /api/cart/totals
@@ -148,6 +166,15 @@
         deliveryOptions.forEach(o => o.classList.remove('active'));
         opt.classList.add('active');
         selectedDeliveryType = (opt.dataset.type || 'pickup').toLowerCase();
+
+        // Whenever delivery mode changes, force a fresh PI with the right total
+        stripeInitialized = false;
+        clientSecret = null;
+        elements = null;
+        const sc = document.getElementById('stripe-checkout');
+        if (sc) sc.innerHTML = '';
+        const ec = document.getElementById('express-checkout');
+        if (ec) ec.innerHTML = '';
 
         if (selectedDeliveryType === 'delivery') {
           if (deliveryAddressSection) deliveryAddressSection.style.display = 'block';
@@ -250,7 +277,11 @@
         deliveryQuote = data.quote;
         hideDeliveryError();
         updateOrderSummary();
-        // Now that we have the delivery quote, init Stripe with correct total on server
+
+        // Now that we have the delivery quote, re-init Stripe with correct total on server
+        stripeInitialized = false;
+        clientSecret = null;
+        elements = null;
         initializeStripe();
       } else {
         deliveryQuote = null;
@@ -281,7 +312,7 @@
         delivery_quote: deliveryQuote || null
         // NOTE: discount is NOT sent; backend reads session and re-validates
       };
-      const r = await fetch('/create-checkout-session', {
+      const r = await fetch('/create-checkout-session', {       // your code already calls this
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body: JSON.stringify(body)
@@ -294,13 +325,80 @@
         throw new Error('Invalid Payment Intent client secret');
       }
 
+      // 🔍 Debug: Extract and log PaymentIntent ID
+      const piId = clientSecret.split('_secret_')[0];
+      console.log('✅ Fresh PaymentIntent created:', piId);
+      console.log('📋 Delivery type:', selectedDeliveryType, 'Quote:', deliveryQuote);
+
       elements = stripe.elements({
         clientSecret,
         appearance: { theme: 'stripe', variables: { colorPrimary: 'hsl(var(--primary-color))' } }
       });
 
+      // Payment Element (tabs are controlled by server-side PI config)
       const paymentElement = elements.create('payment');
       paymentElement.mount('#stripe-checkout');
+
+      // Express checkout (Apple/Google Pay) via Payment Request Button
+      try {
+        // Use latest totals if available; otherwise the server PI amount will still be authoritative
+        const startAmount = cents(latestTotals?.total || 0);
+        paymentRequest = stripe.paymentRequest({
+          country: 'US',
+          currency: 'usd',
+          total: { label: 'LoveMeNow', amount: startAmount },
+          requestPayerName: true,
+          requestPayerEmail: true,
+          requestPayerPhone: true
+        });
+
+        const result = await paymentRequest.canMakePayment();
+        if (result) {
+          const container = document.getElementById('express-checkout');
+          if (container) {
+            const btn = elements.create('paymentRequestButton', { paymentRequest });
+            btn.mount('#express-checkout');
+            container.style.display = 'block';
+            prButton = btn;
+          }
+        }
+
+        paymentRequest?.on('paymentmethod', async (ev) => {
+          // Confirm using the PaymentIntent created for this page
+          const { error, paymentIntent } = await stripe.confirmCardPayment(
+            clientSecret,
+            { payment_method: ev.paymentMethod.id },
+            { handleActions: false }
+          );
+
+          if (error) {
+            ev.complete('fail');
+            showError(error.message || 'Apple/Google Pay failed');
+            return;
+          }
+
+          ev.complete('success');
+
+          // If further action is required (3DS), handle it
+          if (paymentIntent && paymentIntent.status === 'requires_action') {
+            const { error: haError, paymentIntent: pi2 } = await stripe.confirmCardPayment(clientSecret);
+            if (haError) {
+              showError(haError.message || 'Authentication failed');
+              return;
+            }
+            if (pi2 && pi2.status === 'succeeded') {
+              await createOrder(pi2.id);
+              return;
+            }
+          }
+
+          if (paymentIntent && paymentIntent.status === 'succeeded') {
+            await createOrder(paymentIntent.id);
+          }
+        });
+      } catch (_) {
+        // Non-fatal: Payment Request Button just won't render
+      }
 
       checkoutButton.disabled = false;
       if (statusEl) statusEl.textContent = 'Ready to complete your order';

@@ -374,6 +374,40 @@ def user_address():
 
 
 
+# api.py
+@api_bp.route('/create-checkout-session', methods=['POST'])
+def create_checkout_session():
+    """
+    Create a PaymentIntent for the current cart with server-trusted totals.
+    Restrict to CARD only (so Affirm/Amazon/Klarna/CashApp disappear).
+    Apple Pay/Google Pay will still work via the card rails.
+    """
+    try:
+        stripe.api_key = current_app.config.get('STRIPE_SECRET_KEY')
+
+        data = request.get_json() or {}
+        delivery_type = (data.get('delivery_type') or 'pickup').strip().lower()
+        delivery_quote = data.get('delivery_quote') or None
+
+        # Your existing totals function:
+        from routes.checkout_totals import compute_totals
+        totals = compute_totals(delivery_type=delivery_type, delivery_quote=delivery_quote)
+
+        intent = stripe.PaymentIntent.create(
+            amount=int(totals['amount_cents']),
+            currency='usd',
+            automatic_payment_methods={'enabled': False},  # <-- turn off auto
+            payment_method_types=['card'],                 # <-- only card
+            metadata={
+                'delivery_type': delivery_type,
+                'has_quote': '1' if delivery_quote else '0'
+            }
+        )
+        return jsonify({'clientSecret': intent.client_secret})
+
+    except Exception as e:
+        current_app.logger.error(f'PI create error: {str(e)}')
+        return jsonify({'error': 'Failed to create checkout session'}), 400
 
 @api_bp.route('/create-order', methods=['POST'])
 def create_order():

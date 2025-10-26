@@ -1,56 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-
-
-
-  <!-- Google Tag Manager -->
-  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-  })(window,document,'script','dataLayer','GTM-WW7VC75G');</script>
-
-  
-
-  <!-- End Google Tag Manager -->
-
-
-  {% if not request.args.get('ad_preview') %}
-  <script>
-    (function () {
-      var p = location.pathname;
-      if (p.startsWith('/auth/age-verification') || p.startsWith('/auth/verify-age')) return;
-      if (document.cookie.split(';').some(s => s.trim() === 'age_verified=1')) return;
-
-      // No age cookie → normally redirect, but NOT when ad_preview is present
-      var next = encodeURIComponent(location.href);
-      location.replace('/auth/age-verification?next=' + next);
-    })();
-  </script>
-  {% endif %}
-
-
-
-
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="LoveMeNow - Premium quality adult products for your intimate moments" />
   <title>LoveMeNow - Premium Adult Products</title>
 
-  <!-- Preconnects -->
-  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-  <link rel="preconnect" href="https://api.mapbox.com">
+  <!-- Optimize preconnects - focus on critical domains -->
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
   <link rel="preconnect" href="https://js.stripe.com">
-  <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
-  <link rel="dns-prefetch" href="https://api.mapbox.com">
-  <link rel="dns-prefetch" href="https://js.stripe.com">
+  <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+  <link rel="dns-prefetch" href="https://www.google-analytics.com">
 
-  <!-- CSS -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}">
+  <!-- CSRF Token -->
+  {% include 'csrf_meta.html' %}
+
+  <!-- Critical inline CSS for immediate rendering (LCP optimization) -->
+  <style>
+    :root{--primary-color:278 82% 52%;--accent-color:291 64% 42%;--text-color:240 10% 20%;--muted-color:240 5% 50%;--surface-color:240 5% 97%;--background-color:240 10% 95%;--border-color:240 5% 90%;--glass-bg:rgba(255,255,255,.1);--shadow-sm:0 1px 2px rgba(0,0,0,.05);--shadow-md:0 4px 6px rgba(0,0,0,.1);--shadow-lg:0 20px 25px rgba(0,0,0,.15);--radius-sm:4px;--radius-md:8px;--radius-lg:12px}*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth;background:hsl(var(--background-color))}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;line-height:1.6;color:hsl(var(--text-color));min-height:100vh;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased}img{max-width:100%;height:auto;display:block;background:hsl(var(--surface-color))}picture{display:contents}.navbar{position:sticky;top:0;z-index:1000;background:hsl(var(--surface-color));box-shadow:var(--shadow-sm);border-bottom:1px solid hsl(var(--border-color))}.navbar-container{max-width:1400px;margin:0 auto;padding:1rem;display:flex;justify-content:space-between;align-items:center}.navbar-brand{display:flex;align-items:center;gap:.5rem;text-decoration:none;font-size:1.25rem;font-weight:700;color:hsl(var(--primary-color))}.logo-icon{width:32px;height:32px}.navbar-center{display:flex}.nav-links{list-style:none;display:flex;gap:2rem;margin:0}.nav-link{text-decoration:none;color:hsl(var(--text-color));transition:color .2s;font-weight:500}.nav-link:hover{color:hsl(var(--primary-color))}.navbar-actions{display:flex;gap:1rem;align-items:center}.btn{padding:.75rem 1.5rem;border-radius:var(--radius-md);border:none;cursor:pointer;font-weight:600;transition:all .2s;font-size:1rem}.btn-primary{background:hsl(var(--primary-color));color:#fff}.btn-primary:hover{opacity:.9;transform:translateY(-2px)}.btn-lg{padding:1rem 2rem;font-size:1.125rem}.hero{padding:6rem 2rem;text-align:center;background:linear-gradient(135deg,hsl(var(--primary-color)) 0%,hsl(var(--accent-color)) 100%);color:#fff}.hero-content h1{font-size:3rem;margin-bottom:1rem;line-height:1.2;font-weight:700}.hero-content p{font-size:1.25rem;margin-bottom:2rem;opacity:.95}.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:2rem;margin:2rem 0}.product-card{background:hsl(var(--surface-color));border-radius:var(--radius-lg);overflow:hidden;transition:transform .3s,box-shadow .3s;box-shadow:var(--shadow-sm)}.product-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}.product-image{position:relative;width:100%;height:240px;background:rgba(255,255,255,.02);overflow:hidden}.product-slide{position:absolute;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .3s}.product-slide.active{opacity:1}.product-info{padding:1.5rem}.product-title{font-size:1rem;margin:0.5rem 0}.product-price{font-size:1.5rem;color:hsl(var(--primary-color));font-weight:700}.container{max-width:1400px;margin:0 auto;padding:0 1rem}
+  </style>
+
+  <!-- Non-critical CSS - load asynchronously -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}"></noscript>
+
+  <!-- Performance optimizations stylesheet -->
   <link rel="preload" href="{{ url_for('static', filename='CSS/performance.css') }}?v=20250116-2" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/performance.css') }}?v=20250116-2"></noscript>
+
+  <!-- Mobile optimizations stylesheet -->
   <link rel="preload" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}?v=20250116-2" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}?v=20250116-2"></noscript>
 
@@ -58,21 +36,36 @@
   <link rel="icon" href="{{ url_for('static', filename='IMG/icons/favicon.ico') }}" type="image/x-icon">
   <link rel="apple-touch-icon" href="{{ url_for('static', filename='IMG/icons/apple-touch-icon.png') }}">
 
-  <!-- Font Awesome (async) -->
+  <!-- Font Awesome (async loaded) -->
   <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"></noscript>
 
-  <!-- Mapbox (optional) -->
-  <link href="https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.css" rel="stylesheet">
-  <script defer src="https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.js"></script>
+  <!-- Mapbox CSS (deferred) -->
+  <link rel="preload" href="https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.css"></noscript>
 
-  <!-- CSRF + Tags -->
-  {% include 'csrf_meta.html' %}
-  {% include 'google_tag.html' %}
+  <!-- Google Analytics & GTM (async, non-blocking) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=GTM-WW7VC75G"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'GTM-WW7VC75G');
+  </script>
 
+  <!-- Age verification check (non-blocking, moved to body end) -->
+  <script type="module">
+    // Deferred age verification to avoid blocking render
+    window.ageVerificationReady = new Promise(resolve => {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', resolve);
+      } else {
+        resolve();
+      }
+    });
+  </script>
 
-
-  <!-- Toast styles (kept local) -->
+  <!-- Toast styles (kept inline for immediate availability) -->
   <style>
     .toast-stack{position:fixed;top:2rem;right:2rem;z-index:99999;display:flex;flex-direction:column;gap:.5rem}
     .toast{color:#fff;border:none;border-radius:8px;padding:1rem 1.5rem;min-width:300px;position:relative;font-size:1rem;font-weight:600;will-change:transform,opacity;animation:toastSlideInRight .3s ease both;box-shadow:0 4px 12px rgba(0,0,0,.25);transform:translateZ(0);backface-visibility:hidden}
@@ -92,12 +85,11 @@
   <!-- Google Tag Manager (noscript) -->
   <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WW7VC75G"
   height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-  <!-- End Google Tag Manager (noscript) -->
 
   <!-- NAV -->
   {% include "navbar.html" %}
 
-  <!-- Hero -->
+  <!-- Hero Section (LCP Element - optimized for quick rendering) -->
   <section class="hero">
     <div class="hero-content fade-in-up">
       <h1>Elevate Your Intimate Moments</h1>
@@ -129,7 +121,7 @@
 
         <div class="miami-visual">
           <div class="miami-map-container" id="map-container">
-            <iframe src="/miami-map" class="folium-map" frameborder="0" title="Miami Coverage Map"
+            <iframe src="/miami-map" class="folium-map" frameborder="0" title="Miami Coverage Map" loading="lazy"
                     onload="document.getElementById('map-fallback').style.display='none';"
                     onerror="showMapFallback();"></iframe>
             <div id="map-fallback" style="display:none;width:100%;height:100%;background:var(--glass-bg);border-radius:1rem;align-items:center;justify-content:center;text-align:center;padding:2rem;">
@@ -171,10 +163,17 @@
           {% if product.image_url and product.image_url not in all_images %}{% set _ = all_images.append(product.image_url) %}{% endif %}
           {% if all_images %}
             {% for image_url in all_images %}
-            <img class="product-slide {{ 'active' if loop.first else '' }}"
-                 src="{{ image_url if image_url.startswith('http') or image_url.startswith('/static/') else url_for('static', filename=image_url.lstrip('/')) }}"
-                 alt="{{ product.name|e }}" loading="{{ 'eager' if loop.first else 'lazy' }}"
-                 style="width:100%;height:240px;object-fit:contain;background:rgba(255,255,255,0.02);" onerror="handleImageError(this)">
+            {% set full_url = image_url if image_url.startswith('http') or image_url.startswith('/static/') else url_for('static', filename=image_url.lstrip('/')) %}
+            {% set webp_url = full_url.replace('.png', '__alpha.webp').replace('.jpg', '__alpha.webp').replace('.jpeg', '__alpha.webp') if full_url.endswith(('.png', '.jpg', '.jpeg')) else full_url %}
+            <picture>
+              {% if full_url.endswith(('.png', '.jpg', '.jpeg')) %}
+              <source srcset="{{ webp_url }}" type="image/webp">
+              {% endif %}
+              <img class="product-slide {{ 'active' if loop.first else '' }}"
+                   src="{{ full_url }}"
+                   alt="{{ product.name|e }}" loading="{{ 'eager' if loop.first else 'lazy' }}"
+                   style="width:100%;height:240px;object-fit:contain;background:rgba(255,255,255,0.02);" onerror="handleImageError(this)">
+            </picture>
             {% endfor %}
             {% if all_images|length > 1 %}
               <button class="product-card-nav-arrow prev" onclick="navigateProductCardImage({{ product.id }},-1)" aria-label="Previous image"><i class="fas fa-chevron-left"></i></button>
@@ -217,12 +216,6 @@
   {% include "login_register_modal.html" %}
   {% include "logged_in_modal.html" %}
 
-
-
-
-
-
-
   <!-- FOOTER -->
   {% include "footer.html" %}
 
@@ -247,13 +240,29 @@
   <script src="{{ url_for('static', filename='js/promo_modal.js') }}?v=20251002-5" defer></script>
   {% endif %}
 
-  <!-- JS (order matters) -->
+  <!-- Age verification (deferred to avoid blocking) -->
+  {% if not request.args.get('ad_preview') %}
+  <script defer>
+    (function () {
+      var p = location.pathname;
+      if (p.startsWith('/auth/age-verification') || p.startsWith('/auth/verify-age')) return;
+      if (document.cookie.split(';').some(s => s.trim() === 'age_verified=1')) return;
+      var next = encodeURIComponent(location.href);
+      location.replace('/auth/age-verification?next=' + next);
+    })();
+  </script>
+  {% endif %}
+
+  <!-- Mapbox JS (async) -->
+  <script async src="https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.js"></script>
+
+  <!-- JS (order matters - all deferred for performance) -->
   <script src="{{ url_for('static', filename='js/csrf-handler.js') }}?v=20250116-2" defer></script>
   <script src="{{ url_for('static', filename='js/toast.js') }}?v=20250116-2" defer></script>
   <script src="{{ url_for('static', filename='js/mobile-menu.js') }}?v=20250116-2" defer></script>
   <script src="{{ url_for('static', filename='js/index.js') }}?v=20250116-2" defer></script>
   <script src="{{ url_for('static', filename='js/home.js') }}?v=20250116-2" defer></script>
-<script src="{{ url_for('static', filename='js/discount.js') }}?v=20251001-4" defer></script>
+  <script src="{{ url_for('static', filename='js/discount.js') }}?v=20251001-4" defer></script>
 
 </body>
 </html>

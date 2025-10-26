@@ -222,12 +222,26 @@ def create_app(config_name=None):
     except ImportError:
         app.logger.warning("Flask-Compress not available, skipping compression")
 
-    # Add static file caching for better performance
+    # Add static file caching and performance headers
     @app.after_request
     def add_performance_headers(response):
-        # Cache static files for 1 year
+        # Cache static files for 1 year (immutable)
         if request.endpoint == 'static':
             response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+            response.headers['ETag'] = None  # Remove ETag for better caching
+        
+        # HTML pages: cache for shorter period with revalidation
+        elif request.path.endswith('.html') or '.' not in request.path.split('/')[-1]:
+            response.headers['Cache-Control'] = 'public, max-age=3600, must-revalidate'
+        
+        # Add performance headers
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+        
+        # Enable GZIP compression for text content
+        if 'gzip' in response.headers.get('Content-Encoding', ''):
+            response.headers['Vary'] = 'Accept-Encoding'
+        
         return response
 
     # Add session validation for development

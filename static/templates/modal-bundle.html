@@ -1,0 +1,173 @@
+<!-- Combined modals for lazy loading -->
+<!-- Wishlist Modal -->
+<div class="modal-overlay" id="wishlistModal" style="display:none;">
+    <div class="modal-content wishlist-modal">
+        <div class="modal-header">
+            <h2>My Wishlist</h2>
+            <button class="modal-close" onclick="closeWishlistModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="wishlistItems" class="wishlist-items">
+                <!-- Wishlist items will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cart Modal -->
+<div class="modal-overlay" id="cartModal" style="display:none;">
+    <div class="modal-content cart-modal">
+        <div class="modal-header">
+            <h2>Shopping Cart</h2>
+            <button class="modal-close" onclick="closeCartModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="cartItems" class="cart-items">
+                <!-- Cart items will be loaded here -->
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div class="cart-total">
+                <span>Total:</span>
+                <span id="cartTotal">$0.00</span>
+            </div>
+            <a href="/checkout" class="btn btn-primary">Checkout</a>
+        </div>
+    </div>
+</div>
+
+<!-- Login/Register Modal -->
+<div class="modal-overlay" id="authModal" style="display:none;">
+    <div class="modal-content auth-modal">
+        <div class="modal-header">
+            <h2 id="authTitle">Sign In</h2>
+            <button class="modal-close" onclick="closeAuthModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <!-- Login Form -->
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+            </form>
+            
+            <!-- Register Form (hidden by default) -->
+            <form id="registerForm" class="auth-form" style="display:none;">
+                <div class="form-group">
+                    <label for="registerName">Full Name</label>
+                    <input type="text" id="registerName" name="full_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Email</label>
+                    <input type="email" id="registerEmail" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Password</label>
+                    <input type="password" id="registerPassword" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+            </form>
+            
+            <div class="auth-switch">
+                <span id="authSwitchText">Don't have an account?</span>
+                <a href="#" id="authSwitchLink" onclick="toggleAuthMode(event)">Sign Up</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- User Menu Modal -->
+<div class="modal-overlay" id="userMenuModal" style="display:none;">
+    <div class="modal-content user-menu-modal">
+        <div class="modal-header">
+            <h2>My Account</h2>
+            <button class="modal-close" onclick="closeUserMenuModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <nav class="user-menu">
+                <a href="/profile" class="user-menu-item">
+                    <i class="fas fa-user"></i> Profile
+                </a>
+                <a href="/orders" class="user-menu-item">
+                    <i class="fas fa-box"></i> Orders
+                </a>
+                <a href="/settings" class="user-menu-item">
+                    <i class="fas fa-cog"></i> Settings
+                </a>
+                <a href="/auth/logout" class="user-menu-item">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<script>
+// Modal functions
+function openWishlistModal() {
+    document.getElementById('wishlistModal').style.display = 'flex';
+}
+
+function closeWishlistModal() {
+    document.getElementById('wishlistModal').style.display = 'none';
+}
+
+function closeCartModal() {
+    document.getElementById('cartModal').style.display = 'none';
+}
+
+function closeAuthModal() {
+    document.getElementById('authModal').style.display = 'none';
+}
+
+function closeUserMenuModal() {
+    document.getElementById('userMenuModal').style.display = 'none';
+}
+
+function toggleAuthMode(event) {
+    event.preventDefault();
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const authTitle = document.getElementById('authTitle');
+    const authSwitchText = document.getElementById('authSwitchText');
+    const authSwitchLink = document.getElementById('authSwitchLink');
+    
+    if (loginForm.style.display === 'none') {
+        loginForm.style.display = 'block';
+        registerForm.style.display = 'none';
+        authTitle.textContent = 'Sign In';
+        authSwitchText.textContent = "Don't have an account?";
+        authSwitchLink.textContent = 'Sign Up';
+    } else {
+        loginForm.style.display = 'none';
+        registerForm.style.display = 'block';
+        authTitle.textContent = 'Create Account';
+        authSwitchText.textContent = 'Already have an account?';
+        authSwitchLink.textContent = 'Sign In';
+    }
+}
+
+// Add event listeners
+document.getElementById('authButton')?.addEventListener('click', () => {
+    document.getElementById('authModal').style.display = 'flex';
+});
+
+document.getElementById('userMenuButton')?.addEventListener('click', () => {
+    document.getElementById('userMenuModal').style.display = 'flex';
+});
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(modal => {
+    modal.addEventListener('click', function(e) {
+        if (e.target === this) {
+            this.style.display = 'none';
+        }
+    });
+});
+</script>

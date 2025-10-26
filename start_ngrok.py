@@ -36,7 +36,7 @@ def start_ngrok():
         
         # Get the public URL from ngrok API
         try:
-            response = requests.get('http://127.0.0.1:4040/api/tunnels')
+            response = requests.get('http://127.0.0.1:2100/api/tunnels')
             tunnels = response.json()
             
             if tunnels.get('tunnels'):
@@ -118,7 +118,7 @@ def start_ngrok():
                 
         except Exception as e:
             print(f"❌ Error getting ngrok tunnel info: {e}")
-            print("💡 Try opening http://127.0.0.1:4040 in your browser to see ngrok status")
+            print("💡 Try opening http://127.0.0.1:2100 in your browser to see ngrok status")
             
     except Exception as e:
         print(f"❌ Error starting ngrok: {e}")

@@ -33,18 +33,20 @@
                     <span class="icon-badge" id="cartCount" style="display: none;">0</span>
                 </button>
                 
-                <!-- Inline script to immediately show cart count from localStorage -->
+                <!-- Inline script to immediately show cart count from localStorage (optimized for performance) -->
                 <script>
                 (function() {
                     try {
                         const storedCount = localStorage.getItem('cartCount');
-                        if (storedCount !== null) {
+                        if (storedCount) {
                             const count = parseInt(storedCount, 10) || 0;
                             const cartCountElement = document.getElementById('cartCount');
                             if (cartCountElement && count > 0) {
                                 cartCountElement.textContent = count;
                                 cartCountElement.style.display = 'inline';
-                                cartCountElement.classList.add('has-items');
+                                if (cartCountElement.classList && cartCountElement.classList.add) {
+                                    cartCountElement.classList.add('has-items');
+                                }
                             }
                         }
                     } catch(e) {

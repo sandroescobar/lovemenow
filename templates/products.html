@@ -14,23 +14,66 @@
   <meta name="description" content="Browse our complete collection of premium adult products – LoveMeNow" />
   <title>Products · LoveMeNow</title>
 
+  {# --- Preload the first visible product image for faster LCP --- #}
+  {% if products.items|length %}
+    {% set p0 = products.items[0] %}
+    {% if p0.variants|length > 1 and p0.default_variant %}
+      {% set imgs = p0.default_variant.images|map(attribute='url')|list %}
+      {% if not imgs and p0.image_url %}
+        {% set imgs = [p0.image_url] %}
+      {% endif %}
+    {% else %}
+      {% set imgs = p0.all_image_urls %}
+      {% if not imgs and p0.image_url %}
+        {% set imgs = [p0.image_url] %}
+      {% endif %}
+    {% endif %}
+    {% if imgs and imgs|length %}
+      {% set full_url = imgs[0] if imgs[0].startswith('http') or imgs[0].startswith('/static/') else url_for('static', filename=imgs[0].lstrip('/')) %}
+      {% set webp_url = full_url.replace('.png', '__alpha.webp').replace('.jpg', '__alpha.webp').replace('.jpeg', '__alpha.webp') if full_url.endswith(('.png', '.jpg', '.jpeg')) else full_url %}
+      <link rel="preload" as="image" href="{{ webp_url }}" fetchpriority="high">
+    {% endif %}
+  {% endif %}
+
   <!-- Favicon -->
   <link rel="icon" href="{{ url_for('static', filename='IMG/icons/favicon.ico') }}" type="image/x-icon">
 
   <!-- Fonts / Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"></noscript>
+
   <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"></noscript>
 
-  <!-- CSS -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}?v=20250116-3">
+  <!-- Critical CSS inline for LCP optimization -->
+  <style>
+    :root{--primary:278 82% 52%;--accent:291 64% 42%;--text:240 10% 20%;--muted:240 5% 50%;--surface:240 5% 97%;--bg:240 10% 95%;--border:240 5% 90%}
+    *{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth;background:hsl(var(--bg))}
+    body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.6;color:hsl(var(--text));text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased}
+    .products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1.5rem;padding:1.5rem}
+    .product-card{background:hsl(var(--surface));border-radius:8px;overflow:hidden;transition:transform .2s}
+    .product-card-image{position:relative;width:100%;padding-bottom:100%;background:hsl(var(--bg));overflow:hidden}
+    .product-slide{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .3s;display:none}
+    .product-slide.active{opacity:1;display:block}
+    picture{display:contents}
+    .product-info{padding:1rem}
+    .product-title{font-size:.95rem;font-weight:600;line-height:1.2;margin:.5rem 0}
+    .product-price{font-size:1.1rem;color:hsl(var(--primary));font-weight:700}
+  </style>
+
+  <!-- Non-critical CSS - load async -->
+  <link rel="preload" href="{{ url_for('static', filename='CSS/styles.css') }}?v=20250116-3" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}?v=20250116-3"></noscript>
+
   <link rel="preload" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}?v=20250116-3" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}?v=20250116-3"></noscript>
 
-  <!-- NEW: mobile filter sheet styles -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/filters-sheet.css') }}?v=20251004-1">
+  <!-- Mobile filter sheet styles -->
+  <link rel="preload" href="{{ url_for('static', filename='CSS/filters-sheet.css') }}?v=20251004-1" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/filters-sheet.css') }}?v=20251004-1"></noscript>
 
   <!-- CSRF + Tags -->
   {% include 'csrf_meta.html' %}
@@ -177,6 +220,7 @@
     <div class="container">
       <div class="product-grid" id="productGrid">
         {% for p in products.items %}
+          {% set is_first_card = loop.first %}
         <div class="product-card fade-in-up"
              data-category="{{ p.category.slug|default('uncategorised') }}"
              data-parent-category="{{ p.category.parent.slug if p.category and p.category.parent else (p.category.slug if p.category else 'uncategorised') }}"
@@ -209,12 +253,22 @@
 
             {% if all_images %}
               {% for image_url in all_images %}
-              <img class="product-slide {{ 'active' if loop.first else '' }}"
-                   src="{{ image_url if image_url.startswith('http') or image_url.startswith('/static/') else url_for('static', filename=image_url.lstrip('/')) }}"
-                   alt="{{ p.name|e }}"
-                   loading="{{ 'eager' if loop.first else 'lazy' }}"
-                   style="width:100%;height:240px;object-fit:contain;background:rgba(255,255,255,0.02);"
-                   onerror="handleImageError(this)">
+                {% set full_url = image_url if image_url.startswith('http') or image_url.startswith('/static/') else url_for('static', filename=image_url.lstrip('/')) %}
+                {% set webp_url = full_url.replace('.png', '__alpha.webp').replace('.jpg', '__alpha.webp').replace('.jpeg', '__alpha.webp') if full_url.endswith(('.png', '.jpg', '.jpeg')) else full_url %}
+                <picture class="product-slide-picture">
+                  <source srcset="{{ webp_url }}" type="image/webp">
+                  <img
+                    class="product-slide {{ 'active' if loop.first else '' }}"
+                    src="{{ full_url }}"
+                    alt="{{ p.name|e }}"
+                    width="480" height="480"
+                    style="width:100%;height:100%;object-fit:contain;aspect-ratio:1;"
+                    onerror="handleImageError(this)"
+                    decoding="async"
+                    loading="{{ 'eager' if is_first_card and loop.first else 'lazy' }}"
+                    fetchpriority="{{ 'high' if is_first_card and loop.first else 'auto' }}"
+                  >
+                </picture>
               {% endfor %}
               {% if all_images|length > 1 %}
                 <button class="product-card-nav-arrow prev" onclick="navigateProductCardImage({{ p.id }}, -1)" aria-label="Previous image">
@@ -228,12 +282,21 @@
                 </div>
               {% endif %}
             {% elif p.main_image_url %}
-              <img class="product-slide active"
-                   src="{{ p.main_image_url }}"
-                   alt="{{ p.name|e }}"
-                   loading="lazy"
-                   onerror="handleImageError(this)"
-                   width="480" height="480">
+              {% set webp_main = p.main_image_url.replace('.png', '__alpha.webp').replace('.jpg', '__alpha.webp').replace('.jpeg', '__alpha.webp') if p.main_image_url.endswith(('.png', '.jpg', '.jpeg')) else p.main_image_url %}
+              <picture class="product-slide-picture">
+                <source srcset="{{ webp_main }}" type="image/webp">
+                <img
+                  class="product-slide active"
+                  src="{{ p.main_image_url }}"
+                  alt="{{ p.name|e }}"
+                  width="480" height="480"
+                  style="width:100%;height:auto;object-fit:contain;aspect-ratio:1;"
+                  onerror="handleImageError(this)"
+                  decoding="async"
+                  loading="{{ 'eager' if is_first_card else 'lazy' }}"
+                  fetchpriority="{{ 'high' if is_first_card else 'auto' }}"
+                >
+              </picture>
             {% else %}
               <div class="placeholder-image">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -299,66 +362,64 @@
   <div id="flashStack" class="toast-stack" aria-live="polite" aria-atomic="true"></div>
 
   <!-- NEW: Category / Subcategory bottom sheet -->
-  <!-- NEW: Category / Subcategory bottom sheet -->
-<div id="categorySheet" class="filter-sheet" aria-hidden="true" role="dialog" aria-modal="true">
-  <div class="sheet-backdrop" data-close-sheet></div>
-  <div class="sheet-panel" role="document" tabindex="-1">
-    <div class="sheet-grabber" aria-hidden="true"></div>
+  <div id="categorySheet" class="filter-sheet" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="sheet-backdrop" data-close-sheet></div>
+    <div class="sheet-panel" role="document" tabindex="-1">
+      <div class="sheet-grabber" aria-hidden="true"></div>
 
-    <header class="sheet-header">
-      <button class="sheet-back" type="button" hidden aria-label="Back">‹ Back</button>
-      <h3 class="sheet-title">Choose Category</h3>
-      <button class="sheet-close" type="button" aria-label="Close">×</button>
-    </header>
+      <header class="sheet-header">
+        <button class="sheet-back" type="button" hidden aria-label="Back">‹ Back</button>
+        <h3 class="sheet-title">Choose Category</h3>
+        <button class="sheet-close" type="button" aria-label="Close">×</button>
+      </header>
 
-    <div class="sheet-content">
-      <!-- Header for main list -->
-      <h4 class="section-label" id="mainHeader">Main Categories</h4>
+      <div class="sheet-content">
+        <!-- Header for main list -->
+        <h4 class="section-label" id="mainHeader">Main Categories</h4>
 
-      <!-- Level 1: parents -->
-      <ul class="category-list level-1" id="catLevel1">
-        <li>
-          <button type="button" class="row" data-category="all" data-has-children="false">
-            <span class="label">All Products</span><span class="chevron">›</span>
-          </button>
-        </li>
-        {% for category in categories %}
-          {% set children_slim = [] %}
-          {% for sc in (category.children or []) %}
-            {% set _ = children_slim.append({'slug': sc.slug, 'name': sc.name}) %}
-          {% endfor %}
-          {% set has_children = (children_slim|length) > 0 %}
+        <!-- Level 1: parents -->
+        <ul class="category-list level-1" id="catLevel1">
           <li>
-            <button
-              type="button"
-              class="row"
-              data-category="{{ category.slug }}"
-              data-has-children="{{ 'true' if has_children else 'false' }}"
-              data-children='{{ children_slim|tojson }}'
-              data-category-name="{{ category.name|e }}">
-              <span class="label">{{ category.name }}</span>
-              <span class="chevron">›</span>
+            <button type="button" class="row" data-category="all" data-has-children="false">
+              <span class="label">All Products</span><span class="chevron">›</span>
             </button>
           </li>
-        {% endfor %}
-      </ul>
+          {% for category in categories %}
+            {% set children_slim = [] %}
+            {% for sc in (category.children or []) %}
+              {% set _ = children_slim.append({'slug': sc.slug, 'name': sc.name}) %}
+            {% endfor %}
+            {% set has_children = (children_slim|length) > 0 %}
+            <li>
+              <button
+                type="button"
+                class="row"
+                data-category="{{ category.slug }}"
+                data-has-children="{{ 'true' if has_children else 'false' }}"
+                data-children='{{ children_slim|tojson }}'
+                data-category-name="{{ category.name|e }}">
+                <span class="label">{{ category.name }}</span>
+                <span class="chevron">›</span>
+              </button>
+            </li>
+          {% endfor %}
+        </ul>
 
-      <!-- Divider + Sub header (shown after choosing a parent) -->
-      <div class="section-divider" id="sectionDivider" hidden></div>
-      <h4 class="section-label" id="subHeader" hidden>
-        Subcategories — <span id="subHeaderName"></span>
-      </h4>
+        <!-- Divider + Sub header (shown after choosing a parent) -->
+        <div class="section-divider" id="sectionDivider" hidden></div>
+        <h4 class="section-label" id="subHeader" hidden>
+          Subcategories — <span id="subHeaderName"></span>
+        </h4>
 
-      <!-- Level 2: subcategories (built by JS) -->
-      <ul class="category-list level-2" id="catLevel2" hidden></ul>
+        <!-- Level 2: subcategories (built by JS) -->
+        <ul class="category-list level-2" id="catLevel2" hidden></ul>
+      </div>
+
+      <footer class="sheet-footer">
+        <button class="btn-apply" type="button" id="applyCategory" disabled>Apply</button>
+      </footer>
     </div>
-
-    <footer class="sheet-footer">
-      <button class="btn-apply" type="button" id="applyCategory" disabled>Apply</button>
-    </footer>
   </div>
-</div>
-
 
   <!-- JS (order matters) -->
   <script src="{{ url_for('static', filename='js/csrf-handler.js') }}?v=20250116-3" defer></script>

@@ -4,7 +4,7 @@ Main application routes
 from flask import Blueprint, render_template, request, jsonify, current_app, redirect, url_for, session, flash, \
     make_response
 from flask_login import current_user, login_required
-from sqlalchemy.orm import joinedload, defer
+from sqlalchemy.orm import joinedload, selectinload, defer
 from sqlalchemy import func, desc
 from sqlalchemy.exc import OperationalError, DisconnectionError
 import stripe
@@ -166,8 +166,11 @@ def index():
 
         cart_count, wishlist_count = get_cached_user_counts()
 
+        # Use performance template if requested via query param
+        template = "index_performance.html" if request.args.get('perf') else "index.html"
+        
         resp = make_response(render_template(
-            "index.html",
+            template,
             featured_products=featured_products,
             categories=categories,
             cart_count=cart_count,
@@ -216,7 +219,7 @@ def products():
     """Products listing page with filtering and pagination"""
     try:
         page = request.args.get('page', 1, type=int)
-        per_page = 5000  # Show all products on one page (raise limit to avoid missing items)
+        per_page = 48  # Paginate for performance: 100x smaller initial load
 
         # Build query - show all products including out of stock
         query = Product.query
@@ -279,16 +282,18 @@ def products():
         else:
             query = query.order_by(Product.name.asc())
 
-        # Paginate results with variant, image, and color loading
+        # Paginate results with optimized query loading
+        # Use selectinload for collections (not joinedload) to avoid cartesian products
         products = query.options(
-            joinedload(Product.variants).joinedload(ProductVariant.images),
-            joinedload(Product.colors)
+            selectinload(Product.variants).selectinload(ProductVariant.images),
+            selectinload(Product.colors)
         ).paginate(
             page=page, per_page=per_page, error_out=False
         )
 
         # Get filter options - only main categories (parent categories) with their children
-        categories = Category.query.filter(Category.parent_id.is_(None)).options(joinedload(Category.children)).all()
+        # Query fresh each time - no session caching of models
+        categories = Category.query.filter(Category.parent_id.is_(None)).options(selectinload(Category.children)).all()
         colors = Color.query.join(Color.products).distinct().all()
 
         return render_template('products.html',
@@ -1168,7 +1173,10 @@ def checkout_success():
         if session.get('recent_order_id') == int(order_id):
             session.pop('recent_order_id', None)
 
-        return render_template('checkout_success.html',
+        # Use optimized template for better performance - add ?perf=1 to URL to use optimized version
+        template = 'checkout_success_optimized.html' if request.args.get('perf') == '1' else 'checkout_success.html'
+        
+        return render_template(template,
                                order=order,
                                order_items=order_items,
                                uber_delivery=uber_delivery)
@@ -1274,11 +1282,20 @@ def create_checkout_session():
         if breakdown['amount_cents'] <= 0:
             return jsonify({'error': 'Cart is empty or total is zero'}), 400
 
-        # Create/renew a PaymentIntent (simple create; you can add idempotency if you like)
+        # Cancel stale PaymentIntent if one exists in session (to force fresh PI each time)
+        try:
+            old_pi = session.get("active_pi_id")
+            if old_pi:
+                stripe.PaymentIntent.cancel(old_pi)
+        except Exception:
+            pass
+
+        # Create/renew a PaymentIntent with CARD ONLY (no Affirm/Amazon/Cash App/Klarna)
         intent = stripe.PaymentIntent.create(
             amount=breakdown['amount_cents'],
             currency='usd',
-            automatic_payment_methods={'enabled': True},
+            automatic_payment_methods={'enabled': False},  # ✅ DISABLED
+            payment_method_types=['card'],                 # ✅ CARD ONLY
             description='LoveMeNow order',
             metadata={
                 'delivery_type': delivery_type,
@@ -1291,6 +1308,9 @@ def create_checkout_session():
                 'user_id': str(current_user.id) if current_user.is_authenticated else 'guest',
             }
         )
+        
+        # Store PI id in session to avoid reusing stale ones
+        session["active_pi_id"] = intent.id
 
         return jsonify({
             'clientSecret': intent.client_secret,

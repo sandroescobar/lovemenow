@@ -1,0 +1,40 @@
+<!-- Promo Modal Content for Lazy Loading -->
+<div id="promoModal" class="modal-overlay promo-modal" style="display:none;">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closePromoModal()">&times;</button>
+        <div class="promo-content">
+            <h2 class="promo-title">Welcome to LoveMeNow!</h2>
+            <p class="promo-subtitle">Get 15% OFF your first order</p>
+            <div class="promo-code">
+                <span class="code-label">Use code:</span>
+                <span class="code-value">FIRST15</span>
+            </div>
+            <p class="promo-description">
+                Valid on your first purchase. Cannot be combined with other offers.
+            </p>
+            <button class="btn btn-primary btn-lg" onclick="applyPromoAndShop()">
+                Shop Now & Save
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+function closePromoModal() {
+    document.getElementById('promoModal').style.display = 'none';
+    localStorage.setItem('promoModalShown', 'true');
+}
+
+function applyPromoAndShop() {
+    localStorage.setItem('promoCode', 'FIRST15');
+    closePromoModal();
+    window.location.href = '/products';
+}
+
+// Show promo modal after delay if not shown before
+setTimeout(() => {
+    if (!localStorage.getItem('promoModalShown')) {
+        document.getElementById('promoModal').style.display = 'flex';
+    }
+}, 3000);
+</script>
