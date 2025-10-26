@@ -262,7 +262,7 @@
                     src="{{ full_url }}"
                     alt="{{ p.name|e }}"
                     width="480" height="480"
-                    style="width:100%;height:100%;object-fit:contain;aspect-ratio:1;"
+                    style="width:100%;height:90%; margin-top: 6%;object-fit:contain;aspect-ratio:1;"
                     onerror="handleImageError(this)"
                     decoding="async"
                     loading="{{ 'eager' if is_first_card and loop.first else 'lazy' }}"
