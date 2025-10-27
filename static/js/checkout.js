@@ -175,6 +175,8 @@
         if (sc) sc.innerHTML = '';
         const ec = document.getElementById('express-checkout');
         if (ec) ec.innerHTML = '';
+        const ecr = document.getElementById('express-checkout-right');
+        if (ecr) { ecr.innerHTML = ''; ecr.style.display = 'none'; }
 
         if (selectedDeliveryType === 'delivery') {
           if (deliveryAddressSection) deliveryAddressSection.style.display = 'block';
@@ -312,7 +314,7 @@
         delivery_quote: deliveryQuote || null
         // NOTE: discount is NOT sent; backend reads session and re-validates
       };
-      const r = await fetch('/create-checkout-session', {       // your code already calls this
+      const r = await fetch('/create-checkout-session', {
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body: JSON.stringify(body)
@@ -341,8 +343,13 @@
 
       // Express checkout (Apple/Google Pay) via Payment Request Button
       try {
-        // Use latest totals if available; otherwise the server PI amount will still be authoritative
-        const startAmount = cents(latestTotals?.total || 0);
+        // Prefer the authoritative server PI amount; fall back to latestTotals in UI
+        let startAmount = cents(latestTotals?.total || 0);
+        try {
+          const { paymentIntent: pi } = await stripe.retrievePaymentIntent(clientSecret);
+          if (pi && typeof pi.amount === 'number') startAmount = pi.amount; // amount in cents from server
+        } catch (_) {}
+
         paymentRequest = stripe.paymentRequest({
           country: 'US',
           currency: 'usd',
@@ -353,14 +360,23 @@
         });
 
         const result = await paymentRequest.canMakePayment();
-        if (result) {
-          const container = document.getElementById('express-checkout');
-          if (container) {
-            const btn = elements.create('paymentRequestButton', { paymentRequest });
-            btn.mount('#express-checkout');
-            container.style.display = 'block';
-            prButton = btn;
-          }
+        console.log('canMakePayment →', result);
+
+        // Choose where to mount: right column preferred, else legacy container
+        const containerId =
+          document.getElementById('express-checkout-right') ? '#express-checkout-right' :
+          (document.getElementById('express-checkout') ? '#express-checkout' : null);
+
+        if (result && containerId) {
+          const btn = elements.create('paymentRequestButton', {
+            paymentRequest,
+            // optional styling; Stripe auto-chooses Apple/Google theme as needed
+            style: { paymentRequestButton: { type: 'buy', theme: 'dark', height: '44px' } }
+          });
+          btn.mount(containerId);
+          const mountEl = document.querySelector(containerId);
+          if (mountEl) mountEl.style.display = '';
+          prButton = btn;
         }
 
         paymentRequest?.on('paymentmethod', async (ev) => {
