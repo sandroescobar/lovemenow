@@ -1242,3 +1242,80 @@ mobile-nav-overlay.active .mobile-nav-actions .btn:nth-child(3) {
   /* optional: tighten spacing a touch so long names feel tidy */
   .product-card .product-title{ margin: 0.35rem 0 0.25rem !important; line-height: 1.25 !important; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   DESKTOP-ONLY FIX — WISHLIST BUTTON STYLE & POSITION
+   (Keeps mobile perfect; removes white bg on desktop)
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* DESKTOP — wishlist fixed + space for it */
+@media (min-width: 769px) {
+  .product-card { position: relative; }
+
+  /* Reserve room so the heart doesn't overlap the Add to Cart bar */
+  .product-card .product-buttons {
+    position: relative;
+    padding-right: 50px !important; /* ≈ 56px pill + gap */
+  }
+
+  /* Wishlist pill: glass look, bottom-right overlay */
+  .product-card .product-card-wishlist {
+    position: absolute !important;
+    right: 0.75rem !important;
+    bottom: 0.75rem !important;
+    width: 56px !important;
+    height: 56px !important;
+    padding: 0 !important;
+    border-radius: 16px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 4px 20px rgba(0,0,0,.20);
+
+    color: hsl(var(--text-color)) !important;
+    z-index: 5;
+  }
+
+  /* In case global .btn styles force a white bg */
+  .product-card .product-card-wishlist.btn,
+  .product-card .product-card-wishlist.button {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,.20) !important;
+  }
+}
+
+
+  .product-card .product-card-wishlist:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 24px rgba(0,0,0,.24);
+  }
+
+  .product-card .product-card-wishlist:active {
+    transform: translateY(0);
+  }
+
+  .product-card .product-card-wishlist svg {
+    width: 22px !important;
+    height: 22px !important;
+    stroke: currentColor;
+    fill: transparent;
+  }
+
+  .product-card .product-card-wishlist.liked svg {
+    fill: hsl(var(--primary-color));
+    stroke: hsl(var(--primary-color));
+  }
+
+  /* If a row version exists inside .product-buttons, force it to overlay as well
+     so it doesn’t sit between the image and name. */
+  .product-buttons .product-card-wishlist {
+    position: absolute !important;
+    right: 0.75rem !important;
+    bottom: 0.75rem !important;
+  }
+}
