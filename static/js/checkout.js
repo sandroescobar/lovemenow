@@ -380,36 +380,63 @@
         }
 
         paymentRequest?.on('paymentmethod', async (ev) => {
-          // Confirm using the PaymentIntent created for this page
-          const { error, paymentIntent } = await stripe.confirmCardPayment(
-            clientSecret,
-            { payment_method: ev.paymentMethod.id },
-            { handleActions: false }
-          );
+          // Confirm the payment using the payment method from Apple/Google Pay
+          try {
+            console.log('💳 Processing Apple/Google Pay payment...', ev.paymentMethod.id);
+            
+            const { error, paymentIntent } = await stripe.confirmCardPayment(
+              clientSecret,
+              {
+                payment_method: ev.paymentMethod.id,
+                // Re-apply billing details from payer info (in case they were modified)
+                billing_details: {
+                  name: ev.payerName || '',
+                  email: ev.payerEmail || '',
+                  phone: ev.payerPhone || ''
+                }
+              }
+            );
 
-          if (error) {
+            if (error) {
+              console.error('❌ Payment confirmation error:', error);
+              ev.complete('fail');
+              showError(error.message || 'Apple/Google Pay payment failed');
+              checkoutButton.disabled = false;
+              return;
+            }
+
+            if (!paymentIntent) {
+              console.error('❌ No payment intent returned');
+              ev.complete('fail');
+              showError('Payment processing error. Please try again.');
+              checkoutButton.disabled = false;
+              return;
+            }
+
+            console.log('📊 Payment Intent status:', paymentIntent.status);
+            ev.complete('success');
+
+            // Handle based on payment status
+            if (paymentIntent.status === 'succeeded') {
+              console.log('✅ Payment succeeded via Apple/Google Pay:', paymentIntent.id);
+              await createOrder(paymentIntent.id);
+              return;
+            } else if (paymentIntent.status === 'requires_action') {
+              console.log('🔐 3D Secure authentication required');
+              showError('Your bank requires additional authentication. Please complete the verification.');
+              checkoutButton.disabled = false;
+              return;
+            } else {
+              console.warn('⚠️ Unexpected payment status:', paymentIntent.status);
+              showError('Payment status: ' + paymentIntent.status);
+              checkoutButton.disabled = false;
+              return;
+            }
+          } catch (error) {
+            console.error('❌ Payment request error:', error);
             ev.complete('fail');
-            showError(error.message || 'Apple/Google Pay failed');
-            return;
-          }
-
-          ev.complete('success');
-
-          // If further action is required (3DS), handle it
-          if (paymentIntent && paymentIntent.status === 'requires_action') {
-            const { error: haError, paymentIntent: pi2 } = await stripe.confirmCardPayment(clientSecret);
-            if (haError) {
-              showError(haError.message || 'Authentication failed');
-              return;
-            }
-            if (pi2 && pi2.status === 'succeeded') {
-              await createOrder(pi2.id);
-              return;
-            }
-          }
-
-          if (paymentIntent && paymentIntent.status === 'succeeded') {
-            await createOrder(paymentIntent.id);
+            showError('Payment failed: ' + (error.message || 'Unknown error'));
+            checkoutButton.disabled = false;
           }
         });
       } catch (_) {

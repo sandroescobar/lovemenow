@@ -237,7 +237,7 @@ document.addEventListener('visibilitychange', function () {
 
 // Initialize wishlist button states
 function initializeWishlistButtons() {
-  const wishlistButtons = document.querySelectorAll('.btn-wishlist[data-product-id]');
+  const wishlistButtons = document.querySelectorAll('.btn-wishlist[data-product-id], .product-card-wishlist[data-product-id]');
   wishlistButtons.forEach(button => {
     const productId = button.dataset.productId;
     if (productId) checkWishlistStatus(productId, button);
@@ -282,9 +282,9 @@ function setupButtonEventListeners() {
     }
   });
 
-  // Wishlist toggle
+  // Wishlist toggle (handles both .btn-wishlist and .product-card-wishlist)
   document.addEventListener('click', function (e) {
-    const wbtn = e.target.closest('.btn-wishlist');
+    const wbtn = e.target.closest('.btn-wishlist, .product-card-wishlist');
     if (!wbtn) return;
     e.preventDefault();
     const productId = parseInt(wbtn.dataset.productId);

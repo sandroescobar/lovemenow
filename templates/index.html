@@ -185,6 +185,11 @@
           {% endif %}
           <div class="product-actions"><button class="btn-quick-view" onclick="openQuickView({{ product.id }})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button></div>
         </div>
+        <!-- Wishlist button positioned at top-right -->
+        <button class="product-card-wishlist" data-product-id="{{ product.id }}" data-product-name="{{ product.name|e }}" title="Add to wishlist">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+        </button>
+
         <div class="product-info">
           <div class="product-category">{{ product.category.name if product.category else 'Featured' }}</div>
           <h3 class="product-title"><a href="/product/{{ product.id }}">{{ product.clean_name }}</a></h3>
@@ -192,10 +197,7 @@
           <div class="product-buttons">
             <button class="btn-add-cart" data-product-id="{{ product.id }}" data-variant-id="{{ product.default_variant.id if product.default_variant else '' }}" data-product-name="{{ product.name|e }}" data-product-price="{{ product.price }}" data-quantity-on-hand="{{ product.quantity_on_hand or 0 }}" {% if not product.is_available %}disabled{% endif %}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-              {{ 'Add to Cart' if product.is_available else 'Out of Stock' }}
-            </button>
-            <button class="btn-wishlist" data-product-id="{{ product.id }}" data-product-name="{{ product.name|e }}">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+              <span>{{ 'Add to Cart' if product.is_available else 'Out of Stock' }}</span>
             </button>
           </div>
         </div>
