@@ -1,206 +1,100 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-2025-10-29T00:37:40.879903343Z INFO:routes.uber:Uber quote response: {'kind': 'delivery_quote', 'id': 'dqt_mteG4q2eSP-DepKI3I09RQ', 'created': '2025-10-29T00:37:40.83Z', 'expires': '2025-10-29T00:52:40.83Z', 'fee': 1099, 'currency': 'usd', 'currency_type': 'USD', 'dropoff_eta': '2025-10-29T01:24:46Z', 'duration': 47, 'pickup_duration': 7, 'dropoff_deadline': '2025-10-29T01:53:48Z'}
-2025-10-29T00:37:40.881069503Z 10.23.137.195 - - [29/Oct/2025:00:37:40 +0000] "POST /api/uber/quote HTTP/1.1" 200 239 "https://lovemenowmiami.com/checkout" "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Mobile Safari/537.36"
-2025-10-29T00:37:42.007582199Z INFO:stripe:message='Request to Stripe api' method=post url=https://api.stripe.com/v1/payment_intents/pi_3SNNOM06MZhkBN1w17AwTggr/cancel
-2025-10-29T00:37:42.188861827Z INFO:stripe:message='Stripe API response' path=https://api.stripe.com/v1/payment_intents/pi_3SNNOM06MZhkBN1w17AwTggr/cancel response_code=200
-2025-10-29T00:37:42.189602738Z INFO:stripe:message='Request to Stripe api' method=post url=https://api.stripe.com/v1/payment_intents
-2025-10-29T00:37:42.339125969Z INFO:stripe:message='Stripe API response' path=https://api.stripe.com/v1/payment_intents response_code=200
-2025-10-29T00:37:42.518655706Z 10.22.90.194 - - [29/Oct/2025:00:37:42 +0000] "POST /create-checkout-session HTTP/1.1" 200 155 "https://lovemenowmiami.com/checkout" "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Mobile Safari/537.36"
-2025-10-29T00:37:43.238088476Z 10.23.139.195 - - [29/Oct/2025:00:37:43 +0000] "POST /api/cart/totals HTTP/1.1" 200 125 "https://lovemenowmiami.com/checkout" "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Mobile Safari/537.36"
-2025-10-29T00:39:19.836608645Z INFO:stripe:message='Request to Stripe api' method=get url=https://api.stripe.com/v1/payment_intents/pi_3SNNOU06MZhkBN1w1GYRSjAA
-2025-10-29T00:39:20.014077538Z INFO:stripe:message='Stripe API response' path=https://api.stripe.com/v1/payment_intents/pi_3SNNOU06MZhkBN1w1GYRSjAA response_code=200
-2025-10-29T00:39:20.738255262Z [2025-10-29 00:39:20,738] INFO in api: 🔍 Delivery order - quote_id: dqt_mteG4q2eSP-DepKI3I09RQ
-2025-10-29T00:39:20.738281143Z INFO:app:🔍 Delivery order - quote_id: dqt_mteG4q2eSP-DepKI3I09RQ
-2025-10-29T00:39:20.918614473Z [2025-10-29 00:39:20,918] INFO in api: 🔍 Pickup coords: 25.8465, -80.1917
-2025-10-29T00:39:20.918639305Z INFO:app:🔍 Pickup coords: 25.8465, -80.1917
-2025-10-29T00:39:20.918653846Z [2025-10-29 00:39:20,918] INFO in api: 🔍 Dropoff coords: None, None
-2025-10-29T00:39:20.918667186Z INFO:app:🔍 Dropoff coords: None, None
-2025-10-29T00:39:21.011269119Z [2025-10-29 00:39:21,011] INFO in api: 🔍 Manifest items: [{'name': 'Package #65', 'quantity': 1, 'weight': 100, 'dimensions': {'length': 15, 'height': 10, 'depth': 5}}]
-2025-10-29T00:39:21.01129128Z INFO:app:🔍 Manifest items: [{'name': 'Package #65', 'quantity': 1, 'weight': 100, 'dimensions': {'length': 15, 'height': 10, 'depth': 5}}]
-2025-10-29T00:39:21.011358085Z [2025-10-29 00:39:21,011] INFO in api: 🔍 Calling uber_service.create_delivery()...
-2025-10-29T00:39:21.011369086Z INFO:app:🔍 Calling uber_service.create_delivery()...
-2025-10-29T00:39:24.095813647Z INFO:uber_service:Created Uber delivery: del_mteG4q2eSP-DepKI3I09RQ
-2025-10-29T00:39:24.095843569Z INFO:uber_service:Tracking URL: https://delivery.uber.com/orders/9ad786e2-ad9e-48ff-837a-9288dc8d3d45
-2025-10-29T00:39:24.095848659Z INFO:uber_service:Status: pending
-2025-10-29T00:39:24.095933815Z [2025-10-29 00:39:24,095] INFO in api: ✅ Uber API response: delivery_id=del_mteG4q2eSP-DepKI3I09RQ, tracking_url=https://delivery.uber.com/orders/9ad786e2-ad9e-48ff-837a-9288dc8d3d45
-2025-10-29T00:39:24.095943846Z INFO:app:✅ Uber API response: delivery_id=del_mteG4q2eSP-DepKI3I09RQ, tracking_url=https://delivery.uber.com/orders/9ad786e2-ad9e-48ff-837a-9288dc8d3d45
-2025-10-29T00:39:24.565290719Z [2025-10-29 00:39:24,565] INFO in api: ✅ Uber delivery created for order 134: tracking_url=https://delivery.uber.com/orders/9ad786e2-ad9e-48ff-837a-9288dc8d3d45
-2025-10-29T00:39:24.56530953Z INFO:app:✅ Uber delivery created for order 134: tracking_url=https://delivery.uber.com/orders/9ad786e2-ad9e-48ff-837a-9288dc8d3d45
-2025-10-29T00:39:24.663909033Z [2025-10-29 00:39:24,663] INFO in email_utils: SendLayer: POST https://console.sendlayer.com/api/v1/email -> to=alessandro.escobarfiu@gmail.com subject=Order #LMN20251029003920 confirmed — LoveMeNow Miami tags=['production']
-2025-10-29T00:39:24.663930055Z INFO:app:SendLayer: POST https://console.sendlayer.com/api/v1/email -> to=alessandro.escobarfiu@gmail.com subject=Order #LMN20251029003920 confirmed — LoveMeNow Miami tags=['production']
-2025-10-29T00:39:25.167408602Z [2025-10-29 00:39:25,167] INFO in email_utils: SendLayer: sent ok -> message_id=None
-2025-10-29T00:39:25.167436994Z INFO:app:SendLayer: sent ok -> message_id=None
-2025-10-29T00:39:25.167717603Z [2025-10-29 00:39:25,167] INFO in api: ✅ Confirmation email sent to alessandro.escobarfiu@gmail.com
-2025-10-29T00:39:25.167731114Z INFO:app:✅ Confirmation email sent to alessandro.escobarfiu@gmail.com
-2025-10-29T00:39:25.345946336Z 10.23.137.195 - - [29/Oct/2025:00:39:25 +0000] "POST /api/create-order HTTP/1.1" 200 193 "https://lovemenowmiami.com/checkout" "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Mobile Safari/537.36"
-2025-10-29T00:39:25.879820361Z 10.23.137.195 - - [29/Oct/2025:00:39:25 +0000] "POST /api/cart/clear HTTP/1.1" 200 55 "https://lovemenowmiami.com/checkout" "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Mobile Safari/537.36"
-2025-10-29T00:39:30.989904391Z [2025-10-29 00:39:30,989] INFO in webhooks: 📦 Received Uber webhook: event_type=None, resource_id=None
-2025-10-29T00:39:30.989925482Z INFO:app:📦 Received Uber webhook: event_type=None, resource_id=None
-2025-10-29T00:39:30.989936203Z [2025-10-29 00:39:30,989] ERROR in webhooks: ❌ Uber webhook missing resource_id
-2025-10-29T00:39:30.989944833Z ERROR:app:❌ Uber webhook missing resource_id
-2025-10-29T00:39:30.990828494Z 10.23.181.129 - - [29/Oct/2025:00:39:30 +0000] "POST /webhooks/uber HTTP/1.1" 400 32 "-" "Go-http-client/1.1"
-2025-10-29T00:42:04.66037021Z 10.23.137.195 - - [29/Oct/2025:00:42:04 +0000] "POST /webhooks/uber HTTP/1.1" 400 32 "-" "Go-http-client/1.1"
-2025-10-29T00:42:04.660398912Z [2025-10-29 00:42:04,659] INFO in webhooks: 📦 Received Uber webhook: event_type=None, resource_id=None
-2025-10-29T00:42:04.660863714Z INFO:app:📦 Received Uber webhook: event_type=None, resource_id=None
-2025-10-29T00:42:04.660871045Z [2025-10-29 00:42:04,659] ERROR in webhooks: ❌ Uber webhook missing resource_id
-2025-10-29T00:42:04.660878255Z ERROR:app:❌ Uber webhook missing resource_id
-2025-10-29T00:42:06.885592442Z [2025-10-29 00:42:06,882] INFO in webhooks: 📦 Received Uber webhook: event_type=None, resource_id=None
-2025-10-29T00:42:06.885607193Z INFO:app:📦 Received Uber webhook: event_type=None, resource_id=None
-2025-10-29T00:42:06.885614033Z [2025-10-29 00:42:06,884] ERROR in webhooks: ❌ Uber webhook missing resource_id
-2025-10-29T00:42:06.885618594Z ERROR:app:❌ Uber webhook missing resource_id
-2025-10-29T00:42:06.890763156Z 10.23.181.129 - - [29/Oct/2025:00:42:06 +0000] "POST /webhooks/uber HTTP/1.1" 400 32 "-" "Go-http-client/1.1"
-
-
-
-
-
-
-
-
-
-
-
-
-
-54Refused to connect to '<URL>' because it violates the following Content Security Policy directive: "connect-src 'self' <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> events.uber.com api.mixpanel.com d3i4yxtzktqr9n.cloudfront.net *.optimizely.com *.google-analytics.com *.tealiumiq.com *.demdex.net <URL>".
-Understand this error
-8Refused to connect to '<URL>' because it violates the following Content Security Policy directive: "connect-src 'self' 'self' <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> events.uber.com api.mixpanel.com d3i4yxtzktqr9n.cloudfront.net *.optimizely.com *.google-analytics.com *.tealiumiq.com *.demdex.net <URL>".
-Understand this error
-amzn.js:2 Fetch API cannot load https://c.amazon-adsystem.com/aat/amzn.js. Refused to connect because it violates the document's Content Security Policy.
-(anonymous) @ amzn.js:2
-(anonymous) @ amzn.js:2
-(anonymous) @ amzn.js:2Understand this error
-amzn.js:2 Error fetching country code from headers: TypeError: Failed to fetch. Refused to connect because it violates the document's Content Security Policy.
-    at amzn.js:2:27368
-    at amzn.js:2:28161
-    at amzn.js:2:28164
-(anonymous) @ amzn.js:2
-await in (anonymous)
-(anonymous) @ amzn.js:2
-(anonymous) @ amzn.js:2Understand this warning
-amzn.js:2 Fetch API cannot load https://c.amazon-adsystem.com/aat/amzn.js. Refused to connect because it violates the document's Content Security Policy.
-(anonymous) @ amzn.js:2
-setregion @ amzn.js:2
-(anonymous) @ amzn.js:2
-(anonymous) @ amzn.js:2
-(anonymous) @ utag.203.js?utv=ut4.53.202505161700:9
-cb @ utag.203.js?utv=ut4.53.202505161700:20
-(anonymous) @ utag.js:118
-script
-loader @ utag.js:116
-(anonymous) @ utag.203.js?utv=ut4.53.202505161700:20
-LOAD @ utag.js:81
-(anonymous) @ utag.203.js?utv=ut4.53.202505161700:21
-(anonymous) @ utag.203.js?utv=ut4.53.202505161700:21Understand this error
-amzn.js:2 [AAT] CSP blocked fetch → setting region to UNKNOWN for GDPR safety
-js?id=DC-5731039:120 Fetch API cannot load https://www.google.com/ccm/collect?frm=0&tid=DC-5731039&en=page_view&dr=lovemenowmiami.com&dl=https%3A%2F%2Fdelivery.uber.com%2Forders%2F9ad786e2-ad9e-48ff-837a-9288dc8d3d45&scrsrc=www.googletagmanager.com&rnd=1555791902.1761698367&auid=1735641986.1761681914&gclaw=CjwKCAjw04HIBhB8EiwA8jGNbZbKHOEOaJPE0KCIH8_q01cV7PAe4IHlaAzg5nPz86k56w657QY_VRoCTT4QAvD_BwE&navt=n&npa=0&gdid=dYmQxMT&gtm=45fe5ar0v9189983210za200zd9189983210xec&gcd=13l3l3l3l1l1&dma=0&tag_exp=101509157~103116026~103200004~103233427~104527907~104528501~104684208~104684211~104948813~115480710~115583767~115616986~115938465~115938469~116217636~116217638&tft=1761698367155&tfd=1231&apve=1&apvf=f. Refused to connect because it violates the document's Content Security Policy.
-bd @ js?id=DC-5731039:120
-ol @ js?id=DC-5731039:268
-Kw @ js?id=DC-5731039:501
-CK @ js?id=DC-5731039:666
-e @ js?id=DC-5731039:676
-(anonymous) @ js?id=DC-5731039:677
-Il @ js?id=DC-5731039:279
-Tn @ js?id=DC-5731039:298
-NK @ js?id=DC-5731039:677
-v @ js?id=DC-5731039:347
-Rl @ js?id=DC-5731039:281
-Tp @ js?id=DC-5731039:347
-Sp.flush @ js?id=DC-5731039:351
-Sp.push @ js?id=DC-5731039:349
-config @ js?id=DC-5731039:567
-pB @ js?id=DC-5731039:577
-rB @ js?id=DC-5731039:580
-setTimeout
-Sc @ js?id=DC-5731039:117
-sB @ js?id=DC-5731039:583
-ym @ js?id=DC-5731039:741
-(anonymous) @ js?id=DC-5731039:745
-c @ js?id=DC-5731039:743
-(anonymous) @ js?id=DC-5731039:745
-(anonymous) @ js?id=DC-5731039:745
-(anonymous) @ js?id=DC-5731039:747Understand this error
-www.googletagmanager.com/:1 Refused to frame 'https://www.googletagmanager.com/' because it violates the following Content Security Policy directive: "frame-src 'self' https://*.uber.com https://*.ubereats.com http://*.cdn-net.com https://tr.snapchat.com https://payments.uber.com https://payments.ubereats.com https://payments.postmates.com https://payments.order.store https://wpe-breeze.uberinternal.com https://payments-orchid.uber.com https://payments-staging.uberinternal.com https://payments-staging.uber.com https://www.google.com/recaptcha/ https://auth.uberinternal.com https://gumi.criteo.com/ https://mug.criteo.com https://gum.criteo.com https://catalogs.uberinternal.com/ https://insight.adsrvr.org/ https://match.adsrvr.org https://s.amazon-adsystem.com/ https://*.sardine.ai https://*.arkoselabs.com https://*.online-metrix.net uber://* https://accounts.google.com bs.serving-sys.com click.appcast.io analytics.recruitics.com ci.iasds01.com cdn.krxd.net www.facebook.com *.doubleclick.net *.tealiumiq.com *.demdex.net *.optimizely.com".
-Understand this error
-21Failed to execute 'postMessage' on 'DOMWindow': The target origin provided ('<URL>') does not match the recipient window's origin ('null').Understand this warning
-fbevents.js:170 [Meta Pixel] - Duplicate Pixel ID: 920222691346894.
-v @ fbevents.js:170
-y @ fbevents.js:170
-K @ fbevents.js:170
-Ha @ fbevents.js:387
-Fa @ fbevents.js:387
-Wa @ fbevents.js:387
-(anonymous) @ fbevents.js:387
-(anonymous) @ fbevents.js:128
-s @ fbevents.js:290
-each @ fbevents.js:290
-value @ fbevents.js:128
-value @ fbevents.js:128
-value @ fbevents.js:116
-plugin @ 920222691346894?v=2.9.239&r=stable&domain=delivery.uber.com&hme=0e765f8c1c15e34523a2a1dcfb1e6658bdc64adfdb8a2b463c34752b789aa615&ex_m=90%2C152%2C132%2C19%2C66%2C67%2C125%2C62%2C42%2C126%2C71%2C61%2C139%2C79%2C13%2C89%2C27%2C120%2C111%2C69%2C72%2C119%2C136%2C98%2C141%2C7%2C3%2C4%2C6%2C5%2C2%2C80%2C88%2C142%2C219%2C163%2C56%2C224%2C221%2C222%2C49%2C178%2C26%2C68%2C228%2C227%2C166%2C29%2C55%2C8%2C58%2C84%2C85%2C86%2C91%2C115%2C28%2C25%2C118%2C114%2C113%2C133%2C70%2C135%2C134%2C44%2C116%2C54%2C108%2C12%2C138%2C39%2C208%2C210%2C173%2C22%2C23%2C24%2C16%2C17%2C38%2C34%2C36%2C35%2C75%2C81%2C83%2C96%2C124%2C127%2C40%2C97%2C20%2C18%2C102%2C63%2C32%2C129%2C128%2C130%2C121%2C21%2C31%2C53%2C95%2C137%2C64%2C15%2C131%2C30%2C188%2C159%2C270%2C206%2C150%2C191%2C184%2C160%2C93%2C117%2C74%2C106%2C48%2C41%2C104%2C105%2C110%2C52%2C14%2C112%2C103%2C59%2C43%2C99%2C47%2C50%2C46%2C87%2C140%2C0%2C109%2C11%2C107%2C9%2C1%2C51%2C82%2C57%2C60%2C101%2C78%2C77%2C45%2C122%2C76%2C73%2C65%2C100%2C92%2C37%2C123%2C33%2C94%2C10%2C143:202
-value @ fbevents.js:210
-a.registerPlugin @ fbevents.js:387
-(anonymous) @ 920222691346894?v=2.9.239&r=stable&domain=delivery.uber.com&hme=0e765f8c1c15e34523a2a1dcfb1e6658bdc64adfdb8a2b463c34752b789aa615&ex_m=90%2C152%2C132%2C19%2C66%2C67%2C125%2C62%2C42%2C126%2C71%2C61%2C139%2C79%2C13%2C89%2C27%2C120%2C111%2C69%2C72%2C119%2C136%2C98%2C141%2C7%2C3%2C4%2C6%2C5%2C2%2C80%2C88%2C142%2C219%2C163%2C56%2C224%2C221%2C222%2C49%2C178%2C26%2C68%2C228%2C227%2C166%2C29%2C55%2C8%2C58%2C84%2C85%2C86%2C91%2C115%2C28%2C25%2C118%2C114%2C113%2C133%2C70%2C135%2C134%2C44%2C116%2C54%2C108%2C12%2C138%2C39%2C208%2C210%2C173%2C22%2C23%2C24%2C16%2C17%2C38%2C34%2C36%2C35%2C75%2C81%2C83%2C96%2C124%2C127%2C40%2C97%2C20%2C18%2C102%2C63%2C32%2C129%2C128%2C130%2C121%2C21%2C31%2C53%2C95%2C137%2C64%2C15%2C131%2C30%2C188%2C159%2C270%2C206%2C150%2C191%2C184%2C160%2C93%2C117%2C74%2C106%2C48%2C41%2C104%2C105%2C110%2C52%2C14%2C112%2C103%2C59%2C43%2C99%2C47%2C50%2C46%2C87%2C140%2C0%2C109%2C11%2C107%2C9%2C1%2C51%2C82%2C57%2C60%2C101%2C78%2C77%2C45%2C122%2C76%2C73%2C65%2C100%2C92%2C37%2C123%2C33%2C94%2C10%2C143:147Understand this warning
-amzn.js:2 Fetch API cannot load https://c.amazon-adsystem.com/aat/amzn.js. Refused to connect because it violates the document's Content Security Policy.
-(anonymous) @ amzn.js:2
-setregion @ amzn.js:2
-(anonymous) @ amzn.js:2
-(anonymous) @ amzn.js:2
-(anonymous) @ utag.203.js?utv=ut4.53.202505161700:9
-(anonymous) @ utag.203.js?utv=ut4.53.202505161700:18
-sendTag @ utag.js:103
-trigger @ utag.js:106
-track @ utag.js:94
-view @ utag.js:92
-_n @ client-main-ea3c4cb58389096b.js:1
-(anonymous) @ client-main-ea3c4cb58389096b.js:1
-(anonymous) @ client-main-ea3c4cb58389096b.js:1
-handleEvent @ client-main-ea3c4cb58389096b.js:1
-buildEvent @ client-main-ea3c4cb58389096b.js:1
-emit @ client-main-ea3c4cb58389096b.js:1
-(anonymous) @ client-main-ea3c4cb58389096b.js:1
-(anonymous) @ client-23125-2f9a8ea2c516252e.js:1
-Jo @ client-vendor-react-0c2db6f1a70395c1.js:11
-ys @ client-vendor-react-0c2db6f1a70395c1.js:11
-ls @ client-vendor-react-0c2db6f1a70395c1.js:11
-Ul @ client-vendor-react-0c2db6f1a70395c1.js:11
-(anonymous) @ client-vendor-react-0c2db6f1a70395c1.js:11
-vs @ client-vendor-react-0c2db6f1a70395c1.js:11
-es @ client-vendor-react-0c2db6f1a70395c1.js:11
-A @ client-46358-7634126346e5650b.js:85
-P @ client-46358-7634126346e5650b.js:85
-(anonymous) @ client-vendor-core-31b48b9d2f51f9b9.js:1
-_ @ client-vendor-core-31b48b9d2f51f9b9.js:1
-j @ client-vendor-core-31b48b9d2f51f9b9.js:1Understand this error
-amzn.js:2 [AAT] CSP blocked fetch → setting region to UNKNOWN for GDPR safety
-4050272?insights=1:1 Refused to load the script 'https://scripts.clarity.ms/0.8.38/clarity.js' because it violates the following Content Security Policy directive: "script-src 'self' 'unsafe-inline' https://d1a3f4spazzrp4.cloudfront.net https://d3i4yxtzktqr9n.cloudfront.net https://tb-static.uber.com https://tbs-static.uber.com 'nonce-093b26dc-3c1b-4a6f-a910-a84b24ca73ae' https://bat.bing.com https://*.qualtrics.com https://analytics.twitter.com http://www.googletagservices.com http://*.cdn-net.com https://sc-static.net https://tr.snapchat.com https://*.yjtag.jp https://yjtag.yahoo.co.jp https://b92.yahoo.co.jp https://*.yimg.jp https://*.outbrain.com https://www.redditstatic.com https://analytics.tiktok.com https://dynamic.criteo.com https://static.criteo.net https://sslwidget.criteo.com https://widget.us.criteo.com https://widget.as.criteo.com https://widget.eu.criteo.com https://payments.uber.com https://payments.ubereats.com https://payments.postmates.com https://payments.order.store https://wpe-breeze.uberinternal.com https://payments-orchid.uber.com https://payments-staging.uberinternal.com https://payments-staging.uber.com https://d4p17acsd5wyj.cloudfront.net https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ https://dca.ubereats.com https://phx.ubereats.com 'self' 'unsafe-eval' 'wasm-unsafe-eval' https://*.googleapis.com https://*.gstatic.com https://*.ggpht.com https://*.googleusercontent.com https://ln-rules.rewardstyle.com/bookmarklet.js https://dx.mountain.com/spx https://gs.mountain.com/gs https://px.mountain.com/st https://js.adsrvr.org/up_loader.1.1.0.js https://js.adsrvr.org/universal_pixel.1.1.3.js https://www.clarity.ms/tag/uet/4050272 https://www.clarity.ms/s/ https://b99.yahoo.co.jp/pagead/conversion_async.js https://b98.yahoo.co.jp/pagead/conversion_async.js https://c.amazon-adsystem.com/aat/amzn.js https://*.ubereats.com https://fpnpmcdn.net https://*.arkoselabs.com https://*.sardine.ai https://*.online-metrix.net 'sha512-RcM1Pe8HQQu1oalKaB94GzwQ7JS+xkjWhSOclkJj9mheuwkUAS0Of+xgKMeBFkl73Z7RZ6zR9MVG8aIq3P8IDQ==' https://accounts.google.com 'self' 'unsafe-eval' script.crazyegg.com www.google-analytics.com www.googletagmanager.com maps.googleapis.com maps.google.com tags.tiqcdn.com beacon.krxd.net cdn.krxd.net cdn.mxpnl.com www.googleadservices.com www.ziprecruiter.com analytics.recruitics.com edge.quantserve.com secure.quantserve.com connect.facebook.net cdn.nanigans.com api.nanigans.com *.adroll.com s.yimg.com sp.analytics.yahoo.com click.app-cast.com i.l.inmobicdn.net *.optimizely.com *.tealiumiq.com *.doubleclick.net static.ads-twitter.com https://www.google-analytics.com https://ssl.google-analytics.com maps.googleapis.com maps.google.com". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback.
-
-(anonymous) @ 4050272?insights=1:1
-(anonymous) @ 4050272?insights=1:1Understand this error
-client-main-ea3c4cb58389096b.js:1 *** sw registered: ServiceWorkerRegistration {installing: null, waiting: null, active: ServiceWorker, navigationPreload: NavigationPreloadManager, scope: 'https://delivery.uber.com/', …}
-st?ga_tracking_id=G-1111111&ga_client_id=1836286334.1752990178&shpt=Preparing%20alessandro%27s%20order...&dcm_cid=1836286334.1752990178&available_ga=%5B%7B%22id%22%3A%22G-P1RM71MPFP%22%2C%22sess_id%22%3A%221761696595%22%7D%5D&ga_info=%7B%22status%22%3A%22OK%22%2C%22available_ga%22%3A%5B%7B%22id%22%3A%22G-P1RM71MPFP%22%2C%22sess_id%22%3A%221761696595%22%7D%5D%2C%22hardcoded_ga%22%3A%22G-1111111%22%2C%22ga_tracking_id%22%3A%22G-1111111%22%2C%22ga_client_id%22%3A%221836286334.1752990178%22%2C%22shpt%22%3A%22Preparing%20alessandro%27s%20order...%22%2C%22dcm_cid%22%3A%221836286334.1752990178%22%2C%22mntnis%22%3A%22Ngd6gPsOSd7JVXFm%2FNOiYzSOoc8diCOo%22%2C%22execution_workflow%22%3A%7B%22iteration%22%3A2%2C%22getClientIdByCookie%22%3A%22OK%22%2C%22shpt%22%3A%22OK%22%2C%22dcm_cid%22%3A%22OK%22%7D%7D&hardcoded_ga=G-1111111&meta_tag_data=%5B%7B%22robots.content%22%3A%22noindex%2C%20nofollow%22%7D%5D&dxver=4.0.0&shaid=34411&tdr=https%3A%2F%2Flovemenowmiami.com%2F&plh=https%3A%2F%2Fdelivery.uber.com%2Forders%2F9ad786e2-ad9e-48ff-837a-9288dc8d3d45&cb=44145854518648260&shadditional=googletagmanager%3Dtrue%2Cga4%3Dtrue%2Ctealium%3Dtrue:1 Refused to execute inline script because it violates the following Content Security Policy directive: "script-src 'self' 'unsafe-inline' https://d1a3f4spazzrp4.cloudfront.net https://d3i4yxtzktqr9n.cloudfront.net https://tb-static.uber.com https://tbs-static.uber.com 'nonce-093b26dc-3c1b-4a6f-a910-a84b24ca73ae' https://bat.bing.com https://*.qualtrics.com https://analytics.twitter.com http://www.googletagservices.com http://*.cdn-net.com https://sc-static.net https://tr.snapchat.com https://*.yjtag.jp https://yjtag.yahoo.co.jp https://b92.yahoo.co.jp https://*.yimg.jp https://*.outbrain.com https://www.redditstatic.com https://analytics.tiktok.com https://dynamic.criteo.com https://static.criteo.net https://sslwidget.criteo.com https://widget.us.criteo.com https://widget.as.criteo.com https://widget.eu.criteo.com https://payments.uber.com https://payments.ubereats.com https://payments.postmates.com https://payments.order.store https://wpe-breeze.uberinternal.com https://payments-orchid.uber.com https://payments-staging.uberinternal.com https://payments-staging.uber.com https://d4p17acsd5wyj.cloudfront.net https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ https://dca.ubereats.com https://phx.ubereats.com 'self' 'unsafe-eval' 'wasm-unsafe-eval' https://*.googleapis.com https://*.gstatic.com https://*.ggpht.com https://*.googleusercontent.com https://ln-rules.rewardstyle.com/bookmarklet.js https://dx.mountain.com/spx https://gs.mountain.com/gs https://px.mountain.com/st https://js.adsrvr.org/up_loader.1.1.0.js https://js.adsrvr.org/universal_pixel.1.1.3.js https://www.clarity.ms/tag/uet/4050272 https://www.clarity.ms/s/ https://b99.yahoo.co.jp/pagead/conversion_async.js https://b98.yahoo.co.jp/pagead/conversion_async.js https://c.amazon-adsystem.com/aat/amzn.js https://*.ubereats.com https://fpnpmcdn.net https://*.arkoselabs.com https://*.sardine.ai https://*.online-metrix.net 'sha512-RcM1Pe8HQQu1oalKaB94GzwQ7JS+xkjWhSOclkJj9mheuwkUAS0Of+xgKMeBFkl73Z7RZ6zR9MVG8aIq3P8IDQ==' https://accounts.google.com 'self' 'unsafe-eval' script.crazyegg.com www.google-analytics.com www.googletagmanager.com maps.googleapis.com maps.google.com tags.tiqcdn.com beacon.krxd.net cdn.krxd.net cdn.mxpnl.com www.googleadservices.com www.ziprecruiter.com analytics.recruitics.com edge.quantserve.com secure.quantserve.com connect.facebook.net cdn.nanigans.com api.nanigans.com *.adroll.com s.yimg.com sp.analytics.yahoo.com click.app-cast.com i.l.inmobicdn.net *.optimizely.com *.tealiumiq.com *.doubleclick.net static.ads-twitter.com https://www.google-analytics.com https://ssl.google-analytics.com maps.googleapis.com maps.google.com". Note that 'unsafe-inline' is ignored if either a hash or nonce value is present in the source list.
+2025-10-29T21:44:24.657134377Z   Using cached packaging-25.0-py3-none-any.whl.metadata (3.3 kB)
+2025-10-29T21:44:24.843210438Z Collecting markupsafe (from sentry-sdk[flask]==2.17.0->-r requirements.txt (line 35))
+2025-10-29T21:44:24.844795099Z   Using cached markupsafe-3.0.3-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.7 kB)
+2025-10-29T21:44:24.937191327Z Collecting markdown-it-py>=2.2.0 (from rich<14,>=12->Flask-Limiter==3.8.0->-r requirements.txt (line 29))
+2025-10-29T21:44:24.938842949Z   Using cached markdown_it_py-4.0.0-py3-none-any.whl.metadata (7.3 kB)
+2025-10-29T21:44:24.972750912Z Collecting pygments<3.0.0,>=2.13.0 (from rich<14,>=12->Flask-Limiter==3.8.0->-r requirements.txt (line 29))
+2025-10-29T21:44:24.974091029Z   Using cached pygments-2.19.2-py3-none-any.whl.metadata (2.5 kB)
+2025-10-29T21:44:25.172235625Z Collecting cffi>=2.0.0 (from cryptography>=42.0.0->-r requirements.txt (line 28))
+2025-10-29T21:44:25.174211154Z   Using cached cffi-2.0.0-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.6 kB)
+2025-10-29T21:44:25.209660237Z Collecting Mako (from alembic>=1.9.0->Flask-Migrate==4.0.7->-r requirements.txt (line 6))
+2025-10-29T21:44:25.217112893Z   Using cached mako-1.3.10-py3-none-any.whl.metadata (2.9 kB)
+2025-10-29T21:44:25.251302182Z Collecting pycparser (from cffi>=2.0.0->cryptography>=42.0.0->-r requirements.txt (line 28))
+2025-10-29T21:44:25.25271595Z   Using cached pycparser-2.23-py3-none-any.whl.metadata (993 bytes)
+2025-10-29T21:44:25.28495398Z Collecting deprecated>=1.2 (from limits>=3.13->Flask-Limiter==3.8.0->-r requirements.txt (line 29))
+2025-10-29T21:44:25.294292523Z   Downloading deprecated-1.3.0-py2.py3-none-any.whl.metadata (5.9 kB)
+2025-10-29T21:44:25.433974876Z Collecting wrapt<3,>=1.10 (from deprecated>=1.2->limits>=3.13->Flask-Limiter==3.8.0->-r requirements.txt (line 29))
+2025-10-29T21:44:25.445332418Z   Downloading wrapt-2.0.0-cp313-cp313-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (8.8 kB)
+2025-10-29T21:44:25.476874145Z Collecting mdurl~=0.1 (from markdown-it-py>=2.2.0->rich<14,>=12->Flask-Limiter==3.8.0->-r requirements.txt (line 29))
+2025-10-29T21:44:25.478433436Z   Using cached mdurl-0.1.2-py3-none-any.whl.metadata (1.6 kB)
+2025-10-29T21:44:25.497967708Z Using cached flask-3.0.3-py3-none-any.whl (101 kB)
+2025-10-29T21:44:25.49911946Z Using cached Flask_Login-0.6.3-py3-none-any.whl (17 kB)
+2025-10-29T21:44:25.500184621Z Using cached flask_sqlalchemy-3.1.1-py3-none-any.whl (25 kB)
+2025-10-29T21:44:25.501330154Z Using cached Flask_Bcrypt-1.0.1-py3-none-any.whl (6.0 kB)
+2025-10-29T21:44:25.502465756Z Using cached Flask_Migrate-4.0.7-py3-none-any.whl (21 kB)
+2025-10-29T21:44:25.503564787Z Using cached SQLAlchemy-2.0.35-py3-none-any.whl (1.9 MB)
+2025-10-29T21:44:25.506190399Z Using cached PyMySQL-1.1.1-py3-none-any.whl (44 kB)
+2025-10-29T21:44:25.50728653Z Using cached python_dotenv-1.0.1-py3-none-any.whl (19 kB)
+2025-10-29T21:44:25.508361041Z Using cached stripe-10.12.0-py2.py3-none-any.whl (1.6 MB)
+2025-10-29T21:44:25.510761768Z Using cached requests-2.32.3-py3-none-any.whl (64 kB)
+2025-10-29T21:44:25.512005453Z Using cached pytz-2024.1-py2.py3-none-any.whl (505 kB)
+2025-10-29T21:44:25.513523252Z Using cached folium-0.15.1-py2.py3-none-any.whl (97 kB)
+2025-10-29T21:44:25.514728606Z Using cached flask_talisman-1.1.0-py2.py3-none-any.whl (18 kB)
+2025-10-29T21:44:25.515862648Z Using cached flask_wtf-1.2.1-py3-none-any.whl (12 kB)
+2025-10-29T21:44:25.51697242Z Using cached Flask_Limiter-3.8.0-py3-none-any.whl (28 kB)
+2025-10-29T21:44:25.518086461Z Using cached gunicorn-23.0.0-py3-none-any.whl (85 kB)
+2025-10-29T21:44:25.519229954Z Using cached sentry_sdk-2.17.0-py2.py3-none-any.whl (314 kB)
+2025-10-29T21:44:25.52057386Z Using cached python_decouple-3.8-py3-none-any.whl (9.9 kB)
+2025-10-29T21:44:25.521752873Z Using cached charset_normalizer-3.4.4-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (153 kB)
+2025-10-29T21:44:25.522945616Z Using cached idna-3.11-py3-none-any.whl (71 kB)
+2025-10-29T21:44:25.524058638Z Using cached ordered_set-4.1.0-py3-none-any.whl (7.6 kB)
+2025-10-29T21:44:25.525140179Z Using cached rich-13.9.4-py3-none-any.whl (242 kB)
+2025-10-29T21:44:25.526429745Z Using cached pygments-2.19.2-py3-none-any.whl (1.2 MB)
+2025-10-29T21:44:25.52923379Z Using cached urllib3-2.5.0-py3-none-any.whl (129 kB)
+2025-10-29T21:44:25.53080184Z Using cached cryptography-46.0.3-cp311-abi3-manylinux_2_34_x86_64.whl (4.5 MB)
+2025-10-29T21:44:25.543674722Z Downloading alembic-1.17.1-py3-none-any.whl (247 kB)
+2025-10-29T21:44:25.58036559Z Using cached bcrypt-5.0.0-cp39-abi3-manylinux_2_34_x86_64.whl (278 kB)
+2025-10-29T21:44:25.582008082Z Using cached blinker-1.9.0-py3-none-any.whl (8.5 kB)
+2025-10-29T21:44:25.583091633Z Using cached branca-0.8.2-py3-none-any.whl (26 kB)
+2025-10-29T21:44:25.584180125Z Using cached certifi-2025.10.5-py3-none-any.whl (163 kB)
+2025-10-29T21:44:25.585801356Z Using cached cffi-2.0.0-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (219 kB)
+2025-10-29T21:44:25.587068931Z Using cached click-8.3.0-py3-none-any.whl (107 kB)
+2025-10-29T21:44:25.588219324Z Using cached itsdangerous-2.2.0-py3-none-any.whl (16 kB)
+2025-10-29T21:44:25.58958478Z Using cached jinja2-3.1.6-py3-none-any.whl (134 kB)
+2025-10-29T21:44:25.590900496Z Using cached limits-5.6.0-py3-none-any.whl (60 kB)
+2025-10-29T21:44:25.599868601Z Downloading deprecated-1.3.0-py2.py3-none-any.whl (11 kB)
+2025-10-29T21:44:25.617760891Z Downloading wrapt-2.0.0-cp313-cp313-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (121 kB)
+2025-10-29T21:44:25.629280967Z Using cached markdown_it_py-4.0.0-py3-none-any.whl (87 kB)
+2025-10-29T21:44:25.6304656Z Using cached mdurl-0.1.2-py3-none-any.whl (10.0 kB)
+2025-10-29T21:44:25.631610582Z Using cached markupsafe-3.0.3-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (22 kB)
+2025-10-29T21:44:25.632718054Z Using cached packaging-25.0-py3-none-any.whl (66 kB)
+2025-10-29T21:44:25.633882917Z Using cached typing_extensions-4.15.0-py3-none-any.whl (44 kB)
+2025-10-29T21:44:25.634995399Z Using cached werkzeug-3.1.3-py3-none-any.whl (224 kB)
+2025-10-29T21:44:25.636287784Z Using cached mako-1.3.10-py3-none-any.whl (78 kB)
+2025-10-29T21:44:25.637499198Z Using cached numpy-2.3.4-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (16.6 MB)
+2025-10-29T21:44:25.65243124Z Using cached pycparser-2.23-py3-none-any.whl (118 kB)
+2025-10-29T21:44:25.653627133Z Using cached wtforms-3.2.1-py3-none-any.whl (152 kB)
+2025-10-29T21:44:25.654825077Z Using cached xyzservices-2025.4.0-py3-none-any.whl (90 kB)
+2025-10-29T21:44:25.805522885Z Installing collected packages: pytz, python-decouple, Flask-Talisman, xyzservices, wrapt, urllib3, typing-extensions, python-dotenv, PyMySQL, pygments, pycparser, packaging, ordered-set, numpy, mdurl, markupsafe, itsdangerous, idna, click, charset-normalizer, certifi, blinker, bcrypt, wtforms, Werkzeug, SQLAlchemy, sentry-sdk, requests, markdown-it-py, Mako, Jinja2, gunicorn, deprecated, cffi, stripe, rich, limits, Flask, cryptography, branca, alembic, folium, Flask-WTF, Flask-SQLAlchemy, Flask-Login, Flask-Limiter, Flask-Bcrypt, Flask-Migrate
+2025-10-29T21:44:32.955141412Z
+2025-10-29T21:44:32.960371694Z Successfully installed Flask-3.0.3 Flask-Bcrypt-1.0.1 Flask-Limiter-3.8.0 Flask-Login-0.6.3 Flask-Migrate-4.0.7 Flask-SQLAlchemy-3.1.1 Flask-Talisman-1.1.0 Flask-WTF-1.2.1 Jinja2-3.1.6 Mako-1.3.10 PyMySQL-1.1.1 SQLAlchemy-2.0.35 Werkzeug-3.1.3 alembic-1.17.1 bcrypt-5.0.0 blinker-1.9.0 branca-0.8.2 certifi-2025.10.5 cffi-2.0.0 charset-normalizer-3.4.4 click-8.3.0 cryptography-46.0.3 deprecated-1.3.0 folium-0.15.1 gunicorn-23.0.0 idna-3.11 itsdangerous-2.2.0 limits-5.6.0 markdown-it-py-4.0.0 markupsafe-3.0.3 mdurl-0.1.2 numpy-2.3.4 ordered-set-4.1.0 packaging-25.0 pycparser-2.23 pygments-2.19.2 python-decouple-3.8 python-dotenv-1.0.1 pytz-2024.1 requests-2.32.3 rich-13.9.4 sentry-sdk-2.17.0 stripe-10.12.0 typing-extensions-4.15.0 urllib3-2.5.0 wrapt-2.0.0 wtforms-3.2.1 xyzservices-2025.4.0
+2025-10-29T21:44:32.968357Z
+2025-10-29T21:44:32.96837244Z [notice] A new release of pip is available: 25.1.1 -> 25.3
+2025-10-29T21:44:32.968377811Z [notice] To update, run: pip install --upgrade pip
+2025-10-29T21:44:34.656223932Z ==> Uploading build...
+2025-10-29T21:45:00.338628858Z ==> Uploaded in 21.7s. Compression took 3.9s
+2025-10-29T21:45:00.513383727Z ==> Build successful 🎉
+2025-10-29T21:45:04.397625232Z ==> Deploying...
+2025-10-29T21:46:35.507592164Z ==> Running 'gunicorn app:app'
+2025-10-29T21:46:39.673548721Z [2025-10-29 21:46:39,673] WARNING in app: Flask-Compress not available, skipping compression
+2025-10-29T21:46:39.792803261Z [2025-10-29 21:46:39,792] INFO in app: LoveMeNow application started
+2025-10-29T21:46:39.792823011Z INFO:app:LoveMeNow application started
+2025-10-29T21:46:40.253358381Z [2025-10-29 21:46:40 +0000] [66] [INFO] Starting gunicorn 23.0.0
+2025-10-29T21:46:40.255503127Z [2025-10-29 21:46:40 +0000] [66] [INFO] Listening at: http://0.0.0.0:10000 (66)
+2025-10-29T21:46:40.255590708Z [2025-10-29 21:46:40 +0000] [66] [INFO] Using worker: sync
+2025-10-29T21:46:40.263889214Z [2025-10-29 21:46:40 +0000] [68] [INFO] Booting worker with pid: 68
+2025-10-29T21:46:41.076098424Z ✅ Stripe secret key configured: sk_live_51...WrY5
+2025-10-29T21:46:41.076155256Z ✅ Stripe publishable key configured: pk_live_51...n9YR
+2025-10-29T21:46:41.076164826Z 127.0.0.1 - - [29/Oct/2025:21:46:41 +0000] "HEAD / HTTP/1.1" 302 0 "-" "Go-http-client/1.1"
+2025-10-29T21:46:50.637159279Z ==> Your service is live 🎉
+2025-10-29T21:46:50.687200184Z ==>
+2025-10-29T21:46:50.711206893Z ==> ///////////////////////////////////////////////////////////
+2025-10-29T21:46:50.736571151Z ==>
+2025-10-29T21:46:50.761365259Z ==> Available at your primary URL https://lovemenowmiami.com + 2 more domains
+2025-10-29T21:46:50.785423507Z ==>
+2025-10-29T21:46:50.814208875Z ==> ///////////////////////////////////////////////////////////
+2025-10-29T21:47:11.057304522Z [2025-10-29 21:47:11,057] INFO in webhooks: 📦 Received Uber webhook: event_type=None, resource_id=None
+2025-10-29T21:47:11.057321523Z INFO:app:📦 Received Uber webhook: event_type=None, resource_id=None
+2025-10-29T21:47:11.057411494Z [2025-10-29 21:47:11,057] ERROR in webhooks: ❌ Uber webhook missing resource_id
+2025-10-29T21:47:11.057421255Z ERROR:app:❌ Uber webhook missing resource_id
+2025-10-29T21:47:11.05861486Z 10.23.137.195 - - [29/Oct/2025:21:47:11 +0000] "POST /webhooks/uber HTTP/1.1" 400 32 "-" "Go-http-client/1.1"

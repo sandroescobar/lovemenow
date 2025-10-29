@@ -333,6 +333,11 @@ def uber_webhook():
         
         # Parse the payload
         event = json.loads(payload)
+        
+        # DEBUG: Log the full webhook structure
+        current_app.logger.info(f"🔍 Full Uber webhook payload: {json.dumps(event, indent=2)}")
+        current_app.logger.info(f"🔍 Uber webhook keys: {list(event.keys())}")
+        
         current_app.logger.info(f"📦 Received Uber webhook: event_type={event.get('event_type')}, resource_id={event.get('resource_id')}")
         
         # Extract delivery information
