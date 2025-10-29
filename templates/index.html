@@ -6,6 +6,39 @@
   <meta name="description" content="LoveMeNow - Premium quality adult products for your intimate moments" />
   <title>LoveMeNow - Premium Adult Products</title>
 
+  <!-- localStorage Cleanup - Prevent stale data from affecting Lighthouse tests -->
+  <script>
+    (function() {
+      try {
+        // Clear stale localStorage data that accumulates over time
+        const now = Date.now();
+        const maxAge = 7 * 24 * 60 * 60 * 1000; // 7 days
+        
+        // Get and validate stored timestamp
+        const timestamp = localStorage.getItem('lmn_cleanup_ts');
+        const lastCleanup = timestamp ? parseInt(timestamp) : 0;
+        
+        // Only run cleanup every 24 hours to avoid frequent operations
+        if (now - lastCleanup > 24 * 60 * 60 * 1000) {
+          // Clear promo data if present (can be regenerated)
+          localStorage.removeItem('promoModalShown');
+          localStorage.removeItem('promoCode');
+          
+          // Reset cart count if it seems corrupted (e.g., negative values)
+          const cartCount = localStorage.getItem('cartCount');
+          if (cartCount && (parseInt(cartCount) < 0 || parseInt(cartCount) > 999)) {
+            localStorage.removeItem('cartCount');
+          }
+          
+          // Update cleanup timestamp
+          localStorage.setItem('lmn_cleanup_ts', now.toString());
+        }
+      } catch(e) {
+        // Silently ignore localStorage errors (e.g., in private/incognito mode)
+      }
+    })();
+  </script>
+
   <!-- Optimize preconnects - focus on critical domains -->
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
   <link rel="preconnect" href="https://js.stripe.com">
