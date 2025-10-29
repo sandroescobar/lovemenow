@@ -15,19 +15,29 @@ class UberDirectService:
     """Service class for Uber Direct API integration"""
     
     def __init__(self):
-        self.base_url = "https://api.uber.com/v1"
+        self.base_url = "https://api.uber.com/v1"  # Default to production
         self.auth_url = "https://auth.uber.com/oauth/v2/token"
         self.client_id = None
         self.client_secret = None
         self.customer_id = None
         self.access_token = None
         self.token_expires_at = None
+        self.is_sandbox = False
         
-    def configure(self, client_id: str, client_secret: str, customer_id: str):
+    def configure(self, client_id: str, client_secret: str, customer_id: str, is_sandbox: bool = False):
         """Configure the service with Uber credentials"""
         self.client_id = client_id
         self.client_secret = client_secret
         self.customer_id = customer_id
+        self.is_sandbox = is_sandbox
+        
+        # Set the correct API endpoint based on sandbox/production mode
+        if is_sandbox:
+            self.base_url = "https://sandbox-api.uber.com/v1"
+            logger.info("🔧 Uber service configured for SANDBOX mode")
+        else:
+            self.base_url = "https://api.uber.com/v1"
+            logger.info("🔧 Uber service configured for PRODUCTION mode")
         
     def _get_access_token(self) -> str:
         """Get or refresh OAuth access token"""
@@ -114,12 +124,22 @@ class UberDirectService:
         
         # Add coordinates if provided to ensure quote matches delivery request exactly
         if pickup_coords:
-            data["pickup_latitude"] = pickup_coords['latitude']
-            data["pickup_longitude"] = pickup_coords['longitude']
+            # Handle both dict and tuple formats
+            if isinstance(pickup_coords, (tuple, list)):
+                data["pickup_latitude"] = pickup_coords[0]
+                data["pickup_longitude"] = pickup_coords[1]
+            else:
+                data["pickup_latitude"] = pickup_coords['latitude']
+                data["pickup_longitude"] = pickup_coords['longitude']
         
         if dropoff_coords:
-            data["dropoff_latitude"] = dropoff_coords['latitude']
-            data["dropoff_longitude"] = dropoff_coords['longitude']
+            # Handle both dict and tuple formats
+            if isinstance(dropoff_coords, (tuple, list)):
+                data["dropoff_latitude"] = dropoff_coords[0]
+                data["dropoff_longitude"] = dropoff_coords[1]
+            else:
+                data["dropoff_latitude"] = dropoff_coords['latitude']
+                data["dropoff_longitude"] = dropoff_coords['longitude']
         
         try:
             quote = self._make_request('POST', endpoint, data)
@@ -243,10 +263,12 @@ def init_uber_service(app):
     client_id = app.config.get('UBER_CLIENT_ID')
     client_secret = app.config.get('UBER_CLIENT_SECRET')
     customer_id = app.config.get('UBER_CUSTOMER_ID')
+    is_sandbox = app.config.get('UBER_SANDBOX', False)
     
     if client_id and client_secret and customer_id:
-        uber_service.configure(client_id, client_secret, customer_id)
+        uber_service.configure(client_id, client_secret, customer_id, is_sandbox=is_sandbox)
         logger.info(f"Uber Direct service configured successfully - Customer ID: {customer_id}")
+        logger.info(f"Mode: {'SANDBOX' if is_sandbox else 'PRODUCTION'}")
         
         # Test the connection by trying to get an access token
         try:
@@ -293,12 +315,25 @@ def create_manifest_items(cart_items: list) -> list:
     manifest_items = []
     
     for item in cart_items:
-        product = item['product']
-        quantity = item['quantity']
+        # Handle both ORM objects and dicts
+        if hasattr(item, 'product'):
+            # ORM object (Cart model)
+            product = item.product
+            quantity = item.quantity
+        else:
+            # Dictionary format
+            product = item['product']
+            quantity = item['quantity']
+        
+        # Get product ID (handle both ORM objects and dicts)
+        if hasattr(product, 'id'):
+            product_id = product.id
+        else:
+            product_id = product['id']
         
         # Create a discreet manifest item
         manifest_items.append({
-            "name": f"Package #{product['id']}",  # Discreet naming
+            "name": f"Package #{product_id}",  # Discreet naming
             "quantity": quantity,
             "weight": 100,  # Default weight in grams
             "dimensions": {

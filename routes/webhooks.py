@@ -1,13 +1,15 @@
 """
-Webhook handlers for payment processing
+Webhook handlers for payment processing and delivery tracking
 """
 import json
 import stripe
+import hmac
+import hashlib
 from flask import Blueprint, request, jsonify, current_app
 from sqlalchemy.orm import joinedload
 
 from routes import db
-from models import Product, Cart, Order, OrderItem, User
+from models import Product, Cart, Order, OrderItem, User, UberDelivery
 from flask import session as flask_session
 from services.slack_notifications import send_order_notification
 
@@ -312,4 +314,152 @@ def process_successful_payment_intent(payment_intent):
         current_app.logger.error(f"Error processing payment intent: {str(e)}")
         import traceback
         current_app.logger.error(f"Payment intent processing traceback: {traceback.format_exc()}")
+        return False
+
+
+@webhooks_bp.route('/uber', methods=['POST'])
+def uber_webhook():
+    """Handle Uber Direct webhook events for delivery tracking"""
+    try:
+        payload = request.get_data(as_text=True)
+        
+        # Verify webhook signature
+        signature = request.headers.get('X-Uber-Signature')
+        
+        # For now, log the webhook but don't fail if signature verification is not set up
+        # In production, you MUST verify the signature
+        if not signature:
+            current_app.logger.warning("⚠️  Uber webhook received WITHOUT signature - consider implementing signature verification in production")
+        
+        # Parse the payload
+        event = json.loads(payload)
+        current_app.logger.info(f"📦 Received Uber webhook: event_type={event.get('event_type')}, resource_id={event.get('resource_id')}")
+        
+        # Extract delivery information
+        event_type = event.get('event_type')
+        resource_id = event.get('resource_id')  # This is the delivery ID
+        
+        if not resource_id:
+            current_app.logger.error("❌ Uber webhook missing resource_id")
+            return jsonify({'error': 'Missing resource_id'}), 400
+        
+        # Find the delivery in our database
+        delivery = UberDelivery.query.filter_by(delivery_id=resource_id).first()
+        
+        if not delivery:
+            current_app.logger.warning(f"⚠️  Uber webhook received for unknown delivery: {resource_id}")
+            # Still return 200 to acknowledge receipt (don't retry)
+            return jsonify({'status': 'ignored'}), 200
+        
+        # Process the event
+        success = process_uber_webhook_event(delivery, event_type, event)
+        
+        if success:
+            current_app.logger.info(f"✅ Processed Uber webhook: {event_type} for delivery {resource_id}")
+            return jsonify({'status': 'success'}), 200
+        else:
+            current_app.logger.error(f"❌ Failed to process Uber webhook: {event_type} for delivery {resource_id}")
+            return jsonify({'status': 'processing_failed'}), 200  # Return 200 to prevent retry
+        
+    except json.JSONDecodeError as e:
+        current_app.logger.error(f"❌ Invalid JSON in Uber webhook: {e}")
+        return jsonify({'error': 'Invalid JSON'}), 400
+    except Exception as e:
+        current_app.logger.error(f"❌ Uber webhook error: {str(e)}")
+        import traceback
+        current_app.logger.error(f"Traceback: {traceback.format_exc()}")
+        return jsonify({'error': 'Webhook processing failed'}), 200  # Return 200 to prevent retry
+
+
+def process_uber_webhook_event(delivery, event_type, event):
+    """Process different types of Uber webhook events"""
+    try:
+        # Map event types to status updates
+        event_status_map = {
+            'delivery.requested': 'requested',
+            'delivery.accepted': 'accepted',
+            'delivery.driver_arrived': 'driver_arrived',
+            'delivery.delivery_completed': 'completed',
+            'delivery.cancelled': 'cancelled',
+            'delivery.returned': 'returned',
+        }
+        
+        new_status = event_status_map.get(event_type)
+        
+        if not new_status:
+            current_app.logger.warning(f"⚠️  Unknown Uber event type: {event_type}")
+            return True  # Don't fail on unknown events
+        
+        # Update delivery status
+        old_status = delivery.status
+        delivery.status = new_status
+        
+        # Extract additional data from event
+        event_data = event.get('data', {})
+        
+        if event_type == 'delivery.accepted':
+            current_app.logger.info(f"🚗 Driver accepted delivery {delivery.delivery_id}")
+            delivery.driver_details = json.dumps({
+                'name': event_data.get('driver_name', 'N/A'),
+                'rating': event_data.get('driver_rating'),
+                'vehicle': event_data.get('vehicle_description'),
+                'license_plate': event_data.get('vehicle_license_plate'),
+                'photo_url': event_data.get('driver_photo_url'),
+            })
+            
+            # Notify via Slack about driver assignment
+            try:
+                order = delivery.order
+                if order:
+                    from services.slack_notifications import send_delivery_notification
+                    send_delivery_notification(order, delivery, 'driver_assigned')
+            except Exception as e:
+                current_app.logger.error(f"Failed to send Slack notification for driver assignment: {e}")
+        
+        elif event_type == 'delivery.driver_arrived':
+            current_app.logger.info(f"🚗 Driver arrived for delivery {delivery.delivery_id}")
+        
+        elif event_type == 'delivery.delivery_completed':
+            current_app.logger.info(f"✅ Delivery completed: {delivery.delivery_id}")
+            delivery.completed_at = event_data.get('completed_at')
+            
+            # Notify via Slack
+            try:
+                order = delivery.order
+                if order:
+                    order.status = 'delivered'
+                    from services.slack_notifications import send_delivery_notification
+                    send_delivery_notification(order, delivery, 'delivery_completed')
+            except Exception as e:
+                current_app.logger.error(f"Failed to send Slack notification for delivery completion: {e}")
+        
+        elif event_type == 'delivery.cancelled':
+            current_app.logger.error(f"🚫 DELIVERY CANCELLED: {delivery.delivery_id}")
+            current_app.logger.error(f"   Reason: {event_data.get('cancellation_reason', 'Unknown')}")
+            
+            delivery.cancelled_at = event_data.get('cancelled_at')
+            delivery.cancellation_reason = event_data.get('cancellation_reason', 'Unknown')
+            
+            # ALERT: Delivery was cancelled - notify immediately
+            try:
+                order = delivery.order
+                if order:
+                    order.status = 'delivery_cancelled'
+                    from services.slack_notifications import send_delivery_notification
+                    send_delivery_notification(order, delivery, 'delivery_cancelled')
+                    current_app.logger.error(f"🚨 SLACK ALERT SENT: Order {order.order_number} delivery cancelled!")
+            except Exception as e:
+                current_app.logger.error(f"Failed to send Slack notification for delivery cancellation: {e}")
+        
+        # Save changes
+        db.session.commit()
+        current_app.logger.info(f"📝 Updated delivery {delivery.delivery_id}: {old_status} → {new_status}")
+        
+        return True
+        
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"❌ Error processing Uber webhook event: {str(e)}")
+        import traceback
+        current_app.logger.error(f"Traceback: {traceback.format_exc()}")
         return False

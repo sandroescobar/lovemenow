@@ -42,14 +42,20 @@
           {{ order.delivery_address.address }}{% if order.delivery_address.suite %}, {{ order.delivery_address.suite }}{% endif %}<br>
           {{ order.delivery_address.city }}, {{ order.delivery_address.state }} {{ order.delivery_address.zip }}
         {% else %}
-          <strong>Pickup:</strong> LoveMeNow Miami • 123 Example Ave, Miami, FL 331xx
+          <strong>Pickup Location:</strong><br>
+          <strong>Miami Vape Smoke Shop #2</strong><br>
+          351 NE 79th St Ste 101<br>
+          Miami, FL 33138<br>
+          <small style="color: #666;">(Look for LoveMeNow pickup counter inside the shop)</small>
         {% endif %}
       </p>
 
       {% if order.tracking_url %}
-        <p style="margin:6px 0 16px">
-          Track your order: <a href="{{ order.tracking_url }}">{{ order.tracking_url }}</a>
-        </p>
+        <div style="background: #f5f5f5; border-left: 4px solid hsl(278 82% 52%); padding: 12px 16px; margin: 16px 0; border-radius: 4px;">
+          <p style="margin: 0 0 8px; font-weight: 600;">🚗 Track Your Delivery</p>
+          <p style="margin: 0 0 10px; color: #555;">Click the link below to see real-time tracking of your Uber Direct delivery:</p>
+          <a href="{{ order.tracking_url }}" style="display: inline-block; background: hsl(278 82% 52%); color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-weight: 600;">View Live Tracking →</a>
+        </div>
       {% endif %}
 
       <p style="color:#555">Questions? Reply to this email.</p>

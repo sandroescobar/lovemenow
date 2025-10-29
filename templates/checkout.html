@@ -659,8 +659,9 @@
                 if (result.success) {
                     // Check if this is an Uber Direct delivery with tracking URL
                     if (result.tracking_url) {
-                        // Redirect to Uber tracking page for delivery orders
-                        window.location.href = result.tracking_url;
+                        // For delivery orders, show success page first with option to track
+                        // User can then choose to track or continue shopping
+                        showSuccessMessageWithTracking(result.order_number, result.total, result.tracking_url, result.order_id);
                     } else {
                         // Show success page for pickup orders
                         showSuccessMessage(result.order_number, result.total);
@@ -705,6 +706,39 @@
                     </div>
                     <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
                         <a href="/products" class="btn btn-primary">Continue Shopping</a>
+                        <a href="/" class="btn" style="background: #6c757d; color: white;">Back to Home</a>
+                    </div>
+                </div>
+            `;
+            
+            // Update cart count
+            updateCartCount();
+        }
+
+        function showSuccessMessageWithTracking(orderNumber, total, trackingUrl, orderId) {
+            const checkoutContent = document.getElementById('checkoutContent');
+            checkoutContent.innerHTML = `
+                <div style="text-align: center; padding: 4rem 2rem; background: white; border-radius: 1rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                    <div style="font-size: 4rem; color: #28a745; margin-bottom: 1rem;">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h2 style="color: #333; margin-bottom: 1rem;">Order Confirmed! 🚗</h2>
+                    <p style="font-size: 1.1rem; color: #666; margin-bottom: 2rem;">
+                        Thank you for your order. Your order number is <strong>${orderNumber}</strong>
+                    </p>
+                    <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 2rem;">
+                        <h3 style="color: #333; margin-bottom: 0.5rem;">Order Total: $${total.toFixed(2)}</h3>
+                        <p style="color: #666;">Your Uber Direct delivery is being prepared</p>
+                        <p style="color: #666;">You'll receive a confirmation email shortly with live tracking</p>
+                        <p style="color: #666;">Track your delivery in real-time!</p>
+                    </div>
+                    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                        <a href="${trackingUrl}" class="btn" style="background: #000; color: white;" target="_blank">
+                            <i class="fas fa-truck"></i> Track Delivery Now
+                        </a>
+                        <a href="/checkout-success?order_id=${orderId}" class="btn btn-primary">
+                            View Order Details
+                        </a>
                         <a href="/" class="btn" style="background: #6c757d; color: white;">Back to Home</a>
                     </div>
                 </div>

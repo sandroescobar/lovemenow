@@ -1120,6 +1120,7 @@ mobile-nav-overlay.active .mobile-nav-actions .btn:nth-child(3) {
         overflow: visible !important;
         text-overflow: clip !important;
         flex-wrap: wrap !important;
+        height: 52px;
     }
 
     .btn-add-cart svg {
@@ -1264,7 +1265,7 @@ mobile-nav-overlay.active .mobile-nav-actions .btn:nth-child(3) {
     right: 0.75rem !important;
     bottom: 0.75rem !important;
     width: 56px !important;
-    height: 56px !important;
+    height: 52px !important;
     padding: 0 !important;
     border-radius: 16px !important;
     display: inline-flex !important;
@@ -1277,7 +1278,7 @@ mobile-nav-overlay.active .mobile-nav-actions .btn:nth-child(3) {
     box-shadow: 0 4px 20px rgba(0,0,0,.20);
 
     color: hsl(var(--text-color)) !important;
-    z-index: 5;
+    z-index: 5
   }
 
   /* In case global .btn styles force a white bg */

@@ -55,7 +55,8 @@ class FinalCSPMiddleware:
             "https://www.googletagmanager.com https://www.googleadservices.com; "
             "connect-src 'self' https://api.stripe.com https://r.stripe.com https://m.stripe.network "
             "https://api.mapbox.com https://www.google-analytics.com https://www.googletagmanager.com "
-            "https://www.google.com https://www.googleadservices.com https://googleads.g.doubleclick.net; "
+            "https://www.google.com https://www.googleadservices.com https://googleads.g.doubleclick.net "
+            "https://cdn.jsdelivr.net; "
             "object-src 'none'; "
             "base-uri 'self'; "
             "frame-ancestors 'self'"
@@ -259,7 +260,7 @@ def create_app(config_name=None):
             # Skip validation for static files and API endpoints that don't need sessions
             if request.endpoint and (
                     request.endpoint.startswith('static') or
-                    request.endpoint in ['api.health', 'webhooks.stripe_webhook']
+                    request.endpoint in ['api.health', 'webhooks.stripe_webhook', 'webhooks.uber_webhook']
             ):
                 return
 
@@ -356,6 +357,7 @@ def create_app(config_name=None):
     # Exempt webhook endpoints from CSRF protection (must be after blueprint registration)
     from routes import csrf
     csrf.exempt(app.view_functions['webhooks.stripe_webhook'])
+    csrf.exempt(app.view_functions['webhooks.uber_webhook'])
 
     EXEMPT_PATH_PREFIXES = (
         '/static/',  # assets

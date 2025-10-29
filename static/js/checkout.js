@@ -534,7 +534,11 @@
           zip: document.getElementById('zip').value,
           country: 'US'
         };
-        if (deliveryQuote) orderData.delivery_quote = deliveryQuote;
+        if (deliveryQuote) {
+          orderData.delivery_quote = deliveryQuote;
+          orderData.quote_id = deliveryQuote.id;  // ← PASS QUOTE ID FOR UBER DELIVERY
+          orderData.delivery_fee_cents = Math.round((deliveryQuote.fee_dollars || 0) * 100);  // ← PASS FEE IN CENTS
+        }
       }
 
       const r = await fetch('/api/create-order', {

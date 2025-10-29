@@ -531,7 +531,106 @@ def create_order():
 
         db.session.commit()
 
-        # 4) Send order confirmation email (guest or signed-in)
+        # 4) Handle Uber delivery if delivery type is 'delivery'
+        tracking_url = None
+        uber_delivery = None
+        
+        if delivery_type == 'delivery':
+            try:
+                from uber_service import uber_service, create_manifest_items, format_address_for_uber, get_miami_store_address, get_miami_store_coordinates
+                
+                # Prepare Uber delivery data
+                quote_id = data.get('quote_id')
+                current_app.logger.info(f"🔍 Delivery order - quote_id: {quote_id}")
+                
+                # Check if Uber service is configured
+                if not uber_service.client_id:
+                    current_app.logger.error(f"❌ Uber service not configured - missing credentials")
+                    tracking_url = None
+                else:
+                    # Store pickup/dropoff info
+                    store_address = get_miami_store_address()
+                    store_coords = get_miami_store_coordinates()
+                    
+                    pickup_info = {
+                        'name': current_app.config.get('STORE_NAME', 'LoveMeNow Miami'),
+                        'address': store_address,
+                        'phone': order.phone or current_app.config.get('STORE_PHONE', '+13055550123'),
+                        'latitude': store_coords['latitude'],
+                        'longitude': store_coords['longitude']
+                    }
+                    
+                    # Format delivery address
+                    delivery_addr_dict = {
+                        'address': order.shipping_address,
+                        'suite': order.shipping_suite or '',
+                        'city': order.shipping_city,
+                        'state': order.shipping_state,
+                        'zip': order.shipping_zip,
+                        'country': order.shipping_country or 'US'
+                    }
+                    
+                    dropoff_info = {
+                        'name': order.full_name or 'Customer',
+                        'address': format_address_for_uber(delivery_addr_dict),
+                        'phone': order.phone or '+13055550123',
+                        'latitude': order.delivery_latitude,
+                        'longitude': order.delivery_longitude
+                    }
+                    
+                    current_app.logger.info(f"🔍 Pickup coords: {pickup_info['latitude']}, {pickup_info['longitude']}")
+                    current_app.logger.info(f"🔍 Dropoff coords: {dropoff_info['latitude']}, {dropoff_info['longitude']}")
+                    
+                    # Create manifest items
+                    manifest_items = create_manifest_items(items_for_inv)
+                    current_app.logger.info(f"🔍 Manifest items: {manifest_items}")
+                    
+                    # Create the Uber delivery
+                    try:
+                        current_app.logger.info(f"🔍 Calling uber_service.create_delivery()...")
+                        uber_response = uber_service.create_delivery(
+                            quote_id=quote_id,
+                            pickup_info=pickup_info,
+                            dropoff_info=dropoff_info,
+                            manifest_items=manifest_items,
+                            use_robocourier=False
+                        )
+                        
+                        # Store Uber delivery record
+                        tracking_url = uber_response.get('tracking_url')
+                        delivery_id = uber_response.get('id')
+                        
+                        current_app.logger.info(f"✅ Uber API response: delivery_id={delivery_id}, tracking_url={tracking_url}")
+                        
+                        uber_delivery = UberDelivery(
+                            order_id=order.id,
+                            quote_id=quote_id,
+                            delivery_id=delivery_id,
+                            tracking_url=tracking_url,
+                            status=uber_response.get('status', 'pending'),
+                            fee=data.get('delivery_fee_cents'),
+                            currency='usd'
+                        )
+                        db.session.add(uber_delivery)
+                        db.session.commit()
+                        
+                        current_app.logger.info(f"✅ Uber delivery created for order {order.id}: tracking_url={tracking_url}")
+                        
+                    except Exception as uber_err:
+                        import traceback
+                        current_app.logger.error(f"❌ Failed to create Uber delivery: {str(uber_err)}")
+                        current_app.logger.error(traceback.format_exc())
+                        tracking_url = None
+                        # Continue anyway - order is created, just no Uber delivery yet
+                    
+            except Exception as e:
+                import traceback
+                current_app.logger.error(f"❌ Error processing Uber delivery: {str(e)}")
+                current_app.logger.error(traceback.format_exc())
+                tracking_url = None
+                # Don't fail the order creation
+
+        # 5) Send order confirmation email (guest or signed-in)
         try:
             buyer_email = (order.email or '').strip()
             if buyer_email:
@@ -564,7 +663,7 @@ def create_order():
                     items=email_items,
                     delivery_type=order.delivery_type,
                     delivery_address=delivery_address,
-                    tracking_url=None,
+                    tracking_url=tracking_url,  # ← NOW INCLUDES TRACKING URL
                 )
                 totals_ns = SimpleNamespace(
                     subtotal=totals['subtotal'],
@@ -586,15 +685,17 @@ def create_order():
 
                 subject = f"Order #{order.order_number} confirmed — {current_app.config.get('BRAND_NAME', 'LoveMeNow Miami')}"
                 send_email_sendlayer_console(order.full_name or "Customer", buyer_email, subject, html_body)
+                current_app.logger.info(f"✅ Confirmation email sent to {buyer_email}")
         except Exception as e:
             # Don't fail the order if email send has issues
-            current_app.logger.exception(f"Failed to send order confirmation email: {e}")
+            current_app.logger.exception(f"❌ Failed to send order confirmation email: {e}")
 
         return jsonify({
             'success': True,
             'order_id': order.id,
             'order_number': order.order_number,
-            'message': 'Order created successfully'
+            'message': 'Order created successfully',
+            'tracking_url': tracking_url  # ← RETURN TRACKING URL FOR DELIVERY ORDERS
         })
     except Exception as e:
         db.session.rollback()

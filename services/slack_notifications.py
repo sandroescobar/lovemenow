@@ -213,3 +213,150 @@ def send_test_notification() -> bool:
     """
     service = SlackNotificationService()
     return service.send_test_notification()
+
+
+def send_delivery_notification(order, delivery, event_type: str) -> bool:
+    """
+    Send delivery status update notifications to Slack
+    
+    Args:
+        order: Order model instance
+        delivery: UberDelivery model instance
+        event_type: Type of delivery event ('driver_assigned', 'delivery_completed', 'delivery_cancelled', etc.)
+        
+    Returns:
+        bool: True if notification sent successfully
+    """
+    webhook_url = current_app.config.get('SLACK_WEBHOOK_URL')
+    
+    if not webhook_url:
+        current_app.logger.warning("Slack webhook URL not configured, skipping delivery notification")
+        return False
+    
+    try:
+        # Build delivery status message
+        if event_type == 'driver_assigned':
+            color = "good"  # Green
+            status_emoji = "🚗"
+            message_title = f"*DRIVER ASSIGNED* - Order {order.order_number}"
+            
+            # Parse driver details if available
+            driver_info = ""
+            if delivery.driver_details:
+                try:
+                    import json
+                    driver_data = json.loads(delivery.driver_details)
+                    driver_info = f"""
+👤 *Driver:* {driver_data.get('name', 'N/A')}
+⭐ *Rating:* {driver_data.get('rating', 'N/A')}
+🚙 *Vehicle:* {driver_data.get('vehicle', 'N/A')}
+📋 *License Plate:* {driver_data.get('license_plate', 'N/A')}
+"""
+                except:
+                    pass
+            
+            message_body = f"""Order {order.order_number} - Driver has accepted and is on the way!
+
+🏪 *From:* LoveMeNow
+📍 *To:* {order.shipping_address}
+{f"   {order.shipping_suite}" if order.shipping_suite else ""}
+   {order.shipping_city}, {order.shipping_state} {order.shipping_zip}
+
+{driver_info}
+
+🔗 *Track:* {delivery.tracking_url if delivery.tracking_url else 'N/A'}
+"""
+        
+        elif event_type == 'delivery_completed':
+            color = "good"  # Green
+            status_emoji = "✅"
+            message_title = f"*DELIVERY COMPLETED* - Order {order.order_number}"
+            message_body = f"""Order {order.order_number} has been successfully delivered!
+
+📍 *Delivery Address:* {order.shipping_address}
+{f"   {order.shipping_suite}" if order.shipping_suite else ""}
+   {order.shipping_city}, {order.shipping_state} {order.shipping_zip}
+
+👤 *Customer:* {order.full_name}
+💰 *Total:* ${float(order.total_amount):.2f}
+"""
+        
+        elif event_type == 'delivery_cancelled':
+            color = "danger"  # Red
+            status_emoji = "🚫"
+            message_title = f"*⚠️  DELIVERY CANCELLED* - Order {order.order_number}"
+            cancellation_reason = getattr(delivery, 'cancellation_reason', 'Unknown reason')
+            message_body = f"""⚠️  Order {order.order_number} delivery was CANCELLED!
+
+❌ *Reason:* {cancellation_reason}
+
+📍 *Delivery Address:* {order.shipping_address}
+{f"   {order.shipping_suite}" if order.shipping_suite else ""}
+   {order.shipping_city}, {order.shipping_state} {order.shipping_zip}
+
+👤 *Customer:* {order.full_name}
+📞 *Phone:* {getattr(order, 'phone', 'Not provided')}
+💰 *Total:* ${float(order.total_amount):.2f}
+
+⚠️  *ACTION REQUIRED:* Contact customer immediately to reschedule or arrange alternative delivery
+"""
+        
+        else:
+            # Generic delivery event
+            color = "#0099FF"
+            status_emoji = "📦"
+            message_title = f"*DELIVERY UPDATE* - Order {order.order_number}"
+            message_body = f"""Order {order.order_number}: {event_type.replace('_', ' ')}
+
+📍 *Address:* {order.shipping_address}
+👤 *Customer:* {order.full_name}
+"""
+        
+        # Create Slack message
+        message = {
+            "text": message_title,
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": message_title
+                    }
+                },
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": message_body
+                    }
+                },
+                {
+                    "type": "divider"
+                },
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"{status_emoji} Delivery ID: `{delivery.delivery_id}` | Order: `{order.order_number}`"
+                        }
+                    ]
+                }
+            ]
+        }
+        
+        # Send to Slack
+        response = requests.post(webhook_url, json=message, timeout=10)
+        
+        if response.status_code == 200:
+            current_app.logger.info(f"✅ Delivery notification sent: {event_type} for order {order.order_number}")
+            return True
+        else:
+            current_app.logger.error(f"Failed to send delivery notification: {response.status_code}")
+            return False
+            
+    except Exception as e:
+        current_app.logger.error(f"Error sending delivery notification: {str(e)}")
+        import traceback
+        current_app.logger.error(f"Traceback: {traceback.format_exc()}")
+        return False
