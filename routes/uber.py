@@ -375,7 +375,7 @@ def create_delivery():
         store_coords = get_miami_store_coordinates()
         pickup_info = {
             'address': get_miami_store_address(),
-            'name': current_app.config.get('STORE_NAME', 'LoveMeNow Miami'),
+            'name': current_app.config.get('STORE_DISPLAY_NAME', 'Miami Vape Smoke Shop'),  # Display name for drivers
             'phone': current_app.config.get('STORE_PHONE', '+1234567890'),
             'latitude': store_coords['latitude'],
             'longitude': store_coords['longitude']
