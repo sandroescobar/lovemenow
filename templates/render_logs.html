@@ -1,899 +1,3 @@
-(.venv) sandro@MacBookPro python3 app.py
-[2025-10-28 16:17:58,837] INFO in app: Development mode: Session cookies set to non-secure and expire on browser close
-✅ Stripe secret key configured: sk_live_51...WrY5
-✅ Stripe publishable key configured: pk_live_51...n9YR
-[2025-10-28 16:17:58,837] INFO in app: 🔍 APP INIT - Environment STRIPE_SECRET_KEY: sk_live_51...
-[2025-10-28 16:17:58,837] INFO in app: 🔍 APP INIT - Config STRIPE_SECRET_KEY: sk_live_51...
-[2025-10-28 16:17:58,837] INFO in app: 🔍 APP INIT - Key ending: ...00OTTvWrY5
-[2025-10-28 16:17:58,837] INFO in app: 🔍 APP INIT - Key length: 107
-[2025-10-28 16:17:58,837] INFO in app: ✅ Stripe API key configured successfully: sk_live_51...WrY5
-[2025-10-28 16:17:59,396] INFO in app: DB schema: products.features present
-[2025-10-28 16:17:59,462] WARNING in app: Flask-Compress not available, skipping compression
-[2025-10-28 16:17:59,628] INFO in app: Current config_name: development
-[2025-10-28 16:17:59,628] INFO in app: FLASK_ENV: development
-[2025-10-28 16:17:59,628] INFO in app: ✅ CSP enabled via Flask-Talisman with Stripe + GTM/GA allowances
- * Serving Flask app 'app'
- * Debug mode: on
-WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
- * Running on http://127.0.0.1:2100
-Press CTRL+C to quit
- * Restarting with stat
-[2025-10-28 16:18:00,139] INFO in app: Development mode: Session cookies set to non-secure and expire on browser close
-✅ Stripe secret key configured: sk_live_51...WrY5
-✅ Stripe publishable key configured: pk_live_51...n9YR
-[2025-10-28 16:18:00,140] INFO in app: 🔍 APP INIT - Environment STRIPE_SECRET_KEY: sk_live_51...
-[2025-10-28 16:18:00,140] INFO in app: 🔍 APP INIT - Config STRIPE_SECRET_KEY: sk_live_51...
-[2025-10-28 16:18:00,140] INFO in app: 🔍 APP INIT - Key ending: ...00OTTvWrY5
-[2025-10-28 16:18:00,140] INFO in app: 🔍 APP INIT - Key length: 107
-[2025-10-28 16:18:00,140] INFO in app: ✅ Stripe API key configured successfully: sk_live_51...WrY5
-[2025-10-28 16:18:00,622] INFO in app: DB schema: products.features present
-[2025-10-28 16:18:00,692] WARNING in app: Flask-Compress not available, skipping compression
-[2025-10-28 16:18:00,855] INFO in app: Current config_name: development
-[2025-10-28 16:18:00,855] INFO in app: FLASK_ENV: development
-[2025-10-28 16:18:00,856] INFO in app: ✅ CSP enabled via Flask-Talisman with Stripe + GTM/GA allowances
- * Debugger is active!
- * Debugger PIN: 980-184-491
-[2025-10-28 16:18:03,216] INFO in app: 🔄 Session from previous server instance detected - clearing session
-127.0.0.1 - - [28/Oct/2025 16:18:03] "GET /api/cart/discount-status HTTP/1.1" 200 -
-[2025-10-28 16:18:03,222] INFO in app: 🔄 Session from previous server instance detected - clearing session
-[2025-10-28 16:18:03,223] INFO in app: 🔄 Session from previous server instance detected - clearing session
-127.0.0.1 - - [28/Oct/2025 16:18:03] "GET /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:03] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:03] "GET /static/IMG/imagesForLovMeNow/853858007444/853858007444_3rd_Image__alpha.webp HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:03] "GET /static/IMG/imagesForLovMeNow/853858007444/853858007444_Main_Image__alpha.webp HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:03] "GET /static/IMG/imagesForLovMeNow/853858007444/853858007444_4th_Image__alpha.webp HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:03] "GET /static/IMG/imagesForLovMeNow/850052871192/850052871192_2nd_Image__alpha.webp HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:03] "GET /static/IMG/imagesForLovMeNow/850052871192/850052871192_3rd_Image__alpha.webp HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:03] "GET /static/IMG/imagesForLovMeNow/735380231101/735380231101_3rd_Image__alpha.webp HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:03] "GET /static/IMG/imagesForLovMeNow/735380231101/735380231101_2nd_Image__alpha.webp HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:05] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:05] "GET /api/wishlist/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:05] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:08] "GET /products HTTP/1.1" 302 -
-[2025-10-28 16:18:08,010] INFO in auth: Age verification page accessed. Session: {'_fresh': False, '_server_start_time': 1761682680.692512}
-[2025-10-28 16:18:08,010] INFO in auth: Showing age verification template
-127.0.0.1 - - [28/Oct/2025 16:18:08] "GET /auth/age-verification?next=http://127.0.0.1:2100/products HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:08] "GET /favicon.ico HTTP/1.1" 404 -
-127.0.0.1 - - [28/Oct/2025 16:18:09] "POST /auth/verify-age HTTP/1.1" 302 -
-127.0.0.1 - - [28/Oct/2025 16:18:10] "GET / HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:10] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:10] "GET /api/cart/status HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:10] "GET /api/wishlist/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:10] "GET /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:10] "GET /api/cart/discount-status HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:11] "GET /miami-map HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:12] "GET /products HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/89 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/69 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/5 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/71 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/73 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/67 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/70 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/68 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/72 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/36 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/98 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/74 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/42 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/119 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/120 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/123 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/122 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/97 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/104 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/125 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/106 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/37 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/52 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/65 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/121 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/101 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/27 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/24 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/61 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/58 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/92 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/3 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/107 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/63 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/90 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/45 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/49 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/48 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/47 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/108 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/77 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/110 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/109 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/16 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/7 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/11 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/25 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:13] "GET /api/wishlist/check/118 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:15] "GET /products?category=40 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:16] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:16] "GET /api/wishlist/check/18 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:16] "GET /api/wishlist/check/22 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:16] "GET /api/wishlist/check/19 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:16] "GET /api/wishlist/check/53 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:29] "GET /products?category=40 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:29] "GET /static/IMG/imagesForLovMeNow/810124860127/810124860127_Main_Photo__alpha.webp HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:29] "GET /static/CSS/styles.css?v=20250116-3 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:29] "GET /static/CSS/mobile-optimizations.css?v=20250116-3 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:29] "GET /static/CSS/filters-sheet.css?v=20251004-1 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:29] "GET /static/js/csrf-handler.js HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:29] "GET /static/CSS/styles.css HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:29] "GET /static/js/csrf-handler.js?v=20250116-3 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:29] "GET /static/js/index.js?v=20250116-3 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:29] "GET /static/js/filters.js?v=20251004-5 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:29] "GET /static/js/mobile-menu.js?v=20250116-3 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:29] "GET /static/js/toast.js?v=20250116-3 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:29] "GET /static/js/products.js?v=20250116-3 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:29] "GET /static/IMG/imagesForLovMeNow/4890808221112/4890808221112_Main_Photo__alpha.webp HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:29] "GET /static/IMG/imagesForLovMeNow/646709480417/646709480417_Main_Photo__alpha.webp HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:29] "GET /static/IMG/imagesForLovMeNow/657447106842/657447106842_Main_Photo__alpha.webp HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:29] "GET /api/cart/status HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:29] "GET /static/IMG/imagesForLovMeNow/848518024473/848518024473_Main_Photo__alpha.webp HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:29] "GET /static/IMG/imagesForLovMeNow/752875950965/752875950965_Main_Photo__alpha.webp HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:29] "GET /api/wishlist/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:29] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:29] "GET /api/wishlist/check/67 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:29] "GET /api/wishlist/check/65 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:29] "GET /api/wishlist/check/18 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:29] "GET /api/wishlist/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:29] "GET /api/wishlist/check/19 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:29] "GET /api/wishlist/check/22 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:29] "GET /api/wishlist/check/53 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:29] "GET /static/IMG/icons/favicon.ico HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:31] "POST /api/cart/add HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:33] "GET /cart HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:33] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:33] "GET /api/wishlist/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:33] "GET /favicon.ico HTTP/1.1" 404 -
-127.0.0.1 - - [28/Oct/2025 16:18:33] "GET /api/cart/status HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:34] "GET /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:34] "GET /api/cart/discount-status HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:34] "GET /api/cart/ HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:34] "GET /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:34] "GET /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:34] "GET /api/cart/discount-status HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:34] "GET /api/cart/totals HTTP/1.1" 200 -
-[2025-10-28 16:18:35,861] INFO in main: Guest user cart data: {'65:55': 1}
-[2025-10-28 16:18:35,932] INFO in main: Stripe publishable key: pk_live_51RTFZ106MZhkBN1w2yzEDSRIUMA1JRHBSwtieaYozKSlpoLYIgY6Vk3Hu3PTeZ9LDn5jTS2d5kjcdyo7YXnnWs4N00ChbMn9YR
-[2025-10-28 16:18:35,932] INFO in main: Stripe secret key: sk_live_51...
-[2025-10-28 16:18:36,047] INFO in main: Attempting to render checkout_enhanced.html template
-[2025-10-28 16:18:36,048] INFO in main: Cart data: {'items': [{'id': 65, 'name': 'Bound — Nipple Clamps F1, Pink', 'price': 0.51, 'quantity': 1, 'image_url': '/static/IMG/imagesForLovMeNow/657447106842/657447106842_Main_Photo.png', 'description': 'Flirty fluff meets spicy pinch. These nickel-free metal clamps hug your nipples with soft silicone tips, while the pink feather tassels add eye-candy and extra tease with every wiggle. Twist the screws to dial the pressure from “mmm” to “oh yes,” then let the feathers do the flirting.', 'in_stock': True, 'max_quantity': 1, 'item_total': 0.51}], 'subtotal': 0.51, 'shipping': 0, 'total': 0.51, 'count': 1}
-[2025-10-28 16:18:36,049] INFO in main: Config keys: ['DEBUG', 'TESTING', 'PROPAGATE_EXCEPTIONS', 'SECRET_KEY', 'PERMANENT_SESSION_LIFETIME', 'USE_X_SENDFILE', 'SERVER_NAME', 'APPLICATION_ROOT', 'SESSION_COOKIE_NAME', 'SESSION_COOKIE_DOMAIN', 'SESSION_COOKIE_PATH', 'SESSION_COOKIE_HTTPONLY', 'SESSION_COOKIE_SECURE', 'SESSION_COOKIE_SAMESITE', 'SESSION_REFRESH_EACH_REQUEST', 'MAX_CONTENT_LENGTH', 'SEND_FILE_MAX_AGE_DEFAULT', 'TRAP_BAD_REQUEST_ERRORS', 'TRAP_HTTP_EXCEPTIONS', 'EXPLAIN_TEMPLATE_LOADING', 'PREFERRED_URL_SCHEME', 'TEMPLATES_AUTO_RELOAD', 'MAX_COOKIE_SIZE', 'DOMAIN', 'GOOGLE_MAPS_API_KEY', 'RATELIMIT_STORAGE_URL', 'REMEMBER_COOKIE_DURATION', 'REMEMBER_COOKIE_HTTPONLY', 'REMEMBER_COOKIE_SECURE', 'SENDLAYER_API_KEY', 'SLACK_WEBHOOK_URL', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_DATABASE_URI_FALLBACK', 'SQLALCHEMY_ENGINE_OPTIONS', 'SQLALCHEMY_TRACK_MODIFICATIONS', 'STORE_ADDRESS', 'STORE_CITY', 'STORE_LATITUDE', 'STORE_LONGITUDE', 'STORE_NAME', 'STORE_PHONE', 'STORE_STATE', 'STORE_SUITE', 'STORE_ZIP', 'STRIPE_PUBLISHABLE_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'UBER_CLIENT_ID', 'UBER_CLIENT_SECRET', 'UBER_CUSTOMER_ID', 'UBER_SANDBOX', 'WTF_CSRF_ENABLED', 'WTF_CSRF_SSL_STRICT', 'WTF_CSRF_TIME_LIMIT', 'SESSION_PERMANENT', 'SQLALCHEMY_ECHO', 'SQLALCHEMY_BINDS', 'SQLALCHEMY_RECORD_QUERIES', 'SERVER_START_TIME', 'WTF_CSRF_CHECK_DEFAULT', 'WTF_CSRF_METHODS', 'WTF_CSRF_FIELD_NAME', 'WTF_CSRF_HEADERS']
-127.0.0.1 - - [28/Oct/2025 16:18:36] "GET /checkout HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:36] "GET /api/cart/totals?delivery_type=pickup HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:37] "POST /create-checkout-session HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:37] "GET /api/cart/totals?delivery_type=delivery HTTP/1.1" 200 -
-Uber Direct quote failed: tuple indices must be integers or slices, not str
-127.0.0.1 - - [28/Oct/2025 16:18:44] "POST /api/uber/quote HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:44] "POST /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:18:45] "POST /create-checkout-session HTTP/1.1" 200 -
-[2025-10-28 16:19:09,025] INFO in api: 🔍 Delivery order - quote_id: None
-[2025-10-28 16:19:09,097] INFO in api: 🔍 Pickup coords: 25.8465, -80.1917
-[2025-10-28 16:19:09,097] INFO in api: 🔍 Dropoff coords: None, None
-[2025-10-28 16:19:09,097] ERROR in api: ❌ Error processing Uber delivery: 'Product' object is not subscriptable
-[2025-10-28 16:19:09,103] ERROR in api: Traceback (most recent call last):
-  File "/Users/sandrosMac/Desktop/pycharmProjects/LoveMeNow/routes/api.py", line 585, in create_order
-    manifest_items = create_manifest_items(items_for_inv)
-                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/sandrosMac/Desktop/pycharmProjects/LoveMeNow/uber_service.py", line 301, in create_manifest_items
-    "name": f"Package #{product['id']}",  # Discreet naming
-                        ~~~~~~~^^^^^^
-TypeError: 'Product' object is not subscriptable
-
-[2025-10-28 16:19:09,153] INFO in email_utils: SendLayer: POST https://console.sendlayer.com/api/v1/email -> to=alessandro.escobarfiu@gmail.com subject=Order #LMN20251028161908 confirmed — LoveMeNow Miami tags=['production']
-[2025-10-28 16:19:09,622] INFO in email_utils: SendLayer: sent ok -> message_id=None
-[2025-10-28 16:19:09,626] INFO in api: ✅ Confirmation email sent to alessandro.escobarfiu@gmail.com
-127.0.0.1 - - [28/Oct/2025 16:19:09] "POST /api/create-order HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:19:09] "POST /api/cart/clear HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:19:10] "GET /checkout-success?order_id=130 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:19:10] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:19:10] "GET /api/cart/status HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:19:10] "GET /api/wishlist/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:30:59] "GET / HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:00] "GET /api/cart/status HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:00] "GET /api/wishlist/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:00] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:00] "GET /api/cart/discount-status HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:00] "GET /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:00] "GET /miami-map HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /products HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/69 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/89 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/71 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/73 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/67 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/5 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/70 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/68 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/36 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/98 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/74 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/119 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/72 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/42 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/120 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/123 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/122 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/104 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/97 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/106 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/37 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/125 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/52 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/65 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/101 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/121 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/24 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/27 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/61 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/3 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/58 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/90 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/107 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/63 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/92 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/45 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/49 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/48 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/108 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/47 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/77 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/109 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/110 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/16 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/7 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/11 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/25 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:14] "GET /api/wishlist/check/118 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:17] "GET /products?category=40 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:18] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:18] "GET /api/wishlist/check/18 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:18] "GET /api/wishlist/check/19 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:18] "GET /api/wishlist/check/53 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:18] "GET /api/wishlist/check/22 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:19] "POST /api/cart/add HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:40] "GET /cart HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:40] "GET /api/wishlist/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:40] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:40] "GET /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:40] "GET /api/cart/status HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:40] "GET /api/cart/discount-status HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:40] "GET /api/cart/ HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:41] "GET /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:41] "GET /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:41] "GET /api/cart/discount-status HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:41] "GET /api/cart/totals HTTP/1.1" 200 -
-[2025-10-28 16:31:42,885] INFO in main: Guest user cart data: {'65:55': 1}
-[2025-10-28 16:31:42,956] INFO in main: Stripe publishable key: pk_live_51RTFZ106MZhkBN1w2yzEDSRIUMA1JRHBSwtieaYozKSlpoLYIgY6Vk3Hu3PTeZ9LDn5jTS2d5kjcdyo7YXnnWs4N00ChbMn9YR
-[2025-10-28 16:31:42,957] INFO in main: Stripe secret key: sk_live_51...
-[2025-10-28 16:31:43,066] INFO in main: Attempting to render checkout_enhanced.html template
-[2025-10-28 16:31:43,067] INFO in main: Cart data: {'items': [{'id': 65, 'name': 'Bound — Nipple Clamps F1, Pink', 'price': 0.51, 'quantity': 1, 'image_url': '/static/IMG/imagesForLovMeNow/657447106842/657447106842_Main_Photo.png', 'description': 'Flirty fluff meets spicy pinch. These nickel-free metal clamps hug your nipples with soft silicone tips, while the pink feather tassels add eye-candy and extra tease with every wiggle. Twist the screws to dial the pressure from “mmm” to “oh yes,” then let the feathers do the flirting.', 'in_stock': True, 'max_quantity': 1, 'item_total': 0.51}], 'subtotal': 0.51, 'shipping': 0, 'total': 0.51, 'count': 1}
-[2025-10-28 16:31:43,067] INFO in main: Config keys: ['DEBUG', 'TESTING', 'PROPAGATE_EXCEPTIONS', 'SECRET_KEY', 'PERMANENT_SESSION_LIFETIME', 'USE_X_SENDFILE', 'SERVER_NAME', 'APPLICATION_ROOT', 'SESSION_COOKIE_NAME', 'SESSION_COOKIE_DOMAIN', 'SESSION_COOKIE_PATH', 'SESSION_COOKIE_HTTPONLY', 'SESSION_COOKIE_SECURE', 'SESSION_COOKIE_SAMESITE', 'SESSION_REFRESH_EACH_REQUEST', 'MAX_CONTENT_LENGTH', 'SEND_FILE_MAX_AGE_DEFAULT', 'TRAP_BAD_REQUEST_ERRORS', 'TRAP_HTTP_EXCEPTIONS', 'EXPLAIN_TEMPLATE_LOADING', 'PREFERRED_URL_SCHEME', 'TEMPLATES_AUTO_RELOAD', 'MAX_COOKIE_SIZE', 'DOMAIN', 'GOOGLE_MAPS_API_KEY', 'RATELIMIT_STORAGE_URL', 'REMEMBER_COOKIE_DURATION', 'REMEMBER_COOKIE_HTTPONLY', 'REMEMBER_COOKIE_SECURE', 'SENDLAYER_API_KEY', 'SLACK_WEBHOOK_URL', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_DATABASE_URI_FALLBACK', 'SQLALCHEMY_ENGINE_OPTIONS', 'SQLALCHEMY_TRACK_MODIFICATIONS', 'STORE_ADDRESS', 'STORE_CITY', 'STORE_LATITUDE', 'STORE_LONGITUDE', 'STORE_NAME', 'STORE_PHONE', 'STORE_STATE', 'STORE_SUITE', 'STORE_ZIP', 'STRIPE_PUBLISHABLE_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'UBER_CLIENT_ID', 'UBER_CLIENT_SECRET', 'UBER_CUSTOMER_ID', 'UBER_SANDBOX', 'WTF_CSRF_ENABLED', 'WTF_CSRF_SSL_STRICT', 'WTF_CSRF_TIME_LIMIT', 'SESSION_PERMANENT', 'SQLALCHEMY_ECHO', 'SQLALCHEMY_BINDS', 'SQLALCHEMY_RECORD_QUERIES', 'SERVER_START_TIME', 'WTF_CSRF_CHECK_DEFAULT', 'WTF_CSRF_METHODS', 'WTF_CSRF_FIELD_NAME', 'WTF_CSRF_HEADERS']
-127.0.0.1 - - [28/Oct/2025 16:31:43] "GET /checkout HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:43] "GET /api/cart/totals?delivery_type=pickup HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:44] "POST /create-checkout-session HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:45] "GET /api/cart/totals?delivery_type=delivery HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:51] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
-Uber Direct quote failed: tuple indices must be integers or slices, not str
-127.0.0.1 - - [28/Oct/2025 16:31:51] "POST /api/uber/quote HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:52] "POST /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:31:52] "POST /create-checkout-session HTTP/1.1" 200 -
-[2025-10-28 16:32:33,433] INFO in api: 🔍 Delivery order - quote_id: None
-[2025-10-28 16:32:33,504] INFO in api: 🔍 Pickup coords: 25.8465, -80.1917
-[2025-10-28 16:32:33,504] INFO in api: 🔍 Dropoff coords: None, None
-[2025-10-28 16:32:33,504] ERROR in api: ❌ Error processing Uber delivery: 'Product' object is not subscriptable
-[2025-10-28 16:32:33,506] ERROR in api: Traceback (most recent call last):
-  File "/Users/sandrosMac/Desktop/pycharmProjects/LoveMeNow/routes/api.py", line 585, in create_order
-    manifest_items = create_manifest_items(items_for_inv)
-                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/sandrosMac/Desktop/pycharmProjects/LoveMeNow/uber_service.py", line 301, in create_manifest_items
-    "name": f"Package #{product['id']}",  # Discreet naming
-                        ~~~~~~~^^^^^^
-TypeError: 'Product' object is not subscriptable
-
-[2025-10-28 16:32:33,561] INFO in email_utils: SendLayer: POST https://console.sendlayer.com/api/v1/email -> to=alessandro.escobarfiu@gmail.com subject=Order #LMN20251028163233 confirmed — LoveMeNow Miami tags=['production']
-[2025-10-28 16:32:34,226] INFO in email_utils: SendLayer: sent ok -> message_id=None
-[2025-10-28 16:32:34,229] INFO in api: ✅ Confirmation email sent to alessandro.escobarfiu@gmail.com
-127.0.0.1 - - [28/Oct/2025 16:32:34] "POST /api/create-order HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:32:34] "POST /api/cart/clear HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:32:34] "GET /checkout-success?order_id=131 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:32:34] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
-127.0.0.1 - - [28/Oct/2025 16:32:35] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:32:35] "GET /api/cart/status HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:32:35] "GET /api/wishlist/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:39:10] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:44:28] "GET /api/csrf-token HTTP/1.1" 200 -
- * Detected change in '/Users/sandrosMac/Desktop/pycharmProjects/LoveMeNow/uber_service.py', reloading
- * Restarting with stat
-[2025-10-28 16:44:33,249] INFO in app: Development mode: Session cookies set to non-secure and expire on browser close
-✅ Stripe secret key configured: sk_live_51...WrY5
-✅ Stripe publishable key configured: pk_live_51...n9YR
-[2025-10-28 16:44:33,249] INFO in app: 🔍 APP INIT - Environment STRIPE_SECRET_KEY: sk_live_51...
-[2025-10-28 16:44:33,249] INFO in app: 🔍 APP INIT - Config STRIPE_SECRET_KEY: sk_live_51...
-[2025-10-28 16:44:33,249] INFO in app: 🔍 APP INIT - Key ending: ...00OTTvWrY5
-[2025-10-28 16:44:33,249] INFO in app: 🔍 APP INIT - Key length: 107
-[2025-10-28 16:44:33,249] INFO in app: ✅ Stripe API key configured successfully: sk_live_51...WrY5
-[2025-10-28 16:44:33,928] INFO in app: DB schema: products.features present
-[2025-10-28 16:44:33,995] WARNING in app: Flask-Compress not available, skipping compression
-[2025-10-28 16:44:34,250] INFO in app: Current config_name: development
-[2025-10-28 16:44:34,250] INFO in app: FLASK_ENV: development
-[2025-10-28 16:44:34,251] INFO in app: ✅ CSP enabled via Flask-Talisman with Stripe + GTM/GA allowances
- * Debugger is active!
- * Debugger PIN: 980-184-491
-[2025-10-28 16:46:30,617] INFO in app: 🔄 Session from previous server instance detected - clearing session
-127.0.0.1 - - [28/Oct/2025 16:46:30] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:51:17] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:51:17] "GET /api/wishlist/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 16:54:13] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:16] "GET / HTTP/1.1" 302 -
-[2025-10-28 17:02:16,541] INFO in auth: Age verification page accessed. Session: {'_fresh': False, '_server_start_time': 1761684273.995683}
-[2025-10-28 17:02:16,542] INFO in auth: Showing age verification template
-127.0.0.1 - - [28/Oct/2025 17:02:16] "GET /auth/age-verification?next=http://127.0.0.1:2100/ HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:17] "GET /favicon.ico HTTP/1.1" 404 -
-127.0.0.1 - - [28/Oct/2025 17:02:28] "POST /auth/verify-age HTTP/1.1" 302 -
-127.0.0.1 - - [28/Oct/2025 17:02:29] "GET / HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:29] "GET /api/cart/discount-status HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:29] "GET /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:29] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:29] "GET /api/cart/status HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:29] "GET /api/wishlist/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:30] "GET /miami-map HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /products HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/89 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/69 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/5 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/71 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/73 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/67 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/68 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/70 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/72 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/36 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/98 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/74 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/119 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/42 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/120 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/123 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/122 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/104 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/97 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/125 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/106 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/37 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/52 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/65 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/101 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/121 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/24 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/27 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/3 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/58 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/92 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/61 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/90 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/107 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/63 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/45 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/49 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/48 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/47 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/108 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/77 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/110 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/109 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/16 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/7 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/11 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/25 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:33] "GET /api/wishlist/check/118 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:36] "GET /products?category=40 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:36] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:36] "GET /api/wishlist/check/18 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:36] "GET /api/wishlist/check/19 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:36] "GET /api/wishlist/check/22 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:36] "GET /api/wishlist/check/53 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:38] "POST /api/cart/add HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:40] "GET /cart HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:40] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:40] "GET /api/wishlist/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:40] "GET /api/cart/status HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:40] "GET /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:40] "GET /api/cart/discount-status HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:40] "GET /api/cart/ HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:40] "GET /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:41] "GET /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:41] "GET /api/cart/discount-status HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:41] "GET /api/cart/totals HTTP/1.1" 200 -
-[2025-10-28 17:02:49,218] INFO in main: Guest user cart data: {'65:55': 1}
-[2025-10-28 17:02:49,299] INFO in main: Stripe publishable key: pk_live_51RTFZ106MZhkBN1w2yzEDSRIUMA1JRHBSwtieaYozKSlpoLYIgY6Vk3Hu3PTeZ9LDn5jTS2d5kjcdyo7YXnnWs4N00ChbMn9YR
-[2025-10-28 17:02:49,299] INFO in main: Stripe secret key: sk_live_51...
-[2025-10-28 17:02:49,463] INFO in main: Attempting to render checkout_enhanced.html template
-[2025-10-28 17:02:49,464] INFO in main: Cart data: {'items': [{'id': 65, 'name': 'Bound — Nipple Clamps F1, Pink', 'price': 0.51, 'quantity': 1, 'image_url': '/static/IMG/imagesForLovMeNow/657447106842/657447106842_Main_Photo.png', 'description': 'Flirty fluff meets spicy pinch. These nickel-free metal clamps hug your nipples with soft silicone tips, while the pink feather tassels add eye-candy and extra tease with every wiggle. Twist the screws to dial the pressure from “mmm” to “oh yes,” then let the feathers do the flirting.', 'in_stock': True, 'max_quantity': 1, 'item_total': 0.51}], 'subtotal': 0.51, 'shipping': 0, 'total': 0.51, 'count': 1}
-[2025-10-28 17:02:49,464] INFO in main: Config keys: ['DEBUG', 'TESTING', 'PROPAGATE_EXCEPTIONS', 'SECRET_KEY', 'PERMANENT_SESSION_LIFETIME', 'USE_X_SENDFILE', 'SERVER_NAME', 'APPLICATION_ROOT', 'SESSION_COOKIE_NAME', 'SESSION_COOKIE_DOMAIN', 'SESSION_COOKIE_PATH', 'SESSION_COOKIE_HTTPONLY', 'SESSION_COOKIE_SECURE', 'SESSION_COOKIE_SAMESITE', 'SESSION_REFRESH_EACH_REQUEST', 'MAX_CONTENT_LENGTH', 'SEND_FILE_MAX_AGE_DEFAULT', 'TRAP_BAD_REQUEST_ERRORS', 'TRAP_HTTP_EXCEPTIONS', 'EXPLAIN_TEMPLATE_LOADING', 'PREFERRED_URL_SCHEME', 'TEMPLATES_AUTO_RELOAD', 'MAX_COOKIE_SIZE', 'DOMAIN', 'GOOGLE_MAPS_API_KEY', 'RATELIMIT_STORAGE_URL', 'REMEMBER_COOKIE_DURATION', 'REMEMBER_COOKIE_HTTPONLY', 'REMEMBER_COOKIE_SECURE', 'SENDLAYER_API_KEY', 'SLACK_WEBHOOK_URL', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_DATABASE_URI_FALLBACK', 'SQLALCHEMY_ENGINE_OPTIONS', 'SQLALCHEMY_TRACK_MODIFICATIONS', 'STORE_ADDRESS', 'STORE_CITY', 'STORE_LATITUDE', 'STORE_LONGITUDE', 'STORE_NAME', 'STORE_PHONE', 'STORE_STATE', 'STORE_SUITE', 'STORE_ZIP', 'STRIPE_PUBLISHABLE_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'UBER_CLIENT_ID', 'UBER_CLIENT_SECRET', 'UBER_CUSTOMER_ID', 'UBER_SANDBOX', 'WTF_CSRF_ENABLED', 'WTF_CSRF_SSL_STRICT', 'WTF_CSRF_TIME_LIMIT', 'SESSION_PERMANENT', 'SQLALCHEMY_ECHO', 'SQLALCHEMY_BINDS', 'SQLALCHEMY_RECORD_QUERIES', 'SERVER_START_TIME', 'WTF_CSRF_CHECK_DEFAULT', 'WTF_CSRF_METHODS', 'WTF_CSRF_FIELD_NAME', 'WTF_CSRF_HEADERS']
-127.0.0.1 - - [28/Oct/2025 17:02:49] "GET /checkout HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:49] "GET /api/cart/totals?delivery_type=pickup HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:50] "POST /create-checkout-session HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:51] "GET /api/cart/totals?delivery_type=delivery HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:58] "POST /api/uber/quote HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:58] "POST /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:02:59] "POST /create-checkout-session HTTP/1.1" 200 -
-[2025-10-28 17:04:20,721] INFO in api: 🔍 Delivery order - quote_id: None
-[2025-10-28 17:04:20,810] INFO in api: 🔍 Pickup coords: 25.8465, -80.1917
-[2025-10-28 17:04:20,810] INFO in api: 🔍 Dropoff coords: None, None
-[2025-10-28 17:04:20,855] INFO in api: 🔍 Manifest items: [{'name': 'Package #65', 'quantity': 1, 'weight': 100, 'dimensions': {'length': 15, 'height': 10, 'depth': 5}}]
-[2025-10-28 17:04:20,856] INFO in api: 🔍 Calling uber_service.create_delivery()...
-[2025-10-28 17:04:22,393] INFO in api: ✅ Uber API response: delivery_id=del_1z2g7oiATFOZvvEPa75y5g, tracking_url=https://delivery.uber.com/orders/d73da0ee-8880-4c53-99be-f10f6bbe72e6?tenancyOverride=uber%2Ftesting%2Fdirect%2Fdcf2db8e-5d09-5bf5-bacb-b619e835f132
-[2025-10-28 17:04:22,599] INFO in api: ✅ Uber delivery created for order 132: tracking_url=https://delivery.uber.com/orders/d73da0ee-8880-4c53-99be-f10f6bbe72e6?tenancyOverride=uber%2Ftesting%2Fdirect%2Fdcf2db8e-5d09-5bf5-bacb-b619e835f132
-[2025-10-28 17:04:22,691] INFO in email_utils: SendLayer: POST https://console.sendlayer.com/api/v1/email -> to=alessandro.escobarfiu@gmail.com subject=Order #LMN20251028170420 confirmed — LoveMeNow Miami tags=['production']
-[2025-10-28 17:04:23,297] INFO in email_utils: SendLayer: sent ok -> message_id=None
-[2025-10-28 17:04:23,299] INFO in api: ✅ Confirmation email sent to alessandro.escobarfiu@gmail.com
-127.0.0.1 - - [28/Oct/2025 17:04:23] "POST /api/create-order HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:04:23] "POST /api/cart/clear HTTP/1.1" 200 -
-[2025-10-28 17:05:20,759] INFO in main: Guest user cart data: {}
-[2025-10-28 17:05:20,760] WARNING in main: Cart is empty, redirecting to cart page
-127.0.0.1 - - [28/Oct/2025 17:05:20] "GET /checkout HTTP/1.1" 302 -
-127.0.0.1 - - [28/Oct/2025 17:05:20] "GET /cart HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:21] "GET /api/cart/status HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:21] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:21] "GET /api/wishlist/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:21] "GET /api/cart/discount-status HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:21] "GET /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:21] "GET /api/cart/ HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:21] "GET /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /products HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/69 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/89 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/5 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/71 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/73 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/67 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/70 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/68 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/72 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/36 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/98 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/119 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/74 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/42 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/120 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/123 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/122 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/104 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/97 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/106 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/125 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/52 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/65 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/37 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/101 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/121 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/24 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/27 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/61 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/3 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/58 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/92 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/90 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/107 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/63 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/45 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/48 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/49 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/108 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/77 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/47 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/110 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/109 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/16 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/7 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/25 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/11 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:23] "GET /api/wishlist/check/118 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:27] "GET /products?category=40 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:27] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:27] "GET /api/wishlist/check/19 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:27] "GET /api/wishlist/check/22 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:27] "GET /api/wishlist/check/53 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:05:27] "GET /api/wishlist/check/18 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:06:00] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:06:38] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:06:42] "POST /api/cart/add HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:06:44] "GET /cart HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:06:44] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:06:44] "GET /api/wishlist/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:06:45] "GET /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:06:45] "GET /api/cart/discount-status HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:06:45] "GET /api/cart/status HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:06:45] "GET /api/cart/ HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:06:45] "GET /static/IMG/imagesForLovMeNow/810124860127/810124860127_Main_Photo.png HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:06:46] "GET /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:06:47] "GET /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:06:47] "GET /api/cart/discount-status HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:06:47] "GET /api/cart/totals HTTP/1.1" 200 -
-[2025-10-28 17:06:48,761] INFO in main: Guest user cart data: {'67:57': 1}
-[2025-10-28 17:06:49,177] INFO in main: Stripe publishable key: pk_live_51RTFZ106MZhkBN1w2yzEDSRIUMA1JRHBSwtieaYozKSlpoLYIgY6Vk3Hu3PTeZ9LDn5jTS2d5kjcdyo7YXnnWs4N00ChbMn9YR
-[2025-10-28 17:06:49,177] INFO in main: Stripe secret key: sk_live_51...
-[2025-10-28 17:06:49,741] INFO in main: Attempting to render checkout_enhanced.html template
-[2025-10-28 17:06:49,741] INFO in main: Cart data: {'items': [{'id': 67, 'name': 'Adam & Eve — Naughty Nipple Clips (Bag)', 'price': 35.99, 'quantity': 1, 'image_url': '/static/IMG/imagesForLovMeNow/810124860127/810124860127_Main_Photo.png', 'description': 'A little pinch, a lot of tease. These sleek, silver clamps hug your nipples with soft rubber tips and let you dial the pressure from flirty to fierce using easy sliders. Beaded weights sway with every move for extra tug + sparkle—perfect with lingerie, roleplay, or that “I run the show” vibe.', 'in_stock': True, 'max_quantity': 1, 'item_total': 35.99}], 'subtotal': 35.99, 'shipping': 0, 'total': 35.99, 'count': 1}
-[2025-10-28 17:06:49,741] INFO in main: Config keys: ['DEBUG', 'TESTING', 'PROPAGATE_EXCEPTIONS', 'SECRET_KEY', 'PERMANENT_SESSION_LIFETIME', 'USE_X_SENDFILE', 'SERVER_NAME', 'APPLICATION_ROOT', 'SESSION_COOKIE_NAME', 'SESSION_COOKIE_DOMAIN', 'SESSION_COOKIE_PATH', 'SESSION_COOKIE_HTTPONLY', 'SESSION_COOKIE_SECURE', 'SESSION_COOKIE_SAMESITE', 'SESSION_REFRESH_EACH_REQUEST', 'MAX_CONTENT_LENGTH', 'SEND_FILE_MAX_AGE_DEFAULT', 'TRAP_BAD_REQUEST_ERRORS', 'TRAP_HTTP_EXCEPTIONS', 'EXPLAIN_TEMPLATE_LOADING', 'PREFERRED_URL_SCHEME', 'TEMPLATES_AUTO_RELOAD', 'MAX_COOKIE_SIZE', 'DOMAIN', 'GOOGLE_MAPS_API_KEY', 'RATELIMIT_STORAGE_URL', 'REMEMBER_COOKIE_DURATION', 'REMEMBER_COOKIE_HTTPONLY', 'REMEMBER_COOKIE_SECURE', 'SENDLAYER_API_KEY', 'SLACK_WEBHOOK_URL', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_DATABASE_URI_FALLBACK', 'SQLALCHEMY_ENGINE_OPTIONS', 'SQLALCHEMY_TRACK_MODIFICATIONS', 'STORE_ADDRESS', 'STORE_CITY', 'STORE_LATITUDE', 'STORE_LONGITUDE', 'STORE_NAME', 'STORE_PHONE', 'STORE_STATE', 'STORE_SUITE', 'STORE_ZIP', 'STRIPE_PUBLISHABLE_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'UBER_CLIENT_ID', 'UBER_CLIENT_SECRET', 'UBER_CUSTOMER_ID', 'UBER_SANDBOX', 'WTF_CSRF_ENABLED', 'WTF_CSRF_SSL_STRICT', 'WTF_CSRF_TIME_LIMIT', 'SESSION_PERMANENT', 'SQLALCHEMY_ECHO', 'SQLALCHEMY_BINDS', 'SQLALCHEMY_RECORD_QUERIES', 'SERVER_START_TIME', 'WTF_CSRF_CHECK_DEFAULT', 'WTF_CSRF_METHODS', 'WTF_CSRF_FIELD_NAME', 'WTF_CSRF_HEADERS']
-127.0.0.1 - - [28/Oct/2025 17:06:49] "GET /checkout HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:06:51] "GET /api/cart/totals?delivery_type=pickup HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:06:52] "POST /create-checkout-session HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:06:53] "GET /api/cart/totals?delivery_type=delivery HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:04] "GET /api/cart/totals?delivery_type=pickup HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:05] "GET /api/cart/totals?delivery_type=delivery HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:05] "POST /create-checkout-session HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:46] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:46] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:46] "GET /api/wishlist/count HTTP/1.1" 200 -
-[2025-10-28 17:07:47,878] INFO in cart: Remove from cart request data: {'product_id': 67, 'variant_id': '57', 'csrf_token': 'ImY0YzdmMmY1NTkxZWI0ZmU3NjIwNjg2NmQzNDlmM2ZkMGNhZDdmOTIi.aQEwZA.qTych9hTgP-Q8mHIu82t5NuepFU'}
-[2025-10-28 17:07:47,878] INFO in cart: Removing product_id: 67, variant_id: 57
-[2025-10-28 17:07:47,879] INFO in cart: Guest user cart key: 67:57
-[2025-10-28 17:07:47,879] INFO in cart: Current session cart: {'67:57': 1}
-[2025-10-28 17:07:47,879] INFO in cart: Removed 67:57 from guest cart
-[2025-10-28 17:07:47,879] INFO in cart: New guest cart count: 0
-127.0.0.1 - - [28/Oct/2025 17:07:47] "POST /api/cart/remove HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:47] "GET /api/cart/ HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:47] "GET /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:47] "GET /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /products HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/cart/status HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/89 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/69 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/5 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/71 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/73 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/67 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/70 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/68 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/72 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/36 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/98 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/74 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/42 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/120 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/119 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/123 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/122 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/97 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/104 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/106 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/37 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/52 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/125 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/65 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/101 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/121 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/24 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/61 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/27 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/3 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/58 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/92 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/90 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/107 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/63 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/45 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/49 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/48 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/47 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/77 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/108 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/110 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/109 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/16 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/7 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/11 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/25 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:53] "GET /api/wishlist/check/118 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:07:56] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
-127.0.0.1 - - [28/Oct/2025 17:11:18] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:12:22] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:12:24] "POST /api/cart/add HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:12:26] "GET /cart HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:12:27] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:12:27] "GET /api/wishlist/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:12:27] "GET /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:12:27] "GET /api/cart/discount-status HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:12:27] "GET /api/cart/status HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:12:27] "GET /api/cart/ HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:12:27] "GET /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:12:28] "GET /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:12:28] "GET /api/cart/discount-status HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:12:28] "GET /api/cart/totals HTTP/1.1" 200 -
-[2025-10-28 17:12:29,504] INFO in main: Guest user cart data: {'89:80': 1}
-[2025-10-28 17:12:29,634] INFO in main: Stripe publishable key: pk_live_51RTFZ106MZhkBN1w2yzEDSRIUMA1JRHBSwtieaYozKSlpoLYIgY6Vk3Hu3PTeZ9LDn5jTS2d5kjcdyo7YXnnWs4N00ChbMn9YR
-[2025-10-28 17:12:29,634] INFO in main: Stripe secret key: sk_live_51...
-[2025-10-28 17:12:29,797] INFO in main: Attempting to render checkout_enhanced.html template
-[2025-10-28 17:12:29,798] INFO in main: Cart data: {'items': [{'id': 89, 'name': ' Evolved — Trifecta Triple-Stimulation Vibrator', 'price': 35.99, 'quantity': 1, 'image_url': '/static/IMG/imagesForLovMeNow/844477015828/844477015828_Main_Image.png', 'description': 'Evolved’s Trifecta delivers a true "trigasm" with three points of stimulation. The realistic main shaft provides deep internal vibration while soft bunny ears tease the clitoris and a flexible beaded arm stimulates anally. Three powerful motors let you dial in blended intensity, and the fully submersible body invites play in the bath or shower.', 'in_stock': True, 'max_quantity': 1, 'item_total': 35.99}], 'subtotal': 35.99, 'shipping': 0, 'total': 35.99, 'count': 1}
-[2025-10-28 17:12:29,800] INFO in main: Config keys: ['DEBUG', 'TESTING', 'PROPAGATE_EXCEPTIONS', 'SECRET_KEY', 'PERMANENT_SESSION_LIFETIME', 'USE_X_SENDFILE', 'SERVER_NAME', 'APPLICATION_ROOT', 'SESSION_COOKIE_NAME', 'SESSION_COOKIE_DOMAIN', 'SESSION_COOKIE_PATH', 'SESSION_COOKIE_HTTPONLY', 'SESSION_COOKIE_SECURE', 'SESSION_COOKIE_SAMESITE', 'SESSION_REFRESH_EACH_REQUEST', 'MAX_CONTENT_LENGTH', 'SEND_FILE_MAX_AGE_DEFAULT', 'TRAP_BAD_REQUEST_ERRORS', 'TRAP_HTTP_EXCEPTIONS', 'EXPLAIN_TEMPLATE_LOADING', 'PREFERRED_URL_SCHEME', 'TEMPLATES_AUTO_RELOAD', 'MAX_COOKIE_SIZE', 'DOMAIN', 'GOOGLE_MAPS_API_KEY', 'RATELIMIT_STORAGE_URL', 'REMEMBER_COOKIE_DURATION', 'REMEMBER_COOKIE_HTTPONLY', 'REMEMBER_COOKIE_SECURE', 'SENDLAYER_API_KEY', 'SLACK_WEBHOOK_URL', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_DATABASE_URI_FALLBACK', 'SQLALCHEMY_ENGINE_OPTIONS', 'SQLALCHEMY_TRACK_MODIFICATIONS', 'STORE_ADDRESS', 'STORE_CITY', 'STORE_LATITUDE', 'STORE_LONGITUDE', 'STORE_NAME', 'STORE_PHONE', 'STORE_STATE', 'STORE_SUITE', 'STORE_ZIP', 'STRIPE_PUBLISHABLE_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'UBER_CLIENT_ID', 'UBER_CLIENT_SECRET', 'UBER_CUSTOMER_ID', 'UBER_SANDBOX', 'WTF_CSRF_ENABLED', 'WTF_CSRF_SSL_STRICT', 'WTF_CSRF_TIME_LIMIT', 'SESSION_PERMANENT', 'SQLALCHEMY_ECHO', 'SQLALCHEMY_BINDS', 'SQLALCHEMY_RECORD_QUERIES', 'SERVER_START_TIME', 'WTF_CSRF_CHECK_DEFAULT', 'WTF_CSRF_METHODS', 'WTF_CSRF_FIELD_NAME', 'WTF_CSRF_HEADERS']
-127.0.0.1 - - [28/Oct/2025 17:12:29] "GET /checkout HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:12:30] "GET /api/cart/totals?delivery_type=pickup HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:12:30] "POST /create-checkout-session HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:13:59] "GET /products HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:13:59] "GET /api/wishlist/check/89 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:13:59] "GET /api/wishlist/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/69 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/5 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/71 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/73 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/67 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/70 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/68 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/72 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/36 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/98 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/74 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/119 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/42 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/120 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/123 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/104 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/122 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/97 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/106 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/125 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/37 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/52 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/65 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/121 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/101 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/24 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/27 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/61 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/3 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/58 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/92 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/90 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/107 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/63 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/45 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/49 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/48 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/47 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/108 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/77 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/110 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/109 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/7 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/16 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/25 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/11 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/wishlist/check/118 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:00] "GET /api/cart/status HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:02] "GET /products?category=40 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:02] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:02] "GET /api/wishlist/check/18 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:02] "GET /api/wishlist/check/19 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:02] "GET /api/wishlist/check/22 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:02] "GET /api/wishlist/check/53 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:06] "GET /product/65 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:06] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:06] "GET /static/favicon.ico HTTP/1.1" 404 -
-127.0.0.1 - - [28/Oct/2025 17:14:14] "GET /static/IMG/imagesForLovMeNow/657447106842/657447106842_2nd_Photo.png HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:15] "GET /static/IMG/imagesForLovMeNow/657447106842/657447106842_3rd_Photo.png HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:14:28] "GET /api/csrf-token HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:15:07] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:15:12] "GET /cart HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:15:12] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:15:13] "GET /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:15:13] "GET /api/cart/discount-status HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:15:13] "GET /api/cart/ HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:15:13] "GET /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:15:13] "GET /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:15:13] "GET /api/cart/discount-status HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:15:13] "GET /api/cart/totals HTTP/1.1" 200 -
-[2025-10-28 17:15:14,240] INFO in cart: Remove from cart request data: {'product_id': 89, 'variant_id': '80', 'csrf_token': 'ImY0YzdmMmY1NTkxZWI0ZmU3NjIwNjg2NmQzNDlmM2ZkMGNhZDdmOTIi.aQEyYA.XZM502YZOKa6towR-G1ejeQeZxE'}
-[2025-10-28 17:15:14,241] INFO in cart: Removing product_id: 89, variant_id: 80
-[2025-10-28 17:15:14,241] INFO in cart: Guest user cart key: 89:80
-[2025-10-28 17:15:14,241] INFO in cart: Current session cart: {'89:80': 1}
-[2025-10-28 17:15:14,241] INFO in cart: Removed 89:80 from guest cart
-[2025-10-28 17:15:14,242] INFO in cart: New guest cart count: 0
-127.0.0.1 - - [28/Oct/2025 17:15:14] "POST /api/cart/remove HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:15:14] "GET /api/cart/ HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:15:14] "GET /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:15:14] "GET /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:17:09] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:17:09] "GET /api/wishlist/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:27:53] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:32:53] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:35:36] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 17:44:28] "GET /api/csrf-token HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 18:30:45] "GET /api/wishlist/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 18:30:45] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 18:44:28] "GET /api/csrf-token HTTP/1.1" 200 -
- * Detected change in '/Users/sandrosMac/Desktop/pycharmProjects/LoveMeNow/uber_service.py', reloading
- * Restarting with stat
-[2025-10-28 18:55:05,972] INFO in app: Development mode: Session cookies set to non-secure and expire on browser close
-✅ Stripe secret key configured: sk_live_51...WrY5
-✅ Stripe publishable key configured: pk_live_51...n9YR
-[2025-10-28 18:55:05,972] INFO in app: 🔍 APP INIT - Environment STRIPE_SECRET_KEY: sk_live_51...
-[2025-10-28 18:55:05,972] INFO in app: 🔍 APP INIT - Config STRIPE_SECRET_KEY: sk_live_51...
-[2025-10-28 18:55:05,972] INFO in app: 🔍 APP INIT - Key ending: ...00OTTvWrY5
-[2025-10-28 18:55:05,972] INFO in app: 🔍 APP INIT - Key length: 107
-[2025-10-28 18:55:05,972] INFO in app: ✅ Stripe API key configured successfully: sk_live_51...WrY5
-[2025-10-28 18:55:07,084] INFO in app: DB schema: products.features present
-[2025-10-28 18:55:07,153] WARNING in app: Flask-Compress not available, skipping compression
-[2025-10-28 18:55:07,338] INFO in app: Current config_name: development
-[2025-10-28 18:55:07,338] INFO in app: FLASK_ENV: development
-[2025-10-28 18:55:07,338] INFO in app: ✅ CSP enabled via Flask-Talisman with Stripe + GTM/GA allowances
- * Debugger is active!
- * Debugger PIN: 980-184-491
-[2025-10-28 19:00:54,206] INFO in app: 🔄 Session from previous server instance detected - clearing session
-127.0.0.1 - - [28/Oct/2025 19:00:54] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:55] "GET /products HTTP/1.1" 302 -
-[2025-10-28 19:00:55,901] INFO in auth: Age verification page accessed. Session: {'_fresh': False, '_server_start_time': 1761692107.1542988}
-[2025-10-28 19:00:55,902] INFO in auth: Showing age verification template
-127.0.0.1 - - [28/Oct/2025 19:00:55] "GET /auth/age-verification?next=http://127.0.0.1:2100/products HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:56] "GET /favicon.ico HTTP/1.1" 404 -
-127.0.0.1 - - [28/Oct/2025 19:00:57] "POST /auth/verify-age HTTP/1.1" 302 -
-127.0.0.1 - - [28/Oct/2025 19:00:58] "GET / HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:58] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:58] "GET /api/wishlist/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:58] "GET /api/cart/status HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:58] "GET /api/cart/discount-status HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:58] "GET /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /miami-map HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /products HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/69 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/89 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/5 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/71 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/67 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/73 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/68 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/70 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/72 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/36 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/98 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/74 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/42 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/119 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/120 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/123 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/122 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/104 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/97 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/106 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/125 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/37 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/52 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/65 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/101 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/121 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/24 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/27 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/61 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/3 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/58 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/92 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/90 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/107 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/63 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/45 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/49 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/48 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/47 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/108 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/77 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/110 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/109 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/16 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/7 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/11 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/25 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:00:59] "GET /api/wishlist/check/118 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:03] "GET /products?category=40 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:03] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:03] "GET /api/wishlist/check/19 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:03] "GET /api/wishlist/check/18 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:03] "GET /api/wishlist/check/22 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:03] "GET /api/wishlist/check/53 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:27] "GET /products?category=40 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:28] "GET /static/CSS/mobile-optimizations.css?v=20250116-3 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:28] "GET /static/CSS/filters-sheet.css?v=20251004-1 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:28] "GET /static/js/csrf-handler.js HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:28] "GET /static/IMG/imagesForLovMeNow/810124860127/810124860127_Main_Photo__alpha.webp HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:28] "GET /static/CSS/styles.css?v=20250116-3 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:28] "GET /static/CSS/styles.css HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:28] "GET /static/js/csrf-handler.js?v=20250116-3 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:28] "GET /static/js/toast.js?v=20250116-3 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:28] "GET /static/js/mobile-menu.js?v=20250116-3 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:28] "GET /static/js/index.js?v=20250116-3 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:28] "GET /static/js/filters.js?v=20251004-5 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:28] "GET /static/js/products.js?v=20250116-3 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:28] "GET /static/IMG/imagesForLovMeNow/4890808221112/4890808221112_Main_Photo__alpha.webp HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:28] "GET /static/IMG/imagesForLovMeNow/657447106842/657447106842_Main_Photo__alpha.webp HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:28] "GET /api/cart/status HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:28] "GET /static/IMG/imagesForLovMeNow/752875950965/752875950965_Main_Photo__alpha.webp HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:28] "GET /static/IMG/imagesForLovMeNow/646709480417/646709480417_Main_Photo__alpha.webp HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:28] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:28] "GET /static/IMG/imagesForLovMeNow/848518024473/848518024473_Main_Photo__alpha.webp HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:28] "GET /api/wishlist/check/67 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:28] "GET /api/wishlist/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:28] "GET /api/wishlist/check/65 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:28] "GET /api/wishlist/check/18 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:28] "GET /api/wishlist/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:28] "GET /api/wishlist/check/22 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:28] "GET /api/wishlist/check/19 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:28] "GET /api/wishlist/check/53 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:28] "GET /static/IMG/icons/favicon.ico HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:30] "POST /api/cart/add HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:32] "GET /cart HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:32] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:32] "GET /api/wishlist/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:33] "GET /api/cart/status HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:33] "GET /favicon.ico HTTP/1.1" 404 -
-127.0.0.1 - - [28/Oct/2025 19:01:33] "GET /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:33] "GET /api/cart/discount-status HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:33] "GET /api/cart/ HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:33] "GET /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:33] "GET /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:34] "GET /api/cart/discount-status HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:01:34] "GET /api/cart/totals HTTP/1.1" 200 -
-[2025-10-28 19:02:32,731] INFO in main: Guest user cart data: {'65:55': 1}
-[2025-10-28 19:02:32,824] INFO in main: Stripe publishable key: pk_live_51RTFZ106MZhkBN1w2yzEDSRIUMA1JRHBSwtieaYozKSlpoLYIgY6Vk3Hu3PTeZ9LDn5jTS2d5kjcdyo7YXnnWs4N00ChbMn9YR
-[2025-10-28 19:02:32,824] INFO in main: Stripe secret key: sk_live_51...
-[2025-10-28 19:02:32,948] INFO in main: Attempting to render checkout_enhanced.html template
-[2025-10-28 19:02:32,949] INFO in main: Cart data: {'items': [{'id': 65, 'name': 'Bound — Nipple Clamps F1, Pink', 'price': 0.51, 'quantity': 1, 'image_url': '/static/IMG/imagesForLovMeNow/657447106842/657447106842_Main_Photo.png', 'description': 'Flirty fluff meets spicy pinch. These nickel-free metal clamps hug your nipples with soft silicone tips, while the pink feather tassels add eye-candy and extra tease with every wiggle. Twist the screws to dial the pressure from “mmm” to “oh yes,” then let the feathers do the flirting.', 'in_stock': True, 'max_quantity': 1, 'item_total': 0.51}], 'subtotal': 0.51, 'shipping': 0, 'total': 0.51, 'count': 1}
-[2025-10-28 19:02:32,949] INFO in main: Config keys: ['DEBUG', 'TESTING', 'PROPAGATE_EXCEPTIONS', 'SECRET_KEY', 'PERMANENT_SESSION_LIFETIME', 'USE_X_SENDFILE', 'SERVER_NAME', 'APPLICATION_ROOT', 'SESSION_COOKIE_NAME', 'SESSION_COOKIE_DOMAIN', 'SESSION_COOKIE_PATH', 'SESSION_COOKIE_HTTPONLY', 'SESSION_COOKIE_SECURE', 'SESSION_COOKIE_SAMESITE', 'SESSION_REFRESH_EACH_REQUEST', 'MAX_CONTENT_LENGTH', 'SEND_FILE_MAX_AGE_DEFAULT', 'TRAP_BAD_REQUEST_ERRORS', 'TRAP_HTTP_EXCEPTIONS', 'EXPLAIN_TEMPLATE_LOADING', 'PREFERRED_URL_SCHEME', 'TEMPLATES_AUTO_RELOAD', 'MAX_COOKIE_SIZE', 'DOMAIN', 'GOOGLE_MAPS_API_KEY', 'RATELIMIT_STORAGE_URL', 'REMEMBER_COOKIE_DURATION', 'REMEMBER_COOKIE_HTTPONLY', 'REMEMBER_COOKIE_SECURE', 'SENDLAYER_API_KEY', 'SLACK_WEBHOOK_URL', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_DATABASE_URI_FALLBACK', 'SQLALCHEMY_ENGINE_OPTIONS', 'SQLALCHEMY_TRACK_MODIFICATIONS', 'STORE_ADDRESS', 'STORE_CITY', 'STORE_LATITUDE', 'STORE_LONGITUDE', 'STORE_NAME', 'STORE_PHONE', 'STORE_STATE', 'STORE_SUITE', 'STORE_ZIP', 'STRIPE_PUBLISHABLE_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'UBER_CLIENT_ID', 'UBER_CLIENT_SECRET', 'UBER_CUSTOMER_ID', 'UBER_SANDBOX', 'WTF_CSRF_ENABLED', 'WTF_CSRF_SSL_STRICT', 'WTF_CSRF_TIME_LIMIT', 'SESSION_PERMANENT', 'SQLALCHEMY_ECHO', 'SQLALCHEMY_BINDS', 'SQLALCHEMY_RECORD_QUERIES', 'SERVER_START_TIME', 'WTF_CSRF_CHECK_DEFAULT', 'WTF_CSRF_METHODS', 'WTF_CSRF_FIELD_NAME', 'WTF_CSRF_HEADERS']
-127.0.0.1 - - [28/Oct/2025 19:02:33] "GET /checkout HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:02:33] "GET /api/cart/totals?delivery_type=pickup HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:02:33] "POST /create-checkout-session HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:02:34] "GET /api/cart/totals?delivery_type=delivery HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:02:40] "POST /api/uber/quote HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:02:40] "POST /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:02:41] "POST /create-checkout-session HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:03:30] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
-[2025-10-28 19:03:45,671] INFO in main: Guest user cart data: {'65:55': 1}
-[2025-10-28 19:03:45,756] INFO in main: Stripe publishable key: pk_live_51RTFZ106MZhkBN1w2yzEDSRIUMA1JRHBSwtieaYozKSlpoLYIgY6Vk3Hu3PTeZ9LDn5jTS2d5kjcdyo7YXnnWs4N00ChbMn9YR
-[2025-10-28 19:03:45,756] INFO in main: Stripe secret key: sk_live_51...
-[2025-10-28 19:03:45,868] INFO in main: Attempting to render checkout_enhanced.html template
-[2025-10-28 19:03:45,868] INFO in main: Cart data: {'items': [{'id': 65, 'name': 'Bound — Nipple Clamps F1, Pink', 'price': 0.51, 'quantity': 1, 'image_url': '/static/IMG/imagesForLovMeNow/657447106842/657447106842_Main_Photo.png', 'description': 'Flirty fluff meets spicy pinch. These nickel-free metal clamps hug your nipples with soft silicone tips, while the pink feather tassels add eye-candy and extra tease with every wiggle. Twist the screws to dial the pressure from “mmm” to “oh yes,” then let the feathers do the flirting.', 'in_stock': True, 'max_quantity': 1, 'item_total': 0.51}], 'subtotal': 0.51, 'shipping': 0, 'total': 0.51, 'count': 1}
-[2025-10-28 19:03:45,869] INFO in main: Config keys: ['DEBUG', 'TESTING', 'PROPAGATE_EXCEPTIONS', 'SECRET_KEY', 'PERMANENT_SESSION_LIFETIME', 'USE_X_SENDFILE', 'SERVER_NAME', 'APPLICATION_ROOT', 'SESSION_COOKIE_NAME', 'SESSION_COOKIE_DOMAIN', 'SESSION_COOKIE_PATH', 'SESSION_COOKIE_HTTPONLY', 'SESSION_COOKIE_SECURE', 'SESSION_COOKIE_SAMESITE', 'SESSION_REFRESH_EACH_REQUEST', 'MAX_CONTENT_LENGTH', 'SEND_FILE_MAX_AGE_DEFAULT', 'TRAP_BAD_REQUEST_ERRORS', 'TRAP_HTTP_EXCEPTIONS', 'EXPLAIN_TEMPLATE_LOADING', 'PREFERRED_URL_SCHEME', 'TEMPLATES_AUTO_RELOAD', 'MAX_COOKIE_SIZE', 'DOMAIN', 'GOOGLE_MAPS_API_KEY', 'RATELIMIT_STORAGE_URL', 'REMEMBER_COOKIE_DURATION', 'REMEMBER_COOKIE_HTTPONLY', 'REMEMBER_COOKIE_SECURE', 'SENDLAYER_API_KEY', 'SLACK_WEBHOOK_URL', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_DATABASE_URI_FALLBACK', 'SQLALCHEMY_ENGINE_OPTIONS', 'SQLALCHEMY_TRACK_MODIFICATIONS', 'STORE_ADDRESS', 'STORE_CITY', 'STORE_LATITUDE', 'STORE_LONGITUDE', 'STORE_NAME', 'STORE_PHONE', 'STORE_STATE', 'STORE_SUITE', 'STORE_ZIP', 'STRIPE_PUBLISHABLE_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'UBER_CLIENT_ID', 'UBER_CLIENT_SECRET', 'UBER_CUSTOMER_ID', 'UBER_SANDBOX', 'WTF_CSRF_ENABLED', 'WTF_CSRF_SSL_STRICT', 'WTF_CSRF_TIME_LIMIT', 'SESSION_PERMANENT', 'SQLALCHEMY_ECHO', 'SQLALCHEMY_BINDS', 'SQLALCHEMY_RECORD_QUERIES', 'SERVER_START_TIME', 'WTF_CSRF_CHECK_DEFAULT', 'WTF_CSRF_METHODS', 'WTF_CSRF_FIELD_NAME', 'WTF_CSRF_HEADERS']
-127.0.0.1 - - [28/Oct/2025 19:03:45] "GET /checkout HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:03:46] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
-127.0.0.1 - - [28/Oct/2025 19:03:46] "GET /static/CSS/styles.css HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:03:46] "GET /static/js/csrf-handler.js HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:03:46] "GET /static/CSS/mobile-optimizations.css HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:03:46] "GET /static/js/mobile-menu.js?v=20250929-1 HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:03:46] "GET /static/js/checkout.js?v=20250930-fixed-card-only HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:03:46] "GET /api/cart/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:03:46] "GET /api/wishlist/count HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:03:46] "GET /api/cart/totals?delivery_type=pickup HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:03:46] "GET /favicon.ico HTTP/1.1" 404 -
-127.0.0.1 - - [28/Oct/2025 19:03:47] "POST /create-checkout-session HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:03:49] "GET /api/cart/totals?delivery_type=delivery HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:03:53] "POST /api/uber/quote HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:03:54] "POST /api/cart/totals HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:03:54] "POST /create-checkout-session HTTP/1.1" 200 -
-[2025-10-28 19:05:40,509] INFO in api: 🔍 Delivery order - quote_id: dqt_f60Rm-EVQOm1ptSSxcQZnQ
-[2025-10-28 19:05:40,584] INFO in api: 🔍 Pickup coords: 25.8465, -80.1917
-[2025-10-28 19:05:40,584] INFO in api: 🔍 Dropoff coords: None, None
-[2025-10-28 19:05:40,653] INFO in api: 🔍 Manifest items: [{'name': 'Package #65', 'quantity': 1, 'weight': 100, 'dimensions': {'length': 15, 'height': 10, 'depth': 5}}]
-[2025-10-28 19:05:40,654] INFO in api: 🔍 Calling uber_service.create_delivery()...
-[2025-10-28 19:05:41,919] INFO in api: ✅ Uber API response: delivery_id=del_f60Rm-EVQOm1ptSSxcQZnQ, tracking_url=https://delivery.uber.com/orders/7fad119b-e115-40e9-b5a6-d492c5c4199d?tenancyOverride=uber%2Ftesting%2Fdirect%2Fdcf2db8e-5d09-5bf5-bacb-b619e835f132
-[2025-10-28 19:05:42,107] INFO in api: ✅ Uber delivery created for order 133: tracking_url=https://delivery.uber.com/orders/7fad119b-e115-40e9-b5a6-d492c5c4199d?tenancyOverride=uber%2Ftesting%2Fdirect%2Fdcf2db8e-5d09-5bf5-bacb-b619e835f132
-[2025-10-28 19:05:42,165] INFO in email_utils: SendLayer: POST https://console.sendlayer.com/api/v1/email -> to=alessandro.escobarfiu@gmail.com subject=Order #LMN20251028190540 confirmed — LoveMeNow Miami tags=['production']
-[2025-10-28 19:05:42,824] INFO in email_utils: SendLayer: sent ok -> message_id=None
-[2025-10-28 19:05:42,826] INFO in api: ✅ Confirmation email sent to alessandro.escobarfiu@gmail.com
-127.0.0.1 - - [28/Oct/2025 19:05:42] "POST /api/create-order HTTP/1.1" 200 -
-127.0.0.1 - - [28/Oct/2025 19:05:43] "POST /api/cart/clear HTTP/1.1" 200 -
 
 
 
@@ -920,14 +24,72 @@ TypeError: 'Product' object is not subscriptable
 
 
 
+2025-10-29T00:37:40.879903343Z INFO:routes.uber:Uber quote response: {'kind': 'delivery_quote', 'id': 'dqt_mteG4q2eSP-DepKI3I09RQ', 'created': '2025-10-29T00:37:40.83Z', 'expires': '2025-10-29T00:52:40.83Z', 'fee': 1099, 'currency': 'usd', 'currency_type': 'USD', 'dropoff_eta': '2025-10-29T01:24:46Z', 'duration': 47, 'pickup_duration': 7, 'dropoff_deadline': '2025-10-29T01:53:48Z'}
+2025-10-29T00:37:40.881069503Z 10.23.137.195 - - [29/Oct/2025:00:37:40 +0000] "POST /api/uber/quote HTTP/1.1" 200 239 "https://lovemenowmiami.com/checkout" "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Mobile Safari/537.36"
+2025-10-29T00:37:42.007582199Z INFO:stripe:message='Request to Stripe api' method=post url=https://api.stripe.com/v1/payment_intents/pi_3SNNOM06MZhkBN1w17AwTggr/cancel
+2025-10-29T00:37:42.188861827Z INFO:stripe:message='Stripe API response' path=https://api.stripe.com/v1/payment_intents/pi_3SNNOM06MZhkBN1w17AwTggr/cancel response_code=200
+2025-10-29T00:37:42.189602738Z INFO:stripe:message='Request to Stripe api' method=post url=https://api.stripe.com/v1/payment_intents
+2025-10-29T00:37:42.339125969Z INFO:stripe:message='Stripe API response' path=https://api.stripe.com/v1/payment_intents response_code=200
+2025-10-29T00:37:42.518655706Z 10.22.90.194 - - [29/Oct/2025:00:37:42 +0000] "POST /create-checkout-session HTTP/1.1" 200 155 "https://lovemenowmiami.com/checkout" "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Mobile Safari/537.36"
+2025-10-29T00:37:43.238088476Z 10.23.139.195 - - [29/Oct/2025:00:37:43 +0000] "POST /api/cart/totals HTTP/1.1" 200 125 "https://lovemenowmiami.com/checkout" "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Mobile Safari/537.36"
+2025-10-29T00:39:19.836608645Z INFO:stripe:message='Request to Stripe api' method=get url=https://api.stripe.com/v1/payment_intents/pi_3SNNOU06MZhkBN1w1GYRSjAA
+2025-10-29T00:39:20.014077538Z INFO:stripe:message='Stripe API response' path=https://api.stripe.com/v1/payment_intents/pi_3SNNOU06MZhkBN1w1GYRSjAA response_code=200
+2025-10-29T00:39:20.738255262Z [2025-10-29 00:39:20,738] INFO in api: 🔍 Delivery order - quote_id: dqt_mteG4q2eSP-DepKI3I09RQ
+2025-10-29T00:39:20.738281143Z INFO:app:🔍 Delivery order - quote_id: dqt_mteG4q2eSP-DepKI3I09RQ
+2025-10-29T00:39:20.918614473Z [2025-10-29 00:39:20,918] INFO in api: 🔍 Pickup coords: 25.8465, -80.1917
+2025-10-29T00:39:20.918639305Z INFO:app:🔍 Pickup coords: 25.8465, -80.1917
+2025-10-29T00:39:20.918653846Z [2025-10-29 00:39:20,918] INFO in api: 🔍 Dropoff coords: None, None
+2025-10-29T00:39:20.918667186Z INFO:app:🔍 Dropoff coords: None, None
+2025-10-29T00:39:21.011269119Z [2025-10-29 00:39:21,011] INFO in api: 🔍 Manifest items: [{'name': 'Package #65', 'quantity': 1, 'weight': 100, 'dimensions': {'length': 15, 'height': 10, 'depth': 5}}]
+2025-10-29T00:39:21.01129128Z INFO:app:🔍 Manifest items: [{'name': 'Package #65', 'quantity': 1, 'weight': 100, 'dimensions': {'length': 15, 'height': 10, 'depth': 5}}]
+2025-10-29T00:39:21.011358085Z [2025-10-29 00:39:21,011] INFO in api: 🔍 Calling uber_service.create_delivery()...
+2025-10-29T00:39:21.011369086Z INFO:app:🔍 Calling uber_service.create_delivery()...
+2025-10-29T00:39:24.095813647Z INFO:uber_service:Created Uber delivery: del_mteG4q2eSP-DepKI3I09RQ
+2025-10-29T00:39:24.095843569Z INFO:uber_service:Tracking URL: https://delivery.uber.com/orders/9ad786e2-ad9e-48ff-837a-9288dc8d3d45
+2025-10-29T00:39:24.095848659Z INFO:uber_service:Status: pending
+2025-10-29T00:39:24.095933815Z [2025-10-29 00:39:24,095] INFO in api: ✅ Uber API response: delivery_id=del_mteG4q2eSP-DepKI3I09RQ, tracking_url=https://delivery.uber.com/orders/9ad786e2-ad9e-48ff-837a-9288dc8d3d45
+2025-10-29T00:39:24.095943846Z INFO:app:✅ Uber API response: delivery_id=del_mteG4q2eSP-DepKI3I09RQ, tracking_url=https://delivery.uber.com/orders/9ad786e2-ad9e-48ff-837a-9288dc8d3d45
+2025-10-29T00:39:24.565290719Z [2025-10-29 00:39:24,565] INFO in api: ✅ Uber delivery created for order 134: tracking_url=https://delivery.uber.com/orders/9ad786e2-ad9e-48ff-837a-9288dc8d3d45
+2025-10-29T00:39:24.56530953Z INFO:app:✅ Uber delivery created for order 134: tracking_url=https://delivery.uber.com/orders/9ad786e2-ad9e-48ff-837a-9288dc8d3d45
+2025-10-29T00:39:24.663909033Z [2025-10-29 00:39:24,663] INFO in email_utils: SendLayer: POST https://console.sendlayer.com/api/v1/email -> to=alessandro.escobarfiu@gmail.com subject=Order #LMN20251029003920 confirmed — LoveMeNow Miami tags=['production']
+2025-10-29T00:39:24.663930055Z INFO:app:SendLayer: POST https://console.sendlayer.com/api/v1/email -> to=alessandro.escobarfiu@gmail.com subject=Order #LMN20251029003920 confirmed — LoveMeNow Miami tags=['production']
+2025-10-29T00:39:25.167408602Z [2025-10-29 00:39:25,167] INFO in email_utils: SendLayer: sent ok -> message_id=None
+2025-10-29T00:39:25.167436994Z INFO:app:SendLayer: sent ok -> message_id=None
+2025-10-29T00:39:25.167717603Z [2025-10-29 00:39:25,167] INFO in api: ✅ Confirmation email sent to alessandro.escobarfiu@gmail.com
+2025-10-29T00:39:25.167731114Z INFO:app:✅ Confirmation email sent to alessandro.escobarfiu@gmail.com
+2025-10-29T00:39:25.345946336Z 10.23.137.195 - - [29/Oct/2025:00:39:25 +0000] "POST /api/create-order HTTP/1.1" 200 193 "https://lovemenowmiami.com/checkout" "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Mobile Safari/537.36"
+2025-10-29T00:39:25.879820361Z 10.23.137.195 - - [29/Oct/2025:00:39:25 +0000] "POST /api/cart/clear HTTP/1.1" 200 55 "https://lovemenowmiami.com/checkout" "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Mobile Safari/537.36"
+2025-10-29T00:39:30.989904391Z [2025-10-29 00:39:30,989] INFO in webhooks: 📦 Received Uber webhook: event_type=None, resource_id=None
+2025-10-29T00:39:30.989925482Z INFO:app:📦 Received Uber webhook: event_type=None, resource_id=None
+2025-10-29T00:39:30.989936203Z [2025-10-29 00:39:30,989] ERROR in webhooks: ❌ Uber webhook missing resource_id
+2025-10-29T00:39:30.989944833Z ERROR:app:❌ Uber webhook missing resource_id
+2025-10-29T00:39:30.990828494Z 10.23.181.129 - - [29/Oct/2025:00:39:30 +0000] "POST /webhooks/uber HTTP/1.1" 400 32 "-" "Go-http-client/1.1"
+2025-10-29T00:42:04.66037021Z 10.23.137.195 - - [29/Oct/2025:00:42:04 +0000] "POST /webhooks/uber HTTP/1.1" 400 32 "-" "Go-http-client/1.1"
+2025-10-29T00:42:04.660398912Z [2025-10-29 00:42:04,659] INFO in webhooks: 📦 Received Uber webhook: event_type=None, resource_id=None
+2025-10-29T00:42:04.660863714Z INFO:app:📦 Received Uber webhook: event_type=None, resource_id=None
+2025-10-29T00:42:04.660871045Z [2025-10-29 00:42:04,659] ERROR in webhooks: ❌ Uber webhook missing resource_id
+2025-10-29T00:42:04.660878255Z ERROR:app:❌ Uber webhook missing resource_id
+2025-10-29T00:42:06.885592442Z [2025-10-29 00:42:06,882] INFO in webhooks: 📦 Received Uber webhook: event_type=None, resource_id=None
+2025-10-29T00:42:06.885607193Z INFO:app:📦 Received Uber webhook: event_type=None, resource_id=None
+2025-10-29T00:42:06.885614033Z [2025-10-29 00:42:06,884] ERROR in webhooks: ❌ Uber webhook missing resource_id
+2025-10-29T00:42:06.885618594Z ERROR:app:❌ Uber webhook missing resource_id
+2025-10-29T00:42:06.890763156Z 10.23.181.129 - - [29/Oct/2025:00:42:06 +0000] "POST /webhooks/uber HTTP/1.1" 400 32 "-" "Go-http-client/1.1"
 
 
 
 
 
-Refused to connect to '<URL>' because it violates the following Content Security Policy directive: "connect-src 'self' <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> events.uber.com api.mixpanel.com d3i4yxtzktqr9n.cloudfront.net *.optimizely.com *.google-analytics.com *.tealiumiq.com *.demdex.net <URL>".
+
+
+
+
+
+
+
+
+54Refused to connect to '<URL>' because it violates the following Content Security Policy directive: "connect-src 'self' <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> events.uber.com api.mixpanel.com d3i4yxtzktqr9n.cloudfront.net *.optimizely.com *.google-analytics.com *.tealiumiq.com *.demdex.net <URL>".
 Understand this error
-7Refused to connect to '<URL>' because it violates the following Content Security Policy directive: "connect-src 'self' 'self' <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> events.uber.com api.mixpanel.com d3i4yxtzktqr9n.cloudfront.net *.optimizely.com *.google-analytics.com *.tealiumiq.com *.demdex.net <URL>".
+8Refused to connect to '<URL>' because it violates the following Content Security Policy directive: "connect-src 'self' 'self' <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> <URL> events.uber.com api.mixpanel.com d3i4yxtzktqr9n.cloudfront.net *.optimizely.com *.google-analytics.com *.tealiumiq.com *.demdex.net <URL>".
 Understand this error
 amzn.js:2 Fetch API cannot load https://c.amazon-adsystem.com/aat/amzn.js. Refused to connect because it violates the document's Content Security Policy.
 (anonymous) @ amzn.js:2
@@ -956,6 +118,36 @@ LOAD @ utag.js:81
 (anonymous) @ utag.203.js?utv=ut4.53.202505161700:21
 (anonymous) @ utag.203.js?utv=ut4.53.202505161700:21Understand this error
 amzn.js:2 [AAT] CSP blocked fetch → setting region to UNKNOWN for GDPR safety
+js?id=DC-5731039:120 Fetch API cannot load https://www.google.com/ccm/collect?frm=0&tid=DC-5731039&en=page_view&dr=lovemenowmiami.com&dl=https%3A%2F%2Fdelivery.uber.com%2Forders%2F9ad786e2-ad9e-48ff-837a-9288dc8d3d45&scrsrc=www.googletagmanager.com&rnd=1555791902.1761698367&auid=1735641986.1761681914&gclaw=CjwKCAjw04HIBhB8EiwA8jGNbZbKHOEOaJPE0KCIH8_q01cV7PAe4IHlaAzg5nPz86k56w657QY_VRoCTT4QAvD_BwE&navt=n&npa=0&gdid=dYmQxMT&gtm=45fe5ar0v9189983210za200zd9189983210xec&gcd=13l3l3l3l1l1&dma=0&tag_exp=101509157~103116026~103200004~103233427~104527907~104528501~104684208~104684211~104948813~115480710~115583767~115616986~115938465~115938469~116217636~116217638&tft=1761698367155&tfd=1231&apve=1&apvf=f. Refused to connect because it violates the document's Content Security Policy.
+bd @ js?id=DC-5731039:120
+ol @ js?id=DC-5731039:268
+Kw @ js?id=DC-5731039:501
+CK @ js?id=DC-5731039:666
+e @ js?id=DC-5731039:676
+(anonymous) @ js?id=DC-5731039:677
+Il @ js?id=DC-5731039:279
+Tn @ js?id=DC-5731039:298
+NK @ js?id=DC-5731039:677
+v @ js?id=DC-5731039:347
+Rl @ js?id=DC-5731039:281
+Tp @ js?id=DC-5731039:347
+Sp.flush @ js?id=DC-5731039:351
+Sp.push @ js?id=DC-5731039:349
+config @ js?id=DC-5731039:567
+pB @ js?id=DC-5731039:577
+rB @ js?id=DC-5731039:580
+setTimeout
+Sc @ js?id=DC-5731039:117
+sB @ js?id=DC-5731039:583
+ym @ js?id=DC-5731039:741
+(anonymous) @ js?id=DC-5731039:745
+c @ js?id=DC-5731039:743
+(anonymous) @ js?id=DC-5731039:745
+(anonymous) @ js?id=DC-5731039:745
+(anonymous) @ js?id=DC-5731039:747Understand this error
+www.googletagmanager.com/:1 Refused to frame 'https://www.googletagmanager.com/' because it violates the following Content Security Policy directive: "frame-src 'self' https://*.uber.com https://*.ubereats.com http://*.cdn-net.com https://tr.snapchat.com https://payments.uber.com https://payments.ubereats.com https://payments.postmates.com https://payments.order.store https://wpe-breeze.uberinternal.com https://payments-orchid.uber.com https://payments-staging.uberinternal.com https://payments-staging.uber.com https://www.google.com/recaptcha/ https://auth.uberinternal.com https://gumi.criteo.com/ https://mug.criteo.com https://gum.criteo.com https://catalogs.uberinternal.com/ https://insight.adsrvr.org/ https://match.adsrvr.org https://s.amazon-adsystem.com/ https://*.sardine.ai https://*.arkoselabs.com https://*.online-metrix.net uber://* https://accounts.google.com bs.serving-sys.com click.appcast.io analytics.recruitics.com ci.iasds01.com cdn.krxd.net www.facebook.com *.doubleclick.net *.tealiumiq.com *.demdex.net *.optimizely.com".
+Understand this error
+21Failed to execute 'postMessage' on 'DOMWindow': The target origin provided ('<URL>') does not match the recipient window's origin ('null').Understand this warning
 fbevents.js:170 [Meta Pixel] - Duplicate Pixel ID: 920222691346894.
 v @ fbevents.js:170
 y @ fbevents.js:170
@@ -974,9 +166,6 @@ plugin @ 920222691346894?v=2.9.239&r=stable&domain=delivery.uber.com&hme=0e765f8
 value @ fbevents.js:210
 a.registerPlugin @ fbevents.js:387
 (anonymous) @ 920222691346894?v=2.9.239&r=stable&domain=delivery.uber.com&hme=0e765f8c1c15e34523a2a1dcfb1e6658bdc64adfdb8a2b463c34752b789aa615&ex_m=90%2C152%2C132%2C19%2C66%2C67%2C125%2C62%2C42%2C126%2C71%2C61%2C139%2C79%2C13%2C89%2C27%2C120%2C111%2C69%2C72%2C119%2C136%2C98%2C141%2C7%2C3%2C4%2C6%2C5%2C2%2C80%2C88%2C142%2C219%2C163%2C56%2C224%2C221%2C222%2C49%2C178%2C26%2C68%2C228%2C227%2C166%2C29%2C55%2C8%2C58%2C84%2C85%2C86%2C91%2C115%2C28%2C25%2C118%2C114%2C113%2C133%2C70%2C135%2C134%2C44%2C116%2C54%2C108%2C12%2C138%2C39%2C208%2C210%2C173%2C22%2C23%2C24%2C16%2C17%2C38%2C34%2C36%2C35%2C75%2C81%2C83%2C96%2C124%2C127%2C40%2C97%2C20%2C18%2C102%2C63%2C32%2C129%2C128%2C130%2C121%2C21%2C31%2C53%2C95%2C137%2C64%2C15%2C131%2C30%2C188%2C159%2C270%2C206%2C150%2C191%2C184%2C160%2C93%2C117%2C74%2C106%2C48%2C41%2C104%2C105%2C110%2C52%2C14%2C112%2C103%2C59%2C43%2C99%2C47%2C50%2C46%2C87%2C140%2C0%2C109%2C11%2C107%2C9%2C1%2C51%2C82%2C57%2C60%2C101%2C78%2C77%2C45%2C122%2C76%2C73%2C65%2C100%2C92%2C37%2C123%2C33%2C94%2C10%2C143:147Understand this warning
-www.googletagmanager.com/:1 Refused to frame 'https://www.googletagmanager.com/' because it violates the following Content Security Policy directive: "frame-src 'self' https://*.uber.com https://*.ubereats.com http://*.cdn-net.com https://tr.snapchat.com https://payments.uber.com https://payments.ubereats.com https://payments.postmates.com https://payments.order.store https://wpe-breeze.uberinternal.com https://payments-orchid.uber.com https://payments-staging.uberinternal.com https://payments-staging.uber.com https://www.google.com/recaptcha/ https://auth.uberinternal.com https://gumi.criteo.com/ https://mug.criteo.com https://gum.criteo.com https://catalogs.uberinternal.com/ https://insight.adsrvr.org/ https://match.adsrvr.org https://s.amazon-adsystem.com/ https://*.sardine.ai https://*.arkoselabs.com https://*.online-metrix.net uber://* https://accounts.google.com bs.serving-sys.com click.appcast.io analytics.recruitics.com ci.iasds01.com cdn.krxd.net www.facebook.com *.doubleclick.net *.tealiumiq.com *.demdex.net *.optimizely.com".
-Understand this error
-21Failed to execute 'postMessage' on 'DOMWindow': The target origin provided ('<URL>') does not match the recipient window's origin ('null').Understand this warning
 amzn.js:2 Fetch API cannot load https://c.amazon-adsystem.com/aat/amzn.js. Refused to connect because it violates the document's Content Security Policy.
 (anonymous) @ amzn.js:2
 setregion @ amzn.js:2
@@ -1009,16 +198,9 @@ P @ client-46358-7634126346e5650b.js:85
 _ @ client-vendor-core-31b48b9d2f51f9b9.js:1
 j @ client-vendor-core-31b48b9d2f51f9b9.js:1Understand this error
 amzn.js:2 [AAT] CSP blocked fetch → setting region to UNKNOWN for GDPR safety
-4050272?insights=1:1 Refused to load the script 'https://scripts.clarity.ms/0.8.38/clarity.js' because it violates the following Content Security Policy directive: "script-src 'self' 'unsafe-inline' https://d1a3f4spazzrp4.cloudfront.net https://d3i4yxtzktqr9n.cloudfront.net https://tb-static.uber.com https://tbs-static.uber.com 'nonce-a4b2bf82-f0c8-4713-b960-2698531c0fa3' https://bat.bing.com https://*.qualtrics.com https://analytics.twitter.com http://www.googletagservices.com http://*.cdn-net.com https://sc-static.net https://tr.snapchat.com https://*.yjtag.jp https://yjtag.yahoo.co.jp https://b92.yahoo.co.jp https://*.yimg.jp https://*.outbrain.com https://www.redditstatic.com https://analytics.tiktok.com https://dynamic.criteo.com https://static.criteo.net https://sslwidget.criteo.com https://widget.us.criteo.com https://widget.as.criteo.com https://widget.eu.criteo.com https://payments.uber.com https://payments.ubereats.com https://payments.postmates.com https://payments.order.store https://wpe-breeze.uberinternal.com https://payments-orchid.uber.com https://payments-staging.uberinternal.com https://payments-staging.uber.com https://d4p17acsd5wyj.cloudfront.net https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ https://dca.ubereats.com https://phx.ubereats.com 'self' 'unsafe-eval' 'wasm-unsafe-eval' https://*.googleapis.com https://*.gstatic.com https://*.ggpht.com https://*.googleusercontent.com https://ln-rules.rewardstyle.com/bookmarklet.js https://dx.mountain.com/spx https://gs.mountain.com/gs https://px.mountain.com/st https://js.adsrvr.org/up_loader.1.1.0.js https://js.adsrvr.org/universal_pixel.1.1.3.js https://www.clarity.ms/tag/uet/4050272 https://www.clarity.ms/s/ https://b99.yahoo.co.jp/pagead/conversion_async.js https://b98.yahoo.co.jp/pagead/conversion_async.js https://c.amazon-adsystem.com/aat/amzn.js https://*.ubereats.com https://fpnpmcdn.net https://*.arkoselabs.com https://*.sardine.ai https://*.online-metrix.net 'sha512-RcM1Pe8HQQu1oalKaB94GzwQ7JS+xkjWhSOclkJj9mheuwkUAS0Of+xgKMeBFkl73Z7RZ6zR9MVG8aIq3P8IDQ==' https://accounts.google.com 'self' 'unsafe-eval' script.crazyegg.com www.google-analytics.com www.googletagmanager.com maps.googleapis.com maps.google.com tags.tiqcdn.com beacon.krxd.net cdn.krxd.net cdn.mxpnl.com www.googleadservices.com www.ziprecruiter.com analytics.recruitics.com edge.quantserve.com secure.quantserve.com connect.facebook.net cdn.nanigans.com api.nanigans.com *.adroll.com s.yimg.com sp.analytics.yahoo.com click.app-cast.com i.l.inmobicdn.net *.optimizely.com *.tealiumiq.com *.doubleclick.net static.ads-twitter.com https://www.google-analytics.com https://ssl.google-analytics.com maps.googleapis.com maps.google.com". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback.
+4050272?insights=1:1 Refused to load the script 'https://scripts.clarity.ms/0.8.38/clarity.js' because it violates the following Content Security Policy directive: "script-src 'self' 'unsafe-inline' https://d1a3f4spazzrp4.cloudfront.net https://d3i4yxtzktqr9n.cloudfront.net https://tb-static.uber.com https://tbs-static.uber.com 'nonce-093b26dc-3c1b-4a6f-a910-a84b24ca73ae' https://bat.bing.com https://*.qualtrics.com https://analytics.twitter.com http://www.googletagservices.com http://*.cdn-net.com https://sc-static.net https://tr.snapchat.com https://*.yjtag.jp https://yjtag.yahoo.co.jp https://b92.yahoo.co.jp https://*.yimg.jp https://*.outbrain.com https://www.redditstatic.com https://analytics.tiktok.com https://dynamic.criteo.com https://static.criteo.net https://sslwidget.criteo.com https://widget.us.criteo.com https://widget.as.criteo.com https://widget.eu.criteo.com https://payments.uber.com https://payments.ubereats.com https://payments.postmates.com https://payments.order.store https://wpe-breeze.uberinternal.com https://payments-orchid.uber.com https://payments-staging.uberinternal.com https://payments-staging.uber.com https://d4p17acsd5wyj.cloudfront.net https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ https://dca.ubereats.com https://phx.ubereats.com 'self' 'unsafe-eval' 'wasm-unsafe-eval' https://*.googleapis.com https://*.gstatic.com https://*.ggpht.com https://*.googleusercontent.com https://ln-rules.rewardstyle.com/bookmarklet.js https://dx.mountain.com/spx https://gs.mountain.com/gs https://px.mountain.com/st https://js.adsrvr.org/up_loader.1.1.0.js https://js.adsrvr.org/universal_pixel.1.1.3.js https://www.clarity.ms/tag/uet/4050272 https://www.clarity.ms/s/ https://b99.yahoo.co.jp/pagead/conversion_async.js https://b98.yahoo.co.jp/pagead/conversion_async.js https://c.amazon-adsystem.com/aat/amzn.js https://*.ubereats.com https://fpnpmcdn.net https://*.arkoselabs.com https://*.sardine.ai https://*.online-metrix.net 'sha512-RcM1Pe8HQQu1oalKaB94GzwQ7JS+xkjWhSOclkJj9mheuwkUAS0Of+xgKMeBFkl73Z7RZ6zR9MVG8aIq3P8IDQ==' https://accounts.google.com 'self' 'unsafe-eval' script.crazyegg.com www.google-analytics.com www.googletagmanager.com maps.googleapis.com maps.google.com tags.tiqcdn.com beacon.krxd.net cdn.krxd.net cdn.mxpnl.com www.googleadservices.com www.ziprecruiter.com analytics.recruitics.com edge.quantserve.com secure.quantserve.com connect.facebook.net cdn.nanigans.com api.nanigans.com *.adroll.com s.yimg.com sp.analytics.yahoo.com click.app-cast.com i.l.inmobicdn.net *.optimizely.com *.tealiumiq.com *.doubleclick.net static.ads-twitter.com https://www.google-analytics.com https://ssl.google-analytics.com maps.googleapis.com maps.google.com". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback.
 
 (anonymous) @ 4050272?insights=1:1
 (anonymous) @ 4050272?insights=1:1Understand this error
-st?ga_tracking_id=G-1111111&ga_client_id=1836286334.1752990178&shpt=Preparing%20alessandro%27s%20order...&dcm_cid=1836286334.1752990178&available_ga=%5B%7B%22id%22%3A%22G-P1RM71MPFP%22%2C%22sess_id%22%3A%221761692453%22%7D%5D&ga_info=%7B%22status%22%3A%22OK%22%2C%22available_ga%22%3A%5B%7B%22id%22%3A%22G-P1RM71MPFP%22%2C%22sess_id%22%3A%221761692453%22%7D%5D%2C%22hardcoded_ga%22%3A%22G-1111111%22%2C%22ga_tracking_id%22%3A%22G-1111111%22%2C%22ga_client_id%22%3A%221836286334.1752990178%22%2C%22shpt%22%3A%22Preparing%20alessandro%27s%20order...%22%2C%22dcm_cid%22%3A%221836286334.1752990178%22%2C%22mntnis%22%3A%22fLiDomOP6kX4MIqBfJAIi7ZhlwdUwfXg%22%2C%22execution_workflow%22%3A%7B%22iteration%22%3A1%2C%22getClientIdByCookie%22%3A%22OK%22%2C%22shpt%22%3A%22OK%22%2C%22dcm_cid%22%3A%22OK%22%7D%7D&hardcoded_ga=G-1111111&meta_tag_data=%5B%7B%22robots.content%22%3A%22noindex%2C%20nofollow%22%7D%5D&dxver=4.0.0&shaid=34411&tdr=http%3A%2F%2F127.0.0.1%3A2100%2F&plh=https%3A%2F%2Fdelivery.uber.com%2Forders%2F7fad119b-e115-40e9-b5a6-d492c5c4199d%3FtenancyOverride%3Duber%252Ftesting%252Fdirect%252Fdcf2db8e-5d09-5bf5-bacb-b619e835f132&cb=64855751930291580&shadditional=googletagmanager%3Dtrue%2Cga4%3Dtrue%2Ctealium%3Dtrue:1 Refused to execute inline script because it violates the following Content Security Policy directive: "script-src 'self' 'unsafe-inline' https://d1a3f4spazzrp4.cloudfront.net https://d3i4yxtzktqr9n.cloudfront.net https://tb-static.uber.com https://tbs-static.uber.com 'nonce-a4b2bf82-f0c8-4713-b960-2698531c0fa3' https://bat.bing.com https://*.qualtrics.com https://analytics.twitter.com http://www.googletagservices.com http://*.cdn-net.com https://sc-static.net https://tr.snapchat.com https://*.yjtag.jp https://yjtag.yahoo.co.jp https://b92.yahoo.co.jp https://*.yimg.jp https://*.outbrain.com https://www.redditstatic.com https://analytics.tiktok.com https://dynamic.criteo.com https://static.criteo.net https://sslwidget.criteo.com https://widget.us.criteo.com https://widget.as.criteo.com https://widget.eu.criteo.com https://payments.uber.com https://payments.ubereats.com https://payments.postmates.com https://payments.order.store https://wpe-breeze.uberinternal.com https://payments-orchid.uber.com https://payments-staging.uberinternal.com https://payments-staging.uber.com https://d4p17acsd5wyj.cloudfront.net https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ https://dca.ubereats.com https://phx.ubereats.com 'self' 'unsafe-eval' 'wasm-unsafe-eval' https://*.googleapis.com https://*.gstatic.com https://*.ggpht.com https://*.googleusercontent.com https://ln-rules.rewardstyle.com/bookmarklet.js https://dx.mountain.com/spx https://gs.mountain.com/gs https://px.mountain.com/st https://js.adsrvr.org/up_loader.1.1.0.js https://js.adsrvr.org/universal_pixel.1.1.3.js https://www.clarity.ms/tag/uet/4050272 https://www.clarity.ms/s/ https://b99.yahoo.co.jp/pagead/conversion_async.js https://b98.yahoo.co.jp/pagead/conversion_async.js https://c.amazon-adsystem.com/aat/amzn.js https://*.ubereats.com https://fpnpmcdn.net https://*.arkoselabs.com https://*.sardine.ai https://*.online-metrix.net 'sha512-RcM1Pe8HQQu1oalKaB94GzwQ7JS+xkjWhSOclkJj9mheuwkUAS0Of+xgKMeBFkl73Z7RZ6zR9MVG8aIq3P8IDQ==' https://accounts.google.com 'self' 'unsafe-eval' script.crazyegg.com www.google-analytics.com www.googletagmanager.com maps.googleapis.com maps.google.com tags.tiqcdn.com beacon.krxd.net cdn.krxd.net cdn.mxpnl.com www.googleadservices.com www.ziprecruiter.com analytics.recruitics.com edge.quantserve.com secure.quantserve.com connect.facebook.net cdn.nanigans.com api.nanigans.com *.adroll.com s.yimg.com sp.analytics.yahoo.com click.app-cast.com i.l.inmobicdn.net *.optimizely.com *.tealiumiq.com *.doubleclick.net static.ads-twitter.com https://www.google-analytics.com https://ssl.google-analytics.com maps.googleapis.com maps.google.com". Note that 'unsafe-inline' is ignored if either a hash or nonce value is present in the source list.
-
-(anonymous) @ st?ga_tracking_id=G-1111111&ga_client_id=1836286334.1752990178&shpt=Preparing%20alessandro%27s%20order...&dcm_cid=1836286334.1752990178&available_ga=%5B%7B%22id%22%3A%22G-P1RM71MPFP%22%2C%22sess_id%22%3A%221761692453%22%7D%5D&ga_info=%7B%22status%22%3A%22OK%22%2C%22available_ga%22%3A%5B%7B%22id%22%3A%22G-P1RM71MPFP%22%2C%22sess_id%22%3A%221761692453%22%7D%5D%2C%22hardcoded_ga%22%3A%22G-1111111%22%2C%22ga_tracking_id%22%3A%22G-1111111%22%2C%22ga_client_id%22%3A%221836286334.1752990178%22%2C%22shpt%22%3A%22Preparing%20alessandro%27s%20order...%22%2C%22dcm_cid%22%3A%221836286334.1752990178%22%2C%22mntnis%22%3A%22fLiDomOP6kX4MIqBfJAIi7ZhlwdUwfXg%22%2C%22execution_workflow%22%3A%7B%22iteration%22%3A1%2C%22getClientIdByCookie%22%3A%22OK%22%2C%22shpt%22%3A%22OK%22%2C%22dcm_cid%22%3A%22OK%22%7D%7D&hardcoded_ga=G-1111111&meta_tag_data=%5B%7B%22robots.content%22%3A%22noindex%2C%20nofollow%22%7D%5D&dxver=4.0.0&shaid=34411&tdr=http%3A%2F%2F127.0.0.1%3A2100%2F&plh=https%3A%2F%2Fdelivery.uber.com%2Forders%2F7fad119b-e115-40e9-b5a6-d492c5c4199d%3FtenancyOverride%3Duber%252Ftesting%252Fdirect%252Fdcf2db8e-5d09-5bf5-bacb-b619e835f132&cb=64855751930291580&shadditional=googletagmanager%3Dtrue%2Cga4%3Dtrue%2Ctealium%3Dtrue:1
-(anonymous) @ st?ga_tracking_id=G-1111111&ga_client_id=1836286334.1752990178&shpt=Preparing%20alessandro%27s%20order...&dcm_cid=1836286334.1752990178&available_ga=%5B%7B%22id%22%3A%22G-P1RM71MPFP%22%2C%22sess_id%22%3A%221761692453%22%7D%5D&ga_info=%7B%22status%22%3A%22OK%22%2C%22available_ga%22%3A%5B%7B%22id%22%3A%22G-P1RM71MPFP%22%2C%22sess_id%22%3A%221761692453%22%7D%5D%2C%22hardcoded_ga%22%3A%22G-1111111%22%2C%22ga_tracking_id%22%3A%22G-1111111%22%2C%22ga_client_id%22%3A%221836286334.1752990178%22%2C%22shpt%22%3A%22Preparing%20alessandro%27s%20order...%22%2C%22dcm_cid%22%3A%221836286334.1752990178%22%2C%22mntnis%22%3A%22fLiDomOP6kX4MIqBfJAIi7ZhlwdUwfXg%22%2C%22execution_workflow%22%3A%7B%22iteration%22%3A1%2C%22getClientIdByCookie%22%3A%22OK%22%2C%22shpt%22%3A%22OK%22%2C%22dcm_cid%22%3A%22OK%22%7D%7D&hardcoded_ga=G-1111111&meta_tag_data=%5B%7B%22robots.content%22%3A%22noindex%2C%20nofollow%22%7D%5D&dxver=4.0.0&shaid=34411&tdr=http%3A%2F%2F127.0.0.1%3A2100%2F&plh=https%3A%2F%2Fdelivery.uber.com%2Forders%2F7fad119b-e115-40e9-b5a6-d492c5c4199d%3FtenancyOverride%3Duber%252Ftesting%252Fdirect%252Fdcf2db8e-5d09-5bf5-bacb-b619e835f132&cb=64855751930291580&shadditional=googletagmanager%3Dtrue%2Cga4%3Dtrue%2Ctealium%3Dtrue:1Understand this error
 client-main-ea3c4cb58389096b.js:1 *** sw registered: ServiceWorkerRegistration {installing: null, waiting: null, active: ServiceWorker, navigationPreload: NavigationPreloadManager, scope: 'https://delivery.uber.com/', …}
-
-
-
-
+st?ga_tracking_id=G-1111111&ga_client_id=1836286334.1752990178&shpt=Preparing%20alessandro%27s%20order...&dcm_cid=1836286334.1752990178&available_ga=%5B%7B%22id%22%3A%22G-P1RM71MPFP%22%2C%22sess_id%22%3A%221761696595%22%7D%5D&ga_info=%7B%22status%22%3A%22OK%22%2C%22available_ga%22%3A%5B%7B%22id%22%3A%22G-P1RM71MPFP%22%2C%22sess_id%22%3A%221761696595%22%7D%5D%2C%22hardcoded_ga%22%3A%22G-1111111%22%2C%22ga_tracking_id%22%3A%22G-1111111%22%2C%22ga_client_id%22%3A%221836286334.1752990178%22%2C%22shpt%22%3A%22Preparing%20alessandro%27s%20order...%22%2C%22dcm_cid%22%3A%221836286334.1752990178%22%2C%22mntnis%22%3A%22Ngd6gPsOSd7JVXFm%2FNOiYzSOoc8diCOo%22%2C%22execution_workflow%22%3A%7B%22iteration%22%3A2%2C%22getClientIdByCookie%22%3A%22OK%22%2C%22shpt%22%3A%22OK%22%2C%22dcm_cid%22%3A%22OK%22%7D%7D&hardcoded_ga=G-1111111&meta_tag_data=%5B%7B%22robots.content%22%3A%22noindex%2C%20nofollow%22%7D%5D&dxver=4.0.0&shaid=34411&tdr=https%3A%2F%2Flovemenowmiami.com%2F&plh=https%3A%2F%2Fdelivery.uber.com%2Forders%2F9ad786e2-ad9e-48ff-837a-9288dc8d3d45&cb=44145854518648260&shadditional=googletagmanager%3Dtrue%2Cga4%3Dtrue%2Ctealium%3Dtrue:1 Refused to execute inline script because it violates the following Content Security Policy directive: "script-src 'self' 'unsafe-inline' https://d1a3f4spazzrp4.cloudfront.net https://d3i4yxtzktqr9n.cloudfront.net https://tb-static.uber.com https://tbs-static.uber.com 'nonce-093b26dc-3c1b-4a6f-a910-a84b24ca73ae' https://bat.bing.com https://*.qualtrics.com https://analytics.twitter.com http://www.googletagservices.com http://*.cdn-net.com https://sc-static.net https://tr.snapchat.com https://*.yjtag.jp https://yjtag.yahoo.co.jp https://b92.yahoo.co.jp https://*.yimg.jp https://*.outbrain.com https://www.redditstatic.com https://analytics.tiktok.com https://dynamic.criteo.com https://static.criteo.net https://sslwidget.criteo.com https://widget.us.criteo.com https://widget.as.criteo.com https://widget.eu.criteo.com https://payments.uber.com https://payments.ubereats.com https://payments.postmates.com https://payments.order.store https://wpe-breeze.uberinternal.com https://payments-orchid.uber.com https://payments-staging.uberinternal.com https://payments-staging.uber.com https://d4p17acsd5wyj.cloudfront.net https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ https://dca.ubereats.com https://phx.ubereats.com 'self' 'unsafe-eval' 'wasm-unsafe-eval' https://*.googleapis.com https://*.gstatic.com https://*.ggpht.com https://*.googleusercontent.com https://ln-rules.rewardstyle.com/bookmarklet.js https://dx.mountain.com/spx https://gs.mountain.com/gs https://px.mountain.com/st https://js.adsrvr.org/up_loader.1.1.0.js https://js.adsrvr.org/universal_pixel.1.1.3.js https://www.clarity.ms/tag/uet/4050272 https://www.clarity.ms/s/ https://b99.yahoo.co.jp/pagead/conversion_async.js https://b98.yahoo.co.jp/pagead/conversion_async.js https://c.amazon-adsystem.com/aat/amzn.js https://*.ubereats.com https://fpnpmcdn.net https://*.arkoselabs.com https://*.sardine.ai https://*.online-metrix.net 'sha512-RcM1Pe8HQQu1oalKaB94GzwQ7JS+xkjWhSOclkJj9mheuwkUAS0Of+xgKMeBFkl73Z7RZ6zR9MVG8aIq3P8IDQ==' https://accounts.google.com 'self' 'unsafe-eval' script.crazyegg.com www.google-analytics.com www.googletagmanager.com maps.googleapis.com maps.google.com tags.tiqcdn.com beacon.krxd.net cdn.krxd.net cdn.mxpnl.com www.googleadservices.com www.ziprecruiter.com analytics.recruitics.com edge.quantserve.com secure.quantserve.com connect.facebook.net cdn.nanigans.com api.nanigans.com *.adroll.com s.yimg.com sp.analytics.yahoo.com click.app-cast.com i.l.inmobicdn.net *.optimizely.com *.tealiumiq.com *.doubleclick.net static.ads-twitter.com https://www.google-analytics.com https://ssl.google-analytics.com maps.googleapis.com maps.google.com". Note that 'unsafe-inline' is ignored if either a hash or nonce value is present in the source list.

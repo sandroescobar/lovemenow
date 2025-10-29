@@ -588,12 +588,18 @@ def create_order():
                     # Create the Uber delivery
                     try:
                         current_app.logger.info(f"🔍 Calling uber_service.create_delivery()...")
+                        
+                        # Build driver instructions with store name
+                        store_display_name = current_app.config.get('STORE_DISPLAY_NAME', 'Miami Vape Smoke Shop')
+                        dropoff_notes = f"Walk into the store called {store_display_name}. Ask the employee working inside the shop for your order."
+                        
                         uber_response = uber_service.create_delivery(
                             quote_id=quote_id,
                             pickup_info=pickup_info,
                             dropoff_info=dropoff_info,
                             manifest_items=manifest_items,
-                            use_robocourier=False
+                            use_robocourier=False,
+                            dropoff_notes=dropoff_notes
                         )
                         
                         # Store Uber delivery record

@@ -412,9 +412,13 @@ def create_delivery():
         
         manifest_items = create_manifest_items(cart_items)
         
+        # Build driver instructions with store name
+        store_display_name = current_app.config.get('STORE_DISPLAY_NAME', 'Miami Vape Smoke Shop')
+        dropoff_notes = f"Walk into the store called {store_display_name}. Ask the employee working inside the shop for your order."
+        
         # Create delivery with Uber
         delivery_response = uber_service.create_delivery(
-            quote_id, pickup_info, dropoff_info, manifest_items
+            quote_id, pickup_info, dropoff_info, manifest_items, dropoff_notes=dropoff_notes
         )
         
         # Save delivery information to database
