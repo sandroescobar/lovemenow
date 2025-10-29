@@ -171,7 +171,7 @@ class UberDirectService:
         return cleaned
     
     def create_delivery(self, quote_id: str, pickup_info: Dict, dropoff_info: Dict, 
-                       manifest_items: list, use_robocourier: bool = False) -> Dict:
+                       manifest_items: list, use_robocourier: bool = False, dropoff_notes: str = None) -> Dict:
         """Create a delivery using the EXACT Uber Direct API format"""
         endpoint = f"/customers/{self.customer_id}/deliveries"
         
@@ -193,6 +193,10 @@ class UberDirectService:
             "dropoff_phone_number": dropoff_phone,
             "manifest_items": manifest_items
         }
+        
+        # Add special delivery notes for driver instructions
+        if dropoff_notes:
+            data["dropoff_notes"] = dropoff_notes
         
         # Add optional fields if available
         if pickup_info.get('latitude'):
