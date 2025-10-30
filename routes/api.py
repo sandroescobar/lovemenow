@@ -23,6 +23,7 @@ from .discount_utils import record_discount_redemption
 from security import sanitize_input, validate_input
 from routes.discount import discount_bp
 from .discount_utils import get_redemptions_for
+from services.slack_notifications import send_order_notification
 
 # IMPORTANT: mount all routes under /api
 api_bp = Blueprint('api', __name__, url_prefix='/api')
@@ -695,6 +696,29 @@ def create_order():
         except Exception as e:
             # Don't fail the order if email send has issues
             current_app.logger.exception(f"❌ Failed to send order confirmation email: {e}")
+
+        # 6) Send Slack notification
+        try:
+            # Get order items for Slack (with full product objects)
+            order_items = OrderItem.query.filter_by(order_id=order.id).all()
+            slack_items = []
+            for item in order_items:
+                product = Product.query.get(item.product_id)
+                if product:
+                    slack_items.append({
+                        "product": product,
+                        "quantity": item.quantity
+                    })
+            
+            if slack_items:
+                success = send_order_notification(order, slack_items)
+                if success:
+                    current_app.logger.info(f"✅ Slack notification sent for order {order.order_number}")
+                else:
+                    current_app.logger.warning(f"⚠️ Slack notification may have failed for order {order.order_number}")
+        except Exception as e:
+            # Don't fail the order if Slack send has issues
+            current_app.logger.exception(f"❌ Failed to send Slack notification: {e}")
 
         return jsonify({
             'success': True,
