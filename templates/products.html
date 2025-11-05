@@ -98,15 +98,18 @@
   </style>
 
   <!-- Non-critical CSS - load async -->
-  <link rel="preload" href="{{ url_for('static', filename='CSS/styles.css') }}?v=20250116-3" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}?v=20250116-3"></noscript>
+  <link rel="preload" href="{{ url_for('static', filename='CSS/styles.css') }}?v=20250116-4" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/styles.css') }}?v=20250116-4"></noscript>
 
   <link rel="preload" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}?v=20250116-3" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}?v=20250116-3"></noscript>
 
   <!-- Mobile filter sheet styles -->
-  <link rel="preload" href="{{ url_for('static', filename='CSS/filters-sheet.css') }}?v=20251004-1" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/filters-sheet.css') }}?v=20251004-1"></noscript>
+  <link rel="preload" href="{{ url_for('static', filename='CSS/filters-sheet.css') }}?v=20251004-2" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/filters-sheet.css') }}?v=20251004-2"></noscript>
+
+   <link rel="stylesheet" href="{{ url_for('static', filename='CSS/overrides.css') }}?v=20251104-2">
+
 
   <!-- CSRF + Tags -->
   {% include 'csrf_meta.html' %}
@@ -185,7 +188,7 @@
         <!-- MOBILE: category toolbar (hidden on desktop via CSS) -->
         <div class="mobile-category-toolbar">
           <button id="openCategorySheet" class="btn-category-picker" type="button">
-            <span id="mobileCategoryLabel">Category · {{ current_filters.category_name or 'All Products' }}</span>
+            <span id="mobileCategoryLabel">Gender · {{ current_filters.category_name or 'All Products' }}</span>
             <i class="fas fa-chevron-down" aria-hidden="true"></i>
           </button>
           <div class="mobile-toolbar-meta">
@@ -198,9 +201,69 @@
 
         <!-- Bottom Row (desktop / tablet): Category Navigation First -->
         <div class="filter-bottom-row">
-          <a href="#" class="dropdown-toggle" onclick="filterProducts('all')" style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(236, 72, 153, 0.2)); border-color: hsl(var(--primary-color));">
-            <span>All Products</span>
-          </a>
+          <!-- Gender Filter - Multi-level Dropdown -->
+          <div class="nav-dropdown gender-dropdown">
+            <a href="#" class="dropdown-toggle">
+              <span>Gender</span>
+              <i class="fas fa-chevron-down"></i>
+            </a>
+            <div class="dropdown-menu gender-menu">
+              <!-- Men Section -->
+              <div class="dropdown-section gender-section">
+                <div class="gender-submenu-item">
+                  <a href="#" class="gender-submenu-toggle" data-submenu="men-categories">
+                    <span>Men</span>
+                    <i class="fas fa-chevron-right"></i>
+                  </a>
+                </div>
+                <div id="men-categories" class="gender-submenu" style="display:none;">
+                  <a href="#" class="dropdown-item" onclick="filterProducts('men')">All Men</a>
+                  <a href="#" class="dropdown-item" onclick="filterProducts('masturbators')">Masturbators</a>
+                  <a href="#" class="dropdown-item" onclick="filterProducts('cock-rings')">Cock Rings</a>
+                  <a href="#" class="dropdown-item" onclick="filterProducts('cock-pumps')">Cock Pumps</a>
+                  <a href="#" class="dropdown-item" onclick="filterProducts('dildos')">Dildos</a>
+                  <a href="#" class="dropdown-item" onclick="filterProducts('lubricant')">Lubricants</a>
+                  <a href="#" class="dropdown-item" onclick="filterProducts('Water Based Lubricant')">Water Based Lubricant</a>
+                  <a href="#" class="dropdown-item" onclick="filterProducts('oil based')">Oil Based Lubricant</a>
+                  <a href="#" class="dropdown-item" onclick="filterProducts('Massage Oil')">Massage Oil</a>
+                  <a href="#" class="dropdown-item" onclick="filterProducts('butt-plug')">Butt Plugs</a>
+                  <a href="#" class="dropdown-item" onclick="filterProducts('penis-extensions')">Penis Extensions</a>
+                  <a href="#" class="dropdown-item" onclick="filterProducts('anal-beads')">Anal Beads</a>
+                  <a href="#" class="dropdown-item" onclick="filterProducts('douches-and-enemas')">Douches & Enemas</a>
+                </div>
+              </div>
+              
+              <!-- Women Section -->
+              <div class="dropdown-section gender-section">
+                <div class="gender-submenu-item">
+                  <a href="#" class="gender-submenu-toggle" data-submenu="women-categories">
+                    <span>Women</span>
+                    <i class="fas fa-chevron-right"></i>
+                  </a>
+                </div>
+                <div id="women-categories" class="gender-submenu" style="display:none;">
+                  <a href="#" class="dropdown-item" onclick="filterProducts('women')">All Women</a>
+                  <a href="#" class="dropdown-item" onclick="filterProducts('vibrators')">Vibrators</a>
+                  <a href="#" class="dropdown-item" onclick="filterProducts('wands')">Wands</a>
+                  <a href="#" class="dropdown-item" onclick="filterProducts('lingerie')">Lingerie</a>
+                  <a href="#" class="dropdown-item" onclick="filterProducts('dildos')">Dildos</a>
+                  <a href="#" class="dropdown-item" onclick="filterProducts('strap-on-kits')">Strap-ons</a>
+                  <a href="#" class="dropdown-item" onclick="filterProducts('bdsm')">BDSM</a>
+                  <a href="#" class="dropdown-item" onclick="filterProducts('masks')">Masks</a>
+                  <a href="#" class="dropdown-item" onclick="filterProducts('restraints')">Restraints</a>
+                  <a href="#" class="dropdown-item" onclick="filterProducts('collars-nipple-clamps')">Collars & Clamps</a>
+                  <a href="#" class="dropdown-item" onclick="filterProducts('nipple-clamps')">Nipple Clamps</a>
+                  <a href="#" class="dropdown-item" onclick="filterProducts('lubricant')">Lubricants</a>
+                  <a href="#" class="dropdown-item" onclick="filterProducts('Water Based Lubricant')">Water Based Lubricant</a>
+                  <a href="#" class="dropdown-item" onclick="filterProducts('oil based')">Oil Based Lubricant</a>
+                  <a href="#" class="dropdown-item" onclick="filterProducts('Massage Oil')">Massage Oil</a>
+                  <a href="#" class="dropdown-item" onclick="filterProducts('anal-toys')">Anal Toys</a>
+                  <a href="#" class="dropdown-item" onclick="filterProducts('butt-plug')">Butt Plugs</a>
+                  <a href="#" class="dropdown-item" onclick="filterProducts('anal-beads')">Anal Beads</a>
+                </div>
+              </div>
+            </div>
+          </div>
 
           {% for category in categories %}
             {% if category.children %}
@@ -414,8 +477,8 @@
         <!-- Level 1: parents -->
         <ul class="category-list level-1" id="catLevel1">
           <li>
-            <button type="button" class="row" data-category="all" data-has-children="false">
-              <span class="label">All Products</span><span class="chevron">›</span>
+            <button type="button" class="row" data-category="gender" data-has-children="true" data-children='[{"slug":"men","name":"Men","children":[{"slug":"masturbators","name":"Masturbators"},{"slug":"cock-rings","name":"Cock Rings"},{"slug":"cock-pumps","name":"Cock Pumps"},{"slug":"dildos","name":"Dildos"},{"slug":"lubricant","name":"Lubricants"},{"slug":"Water Based Lubricant","name":"Water Based Lubricant"},{"slug":"oil based","name":"Oil Based Lubricant"},{"slug":"Massage Oil","name":"Massage Oil"},{"slug":"butt-plug","name":"Butt Plugs"},{"slug":"penis-extensions","name":"Penis Extensions"},{"slug":"anal-beads","name":"Anal Beads"},{"slug":"douches-and-enemas","name":"Douches & Enemas"}]},{"slug":"women","name":"Women","children":[{"slug":"vibrators","name":"Vibrators"},{"slug":"wands","name":"Wands"},{"slug":"lingerie","name":"Lingerie"},{"slug":"dildos","name":"Dildos"},{"slug":"strap-on-kits","name":"Strap-ons"},{"slug":"bdsm","name":"BDSM"},{"slug":"masks","name":"Masks"},{"slug":"restraints","name":"Restraints"},{"slug":"collars-nipple-clamps","name":"Collars & Clamps"},{"slug":"nipple-clamps","name":"Nipple Clamps"}]}]'>
+              <span class="label">Gender</span><span class="chevron">›</span>
             </button>
           </li>
           {% for category in categories %}
@@ -470,6 +533,45 @@
       category_name: {{ (current_filters.category_name|tojson) if current_filters and current_filters.category_name else 'null' }}
     };
   </script>
+
+  <!-- Gender Dropdown Submenu Handler -->
+  <!-- Gender menu: desktop/mobile click-to-toggle grids (no auto-open) -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const toggles = document.querySelectorAll('.gender-submenu-toggle');
+  const menus   = document.querySelectorAll('.gender-submenu');
+
+  function isDesktop(){ return window.matchMedia('(min-width:769px)').matches; }
+
+  function closeAll(){
+    menus.forEach(m => m.classList.remove('open'));
+  }
+
+  // Toggle Men/Women grids on click for BOTH desktop and mobile
+  toggles.forEach(t => {
+    t.addEventListener('click', function(e){
+      e.preventDefault();
+      const id = this.getAttribute('data-submenu');
+      const menu = document.getElementById(id);
+      if(!menu) return;
+      const willOpen = !menu.classList.contains('open');
+      closeAll();
+      if (willOpen) menu.classList.add('open');
+    }, { passive:false });
+  });
+
+  // Close submenus when a subcategory is picked (mobile & desktop)
+  document.querySelectorAll('.gender-submenu .dropdown-item').forEach(item=>{
+    item.addEventListener('click', () => closeAll());
+  });
+
+  // Click outside the Gender dropdown closes submenus
+  document.addEventListener('click', (e) => {
+    const wrapper = document.querySelector('.gender-dropdown');
+    if (wrapper && !wrapper.contains(e.target)) closeAll();
+  });
+});
+</script>
 
   <!-- NEW: category sheet controller (loads after products.js so it can call filterProducts) -->
   <script src="{{ url_for('static', filename='js/filters.js') }}?v=20251004-5" defer></script>

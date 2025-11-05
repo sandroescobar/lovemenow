@@ -225,19 +225,40 @@ def products():
         query = Product.query
 
         # Apply filters
-        category_id = request.args.get('category', type=int)
-        if category_id:
-            # Get the category and all its descendants recursively
-            category = Category.query.get(category_id)
-            if category:
-                def get_all_subcategory_ids(cat):
-                    ids = [cat.id]
-                    for child in cat.children:
-                        ids.extend(get_all_subcategory_ids(child))
-                    return ids
+        category_param = request.args.get('category')
+        category_id = None
+        category = None
+        
+        if category_param:
+            # Try to parse as integer first (numeric category ID)
+            try:
+                category_id = int(category_param)
+                category = Category.query.get(category_id)
+            except (ValueError, TypeError):
+                # If not an integer, try to find by slug
+                category = Category.query.filter_by(slug=category_param).first()
+        
+        if category:
+            def get_all_subcategory_ids(cat):
+                ids = [cat.id]
+                for child in cat.children:
+                    ids.extend(get_all_subcategory_ids(child))
+                return ids
 
-                all_category_ids = get_all_subcategory_ids(category)
-                query = query.filter(Product.category_id.in_(all_category_ids))
+            all_category_ids = get_all_subcategory_ids(category)
+            
+            # Gender filter expansion
+            # If filtering by "Men" or "Women", expand to their mapped category IDs
+            if category.slug in ['men', 'women']:
+                gender_mappings = {
+                    'men': [34, 60, 35, 33, 55, 56, 57, 4, 11, 37, 53, 38, 51],
+                    'women': [36, 39, 5, 33, 54, 1, 7, 10, 40, 50, 4, 55, 56, 57, 58, 11, 38]
+                }
+                gender_ids = gender_mappings.get(category.slug, [])
+                if gender_ids:
+                    all_category_ids = list(set(gender_ids))  # Remove duplicates
+            
+            query = query.filter(Product.category_id.in_(all_category_ids))
 
         color_id = request.args.get('color', type=int)
         if color_id:
@@ -271,16 +292,16 @@ def products():
         if brand:
             query = query.filter(Product.name.ilike(f'{brand}%'))
 
-        # Apply sorting
+        # Apply sorting - Always prioritize in-stock products first
         sort_by = request.args.get('sort', 'name')
         if sort_by == 'low-high':
-            query = query.order_by(Product.price.asc())
+            query = query.order_by(Product.in_stock.desc(), Product.price.asc())
         elif sort_by == 'high-low':
-            query = query.order_by(Product.price.desc())
+            query = query.order_by(Product.in_stock.desc(), Product.price.desc())
         elif sort_by == 'newest':
-            query = query.order_by(desc(Product.id))
+            query = query.order_by(Product.in_stock.desc(), desc(Product.id))
         else:
-            query = query.order_by(Product.name.asc())
+            query = query.order_by(Product.in_stock.desc(), Product.name.asc())
 
         # Paginate results with optimized query loading
         # Use selectinload for collections (not joinedload) to avoid cartesian products
@@ -301,7 +322,7 @@ def products():
                                categories=categories,
                                colors=colors,
                                current_filters={
-                                   'category': category_id,
+                                   'category': category.id if category else None,
                                    'color': color_id,
                                    'min_price': min_price,
                                    'max_price': max_price,

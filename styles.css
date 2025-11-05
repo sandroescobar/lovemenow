@@ -979,6 +979,101 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
     transform: translateY(0);
 }
 
+/* Gender Dropdown Styling */
+.gender-submenu-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: hsl(var(--text-color));
+    text-decoration: none;
+    padding: 0.6rem 1rem;
+    border-radius: 20px;
+    transition: all 0.2s ease;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(168, 85, 247, 0.2);
+    font-weight: 500;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    backdrop-filter: blur(5px);
+    width: 100%;
+    text-align: left;
+}
+
+.gender-submenu-toggle:hover {
+    background: rgba(168, 85, 247, 0.1);
+    border-color: hsl(var(--primary-color));
+    transform: translateY(-1px);
+}
+
+.gender-submenu-item {
+    margin-bottom: 0;
+    padding: 0;
+    width: 100%;
+    display: block;
+}
+
+.gender-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+}
+
+.gender-submenu {
+    position: static;
+    background: rgba(34, 40, 49, 0.98);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    border-radius: 8px;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2);
+    min-width: 220px;
+    z-index: 1100;
+    max-height: 65vh;
+    overflow-y: auto;
+    margin-top: 0.5rem;
+    margin-left: 0;
+    margin-bottom: 0.75rem;
+}
+
+.gender-submenu .dropdown-item {
+    display: block;
+    padding: 0.75rem 1rem;
+    color: hsl(var(--text-color));
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border-radius: 0;
+    margin: 0;
+    font-size: 0.85rem;
+}
+
+.gender-submenu .dropdown-item:first-child {
+    border-top: 1px solid rgba(168, 85, 247, 0.2);
+}
+
+.gender-submenu .dropdown-item:hover {
+    background: rgba(168, 85, 247, 0.15);
+    padding-left: 1.25rem;
+}
+
+/* Scrollbar styling for gender submenu */
+.gender-submenu::-webkit-scrollbar {
+    width: 6px;
+}
+
+.gender-submenu::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+}
+
+.gender-submenu::-webkit-scrollbar-thumb {
+    background: rgba(168, 85, 247, 0.4);
+    border-radius: 3px;
+}
+
+.gender-submenu::-webkit-scrollbar-thumb:hover {
+    background: rgba(168, 85, 247, 0.6);
+}
+
 .dropdown-item-with-submenu {
     position: relative;
 }

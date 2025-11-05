@@ -14735,6 +14735,87 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 }
 
 
+/* Desktop/tablet: turn gender submenus into a fly-out with safe height */
+@media (min-width: 769px){
+  .gender-submenu{
+    position:absolute;
+    top:0; left: calc(100% + 12px);      /* fly out to the right of the row */
+    min-width: 320px; max-width: 420px;
+    background: hsl(var(--dark-color));
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    padding: 1rem;
+    display:none;                         /* JS toggles to block */
+    max-height: 60vh; overflow-y: auto;   /* fits viewport with scroll */
+    overscroll-behavior: contain;
+    z-index: 1001;
+  }
+  /* Reuse existing item styling inside the fly-out */
+  .gender-submenu .dropdown-item{
+    display:block; padding:0.5rem 0.75rem; font-size:.8rem; border-bottom:1px solid rgba(255,255,255,.05);
+  }
+  .gender-submenu .dropdown-item:last-child{ border-bottom:none; }
+  .gender-submenu .dropdown-item:hover{ color:hsl(var(--primary-color)); padding-left:.5rem; }
+}
+
+
+/* Desktop: make Men/Women look like other nav pills */
+.professional-filter-navbar .gender-dropdown .gender-submenu-toggle {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  color: hsl(var(--text-color));
+  text-decoration: none;
+  padding: .6rem 1rem;
+  border-radius: 20px;
+  transition: all .2s ease;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(168,85,247,.2);
+  font-weight: 500;
+  font-size: .85rem;
+  white-space: nowrap;
+  backdrop-filter: blur(5px);
+}
+.professional-filter-navbar .gender-dropdown .gender-submenu-toggle:hover {
+  background: rgba(168,85,247,.10);
+  border-color: hsl(var(--primary-color));
+  transform: translateY(-1px);
+}
+
+/* Desktop: style the Men/Women flyout submenu */
+.gender-menu .gender-submenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  display: none;           /* JS toggles this to block */
+  margin-top: .5rem;
+  min-width: 200px;
+  max-height: 50vh;
+  overflow: auto;
+  background: rgba(34,40,49,.98);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(168,85,247,.3);
+  border-radius: 8px;
+  box-shadow: 0 8px 25px rgba(0,0,0,.2);
+  z-index: 1100;
+}
+.gender-menu .dropdown-item {
+  display: block;
+  padding: .75rem 1rem;
+  color: hsl(var(--text-color));
+  text-decoration: none;
+  transition: all .2s ease;
+  font-size: .85rem;
+  margin: 0;
+  border-radius: 0;
+}
+.gender-menu .dropdown-item:hover {
+  background: rgba(168,85,247,.15);
+  padding-left: 1.25rem;
+}
+
+
 
 
 

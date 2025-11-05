@@ -1,0 +1,77 @@
+/* ── Gender dropdown: clean two-column panel with grid submenus ── */
+@media (min-width: 769px){
+  /* Wide panel */
+  .professional-filter-navbar .gender-dropdown .dropdown-menu.gender-menu{
+    width: clamp(640px, 60vw, 860px);
+    padding: 14px 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  /* Column cards */
+  .professional-filter-navbar .gender-dropdown .gender-section{
+    background: rgba(255,255,255,.03);
+    border: 1px solid rgba(168,85,247,.18);
+    border-radius: 12px;
+    padding: 10px 12px;
+    min-width: 280px;
+  }
+
+  /* Men/Women headers (clickable on desktop to toggle their grid) */
+  .professional-filter-navbar .gender-dropdown .gender-submenu-toggle{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 10px 12px;
+    border-radius: 10px;
+    color: hsl(var(--text-color));
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(168,85,247,.18);
+    cursor: pointer;
+    text-decoration:none;
+    font-weight:600; font-size:.9rem;
+  }
+  .professional-filter-navbar .gender-dropdown .gender-submenu-toggle i{ opacity:.75; }
+
+  /* IMPORTANT: reset the old always-open rule */
+  .professional-filter-navbar .gender-dropdown .gender-submenu{
+    display: none !important;           /* closed by default */
+    margin-top: 8px;
+    max-height: 42vh;                   /* viewport safe */
+    overflow: auto;
+    padding: 6px 0;
+    scrollbar-width: none;              /* hide scrollbars (Firefox) */
+  }
+  .professional-filter-navbar .gender-dropdown .gender-submenu::-webkit-scrollbar{
+    width:0;height:0;                   /* hide scrollbars (WebKit) */
+  }
+
+  /* Open state = responsive grid (no long vertical list) */
+  .professional-filter-navbar .gender-dropdown .gender-submenu.open{
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 8px 12px;
+    padding: 8px 4px;
+  }
+
+  /* Item “chips” */
+  .professional-filter-navbar .gender-dropdown .gender-submenu .dropdown-item{
+    display:block;
+    padding:10px 12px;
+    border-radius:10px;
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.06);
+    white-space: nowrap;
+    font-size:.85rem;
+    transition: transform .12s ease, background-color .12s ease, color .12s ease;
+  }
+  .professional-filter-navbar .gender-dropdown .gender-submenu .dropdown-item:hover{
+    background: rgba(168,85,247,.16);
+    color: hsl(var(--primary-color));
+    transform: translateY(-1px);
+  }
+}
+
+/* Keep big dropdown open while interacting (not just :hover) */
+.professional-filter-navbar .nav-dropdown:focus-within .dropdown-menu{
+  opacity:1; visibility:visible; transform:translateY(0);
+}

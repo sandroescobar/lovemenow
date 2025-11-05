@@ -33,23 +33,30 @@
   const ID_BY_SLUG = (window.categoryMap && typeof window.categoryMap === 'object')
     ? window.categoryMap
     : {
+        // Gender categories (these use slug directly, not numeric IDs)
+        'men': 'men', 'women': 'women',
+        // Main categories
         'bdsm': 1, 'toys': 2, 'kits': 3, 'lubricant': 4, 'lingerie': 5,
         'anal-toys': 58, 'sexual-enhancements': 59,
+        // Subcategories
         'roleplay-kit': 6, 'masks': 7, 'bondage-kit': 9, 'restraints': 10,
         'butt-plug': 11, 'anal-numbing-gel': 22, 'dildos': 33, 'masturbators': 34,
-        'cock-pumps': 35, 'penis-extensions': 37, 'anal-beads': 38,
-        'collars-nipple-clamps': 40, 'nipple-clamps': 50,
-        'douches-and-enemas': 51, 'strap-on-kits': 54,
+        'cock-pumps': 35, 'vibrators': 36, 'penis-extensions': 37, 'anal-beads': 38,
+        'wands': 39, 'collars-nipple-clamps': 40, 'nipple-clamps': 50,
+        'douches-and-enemas': 51, 'strap-on-kits': 54, 'cock-rings': 60,
         'Water Based Lubricant': 55, 'oil based': 56, 'Massage Oil': 57
       };
   const SLUG_BY_ID = Object.fromEntries(Object.entries(ID_BY_SLUG).map(([slug, id]) => [String(id), slug]));
 
   function setToolbarLabel(txt) {
     const labelEl = $('#mobileCategoryLabel');
-    if (labelEl) labelEl.textContent = `Category · ${txt}`;
+    if (labelEl) labelEl.textContent = `Gender · ${txt}`;
   }
   function resolveCategoryName(slug) {
     if (!slug || slug === 'all') return 'All Products';
+    if (slug === 'men') return 'Men';
+    if (slug === 'women') return 'Women';
+    if (slug === 'gender') return 'Gender';
     const main = sheet.querySelector(`.level-1 .row[data-category="${CSS.escape(slug)}"] .label`);
     if (main) return main.textContent.trim();
     for (const p of $$('.level-1 .row', sheet)) {
@@ -84,6 +91,7 @@
   // ---- seed selected (handles numeric IDs and slugs) ----
   const CF = (window.current_filters || {});
   let selected = { slug: 'all', label: 'All Products' };
+  let selectedGender = null; // Track selected gender for level 2
   (function seedSelected() {
     if (typeof CF.category_name === 'string' && CF.category_name.trim()) {
       selected.label = CF.category_name.trim();
@@ -140,10 +148,12 @@
   }
 
   // ---- build subs ----
-  function rowHTML(slug, name) {
+  function rowHTML(slug, name, childObj) {
+    // Preserve nested children data for multi-level navigation
+    const childrenAttr = (childObj && childObj.children) ? ` data-children='${JSON.stringify(childObj.children).replace(/'/g, "&apos;")}'` : '';
     return `
       <li>
-        <button type="button" class="row" data-category="${slug}" data-category-name="${name}">
+        <button type="button" class="row" data-category="${slug}" data-category-name="${name}"${childrenAttr}>
           <span class="label">${name}</span><span class="check" aria-hidden="true"></span>
         </button>
       </li>
@@ -155,7 +165,7 @@
     catch {}
     level2.innerHTML = '';
     level2.insertAdjacentHTML('beforeend', rowHTML(parentSlug, `All ${parentName}`));
-    children.forEach(ch => level2.insertAdjacentHTML('beforeend', rowHTML(ch.slug || '', ch.name || '')));
+    children.forEach(ch => level2.insertAdjacentHTML('beforeend', rowHTML(ch.slug || '', ch.name || '', ch)));
     showSubHeader(parentName);
     level2.hidden  = false;
     backBtn.hidden = false;
@@ -187,19 +197,23 @@
     const cat   = btn.dataset.category;
     const name  = btn.dataset.categoryName || btn.querySelector('.label')?.textContent?.trim() || 'Category';
     const json  = btn.dataset.children || '[]';
+    const hasChildren = btn.dataset.hasChildren === 'true';
 
-    if (cat === 'all') {
-      selected = { slug: 'all', label: 'All Products' };
-      setToolbarLabel(selected.label);
-      syncFooterButton();
-      closeSheet(e);
-      if (typeof window.filterProducts === 'function') window.filterProducts('all');
+    // If it's the Gender button, show Men/Women options
+    if (cat === 'gender') {
+      selectedGender = null; // Reset gender when going back to Gender
+      buildLevel2(name, json, cat);
       return;
     }
-    buildLevel2(name, json, cat);
+
+    // Regular categories with children - show subcategories
+    if (hasChildren) {
+      buildLevel2(name, json, cat);
+      return;
+    }
   });
 
-  // Level 2 (subs) — immediate apply
+  // Level 2 (subs) — handle men/women or final category
   level2?.addEventListener('click', e => {
     const btn = e.target.closest('.row');
     if (!btn) return;
@@ -207,7 +221,24 @@
 
     const cat  = btn.dataset.category;
     const name = btn.dataset.categoryName || btn.querySelector('.label')?.textContent?.trim() || 'Category';
+    const json  = btn.dataset.children || '[]';
 
+    // If clicking Men or Women (from Gender level), show subcategories
+    if ((cat === 'men' || cat === 'women') && !selectedGender) {
+      try {
+        const parsed = JSON.parse(json);
+        // parsed should be an array of subcategories [{"slug":"masturbators",...}, ...]
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          selectedGender = cat; // Store gender
+          buildLevel2(`${name}`, JSON.stringify(parsed), cat);
+          return;
+        }
+      } catch (err) {
+        // Continue to filter if parsing fails
+      }
+    }
+
+    // Otherwise apply filter immediately
     selected = { slug: cat, label: name };
     setToolbarLabel(name);
     syncFooterButton();
@@ -223,6 +254,7 @@
     backBtn.hidden = true;
     hideSubHeader();
     $('.sheet-title', sheet).textContent = 'Choose Category';
+    selectedGender = null; // Reset gender when going back
     scrollCurrentIntoView(level1);
     syncFooterButton();
   });

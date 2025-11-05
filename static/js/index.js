@@ -1317,6 +1317,9 @@ window.filterProducts = function filterProducts(categorySlug) {
   if (categorySlug === 'all') { window.location.href = '/products'; return; }
 
   const categoryMap = {
+    // Gender categories (pass slug directly - backend will look up by slug)
+    'men': 'men',
+    'women': 'women',
     // Main categories
     'bdsm': 1,
     'toys': 2,
