@@ -382,6 +382,8 @@ def create_checkout_session():
     Create a PaymentIntent for the current cart with server-trusted totals.
     Restrict to CARD only (so Affirm/Amazon/Klarna/CashApp disappear).
     Apple Pay/Google Pay will still work via the card rails.
+    
+    ✅ NOW CANCELS OLD PaymentIntents to prevent duplicate charges
     """
     try:
         stripe.api_key = current_app.config.get('STRIPE_SECRET_KEY')
@@ -394,16 +396,35 @@ def create_checkout_session():
         from routes.checkout_totals import compute_totals
         totals = compute_totals(delivery_type=delivery_type, delivery_quote=delivery_quote)
 
+        # 🔒 CRITICAL FIX: Cancel stale PaymentIntent if one exists in session
+        # This prevents the race condition where multiple PIs can be charged
+        try:
+            old_pi = session.get("active_pi_id")
+            if old_pi:
+                stripe.PaymentIntent.cancel(old_pi)
+                current_app.logger.info(f"Cancelled stale PI: {old_pi}")
+        except Exception as e:
+            current_app.logger.warning(f"Failed to cancel old PI: {str(e)}")
+
+        # Create fresh PaymentIntent with CARD ONLY
         intent = stripe.PaymentIntent.create(
             amount=int(totals['amount_cents']),
             currency='usd',
             automatic_payment_methods={'enabled': False},  # <-- turn off auto
             payment_method_types=['card'],                 # <-- only card
+            description='LoveMeNow order',
             metadata={
                 'delivery_type': delivery_type,
-                'has_quote': '1' if delivery_quote else '0'
+                'has_quote': '1' if delivery_quote else '0',
+                'delivery_fee': str(totals.get('delivery_fee', 0)),
+                'subtotal': str(totals.get('subtotal', 0)),
             }
         )
+        
+        # Store PI id in session to track it (for cancellation next time)
+        session["active_pi_id"] = intent.id
+        current_app.logger.info(f"Created new PI: {intent.id}")
+        
         return jsonify({'clientSecret': intent.client_secret})
 
     except Exception as e:
@@ -422,9 +443,27 @@ def create_order():
 
         # 1) Verify PaymentIntent
         stripe.api_key = current_app.config.get('STRIPE_SECRET_KEY')
-        intent = stripe.PaymentIntent.retrieve(data['payment_intent_id'])
+        pi_id = data['payment_intent_id']
+        intent = stripe.PaymentIntent.retrieve(pi_id)
         if intent.status != 'succeeded':
             return jsonify({'error': f'Payment not completed. Status: {intent.status}'}), 400
+
+        # 🔒 CRITICAL FIX: Check if an order was ALREADY created from this PaymentIntent
+        # This prevents duplicate charges if the same PI somehow completes multiple times
+        existing_order = Order.query.filter_by(stripe_session_id=pi_id).first()
+        if existing_order:
+            current_app.logger.warning(
+                f"⚠️  Duplicate order attempt detected! PI {pi_id} already created order #{existing_order.order_number}. "
+                f"Existing order status: {existing_order.status}, Payment: {existing_order.payment_status}"
+            )
+            # Return success to client but DON'T create another order
+            # Client already has the order, just re-fetch it
+            return jsonify({
+                'success': True,
+                'order_number': existing_order.order_number,
+                'message': 'Order already exists for this payment',
+                'order_id': existing_order.id
+            }), 200
 
         # 2) Recompute server totals (MUST match the PI amount)
         from routes.checkout_totals import compute_totals
@@ -452,8 +491,12 @@ def create_order():
             total_amount=totals['total'],
             payment_method='card',
             payment_status='paid',
-            stripe_session_id=data.get('payment_intent_id'),  # store PI id
-            status='confirmed'
+            stripe_session_id=pi_id,  # store PI id
+            status='confirmed',
+            # NEW: Track payment intent status and duplicate info
+            payment_intent_status_at_creation=intent.status,
+            is_duplicate_payment=False,  # This is the first order for this PI
+            cancellation_reason=None
         )
 
         # shipping / pickup address
@@ -529,8 +572,12 @@ def create_order():
         session.pop('discount_code', None)
         session.pop('discount_amount', None)
         session['recent_order_id'] = order.id
+        # 🔒 Clear the PaymentIntent from session so it can't be reused
+        session.pop('active_pi_id', None)
 
         db.session.commit()
+        
+        current_app.logger.info(f"✅ Order created successfully: {order.order_number} (PI: {pi_id})")
 
         # 4) Handle Uber delivery if delivery type is 'delivery'
         tracking_url = None

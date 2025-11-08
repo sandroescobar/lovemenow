@@ -341,6 +341,11 @@ class Order(db.Model):
     stripe_session_id = db.Column(db.String(255), nullable=True)
 
     status = db.Column(db.String(50), nullable=False, default="pending")
+    
+    # NEW: Track if this order is a duplicate from same PI or was cancelled
+    is_duplicate_payment = db.Column(db.Boolean, default=False)  # True if another order was already created from this PI
+    payment_intent_status_at_creation = db.Column(db.String(50), nullable=True)  # Track PI status when order was created
+    cancellation_reason = db.Column(db.String(255), nullable=True)  # Why order was marked incomplete/cancelled
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
