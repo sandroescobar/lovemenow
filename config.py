@@ -75,7 +75,7 @@ class Config:
     STORE_NAME = os.getenv('STORE_NAME', 'LoveMeNow Miami')
     STORE_DISPLAY_NAME = os.getenv('STORE_DISPLAY_NAME', 'Miami Vape Smoke Shop')  # Name for Uber drivers
     STORE_PHONE = os.getenv('STORE_PHONE', '+1234567890')
-    STORE_ADDRESS = os.getenv('STORE_ADDRESS', '351 NE 79th St')
+    STORE_ADDRESS = os.getenv('STORE_ADDRESS', '345 NE 79th St')
     STORE_SUITE = os.getenv('STORE_SUITE', 'Unit 101')
     STORE_CITY = os.getenv('STORE_CITY', 'Miami')
     STORE_STATE = os.getenv('STORE_STATE', 'FL')

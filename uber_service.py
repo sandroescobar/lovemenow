@@ -289,7 +289,7 @@ def init_uber_service(app):
 def get_miami_store_address():
     """Get the store pickup address in Miami"""
     return {
-        "street_address": ["351 NE 79th St", "Unit 101"],
+        "street_address": ["345 NE 79th St", "Unit 101"],
         "city": "Miami",
         "state": "FL", 
         "zip_code": "33138",
@@ -298,11 +298,58 @@ def get_miami_store_address():
 
 def get_miami_store_coordinates():
     """Get store coordinates for Miami location"""
-    # Coordinates for 351 NE 79th St Unit 101, Miami, FL 33138
+    # Coordinates for 345 NE 79th St Unit 101, Miami, FL 33138
     return {
         "latitude": 25.8465,
         "longitude": -80.1917
     }
+
+def is_store_open() -> Tuple[bool, str]:
+    """
+    Check if store is currently open based on Miami timezone hours.
+    Store hours:
+    - Monday-Thursday: 10 AM - 10 PM
+    - Friday-Saturday: 10 AM - 12 AM (midnight)
+    - Sunday: 11 AM - 8 PM
+    
+    Returns: (is_open: bool, message: str)
+    """
+    from datetime import datetime
+    import pytz
+    
+    # Get current time in Miami timezone
+    miami_tz = pytz.timezone('America/New_York')
+    now = datetime.now(miami_tz)
+    current_day = now.weekday()  # 0=Monday, 6=Sunday
+    current_hour = now.hour
+    current_minute = now.minute
+    current_time_minutes = current_hour * 60 + current_minute
+    
+    # Define store hours (in minutes from midnight)
+    store_hours = {
+        0: (10 * 60, 22 * 60),      # Monday: 10 AM - 10 PM
+        1: (10 * 60, 22 * 60),      # Tuesday: 10 AM - 10 PM
+        2: (10 * 60, 22 * 60),      # Wednesday: 10 AM - 10 PM
+        3: (10 * 60, 22 * 60),      # Thursday: 10 AM - 10 PM
+        4: (10 * 60, 24 * 60),      # Friday: 10 AM - 12 AM (midnight)
+        5: (10 * 60, 24 * 60),      # Saturday: 10 AM - 12 AM (midnight)
+        6: (11 * 60, 20 * 60),      # Sunday: 11 AM - 8 PM
+    }
+    
+    if current_day not in store_hours:
+        return False, "Store is closed"
+    
+    open_time, close_time = store_hours[current_day]
+    
+    if current_time_minutes < open_time or current_time_minutes >= close_time:
+        day_name = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][current_day]
+        open_hour = open_time // 60
+        open_minute = open_time % 60
+        close_hour = (close_time // 60) % 24
+        close_minute = close_time % 60
+        return False, f"Store is closed. {day_name} hours: {open_hour}:{open_minute:02d} AM - {close_hour}:{close_minute:02d} PM"
+    
+    return True, "Store is open"
 
 def format_address_for_uber(address_dict: Dict) -> Dict:
     """Format address dictionary for Uber API"""

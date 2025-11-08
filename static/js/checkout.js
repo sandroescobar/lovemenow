@@ -22,6 +22,7 @@
   let deliveryQuote = null;  // { fee_dollars }
   let isGettingQuote = false;
   let latestTotals = null;   // keep last totals for PR amount
+  let isQuoteLocked = false; // Prevent address changes from updating quote after selection
 
   // ----- DOM -----
   const deliveryOptions = document.querySelectorAll('.delivery-option');
@@ -192,7 +193,7 @@
           document.getElementById('city').required = false;
           document.getElementById('zip').required = false;
           hideDeliveryError();
-          deliveryQuote = null;
+          resetQuoteLock(); // Reset quote lock when switching away from delivery
           if (statusEl) statusEl.textContent = 'Initializing payment system...';
           initializeStripe(); // pickup can init immediately
         }
@@ -252,7 +253,7 @@
   const debouncedGetQuote = debounce(getDeliveryQuote, 500);
 
   async function getDeliveryQuote() {
-    if (selectedDeliveryType !== 'delivery' || isGettingQuote) return;
+    if (selectedDeliveryType !== 'delivery' || isGettingQuote || isQuoteLocked) return;
 
     const address = document.getElementById('address').value;
     const city    = document.getElementById('city').value;
@@ -285,6 +286,12 @@
         clientSecret = null;
         elements = null;
         initializeStripe();
+        
+        // LOCK THE QUOTE - prevent address changes from fetching new quotes
+        // Customer must switch to pickup or restart checkout to change address
+        isQuoteLocked = true;
+        console.log('✅ Delivery quote locked. Address changes will not trigger new quotes until payment is complete or checkout is restarted.');
+        showQuoteLockMessage();
       } else {
         deliveryQuote = null;
         updateOrderSummary();
@@ -297,6 +304,23 @@
     } finally {
       isGettingQuote = false;
     }
+  }
+
+  function showQuoteLockMessage() {
+    // Show message to customer that quote is locked
+    const messageEl = document.getElementById('quote-lock-message');
+    if (messageEl) {
+      messageEl.style.display = 'block';
+      setTimeout(() => {
+        messageEl.style.display = 'none';
+      }, 4000);
+    }
+  }
+
+  function resetQuoteLock() {
+    // Reset quote lock when switching delivery types or when explicitly needed
+    isQuoteLocked = false;
+    deliveryQuote = null;
   }
 
   // ----- Stripe (backend owns totals incl. discount) -----

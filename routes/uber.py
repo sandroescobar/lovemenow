@@ -97,6 +97,16 @@ def get_delivery_quote():
         data = request.get_json()
         logger.info(f"Quote request received: {data}")
         
+        # Check if store is open before providing quote
+        from uber_service import is_store_open
+        store_is_open, store_status = is_store_open()
+        if not store_is_open:
+            logger.warning(f"Quote request rejected - store closed: {store_status}")
+            return jsonify({
+                'success': False,
+                'error': f"We're currently closed. {store_status}. We offer delivery during business hours."
+            }), 400
+        
         # Validate required fields
         required_fields = ['delivery_address']
         for field in required_fields:

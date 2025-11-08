@@ -538,97 +538,107 @@ def create_order():
         
         if delivery_type == 'delivery':
             try:
-                from uber_service import uber_service, create_manifest_items, format_address_for_uber, get_miami_store_address, get_miami_store_coordinates
+                from uber_service import uber_service, create_manifest_items, format_address_for_uber, get_miami_store_address, get_miami_store_coordinates, is_store_open
                 
-                # Prepare Uber delivery data
-                quote_id = data.get('quote_id')
-                current_app.logger.info(f"🔍 Delivery order - quote_id: {quote_id}")
-                
-                # Check if Uber service is configured
-                if not uber_service.client_id:
-                    current_app.logger.error(f"❌ Uber service not configured - missing credentials")
+                # Verify store is still open (final check before creating delivery)
+                store_is_open, store_status = is_store_open()
+                if not store_is_open:
+                    current_app.logger.warning(f"Delivery order rejected - store closed: {store_status}")
+                    # For delivery orders after store closes, we just log it but don't fail
+                    # The order is already created with pickup as fallback
+                    current_app.logger.info(f"Order {order.id} created but Uber delivery skipped - store is closed")
+                    uber_delivery = None
                     tracking_url = None
                 else:
-                    # Store pickup/dropoff info
-                    store_address = get_miami_store_address()
-                    store_coords = get_miami_store_coordinates()
+                    # Prepare Uber delivery data
+                    quote_id = data.get('quote_id')
+                    current_app.logger.info(f"🔍 Delivery order - quote_id: {quote_id}")
                     
-                    pickup_info = {
-                        'name': current_app.config.get('STORE_DISPLAY_NAME', 'Miami Vape Smoke Shop'),  # Display name for drivers
-                        'address': store_address,
-                        'phone': current_app.config.get('STORE_PHONE', '+1234567890'),
-                        'latitude': store_coords['latitude'],
-                        'longitude': store_coords['longitude']
-                    }
-                    
-                    # Format delivery address
-                    delivery_addr_dict = {
-                        'address': order.shipping_address,
-                        'suite': order.shipping_suite or '',
-                        'city': order.shipping_city,
-                        'state': order.shipping_state,
-                        'zip': order.shipping_zip,
-                        'country': order.shipping_country or 'US'
-                    }
-                    
-                    dropoff_info = {
-                        'name': order.full_name or 'Customer',
-                        'address': format_address_for_uber(delivery_addr_dict),
-                        'phone': order.phone or '+13055550123',
-                        'latitude': order.delivery_latitude,
-                        'longitude': order.delivery_longitude
-                    }
-                    
-                    current_app.logger.info(f"🔍 Pickup coords: {pickup_info['latitude']}, {pickup_info['longitude']}")
-                    current_app.logger.info(f"🔍 Dropoff coords: {dropoff_info['latitude']}, {dropoff_info['longitude']}")
-                    
-                    # Create manifest items
-                    manifest_items = create_manifest_items(items_for_inv)
-                    current_app.logger.info(f"🔍 Manifest items: {manifest_items}")
-                    
-                    # Create the Uber delivery
-                    try:
-                        current_app.logger.info(f"🔍 Calling uber_service.create_delivery()...")
-                        
-                        # Build driver instructions with store name
-                        store_display_name = current_app.config.get('STORE_DISPLAY_NAME', 'Miami Vape Smoke Shop')
-                        dropoff_notes = f"Walk into the store called {store_display_name}. Ask the employee working inside the shop for your order."
-                        
-                        uber_response = uber_service.create_delivery(
-                            quote_id=quote_id,
-                            pickup_info=pickup_info,
-                            dropoff_info=dropoff_info,
-                            manifest_items=manifest_items,
-                            use_robocourier=False,
-                            dropoff_notes=dropoff_notes
-                        )
-                        
-                        # Store Uber delivery record
-                        tracking_url = uber_response.get('tracking_url')
-                        delivery_id = uber_response.get('id')
-                        
-                        current_app.logger.info(f"✅ Uber API response: delivery_id={delivery_id}, tracking_url={tracking_url}")
-                        
-                        uber_delivery = UberDelivery(
-                            order_id=order.id,
-                            quote_id=quote_id,
-                            delivery_id=delivery_id,
-                            tracking_url=tracking_url,
-                            status=uber_response.get('status', 'pending'),
-                            fee=data.get('delivery_fee_cents'),
-                            currency='usd'
-                        )
-                        db.session.add(uber_delivery)
-                        db.session.commit()
-                        
-                        current_app.logger.info(f"✅ Uber delivery created for order {order.id}: tracking_url={tracking_url}")
-                        
-                    except Exception as uber_err:
-                        import traceback
-                        current_app.logger.error(f"❌ Failed to create Uber delivery: {str(uber_err)}")
-                        current_app.logger.error(traceback.format_exc())
+                    # Check if Uber service is configured
+                    if not uber_service.client_id:
+                        current_app.logger.error(f"❌ Uber service not configured - missing credentials")
                         tracking_url = None
-                        # Continue anyway - order is created, just no Uber delivery yet
+                    else:
+                        # Store pickup/dropoff info
+                        store_address = get_miami_store_address()
+                        store_coords = get_miami_store_coordinates()
+                        
+                        pickup_info = {
+                            'name': current_app.config.get('STORE_DISPLAY_NAME', 'Miami Vape Smoke Shop'),  # Display name for drivers
+                            'address': store_address,
+                            'phone': current_app.config.get('STORE_PHONE', '+1234567890'),
+                            'latitude': store_coords['latitude'],
+                            'longitude': store_coords['longitude']
+                        }
+                        
+                        # Format delivery address
+                        delivery_addr_dict = {
+                            'address': order.shipping_address,
+                            'suite': order.shipping_suite or '',
+                            'city': order.shipping_city,
+                            'state': order.shipping_state,
+                            'zip': order.shipping_zip,
+                            'country': order.shipping_country or 'US'
+                        }
+                        
+                        dropoff_info = {
+                            'name': order.full_name or 'Customer',
+                            'address': format_address_for_uber(delivery_addr_dict),
+                            'phone': order.phone or '+13055550123',
+                            'latitude': order.delivery_latitude,
+                            'longitude': order.delivery_longitude
+                        }
+                        
+                        current_app.logger.info(f"🔍 Pickup coords: {pickup_info['latitude']}, {pickup_info['longitude']}")
+                        current_app.logger.info(f"🔍 Dropoff coords: {dropoff_info['latitude']}, {dropoff_info['longitude']}")
+                        
+                        # Create manifest items
+                        manifest_items = create_manifest_items(items_for_inv)
+                        current_app.logger.info(f"🔍 Manifest items: {manifest_items}")
+                        
+                        # Create the Uber delivery
+                        try:
+                            current_app.logger.info(f"🔍 Calling uber_service.create_delivery()...")
+                            
+                            # Build driver instructions with store name and bilingual support
+                            store_display_name = current_app.config.get('STORE_DISPLAY_NAME', 'Miami Vape Smoke Shop')
+                            dropoff_notes = f"STORE NAME: {store_display_name}. Please walk into the smoke shop and get the order from the employee working inside. English and Spanish speaking employees available."
+                            
+                            uber_response = uber_service.create_delivery(
+                                quote_id=quote_id,
+                                pickup_info=pickup_info,
+                                dropoff_info=dropoff_info,
+                                manifest_items=manifest_items,
+                                use_robocourier=False,
+                                dropoff_notes=dropoff_notes
+                            )
+                            
+                            # Store Uber delivery record
+                            tracking_url = uber_response.get('tracking_url')
+                            delivery_id = uber_response.get('id')
+                            
+                            current_app.logger.info(f"✅ Uber API response: delivery_id={delivery_id}, tracking_url={tracking_url}")
+                            
+                            uber_delivery = UberDelivery(
+                                order_id=order.id,
+                                quote_id=quote_id,
+                                delivery_id=delivery_id,
+                                tracking_url=tracking_url,
+                                status=uber_response.get('status', 'pending'),
+                                fee=data.get('delivery_fee_cents'),
+                                currency='usd'
+                            )
+                            db.session.add(uber_delivery)
+                            db.session.commit()
+                            
+                            current_app.logger.info(f"✅ Uber delivery created for order {order.id}: tracking_url={tracking_url}")
+                            
+                        except Exception as uber_err:
+                            import traceback
+                            current_app.logger.error(f"❌ Failed to create Uber delivery: {str(uber_err)}")
+                            current_app.logger.error(traceback.format_exc())
+                            tracking_url = None
+                            # Continue anyway - order is created, just no Uber delivery yet
                     
             except Exception as e:
                 import traceback
