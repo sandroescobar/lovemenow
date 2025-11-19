@@ -188,11 +188,10 @@
         <!-- MOBILE: category toolbar (hidden on desktop via CSS) -->
         <div class="mobile-category-toolbar">
           <button id="openCategorySheet" class="btn-category-picker" type="button">
-            <span id="mobileCategoryLabel">Gender · {{ current_filters.category_name or 'All Products' }}</span>
+            <span id="mobileCategoryLabel">👆 Click to filter/sort</span>
             <i class="fas fa-chevron-down" aria-hidden="true"></i>
           </button>
           <div class="mobile-toolbar-meta">
-            <span class="mobile-sort">Sort: Featured</span>
             <span class="mobile-count" id="mobileResultCount">
               {{ products.total }} product{{ 's' if products.total != 1 else '' }}
             </span>

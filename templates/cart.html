@@ -72,7 +72,8 @@
     .discount-submit-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
     .discount-submit-btn:focus,.discount-submit-btn:active{border:none;outline:none;box-shadow:var(--shadow-lg)}
     @media (max-width:768px){
-      .cart-content{grid-template-columns:1fr;gap:2rem}
+      .cart-content{grid-template-columns:1fr;gap:2rem;display:flex;flex-direction:column-reverse}
+      .cart-summary{position:static;top:auto;margin-bottom:2rem}
       .cart-item{grid-template-columns:60px 1fr;gap:1rem}
       .cart-item-controls{grid-column:1 / -1;display:flex;justify-content:space-between;align-items:center;margin-top:1rem}
       .discount-input-group{flex-direction:column}

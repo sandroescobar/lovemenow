@@ -25,6 +25,7 @@
   const applyBtn = $('#applyCategory'); // we'll repurpose this
 
   // Section headers
+  const mainHeader     = $('#mainHeader');
   const subHeader      = $('#subHeader');
   const subHeaderName  = $('#subHeaderName');
   const sectionDivider = $('#sectionDivider');
@@ -50,7 +51,11 @@
 
   function setToolbarLabel(txt) {
     const labelEl = $('#mobileCategoryLabel');
-    if (labelEl) labelEl.textContent = `Gender · ${txt}`;
+    if (labelEl) {
+      // If "All Products" (no filter), show "Click to filter/sort"
+      // Otherwise, just show the category name without prefix
+      labelEl.textContent = (txt === 'All Products') ? '👆 Click to filter/sort' : txt;
+    }
   }
   function resolveCategoryName(slug) {
     if (!slug || slug === 'all') return 'All Products';
@@ -59,11 +64,31 @@
     if (slug === 'gender') return 'Gender';
     const main = sheet.querySelector(`.level-1 .row[data-category="${CSS.escape(slug)}"] .label`);
     if (main) return main.textContent.trim();
+    
+    // Recursive function to search nested children (for Gender subcategories)
+    function searchInChildren(children, targetSlug) {
+      if (!Array.isArray(children)) return null;
+      for (const ch of children) {
+        if (ch.slug === targetSlug) return ch.name || null;
+        // Recursively search nested children
+        if (ch.children) {
+          const result = searchInChildren(ch.children, targetSlug);
+          if (result) return result;
+        }
+      }
+      return null;
+    }
+    
+    // Search in all level-1 rows including their nested children
     for (const p of $$('.level-1 .row', sheet)) {
       try {
         const children = JSON.parse(p.dataset.children || '[]');
+        // First check direct children
         const hit = children.find(ch => ch.slug === slug);
         if (hit?.name) return hit.name;
+        // Then check nested children (e.g., Gender > Men > Masturbators)
+        const nestedHit = searchInChildren(children, slug);
+        if (nestedHit) return nestedHit;
       } catch {}
     }
     return null;
@@ -129,9 +154,11 @@
     sheet.setAttribute('aria-hidden', 'false');
     document.body.classList.add('sheet-open');
 
-    level2.hidden = true;
+    level1.hidden = false; // SHOW main categories
+    level2.hidden = true;  // HIDE subcategories
+    if (mainHeader) mainHeader.hidden = false; // SHOW main header label
     hideSubHeader();
-    backBtn.hidden = true;
+    backBtn.hidden = true; // HIDE back button initially
     $('.sheet-title', sheet).textContent = 'Choose Category';
 
     requestAnimationFrame(() => panel?.focus?.());
@@ -151,10 +178,12 @@
   function rowHTML(slug, name, childObj) {
     // Preserve nested children data for multi-level navigation
     const childrenAttr = (childObj && childObj.children) ? ` data-children='${JSON.stringify(childObj.children).replace(/'/g, "&apos;")}'` : '';
+    // Escape HTML special characters in name
+    const escapedName = (name || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     return `
       <li>
-        <button type="button" class="row" data-category="${slug}" data-category-name="${name}"${childrenAttr}>
-          <span class="label">${name}</span><span class="check" aria-hidden="true"></span>
+        <button type="button" class="row" data-category="${slug}" data-category-name="${escapedName}"${childrenAttr}>
+          <span class="label">${escapedName}</span><span class="check" aria-hidden="true"></span>
         </button>
       </li>
     `;
@@ -167,8 +196,10 @@
     level2.insertAdjacentHTML('beforeend', rowHTML(parentSlug, `All ${parentName}`));
     children.forEach(ch => level2.insertAdjacentHTML('beforeend', rowHTML(ch.slug || '', ch.name || '', ch)));
     showSubHeader(parentName);
-    level2.hidden  = false;
-    backBtn.hidden = false;
+    level1.hidden  = true;   // HIDE main categories when showing subcategories
+    if (mainHeader) mainHeader.hidden = true; // HIDE main header label when viewing subcategories
+    level2.hidden  = false;  // SHOW subcategories
+    backBtn.hidden = false;  // SHOW back button
     $('.sheet-title', sheet).textContent = parentName;
     markSelected();
     scrollCurrentIntoView(level2);
@@ -250,8 +281,10 @@
   // Back to main
   backBtn?.addEventListener('click', e => {
     e.preventDefault(); e.stopPropagation();
-    level2.hidden  = true;
-    backBtn.hidden = true;
+    level1.hidden  = false; // SHOW main categories again
+    if (mainHeader) mainHeader.hidden = false; // SHOW main header label again
+    level2.hidden  = true;  // HIDE subcategories
+    backBtn.hidden = true;  // HIDE back button
     hideSubHeader();
     $('.sheet-title', sheet).textContent = 'Choose Category';
     selectedGender = null; // Reset gender when going back

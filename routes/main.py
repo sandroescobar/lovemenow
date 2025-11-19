@@ -229,36 +229,52 @@ def products():
         category_id = None
         category = None
         
-        if category_param:
-            # Try to parse as integer first (numeric category ID)
-            try:
-                category_id = int(category_param)
-                category = Category.query.get(category_id)
-            except (ValueError, TypeError):
-                # If not an integer, try to find by slug
-                category = Category.query.filter_by(slug=category_param).first()
+        # SPECIAL HANDLING for gender slugs (these are not database categories)
+        # These map to specific product category IDs
+        gender_mappings = {
+            'men': [34, 60, 35, 33, 55, 56, 57, 4, 11, 37, 53, 38, 51],
+            'women': [36, 39, 5, 33, 54, 1, 7, 10, 40, 50, 4, 55, 56, 57, 58, 11, 38]
+        }
         
-        if category:
-            def get_all_subcategory_ids(cat):
-                ids = [cat.id]
-                for child in cat.children:
-                    ids.extend(get_all_subcategory_ids(child))
-                return ids
+        if category_param:
+            # Check if it's a special gender slug first
+            if category_param in gender_mappings:
+                # Gender filter: map to product category IDs
+                all_category_ids = list(set(gender_mappings[category_param]))
+                query = query.filter(Product.category_id.in_(all_category_ids))
+                # Set category for display purposes
+                category = type('obj', (object,), {
+                    'slug': category_param,
+                    'id': None,
+                    'name': category_param.capitalize()
+                })()
+            elif category_param == 'gender':
+                # "All Gender" - show products from both men AND women
+                all_gender_ids = list(set(gender_mappings['men'] + gender_mappings['women']))
+                query = query.filter(Product.category_id.in_(all_gender_ids))
+                category = type('obj', (object,), {
+                    'slug': 'gender',
+                    'id': None,
+                    'name': 'Gender'
+                })()
+            else:
+                # Try to parse as integer first (numeric category ID)
+                try:
+                    category_id = int(category_param)
+                    category = Category.query.get(category_id)
+                except (ValueError, TypeError):
+                    # If not an integer, try to find by slug
+                    category = Category.query.filter_by(slug=category_param).first()
+                
+                if category:
+                    def get_all_subcategory_ids(cat):
+                        ids = [cat.id]
+                        for child in cat.children:
+                            ids.extend(get_all_subcategory_ids(child))
+                        return ids
 
-            all_category_ids = get_all_subcategory_ids(category)
-            
-            # Gender filter expansion
-            # If filtering by "Men" or "Women", expand to their mapped category IDs
-            if category.slug in ['men', 'women']:
-                gender_mappings = {
-                    'men': [34, 60, 35, 33, 55, 56, 57, 4, 11, 37, 53, 38, 51],
-                    'women': [36, 39, 5, 33, 54, 1, 7, 10, 40, 50, 4, 55, 56, 57, 58, 11, 38]
-                }
-                gender_ids = gender_mappings.get(category.slug, [])
-                if gender_ids:
-                    all_category_ids = list(set(gender_ids))  # Remove duplicates
-            
-            query = query.filter(Product.category_id.in_(all_category_ids))
+                    all_category_ids = get_all_subcategory_ids(category)
+                    query = query.filter(Product.category_id.in_(all_category_ids))
 
         color_id = request.args.get('color', type=int)
         if color_id:
@@ -323,6 +339,7 @@ def products():
                                colors=colors,
                                current_filters={
                                    'category': category.id if category else None,
+                                   'category_name': category.name if category else None,
                                    'color': color_id,
                                    'min_price': min_price,
                                    'max_price': max_price,
