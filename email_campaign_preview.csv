@@ -1,0 +1,37 @@
+ABANDONED CHECKOUT RECOVERY
+Email,Name,Failed Date,Amount,Status
+unknown@example.com,Guest Customer,2025-11-20,$75.07,Status: Requires Payment Method
+unknown@example.com,Guest Customer,2025-11-20,$200.36,Status: Requires Payment Method
+unknown@example.com,Guest Customer,2025-11-20,$76.11,Status: Requires Payment Method
+unknown@example.com,Guest Customer,2025-11-20,$27.17,Status: Requires Payment Method
+unknown@example.com,Guest Customer,2025-11-18,$73.95,Status: Requires Payment Method
+unknown@example.com,Guest Customer,2025-11-15,$39.14,Status: Requires Payment Method
+unknown@example.com,Guest Customer,2025-11-14,$123.94,Status: Requires Payment Method
+unknown@example.com,Guest Customer,2025-11-14,$69.16,Status: Requires Payment Method
+unknown@example.com,Guest Customer,2025-11-11,$22.18,Status: Requires Payment Method
+unknown@example.com,Guest Customer,2025-11-09,$76.66,Status: Requires Payment Method
+unknown@example.com,Guest Customer,2025-11-07,$43.26,Status: Requires Payment Method
+unknown@example.com,Guest Customer,2025-11-07,$51.09,Status: Requires Payment Method
+unknown@example.com,Guest Customer,2025-11-06,$88.07,Status: Requires Payment Method
+unknown@example.com,Guest Customer,2025-11-05,$31.31,Status: Requires Payment Method
+unknown@example.com,Guest Customer,2025-11-03,$34.80,Status: Requires Payment Method
+unknown@example.com,Guest Customer,2025-11-02,$51.38,Status: Requires Payment Method
+unknown@example.com,Guest Customer,2025-11-02,$38.49,Status: Requires Payment Method
+unknown@example.com,Guest Customer,2025-11-02,$56.40,Status: Requires Payment Method
+unknown@example.com,Guest Customer,2025-11-02,$56.40,Status: Requires Payment Method
+unknown@example.com,Guest Customer,2025-11-02,$30.45,Status: Requires Payment Method
+unknown@example.com,Guest Customer,2025-10-29,$66.32,Status: Requires Payment Method
+unknown@example.com,Guest Customer,2025-10-29,$66.32,Status: Requires Payment Method
+unknown@example.com,Guest Customer,2025-10-29,$66.32,Status: Requires Payment Method
+unknown@example.com,Guest Customer,2025-10-29,$13.03,Status: Requires Payment Method
+unknown@example.com,Guest Customer,2025-10-29,$7.60,Status: Requires Payment Method
+unknown@example.com,Guest Customer,2025-10-29,$7.60,Status: Requires Payment Method
+unknown@example.com,Guest Customer,2025-10-29,$16.94,Status: Requires Payment Method
+unknown@example.com,Guest Customer,2025-10-29,$19.55,Status: Requires Payment Method
+unknown@example.com,Guest Customer,2025-10-29,$19.55,Status: Requires Payment Method
+unknown@example.com,Guest Customer,2025-10-29,$78.28,Status: Requires Payment Method
+unknown@example.com,LoveMeNow order,2025-10-28,$12.51,Your card's security code is incorrect.
+
+REPEAT CUSTOMER RE-ENGAGEMENT
+Email,Name,Last Purchase,Total Spent,Orders
+alessandro.escobarFIU@gmail.com,sandros,2025-09-13,$382.01,8

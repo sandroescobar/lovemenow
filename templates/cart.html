@@ -108,5 +108,39 @@
 
   <script src="{{ url_for('static', filename='js/cart.js') }}?v=20251001-1" defer></script>
   <script src="{{ url_for('static', filename='js/mobile-menu.js') }}" defer></script>
+
+    <script>
+    // If quantity is 1 and user clicks "-", remove the item instead of going to 0
+    document.addEventListener('click', function (e) {
+      const btn = e.target.closest('[data-action="qty-dec"]');
+      if (!btn) return;
+
+      const cartItem = btn.closest('.cart-item');
+      if (!cartItem) return;
+
+      const qtyInput = cartItem.querySelector('.quantity-input');
+      if (!qtyInput) return;
+
+      const currentQty = parseInt(qtyInput.value || '1', 10);
+      if (isNaN(currentQty) || currentQty > 1) {
+        // Let your existing cart.js handler deal with normal decrements
+        return;
+      }
+
+      // At quantity 1: prevent the normal decrement and click the trash icon instead
+      e.preventDefault();
+      e.stopPropagation();
+
+      const removeBtn = cartItem.querySelector('.remove-btn');
+      if (removeBtn) {
+        removeBtn.click();
+      }
+    });
+  </script>
+</body>
+</html>
+
+
+
 </body>
 </html>

@@ -350,10 +350,19 @@
       } else if (action === 'qty-inc' || action === 'qty-dec') {
         const row = btn.closest('.cart-item');
         const input = row?.querySelector('.quantity-input');
-        if (!input) return;
-        let next = Number(input.value || 1) + (action === 'qty-inc' ? 1 : -1);
-        next = Math.max(1, next);
-        await updateQuantity(id, next, variant);
+        if (!input) {
+          console.error('⚠️ Quantity input not found for cart item');
+          return;
+        }
+        let current = Number(input.value || 1);
+        let next = action === 'qty-inc' ? current + 1 : current - 1;
+        next = Math.max(0, Math.min(next, Number(input.max || 999)));
+
+        // Only call update if the quantity actually changed
+        if (next !== current) {
+          console.log(`🛒 Updating quantity: ${current} → ${next} (variant: ${variant})`);
+          await updateQuantity(id, next, variant);
+        }
       }
     });
 
@@ -443,40 +452,56 @@
     const body = { product_id: productId, quantity: Number(newQty) };
     if (variantId) body.variant_id = variantId;
 
-    const res = await fetch('/api/cart/update', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRF() },
-      body: JSON.stringify(body)
-    });
+    try {
+      const res = await fetch('/api/cart/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRF() },
+        body: JSON.stringify(body)
+      });
 
-    const data = await res.json();
-    if (!res.ok) {
-      if (window.showToast) window.showToast(data.error || 'Failed to update quantity', 'error');
-      return;
+      const data = await res.json();
+      if (!res.ok) {
+        console.error('❌ Cart update failed:', data);
+        if (window.showToast) window.showToast(data.error || 'Failed to update quantity', 'error');
+        return;
+      }
+
+      console.log('✅ Cart updated successfully:', data);
+      await loadCart();           // re-render items
+      await refreshCartSummary(); // re-calc totals
+      await syncDiscountUIFromServer();
+    } catch (err) {
+      console.error('💥 Cart update error:', err);
+      if (window.showToast) window.showToast('Error updating cart: ' + err.message, 'error');
     }
-    await loadCart();           // re-render items
-    await refreshCartSummary(); // re-calc totals
-    await syncDiscountUIFromServer();
   }
 
   async function removeFromCart(productId, variantId = null) {
     const body = { product_id: productId };
     if (variantId) body.variant_id = variantId;
 
-    const res = await fetch('/api/cart/remove', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRF() },
-      body: JSON.stringify(body)
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      if (window.showToast) window.showToast(data.error || 'Failed to remove item', 'error');
-      return;
-    }
+    try {
+      console.log('🗑️ Removing item:', body);
+      const res = await fetch('/api/cart/remove', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRF() },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        console.error('❌ Remove failed:', data);
+        if (window.showToast) window.showToast(data.error || 'Failed to remove item', 'error');
+        return;
+      }
 
-    await loadCart();
-    await refreshCartSummary();
-    await syncDiscountUIFromServer();
+      console.log('✅ Item removed successfully:', data);
+      await loadCart();
+      await refreshCartSummary();
+      await syncDiscountUIFromServer();
+    } catch (err) {
+      console.error('💥 Remove error:', err);
+      if (window.showToast) window.showToast('Error removing item: ' + err.message, 'error');
+    }
   }
 
   // ---- Helpers ----
