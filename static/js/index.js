@@ -659,6 +659,10 @@ window.switchCardVariant = function switchCardVariant(event, productId, variantI
         const btnText = addButton.querySelector('.btn-text');
         if (btnText) btnText.innerHTML = 'Out&nbsp;of&nbsp;Stock';
       }
+
+      // Update the card's data-in-stock attribute to show/hide the red "OUT OF STOCK" badge
+      productCard.dataset.inStock = String(variant.is_available).toLowerCase();
+      console.log(`[VARIANT SWITCH] Updated card.dataset.inStock to: ${productCard.dataset.inStock}`);
     })
     .catch(err => {
       console.error('[VARIANT SWITCH] Error:', err);

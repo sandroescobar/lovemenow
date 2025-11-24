@@ -321,7 +321,7 @@
              data-parent-category="{{ p.category.parent.slug if p.category and p.category.parent else (p.category.slug if p.category else 'uncategorised') }}"
              data-price="{{ p.price }}"
              data-rating="{{ p.rating|default(0) }}"
-             data-in-stock="{{ p.is_available|lower }}"
+             data-in-stock="{{ (p.default_variant.is_available if p.default_variant else p.is_available)|lower }}"
              data-brand="{{ p.name.split()[0]|lower|replace('!', '')|replace('&', 'and') }}"
              data-colors="{{ p.available_colors|map(attribute='slug')|join(',') }}"
              data-product-id="{{ p.id }}"
@@ -625,35 +625,7 @@ document.addEventListener('DOMContentLoaded', function () {
       cartBtn.dataset.variantId = variantId;
     }
 
-    // Fetch variant details to update button state based on stock
-    fetch(`/api/product/${productId}`, { cache: 'no-store' })
-      .then(r => r.json())
-      .then(data => {
-        if (!data.success || !data.variants) return;
-        
-        const variant = data.variants.find(v => v.id === variantId);
-        if (!variant) return;
-        
-        // Update button disabled state, text, and CSS classes based on variant availability
-        if (cartBtn) {
-          const isAvailable = variant.is_available;
-          cartBtn.dataset.isAvailable = isAvailable ? 'true' : 'false';
-          
-          // Remove both classes first
-          cartBtn.classList.remove('in-stock', 'out-of-stock');
-          
-          if (isAvailable) {
-            cartBtn.disabled = false;
-            cartBtn.querySelector('.btn-text').textContent = 'Add to Cart';
-            cartBtn.classList.add('in-stock');
-          } else {
-            cartBtn.disabled = true;
-            cartBtn.querySelector('.btn-text').textContent = 'Out of Stock';
-            cartBtn.classList.add('out-of-stock');
-          }
-        }
-      })
-      .catch(err => console.warn('Failed to load variant details:', err));
+
 
     // Fetch and update images for the selected variant
     fetch(`/api/variant/${variantId}/images`)
