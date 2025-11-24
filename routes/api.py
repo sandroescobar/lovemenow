@@ -16,7 +16,7 @@ from email_utils import send_email_sendlayer as send_email_sendlayer_console
 
 from routes import db
 from models import (
-    Product, ProductVariant, Color, User, Cart, Wishlist, UserAddress,
+    Product, ProductVariant, ProductImage, Color, User, Cart, Wishlist, UserAddress,
     Order, OrderItem, UberDelivery, DiscountCode, DiscountUsage
 )
 from .discount_utils import record_discount_redemption
@@ -107,9 +107,9 @@ def single_product_json(product_id: int):
                 "color_hex": variant.color.hex if variant.color else "#808080",
                 "variant_name": variant.variant_name,
                 "display_name": variant.display_name,
-                # product-level inventory:
-                "is_available": product.is_available,
-                "quantity_on_hand": product.quantity_on_hand,
+                # variant-level inventory (with fallback to product-level):
+                "is_available": variant.is_available,
+                "quantity_on_hand": variant.quantity_on_hand if variant.quantity_on_hand is not None else product.quantity_on_hand,
                 "images": [
                     {
                         "url": (
@@ -174,9 +174,9 @@ def single_variant_json(variant_id: int):
             "color_hex": variant.color.hex if variant.color else "#808080",
             "variant_name": variant.variant_name,
             "display_name": variant.display_name,
-            # product-level inventory:
-            "is_available": product.is_available if product else False,
-            "quantity_on_hand": product.quantity_on_hand if product else 0,
+            # variant-level inventory (with product fallback):
+            "is_available": variant.is_available if variant else (product.is_available if product else False),
+            "quantity_on_hand": variant.quantity_on_hand if variant and variant.quantity_on_hand is not None else (product.quantity_on_hand if product else 0),
             "price": float(product.price) if product else 0.0,
             "images": [
                 {
@@ -199,19 +199,20 @@ def single_variant_json(variant_id: int):
 
 @api_bp.route('/variant/<int:variant_id>/images')
 def variant_images(variant_id: int):
-    """Get images for a specific product variant based on UPC"""
+    """Get images for a specific product variant from database"""
     try:
         variant = ProductVariant.query.get_or_404(variant_id)
-        upc = variant.upc
-        if upc:
-            images = [
-                f"/static/IMG/imagesForLovMeNow/{upc}/{upc}_Main_Photo.png",
-                f"/static/IMG/imagesForLovMeNow/{upc}/{upc}_2nd_Photo.png"
-            ]
+        
+        # Query actual images from database, ordered by sort_order
+        images_from_db = ProductImage.query.filter_by(product_variant_id=variant_id).order_by(ProductImage.sort_order).all()
+        
+        if images_from_db:
+            images = [img.url for img in images_from_db]
         else:
+            # Fallback: if no images in DB, return empty list (don't hardcode paths)
             images = []
 
-        return jsonify({'success': True, 'images': images, 'variant_id': variant_id, 'upc': upc})
+        return jsonify({'success': True, 'images': images, 'variant_id': variant_id, 'upc': variant.upc})
 
     except Exception as e:
         current_app.logger.error(f"Error fetching variant images {variant_id}: {str(e)}")

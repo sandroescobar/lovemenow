@@ -84,6 +84,10 @@ class ProductVariant(db.Model):
 
     variant_name = db.Column(db.String(100), nullable=True)
     upc = db.Column(db.String(50), nullable=True)
+    
+    # Variant-level stock (overrides product-level if set)
+    in_stock = db.Column(db.Boolean, nullable=True)
+    quantity_on_hand = db.Column(db.Integer, nullable=True)
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -98,26 +102,43 @@ class ProductVariant(db.Model):
 
     @property
     def is_available(self):
+        # Check variant-level stock first, fall back to product-level
+        if self.in_stock is not None:
+            return self.in_stock and (self.quantity_on_hand or 0) > 0
         return self.product.in_stock and self.product.quantity_on_hand > 0
 
     def can_add_to_cart(self, requested_quantity=1, current_cart_quantity=0):
         if not self.is_available:
             return False, "This item is currently out of stock"
 
+        # Use variant-level stock if set, otherwise product-level
+        stock_qty = self.quantity_on_hand if self.quantity_on_hand is not None else self.product.quantity_on_hand
+        
         total_requested = current_cart_quantity + requested_quantity
-        if total_requested > self.product.quantity_on_hand:
-            available = self.product.quantity_on_hand - current_cart_quantity
+        if total_requested > stock_qty:
+            available = stock_qty - current_cart_quantity
             if available <= 0:
                 return False, "This item is already at maximum quantity in your cart"
-            return False, f"Only {available} more item(s) can be added to cart (stock limit: {self.product.quantity_on_hand})"
+            return False, f"Only {available} more item(s) can be added to cart (stock limit: {stock_qty})"
         return True, "Available"
 
     def decrement_inventory(self, quantity):
-        if quantity <= 0 or self.product.quantity_on_hand < quantity:
+        if quantity <= 0:
             return False
-        self.product.quantity_on_hand -= quantity
-        if self.product.quantity_on_hand <= 0:
-            self.product.in_stock = False
+        
+        # Decrement variant-level stock if set, otherwise product-level
+        if self.in_stock is not None:
+            if (self.quantity_on_hand or 0) < quantity:
+                return False
+            self.quantity_on_hand -= quantity
+            if self.quantity_on_hand <= 0:
+                self.in_stock = False
+        else:
+            if self.product.quantity_on_hand < quantity:
+                return False
+            self.product.quantity_on_hand -= quantity
+            if self.product.quantity_on_hand <= 0:
+                self.product.in_stock = False
         return True
 
     @property

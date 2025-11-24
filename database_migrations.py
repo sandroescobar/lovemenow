@@ -69,6 +69,51 @@ def ensure_products_features(db):
         return False
 
 
+def ensure_product_variant_stock_columns(db):
+    """
+    Ensure product_variants table has variant-level stock columns.
+    Allows per-variant inventory tracking (e.g., different colors have different stock).
+    """
+    try:
+        inspector = inspect(db.engine)
+        columns = [col['name'] for col in inspector.get_columns('product_variants')]
+        
+        fixed = False
+        
+        if 'in_stock' not in columns:
+            logger.warning("⚠️  Missing 'in_stock' column in product_variants table - FIXING...")
+            db.session.execute(text("""
+                ALTER TABLE product_variants
+                ADD COLUMN in_stock BOOLEAN NULL COMMENT 'Variant-level in_stock status (overrides product-level if set)'
+            """))
+            fixed = True
+            logger.info("✅ Added 'in_stock' column to product_variants table")
+        
+        if 'quantity_on_hand' not in columns:
+            logger.warning("⚠️  Missing 'quantity_on_hand' column in product_variants table - FIXING...")
+            db.session.execute(text("""
+                ALTER TABLE product_variants
+                ADD COLUMN quantity_on_hand INT NULL COMMENT 'Variant-level stock quantity (overrides product-level if set)'
+            """))
+            fixed = True
+            logger.info("✅ Added 'quantity_on_hand' column to product_variants table")
+        
+        if fixed:
+            db.session.commit()
+        else:
+            logger.debug("✓ product_variants stock columns exist")
+        
+        return fixed
+        
+    except Exception as e:
+        logger.error(f"❌ Error ensuring product_variant stock columns: {e}")
+        try:
+            db.session.rollback()
+        except:
+            pass
+        return False
+
+
 def run_all_migrations(db, app):
     """
     Run all database migrations.
@@ -80,6 +125,7 @@ def run_all_migrations(db, app):
         migrations = [
             ('discount_usages.created_at', ensure_discount_usages_created_at),
             ('products.features', ensure_products_features),
+            ('product_variants.stock_columns', ensure_product_variant_stock_columns),
         ]
         
         fixed_count = 0

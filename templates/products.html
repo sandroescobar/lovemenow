@@ -418,22 +418,51 @@
                 <a href="/product/{{ p.id }}">{{ p.name }}</a>
               </h3>
               <div class="product-price">${{ '%.2f'|format(p.price) }}</div>
+              
+              <!-- Color Variant Selector for Product Cards (only if has variants) -->
+              {% if p.variants|length > 1 and p.available_colors %}
+              <div class="card-color-selector">
+                {% set has_color_variants = p.variants|selectattr('color_id', 'ne', none)|list|length > 0 %}
+                {% if has_color_variants %}
+                  <div class="card-colors-label">Colors:</div>
+                  <div class="card-color-options">
+                    {% for color in p.available_colors %}
+                      {% set variant_with_color = p.variants|selectattr('color_id', 'equalto', color.id)|first %}
+                      {% if variant_with_color %}
+                        <button class="card-color-option {{ 'active' if variant_with_color.id == p.default_variant.id else '' }}"
+                                data-product-id="{{ p.id }}"
+                                data-variant-id="{{ variant_with_color.id }}"
+                                data-color-id="{{ color.id }}"
+                                onclick="switchCardVariant(event, {{ p.id }}, {{ variant_with_color.id }}, '{{ color.hex }}', '{{ color.name }}')"
+                                title="{{ color.name }}"
+                                style="background-color: {{ color.hex }};"
+                                aria-label="Select {{ color.name }} variant">
+                        </button>
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+              {% endif %}
             </div>
 
             <div class="product-buttons">
-              <button class="btn-add-cart"
+              {# Check variant-level availability if default variant exists, otherwise check product-level #}
+              {% set default_variant_available = p.default_variant.is_available if p.default_variant else p.is_available %}
+              <button class="btn-add-cart {{ 'in-stock' if default_variant_available else 'out-of-stock' }}"
                       data-product-id="{{ p.id }}"
                       data-variant-id="{{ p.default_variant.id if p.default_variant else '' }}"
                       data-product-name="{{ p.name|e }}"
                       data-product-price="{{ p.price }}"
                       data-quantity-on-hand="{{ p.quantity_on_hand or 0 }}"
-                      {% if not p.is_available %}disabled{% endif %}>
+                      data-is-available="{{ default_variant_available|lower }}"
+                      {% if not default_variant_available %}disabled{% endif %}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <circle cx="9" cy="21" r="1"></circle>
                   <circle cx="20" cy="21" r="1"></circle>
                   <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6"></path>
                 </svg>
-                <span class="btn-text">{% if p.is_available %}Add&nbsp;to&nbsp;Cart{% else %}Out&nbsp;of&nbsp;Stock{% endif %}</span>
+                <span class="btn-text">{% if default_variant_available %}Add&nbsp;to&nbsp;Cart{% else %}Out&nbsp;of&nbsp;Stock{% endif %}</span>
               </button>
             </div>
           </div>
@@ -574,5 +603,92 @@ document.addEventListener('DOMContentLoaded', function () {
 
   <!-- NEW: category sheet controller (loads after products.js so it can call filterProducts) -->
   <script src="{{ url_for('static', filename='js/filters.js') }}?v=20251004-5" defer></script>
+
+  <!-- Product Card Color Variant Switching -->
+  <script>
+  window.switchCardVariant = function(e, productId, variantId, colorHex, colorName) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const card = document.querySelector(`[data-product-id="${productId}"].product-card`);
+    if (!card) return;
+
+    // Update active state for color buttons
+    card.querySelectorAll('.card-color-option').forEach(btn => {
+      btn.classList.remove('active');
+    });
+    e.currentTarget.classList.add('active');
+
+    // Update the "Add to Cart" button with new variant ID
+    const cartBtn = card.querySelector('.btn-add-cart');
+    if (cartBtn) {
+      cartBtn.dataset.variantId = variantId;
+    }
+
+    // Fetch variant details to update button state based on stock
+    fetch(`/api/product/${productId}`, { cache: 'no-store' })
+      .then(r => r.json())
+      .then(data => {
+        if (!data.success || !data.variants) return;
+        
+        const variant = data.variants.find(v => v.id === variantId);
+        if (!variant) return;
+        
+        // Update button disabled state, text, and CSS classes based on variant availability
+        if (cartBtn) {
+          const isAvailable = variant.is_available;
+          cartBtn.dataset.isAvailable = isAvailable ? 'true' : 'false';
+          
+          // Remove both classes first
+          cartBtn.classList.remove('in-stock', 'out-of-stock');
+          
+          if (isAvailable) {
+            cartBtn.disabled = false;
+            cartBtn.querySelector('.btn-text').textContent = 'Add to Cart';
+            cartBtn.classList.add('in-stock');
+          } else {
+            cartBtn.disabled = true;
+            cartBtn.querySelector('.btn-text').textContent = 'Out of Stock';
+            cartBtn.classList.add('out-of-stock');
+          }
+        }
+      })
+      .catch(err => console.warn('Failed to load variant details:', err));
+
+    // Fetch and update images for the selected variant
+    fetch(`/api/variant/${variantId}/images`)
+      .then(r => r.json())
+      .then(data => {
+        if (!(data.success && data.images && data.images.length)) return;
+
+        const srcs = data.images.map(img => 
+          (img.startsWith('http') || img.startsWith('/static/')) 
+            ? img 
+            : `/static/${img.replace(/^\/+/, '')}`
+        );
+
+        if (!srcs.length) return;
+
+        // Update the main slideshow image
+        const slideshow = card.querySelector('.product-card-slideshow');
+        if (slideshow) {
+          const mainImg = slideshow.querySelector('.product-slide.active');
+          if (mainImg && srcs[0]) {
+            mainImg.src = srcs[0] + '?v=' + Date.now();
+          }
+        }
+
+        // Update image counter if needed
+        const counter = card.querySelector('.product-card-image-counter');
+        if (counter) {
+          const totalSpan = counter.querySelector('.total-images');
+          if (totalSpan) totalSpan.textContent = srcs.length;
+          const currentSpan = counter.querySelector('.current-image');
+          if (currentSpan) currentSpan.textContent = '1';
+        }
+      })
+      .catch(err => console.warn('Failed to load variant images:', err));
+  };
+  </script>
 </body>
 </html>

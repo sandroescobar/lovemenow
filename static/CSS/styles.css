@@ -95,7 +95,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     color: white;
     border: none !important;
     outline: none !important;
@@ -232,7 +232,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
     left: 0;
     right: 0;
     height: 2px;
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     border-radius: 1px;
 }
 
@@ -368,7 +368,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
     font-size: 3.5rem;
     font-weight: 800;
     margin-bottom: 1.5rem;
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     line-height: 1.2;
@@ -492,7 +492,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 }
 
 .filter-tab.active {
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     color: white;
     box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
 }
@@ -578,7 +578,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 }
 
 .category-chip.active {
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     border-color: hsl(var(--primary-color));
     color: white;
     box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
@@ -653,7 +653,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 }
 
 #inStockFilter:checked + .toggle-label .toggle-slider {
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
 }
 
 #inStockFilter:checked + .toggle-label .toggle-slider::before {
@@ -721,7 +721,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
     -webkit-appearance: none;
     width: 20px;
     height: 20px;
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     border-radius: 50%;
     cursor: pointer;
     pointer-events: all;
@@ -753,7 +753,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 }
 
 .brand-chip.active {
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     border-color: hsl(var(--primary-color));
     color: white;
 }
@@ -873,7 +873,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 0.75rem;
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     color: white;
     border-radius: 20px;
     font-size: 0.9rem;
@@ -2182,7 +2182,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 
 .clean-add-to-cart-btn {
     width: 100%;
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     color: white;
     border: none;
     padding: 0.75rem;
@@ -2242,7 +2242,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     color: white;
     padding: 0.5rem 1rem;
     border-radius: 2rem;
@@ -2257,7 +2257,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
     font-size: 3rem;
     font-weight: 800;
     margin-bottom: 1.5rem;
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     line-height: 1.2;
@@ -2294,7 +2294,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 }
 
 .feature-icon {
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     color: white;
     width: 60px;
     height: 60px;
@@ -3000,7 +3000,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 
 .btn-add-cart {
     flex: 1;
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     color: white;
     border: none;
     padding: 0.875rem 1.25rem;
@@ -3369,7 +3369,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 }
 
 .btn-modal-add-cart {
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     color: white;
     border: none;
     padding: 0.5rem 1rem;
@@ -3842,7 +3842,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 
 .btn-add-to-cart {
     flex: 1;
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     color: white;
     border: none;
     padding: 0.75rem 1rem;
@@ -3920,7 +3920,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 }
 
 .nav-icon-btn.active {
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     color: white !important;
 }
 
@@ -4095,7 +4095,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 }
 
 .action-btn.primary {
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     color: white;
     border-color: transparent;
 }
@@ -4283,7 +4283,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 }
 
 .auth-submit {
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     color: white;
     border: none;
     padding: 0.75rem 1.5rem;
@@ -4521,7 +4521,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 
 .password-modal-actions .auth-submit {
     flex: 1;
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     color: white;
     border: none;
     padding: 1rem 1.5rem;
@@ -4792,7 +4792,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
     width: 120px;
     height: 120px;
     border-radius: 50%;
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -4828,7 +4828,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
     font-size: 2.5rem;
     font-weight: 700;
     margin-bottom: 0.5rem;
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -5323,7 +5323,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 }
 
 .address-badge.default {
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     color: white;
     box-shadow: 0 2px 4px rgba(168, 85, 247, 0.3);
 }
@@ -5394,7 +5394,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 }
 
 .btn-address-action.save {
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     color: white;
     border: 1px solid transparent;
 }
@@ -5587,7 +5587,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
     font-size: 3rem;
     font-weight: 700;
     margin-bottom: 1rem;
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -6381,7 +6381,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     color: white;
     border: none !important;
     outline: none !important;
@@ -6518,7 +6518,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
     left: 0;
     right: 0;
     height: 2px;
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     border-radius: 1px;
 }
 
@@ -6654,7 +6654,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
     font-size: 3.5rem;
     font-weight: 800;
     margin-bottom: 1.5rem;
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     line-height: 1.2;
@@ -6778,7 +6778,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 }
 
 .filter-tab.active {
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     color: white;
     box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
 }
@@ -6864,7 +6864,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 }
 
 .category-chip.active {
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     border-color: hsl(var(--primary-color));
     color: white;
     box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
@@ -6939,7 +6939,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 }
 
 #inStockFilter:checked + .toggle-label .toggle-slider {
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
 }
 
 #inStockFilter:checked + .toggle-label .toggle-slider::before {
@@ -7007,7 +7007,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
     -webkit-appearance: none;
     width: 20px;
     height: 20px;
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     border-radius: 50%;
     cursor: pointer;
     pointer-events: all;
@@ -7039,7 +7039,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 }
 
 .brand-chip.active {
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     border-color: hsl(var(--primary-color));
     color: white;
 }
@@ -7159,7 +7159,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 0.75rem;
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     color: white;
     border-radius: 20px;
     font-size: 0.9rem;
@@ -8468,7 +8468,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 
 .clean-add-to-cart-btn {
     width: 100%;
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     color: white;
     border: none;
     padding: 0.75rem;
@@ -8528,7 +8528,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     color: white;
     padding: 0.5rem 1rem;
     border-radius: 2rem;
@@ -8543,7 +8543,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
     font-size: 3rem;
     font-weight: 800;
     margin-bottom: 1.5rem;
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     line-height: 1.2;
@@ -8580,7 +8580,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 }
 
 .feature-icon {
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     color: white;
     width: 60px;
     height: 60px;
@@ -9286,7 +9286,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 
 .btn-add-cart {
     flex: 1;
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     color: white;
     border: none;
     padding: 0.875rem 1.25rem;
@@ -9697,7 +9697,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 }
 
 .btn-modal-add-cart {
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     color: white;
     border: none;
     padding: 0.5rem 1rem;
@@ -10170,7 +10170,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 
 .btn-add-to-cart {
     flex: 1;
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     color: white;
     border: none;
     padding: 0.75rem 1rem;
@@ -10248,7 +10248,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 }
 
 .nav-icon-btn.active {
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     color: white !important;
 }
 
@@ -10423,7 +10423,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 }
 
 .action-btn.primary {
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     color: white;
     border-color: transparent;
 }
@@ -10611,7 +10611,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 }
 
 .auth-submit {
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     color: white;
     border: none;
     padding: 0.75rem 1.5rem;
@@ -10849,7 +10849,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 
 .password-modal-actions .auth-submit {
     flex: 1;
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     color: white;
     border: none;
     padding: 1rem 1.5rem;
@@ -11095,7 +11095,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
     width: 120px;
     height: 120px;
     border-radius: 50%;
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -11131,7 +11131,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
     font-size: 2.5rem;
     font-weight: 700;
     margin-bottom: 0.5rem;
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -11626,7 +11626,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 }
 
 .address-badge.default {
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     color: white;
     box-shadow: 0 2px 4px rgba(168, 85, 247, 0.3);
 }
@@ -11697,7 +11697,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 }
 
 .btn-address-action.save {
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     color: white;
     border: 1px solid transparent;
 }
@@ -11890,7 +11890,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
     font-size: 3rem;
     font-weight: 700;
     margin-bottom: 1rem;
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -12819,7 +12819,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 }
 
 .cart-actions .btn-primary {
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     border: none;
     color: white;
 }
@@ -12899,7 +12899,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 }
 
 #inStockFilter:checked + .toggle-filter .toggle-slider-filter {
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
 }
 
 #inStockFilter:checked + .toggle-filter .toggle-slider-filter::before {
@@ -13021,7 +13021,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 .footer-brand-text {
     font-size: 1.5rem;
     font-weight: 700;
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -13067,7 +13067,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
     left: 0;
     width: 30px;
     height: 2px;
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     border-radius: 1px;
 }
 
@@ -13468,13 +13468,13 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 }
 
 .auth-btn.primary {
-  background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+  background: linear-gradient(135deg, #a855f7, #ec4899);
   color: white;
   border-color: transparent;
 }
 
 .auth-btn.primary:hover {
-  background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+  background: linear-gradient(135deg, #a855f7, #ec4899);
   border-color: transparent;
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
@@ -13831,7 +13831,7 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 .btn-atc {
     width: 100%;
     padding: 1.25rem 2rem;
-    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    background: linear-gradient(135deg, #a855f7, #ec4899);
     color: white !important;
     border: none;
     border-radius: 12px;
@@ -14814,6 +14814,34 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
   background: rgba(168,85,247,.15);
   padding-left: 1.25rem;
 }
+
+/* In-stock variant: Purple/Pink gradient (enabled) */
+.btn-add-cart.in-stock {
+  background: linear-gradient(135deg, #a855f7, #ec4899) !important;
+  color: white !important;
+  cursor: pointer !important;
+  opacity: 1 !important;
+}
+
+.btn-add-cart.in-stock:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 8px 16px rgba(168, 85, 247, 0.3) !important;
+}
+
+/* Out-of-stock variant: Grey gradient (disabled) */
+.btn-add-cart.out-of-stock {
+  background: linear-gradient(135deg, rgba(128, 128, 128, 0.6), rgba(128, 128, 128, 0.8)) !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  cursor: not-allowed !important;
+  opacity: 0.6 !important;
+}
+
+.btn-add-cart.out-of-stock:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+
 
 
 

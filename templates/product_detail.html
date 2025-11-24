@@ -163,11 +163,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     data-product-id="{{ product.id if product else '' }}"
                     data-product-name="{{ product.name|e if product else '' }}"
                     data-product-price="{{ product.price if product else '' }}"
-                    data-quantity-on-hand="{{ product.quantity_on_hand or 0 if product else 0 }}"
                     data-variant-id="{{ product.default_variant.id if product and product.default_variant else '' }}"
-                    {% if not product or (not product.in_stock or (product.quantity_on_hand is not none and product.quantity_on_hand <= 0)) %}disabled{% endif %}>
+                    data-is-available="{{ (product.default_variant.is_available if product and product.default_variant else product.is_available)|lower if product else 'false' }}"
+                    data-quantity-on-hand="{{ (product.default_variant.quantity_on_hand if product and product.default_variant and product.default_variant.quantity_on_hand is not none else product.quantity_on_hand) or 0 if product else 0 }}"
+                    {% if not product or not (product.default_variant.is_available if product and product.default_variant else product.is_available) %}disabled{% endif %}>
               <i class="fas fa-shopping-cart"></i>
-              {% if product and product.in_stock and (product.quantity_on_hand is none or product.quantity_on_hand > 0) %}
+              {% if product and (product.default_variant.is_available if product and product.default_variant else product.is_available) %}
                 Add to Cart
               {% else %}
                 Out of Stock
@@ -549,10 +550,50 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             document.querySelector('.pdp-nav.right').onclick = ()=>show(cur+1);
             const c = document.getElementById('pdp-image-counter'); if(c){ c.textContent = `1/${srcs.length}`; }
           }
-          const addBtn = document.getElementById('addToCartBtn'); if(addBtn){ addBtn.setAttribute('data-variant-id', variantId); }
+          const addBtn = document.getElementById('addToCartBtn'); 
+          if(addBtn){ 
+            addBtn.setAttribute('data-variant-id', variantId);
+            // Update button stock state based on variant availability
+            updateAddToCartButtonState(variantId);
+          }
         })
         .catch(()=>{});
     };
+
+    // Update button state based on variant stock
+    function updateAddToCartButtonState(variantId) {
+      const addBtn = document.getElementById('addToCartBtn');
+      if (!addBtn) return;
+      
+      // Get the variant data from the color button to check stock
+      const colorBtn = document.querySelector(`.color-option[data-variant-id="${variantId}"]`);
+      if (!colorBtn) return;
+      
+      // Fetch variant stock from the API  
+      fetch(`/api/product/` + addBtn.dataset.productId)
+        .then(r => r.json())
+        .then(data => {
+          if (!data.variants) return;
+          const variant = data.variants.find(v => v.id === parseInt(variantId));
+          if (!variant) return;
+          
+          const isAvailable = variant.is_available;
+          const qty = variant.quantity_on_hand || 0;
+          
+          // Update button state
+          addBtn.dataset.isAvailable = String(isAvailable).toLowerCase();
+          addBtn.dataset.quantityOnHand = qty;
+          
+          if (isAvailable && qty > 0) {
+            addBtn.disabled = false;
+            addBtn.innerHTML = '<i class="fas fa-shopping-cart"></i> Add to Cart';
+          } else {
+            addBtn.disabled = true;
+            addBtn.innerHTML = '<i class="fas fa-shopping-cart"></i> Out of Stock';
+          }
+        })
+        .catch(err => console.warn('Stock check failed:', err));
+    }
   </script>
 </body>
 </html>

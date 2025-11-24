@@ -598,6 +598,74 @@ function addToCartWithQuantity(productId, productName, price, quantity = 1, butt
     });
 }
 
+// ---------------------------------------------------------------------------
+// PRODUCT VARIANT SWITCHING (Color selector on product cards)
+// ---------------------------------------------------------------------------
+window.switchCardVariant = function switchCardVariant(event, productId, variantId, colorHex, colorName) {
+  event?.preventDefault?.();
+  event?.stopPropagation?.();
+
+  // Find the button element that triggered this
+  const colorButton = event?.target?.closest?.('.card-color-option');
+  if (colorButton) {
+    colorButton.classList.add('active');
+    // Remove active class from sibling color buttons
+    const siblings = colorButton.parentElement?.querySelectorAll?.('.card-color-option') || [];
+    siblings.forEach(btn => {
+      if (btn !== colorButton) btn.classList.remove('active');
+    });
+  }
+
+  // Find the product card container (must include .product-card class to avoid matching color buttons)
+  const productCard = document.querySelector(`[data-product-id="${productId}"].product-card`);
+  if (!productCard) return;
+
+  // Fetch variant data to get accurate stock status
+  fetch(`/api/variant/${variantId}`, { credentials: 'same-origin' })
+    .then(r => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
+    .then(variant => {
+      // Get the add-to-cart button in this card
+      const addButton = productCard.querySelector('.btn-add-cart');
+      if (!addButton) {
+        console.warn(`[VARIANT SWITCH] Could not find .btn-add-cart in product card ${productId}`);
+        return;
+      }
+
+      console.log(`[VARIANT SWITCH] Product ${productId}, Variant ${variantId}:`, {
+        is_available: variant.is_available,
+        color: variant.color_name,
+        qty: variant.quantity_on_hand
+      });
+
+      // Update button's data attributes with variant information
+      addButton.dataset.variantId = variantId;
+      addButton.dataset.isAvailable = String(variant.is_available).toLowerCase();
+
+      // Update button styling and text based on variant availability
+      if (variant.is_available) {
+        // In stock: enable button, set to purple/pink color, show "Add to Cart"
+        addButton.disabled = false;
+        addButton.classList.remove('out-of-stock');
+        addButton.classList.add('in-stock');
+        console.log(`[VARIANT SWITCH] Added .in-stock class, button classes:`, addButton.className);
+        const btnText = addButton.querySelector('.btn-text');
+        if (btnText) btnText.innerHTML = 'Add&nbsp;to&nbsp;Cart';
+      } else {
+        // Out of stock: disable button, set to grey color, show "Out of Stock"
+        addButton.disabled = true;
+        addButton.classList.remove('in-stock');
+        addButton.classList.add('out-of-stock');
+        console.log(`[VARIANT SWITCH] Added .out-of-stock class, button classes:`, addButton.className);
+        const btnText = addButton.querySelector('.btn-text');
+        if (btnText) btnText.innerHTML = 'Out&nbsp;of&nbsp;Stock';
+      }
+    })
+    .catch(err => {
+      console.error('[VARIANT SWITCH] Error:', err);
+      // Fallback: keep current button state if API fails
+    });
+};
+
 // Cart count management
 let cartCountCache = null;
 let cartCountLastFetch = 0;

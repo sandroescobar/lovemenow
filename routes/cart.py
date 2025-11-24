@@ -50,10 +50,19 @@ def add_to_cart():
         product = Product.query.get(product_id)
         if not product:
             return jsonify({'error': 'Product not found'}), 404
-        if not product.is_available or (product.quantity_on_hand or 0) <= 0:
-            return jsonify({'error': 'This item is currently out of stock'}), 400
-
-        total_stock = int(product.quantity_on_hand or 0)
+        
+        # If variant_id specified, check variant-level stock; otherwise check product-level
+        if variant_id:
+            variant = ProductVariant.query.get(variant_id)
+            if not variant or variant.product_id != product_id:
+                return jsonify({'error': 'Variant not found'}), 404
+            if not variant.is_available:
+                return jsonify({'error': 'This item is currently out of stock'}), 400
+            total_stock = int(variant.quantity_on_hand or product.quantity_on_hand or 0)
+        else:
+            if not product.is_available or (product.quantity_on_hand or 0) <= 0:
+                return jsonify({'error': 'This item is currently out of stock'}), 400
+            total_stock = int(product.quantity_on_hand or 0)
 
         # ---- Compute how many of THIS PRODUCT are already in the cart (all variants) ----
         if current_user.is_authenticated:
