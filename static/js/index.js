@@ -663,6 +663,44 @@ window.switchCardVariant = function switchCardVariant(event, productId, variantI
       // Update the card's data-in-stock attribute to show/hide the red "OUT OF STOCK" badge
       productCard.dataset.inStock = String(variant.is_available).toLowerCase();
       console.log(`[VARIANT SWITCH] Updated card.dataset.inStock to: ${productCard.dataset.inStock}`);
+
+      // ========== UPDATE PRODUCT IMAGES FOR NEW VARIANT ==========
+      if (variant.images && variant.images.length > 0) {
+        const slideshow = productCard.querySelector('.product-card-slideshow');
+        if (slideshow) {
+          const slides = slideshow.querySelectorAll('.product-slide');
+          
+          // Update each slide with the new variant's images
+          slides.forEach((slide, index) => {
+            slide.classList.remove('active');
+            if (variant.images[index]) {
+              // Update both src (for <img>) and srcset if it's in a <picture>
+              slide.src = variant.images[index].url;
+              const picture = slide.closest('picture');
+              if (picture) {
+                const source = picture.querySelector('source[type="image/webp"]');
+                if (source) {
+                  source.srcset = variant.images[index].url.replace('.png', '__alpha.webp').replace('.jpg', '__alpha.webp').replace('.jpeg', '__alpha.webp');
+                }
+              }
+            }
+          });
+          
+          // Activate the first slide
+          if (slides.length > 0) slides[0].classList.add('active');
+          
+          // Update the image counter
+          const counter = slideshow.querySelector('.product-card-image-counter');
+          if (counter) {
+            const currentSpan = counter.querySelector('.current-image');
+            const totalSpan = counter.querySelector('.total-images');
+            if (currentSpan) currentSpan.textContent = '1';
+            if (totalSpan) totalSpan.textContent = variant.images.length;
+          }
+          
+          console.log(`[VARIANT SWITCH] Updated ${variant.images.length} images for variant ${variantId}`);
+        }
+      }
     })
     .catch(err => {
       console.error('[VARIANT SWITCH] Error:', err);
