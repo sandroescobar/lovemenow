@@ -131,6 +131,29 @@
       <p>Pick up in-store or get fast Uber Delivery</p>
     </div>
 
+    <!-- Holiday Closure Notification -->
+    {% if holiday_info and holiday_info.is_closed %}
+    <div style="
+      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+      border: 2px solid #cc0000;
+      border-radius: 14px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      color: white;
+      box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+      font-size: 15px;
+      line-height: 1.6;
+    ">
+      <div style="display: flex; gap: 12px; align-items: flex-start;">
+        <div style="font-size: 24px; flex-shrink: 0;">🕓</div>
+        <div>
+          <strong style="font-size: 16px; display: block; margin-bottom: 4px;">Store Closed at {{ holiday_info.closing_time_str }}</strong>
+          <div>Because of the holiday, our store will be closed at {{ holiday_info.closing_time_str }} today. Any orders placed after {{ holiday_info.closing_time_str }} will be delivered tomorrow.</div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
     <div class="checkout-layout">
       <!-- Left column: Form -->
       <div class="checkout-form card">

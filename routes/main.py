@@ -15,6 +15,7 @@ from routes.auth import require_age_verification
 from models import Product, ProductVariant, Category, Color, Wishlist, Cart, Order, OrderItem, UberDelivery, UserAddress
 from security import validate_input
 from database_utils import retry_db_operation, test_database_connection, get_fallback_data
+from holiday_hours import get_today_closure_info
 
 main_bp = Blueprint('main', __name__)
 
@@ -1041,17 +1042,23 @@ def checkout():
         user_addresses = UserAddress.query.filter_by(user_id=current_user.id).all()
         default_address = UserAddress.query.filter_by(user_id=current_user.id, is_default=True).first()
 
+    # Get holiday closure info if applicable
+    holiday_info = get_today_closure_info()
+    
     # Use enhanced checkout template with delivery options
     try:
         current_app.logger.info("Attempting to render checkout_enhanced.html template")
         current_app.logger.info(f"Cart data: {cart_data}")
         current_app.logger.info(f"Config keys: {list(current_app.config.keys())}")
+        if holiday_info:
+            current_app.logger.info(f"🕓 Holiday closure detected: {holiday_info['closing_time_str']}")
         return render_template('checkout_enhanced.html',
                                config=current_app.config,
                                cart_data=cart_data,
                                user_data=user_data,
                                user_addresses=user_addresses,
-                               default_address=default_address)
+                               default_address=default_address,
+                               holiday_info=holiday_info)
     except Exception as e:
         current_app.logger.error(f"Error rendering checkout template: {str(e)}")
         # Fallback to a simple error page
