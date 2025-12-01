@@ -22,6 +22,9 @@
   <link rel="preload" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/mobile-optimizations.css') }}"></noscript>
 
+  <!-- Safari Fixes CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/safari-fixes.css') }}">
+
   <!-- CSRF -->
   {% include 'csrf_meta.html' %}
 

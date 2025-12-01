@@ -118,6 +118,47 @@
     return data;
   }
 
+  function wireCopyHandler(overlay) {
+    const copyBtn = overlay.querySelector('#promoCopyBtn');
+    const input = overlay.querySelector('#promoCodeInput');
+    if (!copyBtn || !input) return;
+
+    copyBtn.addEventListener('click', async () => {
+      const code = (input.value || '').trim();
+      if (!code) return;
+
+      try {
+        // Use Clipboard API if available
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(code);
+        } else {
+          // Fallback for older browsers
+          input.select();
+          document.execCommand('copy');
+        }
+        
+        // Visual feedback
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = 'Copied!';
+        copyBtn.disabled = true;
+        setTimeout(() => {
+          copyBtn.textContent = originalText;
+          copyBtn.disabled = false;
+        }, 1500);
+        
+        // Toast notification
+        if (typeof window.showToast === 'function') {
+          window.showToast(`Discount code "${code}" copied!`, 'success');
+        }
+      } catch (e) {
+        console.error('[PROMO] copy error', e);
+        if (typeof window.showToast === 'function') {
+          window.showToast('Failed to copy code. Please try manually.', 'error');
+        }
+      }
+    });
+  }
+
   function wireApplyHandler(overlay) {
     const applyBtn = overlay.querySelector('#promoApplyBtn');
     const input = overlay.querySelector('#promoCodeInput');
@@ -182,6 +223,7 @@
     }
 
     wireCloseHandlers(overlay);
+    wireCopyHandler(overlay);
     wireApplyHandler(overlay);
 
     if (shouldShow(true)) {

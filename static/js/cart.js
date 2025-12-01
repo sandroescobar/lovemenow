@@ -1,18 +1,48 @@
 // static/js/cart.js
 // Cart rendering + server-truth discount UI + event wiring (updated)
+// With cache-busting for browser consistency (Chrome vs Safari pricing)
 
 (() => {
   const $  = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
   const fmt = (n) => `$${Number(n || 0).toFixed(2)}`;
 
+  // Cache-busting: add timestamp to API calls to force fresh data
+  const bustCache = () => `t=${Date.now()}`;
+
   const getCSRF = () =>
     (typeof window.getCSRFToken === 'function'
       ? window.getCSRFToken()
       : document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')) || '';
 
+  // Clear old cached data (fixes browser cache issues like Chrome vs Safari pricing differences)
+  function clearOldCaches() {
+    try {
+      // Clear localStorage discount-related data
+      const keysToRemove = Object.keys(localStorage).filter(k => 
+        k.includes('discount') || k.includes('cart') || k.includes('price')
+      );
+      keysToRemove.forEach(k => localStorage.removeItem(k));
+      console.log('✨ Cleared old cached pricing data');
+    } catch (e) {
+      console.warn('Could not clear localStorage:', e);
+    }
+    
+    // Clear service worker caches if available
+    if ('caches' in window) {
+      caches.keys().then(cacheNames => {
+        cacheNames.forEach(cacheName => {
+          if (cacheName.includes('cart') || cacheName.includes('api')) {
+            caches.delete(cacheName).catch(() => {});
+          }
+        });
+      }).catch(() => {});
+    }
+  }
+
   // ---- Boot ----
   document.addEventListener('DOMContentLoaded', () => {
+    clearOldCaches(); // Clear stale cache on page load
     loadCart();
     // react to discount applied/removed from promo modal or DiscountManager
     window.addEventListener('lmn:discount:applied', syncDiscountUIFromServer, { passive: true });
@@ -33,7 +63,11 @@
     `;
 
     try {
-      const res = await fetch('/api/cart/', { cache: 'no-store' });
+      // Force fresh data with cache-busting parameter and headers
+      const res = await fetch(`/api/cart/?${bustCache()}`, { 
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' }
+      });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
 
@@ -201,7 +235,11 @@
   // ---- Totals (server-truth) ----
   async function refreshCartSummary() {
     try {
-      const res = await fetch('/api/cart/totals', { cache: 'no-store' });
+      // Force fresh data with cache-busting and no-cache headers
+      const res = await fetch(`/api/cart/totals?${bustCache()}`, { 
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' }
+      });
       if (!res.ok) throw new Error('no totals endpoint');
       const t = await res.json();
 
@@ -238,7 +276,10 @@
   async function getServerDiscount() {
     // 1) Prefer the canonical discount endpoint (has_discount flag)
     try {
-      const r = await fetch('/api/cart/discount-status', { cache: 'no-store' });
+      const r = await fetch(`/api/cart/discount-status?${bustCache()}`, { 
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' }
+      });
       if (r.ok) {
         const d = await r.json();
         if (d.success && d.has_discount && d.discount?.code) {
@@ -252,7 +293,10 @@
 
     // 2) Fallback to totals
     try {
-      const r = await fetch('/api/cart/totals', { cache: 'no-store' });
+      const r = await fetch(`/api/cart/totals?${bustCache()}`, { 
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' }
+      });
       if (r.ok) {
         const t = await r.json();
         if ((t.discount_amount || 0) > 0 && t.discount_code) {
@@ -269,7 +313,10 @@
 
   async function getSubtotal() {
     try {
-      const r = await fetch('/api/cart/totals', { cache: 'no-store' });
+      const r = await fetch(`/api/cart/totals?${bustCache()}`, { 
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' }
+      });
       if (r.ok) {
         const t = await r.json();
         return Number(t.subtotal || 0);
@@ -336,18 +383,41 @@
     const root = $('.cart-content');
     if (!root) return;
 
-    // qty + remove
+    // qty + remove (Safari fix: use event delegation with proper target detection)
     root.addEventListener('click', async (e) => {
-      const btn = e.target.closest('[data-action]');
-      if (!btn) return;
+      // IMPORTANT: In Safari, clicks on nested elements (i, svg) need special handling
+      let btn = null;
+      
+      // Try to find button by data-action attribute
+      if (e.target.hasAttribute && e.target.hasAttribute('data-action')) {
+        btn = e.target;
+      } else {
+        // Safari fix: climb up the DOM tree looking for a button with data-action
+        let current = e.target;
+        while (current && current !== root) {
+          if (current.nodeType === Node.ELEMENT_NODE) {
+            if (current.tagName === 'BUTTON' && current.hasAttribute('data-action')) {
+              btn = current;
+              break;
+            }
+          }
+          current = current.parentNode;
+        }
+      }
+      
+      if (!btn || !btn.hasAttribute('data-action')) return;
 
       const action  = btn.dataset.action;
       const id      = Number(btn.dataset.id);
       const variant = btn.dataset.variant === 'null' ? null : (btn.dataset.variant || null);
 
       if (action === 'remove') {
+        e.preventDefault();
+        e.stopPropagation();
         await removeFromCart(id, variant);
       } else if (action === 'qty-inc' || action === 'qty-dec') {
+        e.preventDefault();
+        e.stopPropagation();
         const row = btn.closest('.cart-item');
         const input = row?.querySelector('.quantity-input');
         if (!input) {
@@ -364,7 +434,7 @@
           await updateQuantity(id, next, variant);
         }
       }
-    });
+    }, { passive: false });
 
     root.addEventListener('change', async (e) => {
       const input = e.target.closest('.quantity-input');

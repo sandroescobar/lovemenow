@@ -86,7 +86,7 @@
     *{margin:0;padding:0;box-sizing:border-box}
     html{scroll-behavior:smooth;background:hsl(var(--bg))}
     body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.6;color:hsl(var(--text));text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased}
-    .products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1.5rem;padding:1.5rem}
+    .product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1.5rem;padding:1.5rem}
     .product-card{background:hsl(var(--surface));border-radius:8px;overflow:hidden;transition:transform .2s}
     .product-card-image{position:relative;width:100%;padding-bottom:100%;background:hsl(var(--bg));overflow:hidden}
     .product-slide{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .3s;display:none}
@@ -109,6 +109,9 @@
   <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS/filters-sheet.css') }}?v=20251004-2"></noscript>
 
    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/overrides.css') }}?v=20251104-2">
+
+  <!-- Safari Fixes CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/safari-fixes.css') }}">
 
 
   <!-- CSRF + Tags -->
@@ -404,11 +407,9 @@
           </div>
 
           <!-- Wishlist button positioned at top-right -->
-          <button class="product-card-wishlist" data-product-id="{{ p.id }}" data-product-name="{{ p.name|e }}" title="Add to wishlist">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-            </svg>
-          </button>
+
+
+
 
           <!-- INFO -->
           <div class="product-info">
@@ -447,24 +448,46 @@
             </div>
 
             <div class="product-buttons">
-              {# Check variant-level availability if default variant exists, otherwise check product-level #}
-              {% set default_variant_available = p.default_variant.is_available if p.default_variant else p.is_available %}
-              <button class="btn-add-cart {{ 'in-stock' if default_variant_available else 'out-of-stock' }}"
-                      data-product-id="{{ p.id }}"
-                      data-variant-id="{{ p.default_variant.id if p.default_variant else '' }}"
-                      data-product-name="{{ p.name|e }}"
-                      data-product-price="{{ p.price }}"
-                      data-quantity-on-hand="{{ p.quantity_on_hand or 0 }}"
-                      data-is-available="{{ default_variant_available|lower }}"
-                      {% if not default_variant_available %}disabled{% endif %}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <circle cx="9" cy="21" r="1"></circle>
-                  <circle cx="20" cy="21" r="1"></circle>
-                  <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6"></path>
-                </svg>
-                <span class="btn-text">{% if default_variant_available %}Add&nbsp;to&nbsp;Cart{% else %}Out&nbsp;of&nbsp;Stock{% endif %}</span>
-              </button>
-            </div>
+  {# Check variant-level availability if default variant exists, otherwise check product-level #}
+  {% set default_variant_available = p.default_variant.is_available if p.default_variant else p.is_available %}
+
+  <button class="btn-add-cart {{ 'in-stock' if default_variant_available else 'out-of-stock' }}"
+          type="button"
+          data-product-id="{{ p.id }}"
+          data-variant-id="{{ p.default_variant.id if p.default_variant else '' }}"
+          data-product-name="{{ p.name|e }}"
+          data-product-price="{{ p.price }}"
+          data-quantity-on-hand="{{ p.quantity_on_hand or 0 }}"
+          data-is-available="{{ default_variant_available|lower }}"
+          {% if not default_variant_available %}disabled{% endif %}>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <circle cx="9" cy="21" r="1"></circle>
+      <circle cx="20" cy="21" r="1"></circle>
+      <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6"></path>
+    </svg>
+    <span class="btn-text">
+      {% if default_variant_available %}
+        Add&nbsp;to&nbsp;Cart
+      {% else %}
+        Out&nbsp;of&nbsp;Stock
+      {% endif %}
+    </span>
+  </button>
+
+  <button class="btn-wishlist"
+          type="button"
+          data-product-id="{{ p.id }}"
+          data-product-name="{{ p.name|e }}"
+          data-variant-id="{{ p.default_variant.id if p.default_variant else '' }}"
+          aria-label="Add {{ p.name|e }} to wishlist">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+    </svg>
+  </button>
+</div>
+
           </div>
         </div>
         {% endfor %}

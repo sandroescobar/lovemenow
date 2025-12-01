@@ -1,0 +1,195 @@
+/**
+ * Safari Compatibility Fixes
+ * Addresses wishlist button and quantity button click handling in Safari
+ */
+
+/* ================================================================================
+   Button Click Target Fixes - Safari
+   ================================================================================ */
+
+/* Wishlist buttons: Ensure SVG doesn't intercept clicks */
+.btn-wishlist svg {
+  pointer-events: none !important;
+}
+
+/* Quantity buttons: Ensure icons don't intercept clicks */
+.quantity-btn i,
+.quantity-btn svg {
+  pointer-events: none !important;
+}
+
+/* Remove button: Ensure icon doesn't intercept */
+.remove-btn i {
+  pointer-events: none !important;
+}
+
+/* ================================================================================
+   Safari Button Styling Consistency
+   ================================================================================ */
+
+/* Ensure buttons have consistent appearance across browsers */
+.btn-wishlist,
+.quantity-btn,
+.remove-btn {
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  cursor: pointer;
+}
+
+/* Fix Safari select behavior on buttons */
+.btn-wishlist {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Ensure active state works properly in Safari */
+.quantity-btn:active,
+.btn-wishlist:active,
+.remove-btn:active {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* ================================================================================
+   Input/Quantity Field Fixes - Safari
+   ================================================================================ */
+
+/* Ensure input field doesn't have Safari's default styling */
+.quantity-input {
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+}
+
+/* Remove up/down spinners from number input in Safari */
+.quantity-input::-webkit-outer-spin-button,
+.quantity-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Ensure disabled quantity input is styled correctly */
+.quantity-input:disabled {
+  -webkit-appearance: none;
+  opacity: 0.6;
+}
+
+/* ================================================================================
+   Event Handling Fixes - Safari
+   ================================================================================ */
+
+/* Ensure buttons respond to click events properly */
+button {
+  -webkit-touch-callout: none;
+}
+
+/* Fix for Safari button focus state */
+button:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Remove default Safari button focus ring on click */
+button:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ================================================================================
+   Safari-Specific Backdrop Filter Fix for Wishlist Button
+   ================================================================================ */
+
+/* Safari requires -webkit- prefix for backdrop-filter */
+@supports (-webkit-backdrop-filter: blur(1px)) {
+  .btn-wishlist {
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+}
+
+/* Ensure wishlist button appears consistently in Safari */
+.btn-wishlist {
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* Ensure glass effect renders properly */
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .btn-wishlist {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    -webkit-backdrop-filter: blur(6px) !important;
+    backdrop-filter: blur(6px) !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,.20) !important;
+  }
+}
+
+/* Safari specific: Ensure SVG renders correctly */
+.btn-wishlist svg {
+  -webkit-appearance: none;
+  display: block;
+}
+
+/* Ensure hover states work in Safari */
+.btn-wishlist:hover,
+.btn-wishlist:focus {
+  -webkit-transform: translateY(-1px);
+  transform: translateY(-1px);
+}
+
+/* ================================================================================
+   Safari Product Card Layout Fixes
+   ================================================================================ */
+
+/* Ensure product card is positioned correctly for flex layout */
+.product-card {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  width: 100% !important;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+}
+
+/* Ensure product info takes up available space */
+.product-info {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+}
+
+/* Ensure product-content doesn't affect button layout */
+.product-content {
+  flex: 1 !important;
+}
+
+/* Product buttons must be in a single row */
+.product-buttons {
+  display: flex !important;
+  flex-direction: row !important;
+  width: 100% !important;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  gap: 0.5rem !important;
+  margin-top: auto !important;
+  flex-wrap: nowrap !important;
+  -webkit-flex-wrap: nowrap !important;
+}
+
+/* Add to cart button should take full available width */
+.btn-add-cart {
+  flex: 1 !important;
+  -webkit-box-flex: 1 !important;
+  min-width: 0 !important;
+  display: flex !important;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  align-items: center !important;
+  -webkit-box-align: center !important;
+  justify-content: center !important;
+  -webkit-box-pack: center !important;
+}

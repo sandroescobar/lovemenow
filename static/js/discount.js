@@ -65,11 +65,17 @@ class DiscountManager {
     catch { throw new Error(`${res.status} ${res.statusText}: Non-JSON response`); }
   }
 
+  // Cache-busting parameter to force fresh data from server (fixes Chrome vs Safari pricing issues)
+  bustCache() { return `t=${Date.now()}`; }
+
   async fetchDiscountStatus() {
-    const res = await fetch('/api/cart/discount-status', {
+    const res = await fetch(`/api/cart/discount-status?${this.bustCache()}`, {
       method: 'GET',
       cache: 'no-store',
-      headers: { 'X-CSRFToken': this.getCSRFToken() }
+      headers: { 
+        'X-CSRFToken': this.getCSRFToken(),
+        'Cache-Control': 'no-cache, no-store, must-revalidate'
+      }
     });
     const data = await this.safeJSON(res);
     if (!res.ok) throw new Error(data?.message || 'Failed to get discount status');
@@ -77,7 +83,10 @@ class DiscountManager {
   }
 
   async fetchTotals() {
-    const res = await fetch('/api/cart/totals', { cache: 'no-store' });
+    const res = await fetch(`/api/cart/totals?${this.bustCache()}`, { 
+      cache: 'no-store',
+      headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' }
+    });
     const data = await this.safeJSON(res);
     if (!res.ok) throw new Error('Failed to get cart totals');
     return data;

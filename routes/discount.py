@@ -163,6 +163,24 @@ def apply_discount_to_cart():
     if not _code_is_valid(dc):
         return jsonify(success=False, message="Invalid or inactive code"), 400
 
+    # ━━━ Anti-stacking: Prevent LOVEMENOWMIAMI + $10 combo ━━━
+    # If applying LOVEMENOWMIAMI, reject if $10 code is active; vice versa
+    conflicting_codes = {
+        'LOVEMENOWMIAMI': 'LOVEMENOW10',
+        'LOVEMENOW10': 'LOVEMENOWMIAMI'
+    }
+    
+    if code in conflicting_codes:
+        conflicting = conflicting_codes[code]
+        sess_disc = session.get("discount") or {}
+        current_code = (sess_disc.get("code") or session.get("discount_code") or "").strip().upper()
+        
+        if current_code == conflicting:
+            return jsonify(
+                success=False, 
+                message=f"You cannot combine {code} with {conflicting}. Please remove the current discount to apply {code}."
+            ), 400
+    
     # Persist ONLY the code (but keep a tiny dict for legacy code that expects session['discount'])
     session["discount_code"] = code
     session["discount"] = {"code": code}

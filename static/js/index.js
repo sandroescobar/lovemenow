@@ -283,8 +283,16 @@ function setupButtonEventListeners() {
   });
 
   // Wishlist toggle (handles both .btn-wishlist and .product-card-wishlist)
+  // Safari fix: handle SVG/nested elements by traversing up to button
   document.addEventListener('click', function (e) {
-    const wbtn = e.target.closest('.btn-wishlist, .product-card-wishlist');
+    let wbtn = e.target.closest('.btn-wishlist, .product-card-wishlist');
+    
+    // Safari compatibility: if SVG or icon is clicked, find parent button
+    if (!wbtn) {
+      wbtn = e.target.closest('svg')?.closest('.btn-wishlist, .product-card-wishlist') ||
+             e.target.closest('i')?.closest('.btn-wishlist, .product-card-wishlist');
+    }
+    
     if (!wbtn) return;
     e.preventDefault();
     const productId = parseInt(wbtn.dataset.productId);
