@@ -23,7 +23,7 @@ from .discount_utils import record_discount_redemption
 from security import sanitize_input, validate_input
 from routes.discount import discount_bp
 from .discount_utils import get_redemptions_for
-from services.slack_notifications import send_order_notification
+from services.slack_notifications import send_order_notification, send_manual_delivery_alert
 
 # IMPORTANT: mount all routes under /api
 api_bp = Blueprint('api', __name__, url_prefix='/api')
@@ -583,6 +583,9 @@ def create_order():
         # 4) Handle Uber delivery if delivery type is 'delivery'
         tracking_url = None
         uber_delivery = None
+        manual_dispatch_required = False
+        manual_dispatch_reason = None
+        manual_quote_id = None
         
         if delivery_type == 'delivery':
             try:
@@ -600,12 +603,18 @@ def create_order():
                 else:
                     # Prepare Uber delivery data
                     quote_id = data.get('quote_id')
+                    manual_quote_id = quote_id
                     current_app.logger.info(f"🔍 Delivery order - quote_id: {quote_id}")
+                    is_custom_quote = bool(quote_id and str(quote_id).startswith('custom_'))
                     
                     # Check if Uber service is configured
                     if not uber_service.client_id:
                         current_app.logger.error(f"❌ Uber service not configured - missing credentials")
                         tracking_url = None
+                    elif is_custom_quote:
+                        manual_dispatch_required = True
+                        manual_dispatch_reason = f"Custom quote {quote_id} requires manual booking"
+                        current_app.logger.info("Skipping Uber Direct for custom delivery quote")
                     else:
                         # Store pickup/dropoff info
                         store_address = get_miami_store_address()
@@ -686,6 +695,8 @@ def create_order():
                             current_app.logger.error(f"❌ Failed to create Uber delivery: {str(uber_err)}")
                             current_app.logger.error(traceback.format_exc())
                             tracking_url = None
+                            manual_dispatch_required = True
+                            manual_dispatch_reason = f"Uber Direct error: {str(uber_err)}"
                             # Continue anyway - order is created, just no Uber delivery yet
                     
             except Exception as e:
@@ -777,6 +788,12 @@ def create_order():
         except Exception as e:
             # Don't fail the order if Slack send has issues
             current_app.logger.exception(f"❌ Failed to send Slack notification: {e}")
+
+        if manual_dispatch_required:
+            try:
+                send_manual_delivery_alert(order, manual_dispatch_reason or "Manual delivery required", manual_quote_id)
+            except Exception as alert_err:
+                current_app.logger.error(f"Failed to send manual delivery alert: {alert_err}")
 
         return jsonify({
             'success': True,

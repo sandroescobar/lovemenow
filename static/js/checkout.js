@@ -23,6 +23,7 @@
   let isGettingQuote = false;
   let latestTotals = null;   // keep last totals for PR amount
   let isQuoteLocked = false; // Prevent address changes from updating quote after selection
+  let lastQuoteKey = null;
 
   // ----- DOM -----
   const deliveryOptions = document.querySelectorAll('.delivery-option');
@@ -262,8 +263,22 @@
 
     if (!address || !city || !zip) {
       deliveryQuote = null;
+      lastQuoteKey = null;
+      isQuoteLocked = false;
       updateOrderSummary();
       return;
+    }
+
+    const quoteKey = `${address.trim().toLowerCase()}|${city.trim().toLowerCase()}|${(state || '').trim().toLowerCase()}|${zip.trim()}`;
+    if (isQuoteLocked && quoteKey === lastQuoteKey) {
+      return;
+    }
+    if (isQuoteLocked && quoteKey !== lastQuoteKey) {
+      isQuoteLocked = false;
+      deliveryQuote = null;
+      lastQuoteKey = null;
+      showQuoteUnlockMessage();
+      updateOrderSummary();
     }
 
     isGettingQuote = true;
@@ -278,6 +293,7 @@
       const data = await r.json();
       if (data.success) {
         deliveryQuote = data.quote;
+        lastQuoteKey = quoteKey;
         hideDeliveryError();
         updateOrderSummary();
 
@@ -294,11 +310,15 @@
         showQuoteLockMessage();
       } else {
         deliveryQuote = null;
+        lastQuoteKey = null;
+        isQuoteLocked = false;
         updateOrderSummary();
         showDeliveryError(data.error || 'Unable to get delivery quote.');
       }
     } catch (e) {
       deliveryQuote = null;
+      lastQuoteKey = null;
+      isQuoteLocked = false;
       updateOrderSummary();
       showDeliveryError('Unable to get delivery quote. Please try again.');
     } finally {
@@ -657,13 +677,28 @@
       f.addEventListener('blur', () => {
         if (selectedDeliveryType === 'delivery') debouncedGetQuote();
       });
+      f.addEventListener('focus', () => {
+        if (selectedDeliveryType === 'delivery' && isQuoteLocked) {
+          isQuoteLocked = false;
+          lastQuoteKey = null;
+          deliveryQuote = null;
+          showQuoteUnlockMessage();
+          updateOrderSummary();
+        }
+      });
     });
 
     const saved = document.getElementById('saved-address');
     if (saved) {
       saved.addEventListener('change', () => {
         handleSavedAddressChange();
-        if (selectedDeliveryType === 'delivery') setTimeout(() => debouncedGetQuote(), 100);
+        if (selectedDeliveryType === 'delivery') {
+          isQuoteLocked = false;
+          lastQuoteKey = null;
+          deliveryQuote = null;
+          showQuoteUnlockMessage();
+          setTimeout(() => debouncedGetQuote(), 100);
+        }
       });
     }
   }

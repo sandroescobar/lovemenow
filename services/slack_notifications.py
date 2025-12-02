@@ -151,6 +151,60 @@ class SlackNotificationService:
             ]
         }
     
+    def send_manual_delivery_alert(self, order, reason: str, quote_id: Optional[str] = None) -> bool:
+        if not self.webhook_url:
+            current_app.logger.warning("Slack webhook URL not configured, skipping manual delivery alert")
+            return False
+        address_lines = f"{order.shipping_address}\n"
+        if order.shipping_suite:
+            address_lines += f"   {order.shipping_suite}\n"
+        address_lines += f"   {order.shipping_city}, {order.shipping_state} {order.shipping_zip}"
+        details = []
+        if quote_id:
+            details.append(f"*Quote ID:* {quote_id}")
+        if reason:
+            details.append(f"*Reason:* {reason}")
+        details_text = "\n".join(details) if details else "*Reason:* Manual courier dispatch required"
+        manual_text = f"""⚠️ *MANUAL DELIVERY REQUIRED*
+
+*Order:* {order.order_number}
+*Customer:* {order.full_name}
+*Phone:* {getattr(order, 'phone', 'Not provided')}
+*Address:*
+{address_lines}
+{details_text}
+*Total:* ${float(order.total_amount):.2f}
+"""
+        message = {
+            "text": f"Manual Delivery Required: {order.order_number}",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": manual_text
+                    }
+                },
+                {
+                    "type": "divider"
+                }
+            ]
+        }
+        try:
+            response = requests.post(
+                self.webhook_url,
+                json=message,
+                timeout=10
+            )
+            if response.status_code == 200:
+                current_app.logger.info(f"Manual delivery alert sent for order {order.order_number}")
+                return True
+            current_app.logger.error(f"Failed to send manual delivery alert: {response.status_code} - {response.text}")
+            return False
+        except Exception as e:
+            current_app.logger.error(f"Error sending manual delivery alert: {str(e)}")
+            return False
+    
     def send_test_notification(self) -> bool:
         """Send a test notification to verify Slack integration"""
         if not self.webhook_url:
@@ -202,6 +256,11 @@ def send_order_notification(order, order_items: List[Dict]) -> bool:
     """
     service = SlackNotificationService()
     return service.send_order_notification(order, order_items)
+
+
+def send_manual_delivery_alert(order, reason: str, quote_id: Optional[str] = None) -> bool:
+    service = SlackNotificationService()
+    return service.send_manual_delivery_alert(order, reason, quote_id)
 
 
 def send_test_notification() -> bool:

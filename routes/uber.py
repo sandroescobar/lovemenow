@@ -55,7 +55,7 @@ logger = logging.getLogger(__name__)
 #                 'currency': quote['currency'],
 
 def is_in_delivery_area(address_data, distance_miles=None):
-    """Check if address is in our delivery area (within 50 miles of Miami store)"""
+    """Check if address is in our delivery area (within 70 miles of Miami store)"""
     state = address_data.get('state', '').lower().strip()
     
     # Must be in Florida
@@ -64,8 +64,8 @@ def is_in_delivery_area(address_data, distance_miles=None):
     
     # If we have distance calculated, use that for validation
     if distance_miles is not None:
-        if distance_miles > 50:
-            return False, f"Address is {distance_miles:.1f} miles away. We deliver within 50 miles of our Miami store."
+        if distance_miles > 70:
+            return False, f"Address is {distance_miles:.1f} miles away. We deliver within 70 miles of our Miami store."
         return True, None
     
     # Fallback: Check if city is in known delivery areas (South Florida)
@@ -88,7 +88,7 @@ def is_in_delivery_area(address_data, distance_miles=None):
         if delivery_area in city or city in delivery_area:
             return True, None
     
-    return False, f"We deliver within 50 miles of our Miami store. Please contact us if you're unsure about your delivery area."
+    return False, f"We deliver within 70 miles of our Miami store. Please contact us if you're unsure about your delivery area."
 
 @uber_bp.route('/quote', methods=['POST'])
 def get_delivery_quote():
@@ -218,7 +218,7 @@ def get_delivery_quote():
                 distance_miles = straight_line_distance
                 logger.info(f"Distance {distance_miles:.2f} miles <= 10 miles, will try Uber Direct first")
             
-            # Validate distance is within 50 miles
+            # Validate distance is within 70 miles
             is_valid_distance, distance_error = is_in_delivery_area(data['delivery_address'], distance_miles)
             if not is_valid_distance:
                 logger.warning(f"Address too far: {distance_miles:.2f} miles")
