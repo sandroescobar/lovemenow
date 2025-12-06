@@ -1,0 +1,105 @@
+<style>
+.delivery-info-bar{
+  width:100%;
+  background:linear-gradient(135deg,hsl(var(--primary-color)),hsl(var(--accent-color)));
+  color:#fff;
+  font-family:inherit;
+  letter-spacing:.02em;
+  position:relative;
+  z-index:900;
+  box-shadow:0 8px 20px rgba(0,0,0,.08);
+}
+.delivery-info-bar::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(90deg,rgba(255,255,255,.25),rgba(255,255,255,0),rgba(255,255,255,.25));
+  opacity:.3;
+  pointer-events:none;
+}
+.delivery-info-inner{
+  max-width:1400px;
+  margin:0 auto;
+  padding:.75rem 1.5rem;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+.delivery-info-message{
+  font-size:.95rem;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  display:inline-flex;
+  align-items:center;
+  gap:.5rem;
+  opacity:0;
+  transform:translateY(6px);
+  transition:opacity .25s ease,transform .25s ease;
+}
+.delivery-info-message.is-visible{
+  opacity:1;
+  transform:translateY(0);
+}
+.delivery-info-message::before{
+  content:"";
+  width:8px;
+  height:8px;
+  border-radius:999px;
+  background:#fff;
+  box-shadow:0 0 12px rgba(255,255,255,.9);
+}
+@media (max-width:768px){
+  .delivery-info-inner{padding:.75rem 1rem;}
+  .delivery-info-message{font-size:.85rem;letter-spacing:.05em;}
+}
+</style>
+<div class="delivery-info-bar" data-rotation-interval="5000">
+  <div class="delivery-info-inner">
+    <span class="delivery-info-message">Delivery starts at $12.99 for orders within 10 miles.</span>
+  </div>
+</div>
+<script>
+  (function() {
+    var bars = document.querySelectorAll('.delivery-info-bar');
+    if (!bars.length) {
+      return;
+    }
+
+    var sentences = [
+      'Delivery starts at $12.99 for orders within 10 miles.',
+      'Most trips run about $22 up to 20 miles and about $32 up to 30 miles.',
+      'Longer runs are around $42 up to 40 miles and top out near $55 for 50–70 miles.'
+    ];
+
+    var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    bars.forEach(function(bar) {
+      var messageEl = bar.querySelector('.delivery-info-message');
+      if (!messageEl) {
+        return;
+      }
+
+      var index = 0;
+      messageEl.textContent = sentences[index];
+      messageEl.classList.add('is-visible');
+
+      if (sentences.length < 2 || prefersReducedMotion) {
+        return;
+      }
+
+      var rotationInterval = parseInt(bar.getAttribute('data-rotation-interval'), 10);
+      var interval = !isNaN(rotationInterval) ? rotationInterval : 5000;
+
+      setInterval(function() {
+        messageEl.classList.remove('is-visible');
+        setTimeout(function() {
+          index = (index + 1) % sentences.length;
+          messageEl.textContent = sentences[index];
+          messageEl.classList.add('is-visible');
+        }, 250);
+      }, interval);
+    });
+  })();
+</script>
