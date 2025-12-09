@@ -355,6 +355,16 @@ def create_app(config_name=None):
         '/sitemap.xml',
         '/favicon.ico',
     }
+    BOT_USER_AGENTS = (
+        'googlebot',
+        'bingbot',
+        'slurp',
+        'duckduckbot',
+        'baiduspider',
+        'yandexbot',
+        'facebot',
+        'ia_archiver',
+    )
 
     @app.before_request
     def enforce_age_gate_everywhere():
@@ -363,6 +373,11 @@ def create_app(config_name=None):
         lower_path = path.lower()
         normalized_path = (lower_path.rstrip('/') or '/')
         if normalized_path in EXEMPT_PATHS or any(lower_path.startswith(p) for p in EXEMPT_PATH_PREFIXES):
+            return
+
+        # let search/preview bots index the real page content
+        user_agent = request.headers.get('User-Agent', '').lower()
+        if user_agent and any(bot in user_agent for bot in BOT_USER_AGENTS):
             return
 
         # already verified?
