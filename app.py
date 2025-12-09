@@ -360,7 +360,9 @@ def create_app(config_name=None):
     def enforce_age_gate_everywhere():
         # allow exempt
         path = request.path or '/'
-        if path in EXEMPT_PATHS or any(path.startswith(p) for p in EXEMPT_PATH_PREFIXES):
+        lower_path = path.lower()
+        normalized_path = (lower_path.rstrip('/') or '/')
+        if normalized_path in EXEMPT_PATHS or any(lower_path.startswith(p) for p in EXEMPT_PATH_PREFIXES):
             return
 
         # already verified?
