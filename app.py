@@ -4,18 +4,39 @@ from datetime import datetime, timedelta
 from urllib.parse import urlencode
 
 import stripe
-from flask import Flask, render_template, redirect, request, url_for, flash, jsonify, session, current_app
+from flask import (
+    Flask,
+    render_template,
+    redirect,
+    request,
+    url_for,
+    flash,
+    jsonify,
+    session,
+    current_app,
+)
 from flask_login import login_user, logout_user, current_user, login_required
 from flask_talisman import Talisman  # ENABLED for CSP/Stripe
 from sqlalchemy.orm import joinedload
 from sqlalchemy import text, func
 from dotenv import load_dotenv
 
-# Import our modules
 from config import config
 from security import SecurityMiddleware, validate_input, sanitize_filename, is_safe_url
 from routes import db, bcrypt, login_mgr, migrate
-from models import User, UserAddress, Category, Product, Wishlist, Cart, Order, OrderItem, Color, UberDelivery, AuditLog
+from models import (
+    User,
+    UserAddress,
+    Category,
+    Product,
+    Wishlist,
+    Cart,
+    Order,
+    OrderItem,
+    Color,
+    UberDelivery,
+    AuditLog,
+)
 from email_utils import send_email_sendlayer
 from email_marketing import EmailMarketing
 from uber_service import init_uber_service
@@ -34,7 +55,6 @@ class FinalCSPMiddleware:
 
     def __init__(self, app):
         self.app = app
-        # Final/effective policy
         self.csp = (
             "default-src 'self'; "
             "script-src 'self' 'unsafe-inline' "
@@ -64,18 +84,18 @@ class FinalCSPMiddleware:
 
     def __call__(self, environ, start_response):
         def sr(status, headers, exc_info=None):
-            # Remove any prior CSP headers so we don't get additive intersection
             filtered = []
             for (k, v) in headers:
                 kl = k.lower()
-                if kl in ("content-security-policy", "content-security-policy-report-only"):
+                if kl in (
+                    "content-security-policy",
+                    "content-security-policy-report-only",
+                ):
                     continue
                 filtered.append((k, v))
 
-            # Set our final CSP and a debug marker
             filtered.append(("Content-Security-Policy", self.csp))
             filtered.append(("X-Debug-CSP", "final_wsgi_mw_v2"))
-
             return start_response(status, filtered, exc_info)
 
         return self.app(environ, sr)
@@ -90,78 +110,88 @@ def create_app(config_name=None):
 
     @app.context_processor
     def inject_age_verified():
-        av = bool(session.get('age_verified') or (request.cookies.get('age_verified') == '1'))
-        return {'age_verified': av}
+        av = bool(
+            session.get("age_verified")
+            or (request.cookies.get("age_verified") == "1")
+        )
+        return {"age_verified": av}
 
     # Determine environment
     if config_name is None:
-        config_name = os.getenv('FLASK_ENV', 'development')
+        config_name = os.getenv("FLASK_ENV", "development")
 
     # Load configuration
     app.config.from_object(config[config_name])
 
     # Configure session settings based on environment
-    if config_name == 'development':
-        app.config['SESSION_COOKIE_SECURE'] = False
-        app.config['REMEMBER_COOKIE_SECURE'] = False
-        app.config['SESSION_PERMANENT'] = False  # Sessions expire when browser closes
-        app.config['SESSION_COOKIE_HTTPONLY'] = True
-        app.logger.info("Development mode: Session cookies set to non-secure and expire on browser close")
-    elif config_name == 'production':
-        # Production security settings
-        app.config['SESSION_COOKIE_SECURE'] = True
-        app.config['REMEMBER_COOKIE_SECURE'] = True
-        app.config['SESSION_COOKIE_HTTPONLY'] = True
-        app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+    if config_name == "development":
+        app.config["SESSION_COOKIE_SECURE"] = False
+        app.config["REMEMBER_COOKIE_SECURE"] = False
+        app.config["SESSION_PERMANENT"] = False
+        app.config["SESSION_COOKIE_HTTPONLY"] = True
+        app.logger.info(
+            "Development mode: Session cookies set to non-secure and expire on browser close"
+        )
+    elif config_name == "production":
+        app.config["SESSION_COOKIE_SECURE"] = True
+        app.config["REMEMBER_COOKIE_SECURE"] = True
+        app.config["SESSION_COOKIE_HTTPONLY"] = True
+        app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
         app.logger.info("Production mode: Enhanced security settings applied")
 
     # Validate configuration
     try:
         config[config_name].validate_config()
     except RuntimeError as e:
-        # Don't exit, but log the error
         app.logger.error(f"Configuration validation failed: {e}")
 
     # Configure Stripe with better error handling and debugging
-    stripe_secret_key = app.config.get('STRIPE_SECRET_KEY')
+    stripe_secret_key = app.config.get("STRIPE_SECRET_KEY")
 
-    # Enhanced debugging for Render deployment
     app.logger.info(
-        f"🔍 APP INIT - Environment STRIPE_SECRET_KEY: {os.getenv('STRIPE_SECRET_KEY')[:10] if os.getenv('STRIPE_SECRET_KEY') else 'NOT SET'}...")
+        f"🔍 APP INIT - Environment STRIPE_SECRET_KEY: {os.getenv('STRIPE_SECRET_KEY')[:10] if os.getenv('STRIPE_SECRET_KEY') else 'NOT SET'}..."
+    )
     app.logger.info(
-        f"🔍 APP INIT - Config STRIPE_SECRET_KEY: {stripe_secret_key[:10] if stripe_secret_key else 'NOT SET'}...")
-    app.logger.info(f"🔍 APP INIT - Key ending: ...{stripe_secret_key[-10:] if stripe_secret_key else 'NO KEY'}")
-    app.logger.info(f"🔍 APP INIT - Key length: {len(stripe_secret_key) if stripe_secret_key else 0}")
+        f"🔍 APP INIT - Config STRIPE_SECRET_KEY: {stripe_secret_key[:10] if stripe_secret_key else 'NOT SET'}..."
+    )
+    app.logger.info(
+        f"🔍 APP INIT - Key ending: ...{stripe_secret_key[-10:] if stripe_secret_key else 'NO KEY'}"
+    )
+    app.logger.info(
+        f"🔍 APP INIT - Key length: {len(stripe_secret_key) if stripe_secret_key else 0}"
+    )
 
     if stripe_secret_key:
         stripe.api_key = stripe_secret_key
-        app.logger.info(f"✅ Stripe API key configured successfully: {stripe.api_key[:10]}...{stripe.api_key[-4:]}")
+        app.logger.info(
+            f"✅ Stripe API key configured successfully: {stripe.api_key[:10]}...{stripe.api_key[-4:]}"
+        )
     else:
-        app.logger.error("❌ Stripe API key not configured - check STRIPE_SECRET_KEY environment variable")
+        app.logger.error(
+            "❌ Stripe API key not configured - check STRIPE_SECRET_KEY environment variable"
+        )
 
     # Database performance optimizations
-    if config_name == 'production':
-        # Production database optimizations
-        app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-            'pool_size': 20,
-            'pool_timeout': 30,
-            'pool_recycle': 1800,  # 30 minutes
-            'max_overflow': 30,
-            'pool_pre_ping': True,
-            'connect_args': {
-                'connect_timeout': 10,
-                'read_timeout': 30,
-                'write_timeout': 30
-            }
+    if config_name == "production":
+        app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+            "pool_size": 20,
+            "pool_timeout": 30,
+            "pool_recycle": 1800,
+            "max_overflow": 30,
+            "pool_pre_ping": True,
+            "connect_args": {
+                "connect_timeout": 10,
+                "read_timeout": 30,
+                "write_timeout": 30,
+            },
         }
     else:
-        # Development database optimizations
-        app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-            'pool_size': 5,
-            'pool_timeout': 20,
-            'pool_recycle': 3600,
-            'max_overflow': 10,
-            'pool_pre_ping': True
+        app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+            "pool_size": 5,
+            "pool_timeout": 20,
+            "pool_recycle": 3600,
+            "max_overflow": 10,
+            "pool_pre_ping": True,
         }
 
     # Initialize extensions
@@ -170,10 +200,11 @@ def create_app(config_name=None):
     bcrypt.init_app(app)
     login_mgr.init_app(app)
 
-    # Run database migrations on startup to ensure schema is up-to-date
+    # Run database migrations on startup
     with app.app_context():
         try:
             from database_migrations import run_all_migrations
+
             run_all_migrations(db, app)
         except Exception as e:
             app.logger.error(f"❌ Database migration failed (non-fatal): {e}")
@@ -186,21 +217,18 @@ def create_app(config_name=None):
     try:
         from flask_compress import Compress
 
-        # Configure compression settings
-        app.config['COMPRESS_MIMETYPES'] = [
-            'text/html',
-            'text/css',
-            'text/xml',
-            'application/json',
-            'application/javascript',
-            'text/javascript',
-            'application/xml',
-            'text/plain'
+        app.config["COMPRESS_MIMETYPES"] = [
+            "text/html",
+            "text/css",
+            "text/xml",
+            "application/json",
+            "application/javascript",
+            "text/javascript",
+            "application/xml",
+            "text/plain",
         ]
-        app.config['COMPRESS_LEVEL'] = 6  # Good balance between compression and speed
-        app.config['COMPRESS_MIN_SIZE'] = 500  # Only compress files larger than 500 bytes
-
-
+        app.config["COMPRESS_LEVEL"] = 6
+        app.config["COMPRESS_MIN_SIZE"] = 500
 
         Compress(app)
         app.logger.info("Response compression enabled with optimized settings")
@@ -210,66 +238,61 @@ def create_app(config_name=None):
     # Add static file caching and performance headers
     @app.after_request
     def add_performance_headers(response):
-        # Cache static files for 1 year (immutable)
-        if request.endpoint == 'static':
-            response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
-            response.headers['ETag'] = None  # Remove ETag for better caching
-        
-        # HTML pages: cache for shorter period with revalidation
-        elif request.path.endswith('.html') or '.' not in request.path.split('/')[-1]:
-            response.headers['Cache-Control'] = 'public, max-age=3600, must-revalidate'
-        
-        # Add performance headers
-        response.headers['X-Content-Type-Options'] = 'nosniff'
-        response.headers['X-Frame-Options'] = 'SAMEORIGIN'
-        
-        # Enable GZIP compression for text content
-        if 'gzip' in response.headers.get('Content-Encoding', ''):
-            response.headers['Vary'] = 'Accept-Encoding'
-        
+        if request.endpoint == "static":
+            response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+            response.headers["ETag"] = None
+        elif request.path.endswith(".html") or "." not in request.path.split("/")[-1]:
+            response.headers["Cache-Control"] = "public, max-age=3600, must-revalidate"
+
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "SAMEORIGIN"
+
+        if "gzip" in response.headers.get("Content-Encoding", ""):
+            response.headers["Vary"] = "Accept-Encoding"
+
         return response
 
     # Add session validation for development
-    if config_name == 'development':
-        # Store server start time for session validation
+    if config_name == "development":
         import time
-        app.config['SERVER_START_TIME'] = time.time()
+
+        app.config["SERVER_START_TIME"] = time.time()
 
         @app.before_request
         def validate_session():
-            """Validate session integrity - clear invalid sessions after server restart"""
-            from flask import session, request
-            import time
+            from flask import session as flask_session, request as flask_request
 
-            # Skip validation for static files and API endpoints that don't need sessions
-            if request.endpoint and (
-                    request.endpoint.startswith('static') or
-                    request.endpoint in ['api.health', 'webhooks.stripe_webhook', 'webhooks.uber_webhook']
+            if flask_request.endpoint and (
+                flask_request.endpoint.startswith("static")
+                or flask_request.endpoint
+                in ["api.health", "webhooks.stripe_webhook", "webhooks.uber_webhook"]
             ):
                 return
 
-            # Check if session was created before server restart
-            session_start_time = session.get('_server_start_time')
-            current_server_start_time = app.config['SERVER_START_TIME']
+            session_start_time = flask_session.get("_server_start_time")
+            current_server_start_time = app.config["SERVER_START_TIME"]
 
             if session_start_time and session_start_time != current_server_start_time:
-                app.logger.info("🔄 Session from previous server instance detected - clearing session")
-                session.clear()
+                app.logger.info(
+                    "🔄 Session from previous server instance detected - clearing session"
+                )
+                flask_session.clear()
 
-            # Set server start time in session for new sessions
-            if '_server_start_time' not in session:
-                session['_server_start_time'] = current_server_start_time
+            if "_server_start_time" not in flask_session:
+                flask_session["_server_start_time"] = current_server_start_time
+
     login_mgr.login_view = "main.index"
     login_mgr.login_message = "Please log in to access this page."
     login_mgr.login_message_category = "info"
 
     # Initialize CSRF protection
     from routes import csrf
+
     csrf.init_app(app)
 
-    # Add csrf_token function to templates
     from flask_wtf.csrf import generate_csrf
-    app.jinja_env.globals['csrf_token'] = generate_csrf
+
+    app.jinja_env.globals["csrf_token"] = generate_csrf
 
     # Initialize security middleware
     security = SecurityMiddleware()
@@ -282,8 +305,6 @@ def create_app(config_name=None):
     app.logger.info(f"Current config_name: {config_name}")
     app.logger.info(f"FLASK_ENV: {os.getenv('FLASK_ENV', 'NOT SET')}")
 
-    # ── Stripe-friendly CSP via Flask-Talisman (ok if SecurityMiddleware also sets CSP;
-    # our FinalCSPMiddleware below will override everything at the very end) ──
     STRIPE_JS = "https://js.stripe.com"
     STRIPE_API = "https://api.stripe.com"
     STRIPE_HOOKS = "https://hooks.stripe.com"
@@ -301,17 +322,20 @@ def create_app(config_name=None):
         ],
         "style-src": ["'self'", "'unsafe-inline'"],
         "frame-src": [
-            STRIPE_JS, STRIPE_HOOKS,
-            "https://maps.google.com", "https://www.google.com",
+            STRIPE_JS,
+            STRIPE_HOOKS,
+            "https://maps.google.com",
+            "https://www.google.com",
             "https://www.googletagmanager.com",
             "https://www.googleadservices.com",
         ],
         "connect-src": [
             "'self'",
-            STRIPE_API, STRIPE_R,
+            STRIPE_API,
+            STRIPE_R,
             "https://www.google-analytics.com",
             "https://www.googletagmanager.com",
-            "https://www.google.com",  # for /ccm/collect
+            "https://www.google.com",
             "https://www.googleadservices.com",
             "https://googleads.g.doubleclick.net",
         ],
@@ -326,83 +350,113 @@ def create_app(config_name=None):
         app,
         content_security_policy=csp,
         force_https=True,
-        content_security_policy_nonce_in=['script-src']  # expose csp_nonce() to templates
+        content_security_policy_nonce_in=["script-src"],
     )
     app.logger.info("✅ CSP enabled via Flask-Talisman with Stripe + GTM/GA allowances")
 
     # Configure logging
     if not app.debug:
         logging.basicConfig(level=logging.INFO)
-        app.logger.info('LoveMeNow application started')
+        app.logger.info("LoveMeNow application started")
 
     # Register blueprints
     register_blueprints(app)
 
-    # Exempt webhook endpoints from CSRF protection (must be after blueprint registration)
-    from routes import csrf
-    csrf.exempt(app.view_functions['webhooks.stripe_webhook'])
-    csrf.exempt(app.view_functions['webhooks.uber_webhook'])
+    # Exempt webhook endpoints from CSRF protection
+    from routes import csrf as csrf_module
 
+    csrf_module.exempt(app.view_functions["webhooks.stripe_webhook"])
+    csrf_module.exempt(app.view_functions["webhooks.uber_webhook"])
+
+    # ---------------- AGE GATE CONFIG ----------------
     EXEMPT_PATH_PREFIXES = (
-        '/static/',  # assets
-        '/api/',  # your APIs
-        '/webhooks/',  # webhooks
+        "/static/",
+        "/api/",
+        "/webhooks/",
     )
     EXEMPT_PATHS = {
-        '/auth/age-verification',
-        '/auth/verify-age',
-        '/robots.txt',
-        '/sitemap.xml',
-        '/favicon.ico',
+        "/auth/age-verification",
+        "/auth/verify-age",
+        "/robots.txt",
+        "/sitemap.xml",
+        "/favicon.ico",
     }
     BOT_USER_AGENTS = (
-        'googlebot',
-        'bingbot',
-        'slurp',
-        'duckduckbot',
-        'baiduspider',
-        'yandexbot',
-        'facebot',
-        'ia_archiver',
+        "googlebot",
+        "bingbot",
+        "slurp",
+        "duckduckbot",
+        "baiduspider",
+        "yandexbot",
+        "facebot",
+        "ia_archiver",
     )
 
     @app.before_request
     def enforce_age_gate_everywhere():
-        # allow exempt
-        path = request.path or '/'
+        """
+        Age gate that:
+        - Lets search/preview bots bypass the gate (so Google sees real content)
+        - Allows exempt paths (sitemap, robots, age page, static, api, webhooks)
+        - Redirects unverified humans to /auth/age-verification
+        """
+        path = request.path or "/"
         lower_path = path.lower()
-        normalized_path = (lower_path.rstrip('/') or '/')
-        if normalized_path in EXEMPT_PATHS or any(lower_path.startswith(p) for p in EXEMPT_PATH_PREFIXES):
+        normalized_path = (lower_path.rstrip("/") or "/")
+        ua = (request.headers.get("User-Agent") or "").lower()
+
+        current_app.logger.info(
+            "[AGE-GATE] path=%s ua=%s verified=%s",
+            path,
+            ua,
+            bool(
+                session.get("age_verified")
+                or request.cookies.get("age_verified") == "1"
+            ),
+        )
+
+        # 1) Let search / preview bots bypass the age gate entirely
+        if ua and any(bot in ua for bot in BOT_USER_AGENTS):
+            current_app.logger.info("[AGE-GATE] allowing bot, skipping age gate")
             return
 
-        # let search/preview bots index the real page content
-        user_agent = request.headers.get('User-Agent', '').lower()
-        if user_agent and any(bot in user_agent for bot in BOT_USER_AGENTS):
+        # 2) Allow exempt paths
+        if normalized_path in EXEMPT_PATHS or any(
+            lower_path.startswith(p) for p in EXEMPT_PATH_PREFIXES
+        ):
             return
 
-        # already verified?
-        if session.get('age_verified') or request.cookies.get('age_verified') == '1':
+        # 3) Already age-verified?
+        if session.get("age_verified") or request.cookies.get("age_verified") == "1":
             return
 
-        # block everything else
-        current_app.logger.info(f"[AGE-GATE] redirecting {path} -> /auth/age-verification")
-        return redirect(url_for('auth.age_verification', next=request.url))
+        # 4) Everyone else gets redirected to age verification
+        current_app.logger.info(
+            "[AGE-GATE] redirecting %s -> /auth/age-verification", path
+        )
+        return redirect(url_for("auth.age_verification", next=request.url))
+
+    # --------- DEBUG ROUTE TO SEE UA AS FLASK SEES IT ---------
+    @app.route("/api/debug-ua")
+    def debug_ua():
+        ua = request.headers.get("User-Agent", "")
+        return f"User-Agent seen by Flask: {ua}\n"
 
     # Register error handlers
     register_error_handlers(app)
 
-    # SEO Routes - Add these directly to the app
-    @app.route('/sitemap.xml')
+    # SEO Routes
+    @app.route("/sitemap.xml")
     def sitemap():
-        """Serve sitemap.xml for search engines"""
         from flask import send_from_directory
-        return send_from_directory('.', 'sitemap.xml', mimetype='application/xml')
 
-    @app.route('/robots.txt')
+        return send_from_directory(".", "sitemap.xml", mimetype="application/xml")
+
+    @app.route("/robots.txt")
     def robots():
-        """Serve robots.txt for search engines"""
         from flask import send_from_directory
-        return send_from_directory('.', 'robots.txt', mimetype='text/plain')
+
+        return send_from_directory(".", "robots.txt", mimetype="text/plain")
 
     # Install the final CSP middleware LAST so it wins over everything else
     app.wsgi_app = FinalCSPMiddleware(app.wsgi_app)
@@ -410,53 +464,48 @@ def create_app(config_name=None):
     return app
 
 
-
-
 def register_blueprints(app):
-    from routes.auth import auth_bp  # if auth_bp already has a url_prefix in its file, drop the one here
+    from routes.auth import auth_bp
     from routes.main import main_bp
-    from routes.api import api_bp  # already has url_prefix='/api'
-    from routes.cart import cart_bp  # keep only if cart_bp has no prefix in its file
-    from routes.wishlist import wishlist_bp  # same note as cart
+    from routes.api import api_bp
+    from routes.cart import cart_bp
+    from routes.wishlist import wishlist_bp
     from routes.webhooks import webhooks_bp
     from routes.uber import uber_bp
     from routes.admin import admin_bp
-    from routes.discount import discount_bp  # our discount endpoints use absolute paths like /api/cart/...
+    from routes.discount import discount_bp
 
     app.register_blueprint(main_bp)
-    app.register_blueprint(auth_bp, url_prefix='/auth')  # remove if auth_bp already sets one
-    app.register_blueprint(api_bp)  # ✅ no extra prefix here
-    app.register_blueprint(cart_bp, url_prefix='/api/cart')  # only if cart_bp has no prefix in its file
-    app.register_blueprint(wishlist_bp, url_prefix='/api/wishlist')  # only if wishlist_bp has no prefix in its file
-    app.register_blueprint(webhooks_bp, url_prefix='/webhooks')
-    app.register_blueprint(uber_bp, url_prefix='/api/uber')
-    app.register_blueprint(discount_bp)  # our routes start with /api/...
+    app.register_blueprint(auth_bp, url_prefix="/auth")
+    app.register_blueprint(api_bp)
+    app.register_blueprint(cart_bp, url_prefix="/api/cart")
+    app.register_blueprint(wishlist_bp, url_prefix="/api/wishlist")
+    app.register_blueprint(webhooks_bp, url_prefix="/webhooks")
+    app.register_blueprint(uber_bp, url_prefix="/api/uber")
+    app.register_blueprint(discount_bp)
 
 
 def register_error_handlers(app):
-    """Register error handlers"""
-
     @app.errorhandler(404)
     def not_found_error(error):
-        return render_template('errors/404.html'), 404
+        return render_template("errors/404.html"), 404
 
     @app.errorhandler(500)
     def internal_error(error):
         db.session.rollback()
-        return render_template('errors/500.html'), 500
+        return render_template("errors/500.html"), 500
 
     @app.errorhandler(403)
     def forbidden_error(error):
-        return render_template('errors/403.html'), 403
+        return render_template("errors/403.html"), 403
 
     @app.errorhandler(429)
     def ratelimit_handler(e):
-        return jsonify({'error': 'Rate limit exceeded. Please try again later.'}), 429
+        return jsonify({"error": "Rate limit exceeded. Please try again later."}), 429
 
 
 @login_mgr.user_loader
 def load_user(user_id: str):
-    """Load user for Flask-Login"""
     try:
         return User.query.get(int(user_id))
     except (ValueError, TypeError):
@@ -466,18 +515,17 @@ def load_user(user_id: str):
 # Create the application
 app = create_app()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     with app.app_context():
-        # Skip database creation for now to avoid timeout
-        # db.create_all()
-
-        # Run the application
-        port = int(os.getenv('PORT', 2100))
-        debug = os.getenv('FLASK_ENV') == 'development'
+        port = int(os.getenv("PORT", 2100))
+        debug = os.getenv("FLASK_ENV") == "development"
 
         app.run(
-            host='127.0.0.1',
+            host="127.0.0.1",
             port=port,
             debug=debug,
-            threaded=True
+            threaded=True,
         )
+
+
+#this is new app.py
