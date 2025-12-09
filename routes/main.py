@@ -113,19 +113,10 @@ def require_age_verification(f):
 def index():
     """
     Home page with featured products.
-    Gate on age verification BEFORE rendering Home to avoid caching a pre-AV page.
+    Age gate is handled globally in app.py (before_request),
+    so this view just renders the homepage.
     """
     try:
-        # Do not mirror user.age_verified into session; require AV once per browser session
-        # if current_user.is_authenticated and getattr(current_user, "age_verified", False):
-        #     session["age_verified"] = True
-
-        # If not age-verified this session, redirect to the AV gate (do NOT render Home yet)
-        if not session.get("age_verified", False):
-            next_url = request.url  # come back here after AV
-            return redirect(url_for("auth.age_verification", next=next_url))
-
-        # ---------- From here on, this session is age-verified ----------
         # DB health check
         db_connected, db_message = test_database_connection()
         if not db_connected:
@@ -140,12 +131,11 @@ def index():
                 db_error=True,
                 age_verified=True,  # allow promo modal
             ))
-            # Cache policy: always vary on Cookie so session changes (like AV) bust caches
+            # Cache policy: always vary on Cookie so session changes bust caches
             resp.headers["Vary"] = "Cookie"
             if current_user.is_authenticated:
                 resp.headers["Cache-Control"] = "private, max-age=30"
             else:
-                # Anonymous but AV complete: keep it private (not public), short-lived
                 resp.headers["Cache-Control"] = "private, max-age=60"
             return resp
 
@@ -169,7 +159,7 @@ def index():
 
         # Use performance template if requested via query param
         template = "index_performance.html" if request.args.get('perf') else "index.html"
-        
+
         resp = make_response(render_template(
             template,
             featured_products=featured_products,
@@ -184,7 +174,6 @@ def index():
         if current_user.is_authenticated:
             resp.headers["Cache-Control"] = "private, max-age=30"
         else:
-            # Anonymous but AV complete → short private cache; not public
             resp.headers["Cache-Control"] = "private, max-age=60"
 
         return resp
@@ -199,7 +188,7 @@ def index():
             cart_count=fb["cart_count"],
             wishlist_count=fb["wishlist_count"],
             db_error=True,
-            age_verified=True,  # we would have redirected earlier if not AV
+            age_verified=True,
         ))
         resp.headers["Vary"] = "Cookie"
         if current_user.is_authenticated:
@@ -211,7 +200,6 @@ def index():
     except Exception as e:
         current_app.logger.error(f"Error loading home: {e}")
         return render_template("errors/500.html"), 500
-
 
 
 @main_bp.route('/products')
