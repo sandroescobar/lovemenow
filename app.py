@@ -383,6 +383,7 @@ def create_app(config_name=None):
     }
     BOT_USER_AGENTS = (
         "googlebot",
+        'google-inspectiontool',
         "bingbot",
         "slurp",
         "duckduckbot",
