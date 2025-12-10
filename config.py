@@ -73,15 +73,15 @@ class Config:
     
     # Store information
     STORE_NAME = os.getenv('STORE_NAME', 'LoveMeNow Miami')
-    STORE_DISPLAY_NAME = os.getenv('STORE_DISPLAY_NAME', 'Miami Vape Smoke Shop')  # Name for Uber drivers
+    STORE_DISPLAY_NAME = os.getenv('STORE_DISPLAY_NAME', 'Miami Vape Smoke Shop #2')  # Name for Uber drivers
     STORE_PHONE = os.getenv('STORE_PHONE', '+1234567890')
-    STORE_ADDRESS = os.getenv('STORE_ADDRESS', '345 NE 79th St')
+    STORE_ADDRESS = os.getenv('STORE_ADDRESS', '351 NE 79th St')
     STORE_SUITE = os.getenv('STORE_SUITE', 'Unit 101')
     STORE_CITY = os.getenv('STORE_CITY', 'Miami')
     STORE_STATE = os.getenv('STORE_STATE', 'FL')
     STORE_ZIP = os.getenv('STORE_ZIP', '33138')
-    STORE_LATITUDE = float(os.getenv('STORE_LATITUDE', '25.8465'))
-    STORE_LONGITUDE = float(os.getenv('STORE_LONGITUDE', '-80.1917'))
+    STORE_LATITUDE = float(os.getenv('STORE_LATITUDE', '25.8466'))
+    STORE_LONGITUDE = float(os.getenv('STORE_LONGITUDE', '-80.1891'))
     
     # Slack integration
     SLACK_WEBHOOK_URL = os.getenv('SLACK_WEBHOOK_URL')

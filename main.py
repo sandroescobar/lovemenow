@@ -262,12 +262,13 @@ def miami_map():
                 popup=f"We deliver to {name}!"
             ).add_to(m)
         
-        # Add store location - Miami Vape Smoke Shop (pickup location)
-        store_lat, store_lng = 25.70816, -80.407   # 351 NE 79th St, Miami FL 33138
+        # Add store location - Miami Vape Smoke Shop #2 (pickup location)
+        store_lat = current_app.config.get('STORE_LATITUDE', 25.8466)
+        store_lng = current_app.config.get('STORE_LONGITUDE', -80.1891)
         folium.Marker(
             location=(store_lat, store_lng),
-            tooltip="🏬 Miami Vape Smoke Shop - LoveMeNow Pickup",
-            popup="<b>Miami Vape Smoke Shop</b><br>351 NE 79th St<br>Miami, FL 33138<br><em>LoveMeNow Pickup Location</em>",
+            tooltip="🏬 Miami Vape Smoke Shop #2 - LoveMeNow Pickup",
+            popup="<b>Miami Vape Smoke Shop #2</b><br>351 NE 79th St Unit 101<br>Miami, FL 33138<br><em>LoveMeNow Pickup Location</em>",
             icon=folium.Icon(color="red", icon="shopping-cart", prefix="fa")
         ).add_to(m)
         

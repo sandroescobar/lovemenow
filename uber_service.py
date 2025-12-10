@@ -7,9 +7,30 @@ import logging
 import math
 from datetime import datetime, timedelta
 from typing import Dict, Any, Optional, Tuple
-from flask import current_app
+from flask import current_app, has_app_context
 
 logger = logging.getLogger(__name__)
+
+_DEFAULT_STORE_SETTINGS = {
+    'address': '351 NE 79th St',
+    'suite': 'Unit 101',
+    'city': 'Miami',
+    'state': 'FL',
+    'zip': '33138',
+    'latitude': 25.8466,
+    'longitude': -80.1891,
+}
+
+
+def _store_config_value(key: str, default_key: str = None):
+    if has_app_context():
+        config = current_app.config
+        if key in config:
+            return config.get(key)
+    if default_key and default_key in _DEFAULT_STORE_SETTINGS:
+        return _DEFAULT_STORE_SETTINGS[default_key]
+    return _DEFAULT_STORE_SETTINGS.get(key, None)
+
 
 class UberDirectService:
     """Service class for Uber Direct API integration"""
@@ -288,20 +309,24 @@ def init_uber_service(app):
 
 def get_miami_store_address():
     """Get the store pickup address in Miami"""
+    street = _store_config_value('STORE_ADDRESS', 'address') or _DEFAULT_STORE_SETTINGS['address']
+    suite = _store_config_value('STORE_SUITE', 'suite') or _DEFAULT_STORE_SETTINGS['suite']
+    city = _store_config_value('STORE_CITY', 'city') or _DEFAULT_STORE_SETTINGS['city']
+    state = _store_config_value('STORE_STATE', 'state') or _DEFAULT_STORE_SETTINGS['state']
+    zipcode = _store_config_value('STORE_ZIP', 'zip') or _DEFAULT_STORE_SETTINGS['zip']
     return {
-        "street_address": ["345 NE 79th St", "Unit 101"],
-        "city": "Miami",
-        "state": "FL", 
-        "zip_code": "33138",
+        "street_address": [street, suite],
+        "city": city,
+        "state": state,
+        "zip_code": zipcode,
         "country": "US"
     }
 
 def get_miami_store_coordinates():
     """Get store coordinates for Miami location"""
-    # Coordinates for 345 NE 79th St Unit 101, Miami, FL 33138
     return {
-        "latitude": 25.8465,
-        "longitude": -80.1917
+        "latitude": float(_store_config_value('STORE_LATITUDE', 'latitude') or _DEFAULT_STORE_SETTINGS['latitude']),
+        "longitude": float(_store_config_value('STORE_LONGITUDE', 'longitude') or _DEFAULT_STORE_SETTINGS['longitude'])
     }
 
 def is_store_open() -> Tuple[bool, str]:
