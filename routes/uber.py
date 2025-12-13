@@ -18,6 +18,8 @@ from uber_service import (
 uber_bp = Blueprint('uber', __name__)
 logger = logging.getLogger(__name__)
 
+AUTO_UBER_DISTANCE_THRESHOLD = 20  # miles automatically handed to Uber Direct before custom pricing
+
 # TEMPORARILY DISABLED TO FIX INFINITE LOOP ISSUE
 # @uber_bp.route('/quote', methods=['POST'])
 # def get_delivery_quote():
@@ -169,6 +171,8 @@ def get_delivery_quote():
             )
             logger.info(f"Calculated straight-line distance: {straight_line_distance:.2f} miles")
             
+            distance_miles = straight_line_distance
+            
             # If straight-line distance > 10 miles, get actual driving distance for accurate pricing
             if straight_line_distance > 10:
                 # Format addresses for Google Maps API
@@ -210,13 +214,12 @@ def get_delivery_quote():
                         distance_miles = straight_line_distance
                     
                     logger.warning(f"Google Maps failed, using city-based estimate: {distance_miles:.2f} miles for '{city}'")
-                
+            
+            if distance_miles > AUTO_UBER_DISTANCE_THRESHOLD:
                 use_custom_pricing = True
-                logger.info(f"Distance {distance_miles:.2f} miles > 10 miles, using custom pricing")
+                logger.info(f"Distance {distance_miles:.2f} miles > {AUTO_UBER_DISTANCE_THRESHOLD} miles, using custom pricing")
             else:
-                # For addresses within 10 miles, use straight-line distance (will try Uber Direct first)
-                distance_miles = straight_line_distance
-                logger.info(f"Distance {distance_miles:.2f} miles <= 10 miles, will try Uber Direct first")
+                logger.info(f"Distance {distance_miles:.2f} miles <= {AUTO_UBER_DISTANCE_THRESHOLD} miles, will try Uber Direct first")
             
             # Validate distance is within 70 miles
             is_valid_distance, distance_error = is_in_delivery_area(data['delivery_address'], distance_miles)
@@ -227,7 +230,7 @@ def get_delivery_quote():
                     'error': distance_error
                 }), 400
         
-        # Try to get Uber quote first (for addresses within 10 miles or as fallback)
+        # Try to get Uber quote first (for addresses within the auto-dispatch radius or as fallback)
         uber_quote = None
         if not use_custom_pricing:
             try:
@@ -270,7 +273,7 @@ def get_delivery_quote():
                 # Fall back to custom pricing
                 use_custom_pricing = True
         
-        # Use custom pricing for addresses outside 10 miles or when Uber fails
+        # Use custom pricing for addresses outside the auto-dispatch radius or when Uber fails
         if use_custom_pricing:
             logger.info("Using custom pricing logic")
             

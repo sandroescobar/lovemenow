@@ -501,43 +501,73 @@ def get_driving_distance(origin_address: str, destination_address: str) -> Optio
 
 def get_custom_delivery_price(distance_miles: float, is_peak_hours: bool = False) -> float:
     """
-    Calculate custom delivery price for addresses outside 10-mile radius
+    Calculate custom delivery price for addresses outside the automatic Uber radius (~20 miles)
     Returns price in dollars
     """
-    base_price = 12.99  # Base price for deliveries outside 10 miles
+    base_price = 12.99  # Base price covering the first ~10 miles
+    effective_distance = max(distance_miles or 0, 0)
+    included_radius = 10
+    auto_dispatch_radius = 20
+    distance_fee = 0.0
     
-    # Distance-based pricing (additional cost per mile beyond 10 miles)
-    if distance_miles > 10:
-        extra_miles = distance_miles - 10
-        
-        # Tiered pricing for longer distances
-        if extra_miles <= 20:  # 10-30 miles
-            distance_fee = extra_miles * 1.50  # $1.50 per extra mile
-        else:  # 30-50 miles
-            distance_fee = (20 * 1.50) + ((extra_miles - 20) * 2.00)  # $2.00 per mile for 30+ miles
-        
-        base_price += distance_fee
+    # First band: 10-20 miles (keeps pricing close to Uber's quotes)
+    if effective_distance > included_radius:
+        first_band = min(effective_distance, auto_dispatch_radius) - included_radius
+        distance_fee += max(first_band, 0) * 1.35
     
-    # Peak hours surcharge (3:30 PM - 6:00 PM)
+    # Second band: 20-35 miles (Miami + Broward core)
+    if effective_distance > auto_dispatch_radius:
+        mid_band = min(effective_distance, 35) - auto_dispatch_radius
+        distance_fee += max(mid_band, 0) * 1.85
+    
+    # Third band: 35-50 miles (northern Broward / southern Palm Beach)
+    if effective_distance > 35:
+        long_band = min(effective_distance, 50) - 35
+        distance_fee += max(long_band, 0) * 2.35
+    
+    # Extended band: 50-70 miles (edge of service radius)
+    if effective_distance > 50:
+        extended_band = effective_distance - 50
+        distance_fee += max(extended_band, 0) * 2.75
+    
+    subtotal = base_price + distance_fee
+    
+    # Time-on-road surcharge: assume ~22 mph average with a 30-minute minimum
+    avg_speed_mph = 22
+    estimated_minutes = max(30, (effective_distance / avg_speed_mph) * 60)
+    if estimated_minutes > 50:
+        subtotal += (estimated_minutes - 50) * 0.45
+    
+    # Peak hours surcharge (traffic-heavy windows)
     if is_peak_hours:
-        peak_surcharge = base_price * 0.25  # 25% surcharge during peak hours
-        base_price += peak_surcharge
+        subtotal *= 1.25  # 25% uplift during heavy traffic
     
-    # Cap the maximum delivery fee at $55 for extended range
-    return min(base_price, 55.00)
+    # Cap the maximum delivery fee to keep quotes predictable
+    return min(subtotal, 85.00)
 
 def is_peak_hours() -> bool:
-    """Check if current time is during peak hours (3:30 PM - 6:00 PM Miami time)"""
+    """Check if current time is during heavy traffic windows in Miami"""
     try:
         import pytz
         miami_tz = pytz.timezone('America/New_York')  # Miami is in Eastern Time
         current_time = datetime.now(miami_tz)
+        weekday = current_time.weekday()
         
-        # Peak hours: 3:30 PM (15:30) to 6:00 PM (18:00)
-        peak_start = current_time.replace(hour=15, minute=30, second=0, microsecond=0)
-        peak_end = current_time.replace(hour=18, minute=0, second=0, microsecond=0)
+        # Weekday rush hours plus weekend evening surges
+        peak_windows = [
+            ((7, 0), (9, 30)),
+            ((15, 0), (19, 30)),
+        ]
+        if weekday >= 4:  # Friday + Saturday evenings stay busy
+            peak_windows.append(((20, 0), (23, 30)))
         
-        return peak_start <= current_time <= peak_end
+        for start, end in peak_windows:
+            start_dt = current_time.replace(hour=start[0], minute=start[1], second=0, microsecond=0)
+            end_dt = current_time.replace(hour=end[0], minute=end[1], second=0, microsecond=0)
+            if start_dt <= current_time <= end_dt:
+                return True
+        
+        return False
     except ImportError:
         # Fallback if pytz is not available - assume not peak hours
         logger.warning("pytz not available, cannot determine peak hours")

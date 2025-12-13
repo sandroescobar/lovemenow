@@ -606,15 +606,14 @@ def create_order():
                     manual_quote_id = quote_id
                     current_app.logger.info(f"🔍 Delivery order - quote_id: {quote_id}")
                     is_custom_quote = bool(quote_id and str(quote_id).startswith('custom_'))
+                    uber_quote_id = None if is_custom_quote else quote_id
+                    if is_custom_quote:
+                        current_app.logger.info("Custom quote detected; proceeding with live Uber pricing to keep automation")
                     
                     # Check if Uber service is configured
                     if not uber_service.client_id:
                         current_app.logger.error(f"❌ Uber service not configured - missing credentials")
                         tracking_url = None
-                    elif is_custom_quote:
-                        manual_dispatch_required = True
-                        manual_dispatch_reason = f"Custom quote {quote_id} requires manual booking"
-                        current_app.logger.info("Skipping Uber Direct for custom delivery quote")
                     else:
                         # Store pickup/dropoff info
                         store_address = get_miami_store_address()
@@ -662,7 +661,7 @@ def create_order():
                             dropoff_notes = f"STORE NAME: {store_display_name}. Please walk into the smoke shop and get the order from the employee working inside. English and Spanish speaking employees available."
                             
                             uber_response = uber_service.create_delivery(
-                                quote_id=quote_id,
+                                quote_id=uber_quote_id,
                                 pickup_info=pickup_info,
                                 dropoff_info=dropoff_info,
                                 manifest_items=manifest_items,

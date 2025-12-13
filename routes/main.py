@@ -91,18 +91,20 @@ def require_age_verification(f):
     """Decorator to require age verification for routes"""
     from functools import wraps
     from flask import session, redirect, url_for, request
-    from flask_login import current_user
-    from datetime import datetime
-
+    
     @wraps(f)
     def decorated_function(*args, **kwargs):
         from flask import current_app
 
-        # Check age verification - ONLY check session, not user database record
-        age_verified = session.get('age_verified', False)
+        age_verified_session = session.get('age_verified', False)
+        age_verified_cookie = request.cookies.get('age_verified') == '1'
 
-        # Require verification if not in session (regardless of login status)
-        if not age_verified:
+        if age_verified_cookie and not age_verified_session:
+            session['age_verified'] = True
+            age_verified_session = True
+
+        if not (age_verified_session or age_verified_cookie):
+            current_app.logger.info("[AGE-GATE] route decorator redirecting -> /auth/age-verification")
             return redirect(url_for('auth.age_verification', next=request.url))
         return f(*args, **kwargs)
 
