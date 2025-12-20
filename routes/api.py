@@ -93,7 +93,8 @@ def single_product_json(product_id: int):
                 joinedload(Product.variants).joinedload(ProductVariant.images),
                 joinedload(Product.variants).joinedload(ProductVariant.color)
             )
-            .get_or_404(product_id)
+            .filter(Product.id == product_id, Product.in_active.is_(False))
+            .first_or_404()
         )
 
         default_variant = product.default_variant
@@ -231,7 +232,7 @@ def get_deferred_content():
         featured_products = (
             Product.query
             .options(joinedload(Product.variants), joinedload(Product.category), joinedload(Product.colors))
-            .filter(Product.in_stock.is_(True), Product.quantity_on_hand > 0)
+            .filter(Product.in_stock.is_(True), Product.quantity_on_hand > 0, Product.in_active.is_(False))
             .order_by(Product.created_at.desc())
             .limit(8)
             .all()

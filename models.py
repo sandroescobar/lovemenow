@@ -102,10 +102,11 @@ class ProductVariant(db.Model):
 
     @property
     def is_available(self):
-        # Check variant-level stock first, fall back to product-level
+        if self.product.in_active:
+            return False
         if self.in_stock is not None:
             return self.in_stock and (self.quantity_on_hand or 0) > 0
-        return self.product.in_stock and self.product.quantity_on_hand > 0
+        return self.product.is_available
 
     def can_add_to_cart(self, requested_quantity=1, current_cart_quantity=0):
         if not self.is_available:
@@ -188,6 +189,7 @@ class Product(db.Model):
     image_url = db.Column(db.String(500), nullable=True)
     in_stock = db.Column(db.Boolean, default=True)
     quantity_on_hand = db.Column(db.Integer, default=0, nullable=False)
+    in_active = db.Column(db.Boolean, default=False, nullable=False)
     rating = db.Column(db.Float, default=0.0)
     review_count = db.Column(db.Integer, default=0)
     category_id = db.Column(db.Integer, db.ForeignKey("categories.id"), nullable=False)
@@ -237,7 +239,7 @@ class Product(db.Model):
 
     @property
     def is_available(self):
-        return self.in_stock and self.quantity_on_hand > 0
+        return not self.in_active and self.in_stock and self.quantity_on_hand > 0
 
     @property
     def total_quantity_on_hand(self):

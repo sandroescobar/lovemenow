@@ -144,7 +144,7 @@ def index():
         # Featured products + categories
         featured_products = (
             Product.query
-            .filter(Product.in_stock.is_(True), Product.quantity_on_hand > 0)
+            .filter(Product.in_stock.is_(True), Product.quantity_on_hand > 0, Product.in_active.is_(False))
             .options(
                 joinedload(Product.variants),
                 joinedload(Product.colors),
@@ -213,7 +213,7 @@ def products():
         per_page = 48  # Paginate for performance: 100x smaller initial load
 
         # Build query - show all products including out of stock
-        query = Product.query
+        query = Product.query.filter(Product.in_active.is_(False))
 
         # Apply filters
         category_param = request.args.get('category')
@@ -690,7 +690,8 @@ def product_detail(product_id):
                 joinedload(Product.variants).joinedload(ProductVariant.color),
                 joinedload(Product.colors)
             )
-            .get_or_404(product_id)
+            .filter(Product.id == product_id, Product.in_active.is_(False))
+            .first_or_404()
         )
 
         # Process product details to extract features, specs, and dimensions
@@ -701,7 +702,7 @@ def product_detail(product_id):
             Product.query
             .filter(Product.category_id == product.category_id)
             .filter(Product.id != product_id)
-            .filter(Product.in_stock == True, Product.quantity_on_hand > 0)
+            .filter(Product.in_stock == True, Product.quantity_on_hand > 0, Product.in_active.is_(False))
             .limit(4)
             .all()
         )
