@@ -239,7 +239,14 @@ class Product(db.Model):
 
     @property
     def is_available(self):
-        return not self.in_active and self.in_stock and self.quantity_on_hand > 0
+        if self.in_active:
+            return False
+        if self.in_stock and self.quantity_on_hand > 0:
+            return True
+        return any(
+            (variant.in_stock is not None and variant.in_stock and (variant.quantity_on_hand or 0) > 0)
+            for variant in self.variants
+        )
 
     @property
     def total_quantity_on_hand(self):
