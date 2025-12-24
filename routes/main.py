@@ -86,29 +86,14 @@ def health_check():
         }), 503
 
 
-# Age verification decorator
-def require_age_verification(f):
-    """Decorator to require age verification for routes"""
-    from functools import wraps
-    from flask import session, redirect, url_for, request
-    
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        from flask import current_app
 
-        age_verified_session = session.get('age_verified', False)
-        age_verified_cookie = request.cookies.get('age_verified') == '1'
-
-        if age_verified_cookie and not age_verified_session:
-            session['age_verified'] = True
-            age_verified_session = True
-
-        if not (age_verified_session or age_verified_cookie):
-            current_app.logger.info("[AGE-GATE] route decorator redirecting -> /auth/age-verification")
-            return redirect(url_for('auth.age_verification', next=request.url))
-        return f(*args, **kwargs)
-
-    return decorated_function
+def is_age_verified():
+    """Return True when visitor has completed the age gate (session or cookie)."""
+    age_verified = session.get('age_verified', False)
+    if not age_verified and request.cookies.get('age_verified') == '1':
+        session['age_verified'] = True
+        age_verified = True
+    return age_verified
 
 
 @main_bp.route('/')
@@ -118,6 +103,7 @@ def index():
     Age gate is handled globally in app.py (before_request),
     so this view just renders the homepage.
     """
+    age_verified = is_age_verified()
     try:
         # DB health check
         db_connected, db_message = test_database_connection()
@@ -131,7 +117,7 @@ def index():
                 cart_count=fb["cart_count"],
                 wishlist_count=fb["wishlist_count"],
                 db_error=True,
-                age_verified=True,  # allow promo modal
+                age_verified=age_verified,
             ))
             # Cache policy: always vary on Cookie so session changes bust caches
             resp.headers["Vary"] = "Cookie"
@@ -168,7 +154,7 @@ def index():
             categories=categories,
             cart_count=cart_count,
             wishlist_count=wishlist_count,
-            age_verified=True,  # allow promo modal
+            age_verified=age_verified,
         ))
 
         # Cache policy: avoid serving a stale "pre-AV" page; always vary on Cookie
@@ -190,7 +176,7 @@ def index():
             cart_count=fb["cart_count"],
             wishlist_count=fb["wishlist_count"],
             db_error=True,
-            age_verified=True,
+            age_verified=age_verified,
         ))
         resp.headers["Vary"] = "Cookie"
         if current_user.is_authenticated:
@@ -205,7 +191,6 @@ def index():
 
 
 @main_bp.route('/products')
-@require_age_verification
 def products():
     """Products listing page with filtering and pagination"""
     try:
@@ -679,7 +664,6 @@ def process_product_details(product):
 
 
 @main_bp.route('/product/<int:product_id>')
-@require_age_verification
 def product_detail(product_id):
     """Product detail page"""
     try:

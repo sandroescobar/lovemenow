@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="LoveMeNow - Premium quality adult products for your intimate moments" />
   <title>LoveMeNow - Premium Adult Products</title>
+  <link rel="canonical" href="{{ url_for('main.index', _external=True) }}" />
 
   <!-- Critical CSS - Inline for immediate rendering -->
   <style>
@@ -42,18 +43,6 @@
   <!-- CSRF Meta -->
   {% include 'csrf_meta.html' %}
   
-  <!-- Age verification check (optimized) -->
-  {% if not request.args.get('ad_preview') %}
-  <script>
-    (function(){
-      if(location.pathname.startsWith('/auth/'))return;
-      if(!document.cookie.split(';').some(s=>s.trim()==='age_verified=1')){
-        var n=encodeURIComponent(location.href);
-        location.replace('/auth/age-verification?next='+n);
-      }
-    })();
-  </script>
-  {% endif %}
 </head>
 <body>
   <!-- NAV -->

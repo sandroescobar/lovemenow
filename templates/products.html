@@ -46,6 +46,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <meta name="description" content="Browse our complete collection of premium adult products – LoveMeNow" />
   <title>Products · LoveMeNow</title>
+  <link rel="canonical" href="{{ url_for('main.products', _external=True) }}">
 
   {# --- Preload the first visible product image for faster LCP --- #}
   {% if products.items|length %}
