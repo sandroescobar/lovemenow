@@ -1687,28 +1687,65 @@ def miami_map():
         map_html = m._repr_html_()
 
         # Wrap in a proper HTML document with full height
+        canonical_url = url_for('main.miami_map', _external=True)
         full_html = f"""
         <!DOCTYPE html>
-        <html style="height: 100%; margin: 0; padding: 0;">
+        <html lang=\"en\" style=\"height: 100%; margin: 0; padding: 0;\">
         <head>
-            <meta charset="utf-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Miami Coverage Map</title>
+            <meta charset=\"utf-8\">
+            <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+            <title>Miami Delivery Coverage · LoveMeNow</title>
+            <meta name=\"description\" content=\"Interactive Miami-Dade and Broward delivery coverage map for LoveMeNow's same-day service.\">
+            <link rel=\"canonical\" href=\"{canonical_url}\">
             <style>
                 body {{
                     height: 100vh;
                     margin: 0;
                     padding: 0;
-                    font-family: Arial, sans-serif;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+                    background: #f8f9fc;
+                    color: #111;
                 }}
+                .map-shell {{
+                    display: grid;
+                    grid-template-columns: minmax(280px, 420px) 1fr;
+                    height: 100vh;
+                }}
+                .map-copy {{
+                    padding: 2rem;
+                    overflow-y: auto;
+                    background: #fff;
+                    box-shadow: 2px 0 18px rgba(15,23,42,0.08);
+                }}
+                .map-copy h1 {{ font-size: 1.8rem; margin-bottom: 0.75rem; }}
+                .map-copy ul {{ padding-left: 1.2rem; }}
+                .map-copy li {{ margin-bottom: 0.35rem; }}
+                .folium-panel {{ height: 100vh; }}
                 .folium-map {{
                     height: 100vh !important;
                     width: 100% !important;
                 }}
+                @media (max-width: 900px) {{
+                    .map-shell {{ grid-template-columns: 1fr; height: auto; }}
+                    .folium-panel {{ height: 60vh; }}
+                }}
             </style>
         </head>
         <body>
-            {map_html}
+            <div class=\"map-shell\">
+                <section class=\"map-copy\">
+                    <h1>Miami Delivery & Pickup Map</h1>
+                    <p>LoveMeNow serves every major neighborhood across Miami-Dade and Broward counties with discreet delivery plus in-store pickup from Miami Vape Smoke Shop, 351 NE 79th St.</p>
+                    <h2>Featured Neighborhoods</h2>
+                    <ul>
+                        <li>Brickell, Wynwood, Downtown, and Miami Beach</li>
+                        <li>Coral Gables, Kendall, Doral, West Miami</li>
+                        <li>Pembroke Pines, Miramar, Hollywood, Fort Lauderdale</li>
+                    </ul>
+                    <p>Tap any map marker to confirm coverage or call us for bespoke delivery windows.</p>
+                </section>
+                <div class=\"folium-panel\">{map_html}</div>
+            </div>
         </body>
         </html>
         """

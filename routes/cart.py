@@ -1,7 +1,7 @@
 """
 Shopping cart routes
 """
-from flask import Blueprint, request, jsonify, session, current_app
+from flask import Blueprint, request, jsonify, session, current_app, make_response, url_for
 from flask_login import current_user
 from sqlalchemy.orm import joinedload
 from sqlalchemy import func
@@ -150,6 +150,11 @@ def add_to_cart():
         current_app.logger.error(f"Error adding to cart: {str(e)}")
         return jsonify({'error': 'Failed to add item to cart'}), 500
 
+@cart_bp.get('/remove')
+def describe_cart_remove():
+    return jsonify({'status': 'ok', 'message': 'Use POST with product_id and optional variant_id to remove items from the cart.'})
+
+
 @cart_bp.route('/remove', methods=['POST'])
 def remove_from_cart():
     """Remove item from cart"""
@@ -255,6 +260,11 @@ def cart_totals():
         "amount_cents": totals["amount_cents"],
     })
 
+
+
+@cart_bp.get('/update')
+def describe_cart_update():
+    return jsonify({'status': 'ok', 'message': 'Use POST with product_id, quantity, and optional variant_id to update cart items.'})
 
 
 @cart_bp.route('/update', methods=['POST'])
@@ -428,6 +438,45 @@ def update_cart_quantity():
 def get_cart():
     """Get cart contents"""
     try:
+        best = request.accept_mimetypes.best_match(['application/json', 'text/html'])
+        prefers_html = (
+            best == 'text/html'
+            and request.accept_mimetypes[best] > request.accept_mimetypes['application/json']
+        )
+        if prefers_html:
+            canonical_url = url_for('cart.get_cart', _external=True)
+            html = f"""
+<!DOCTYPE html>
+<html lang=\"en\">
+<head>
+<meta charset=\"UTF-8\">
+<title>Cart API · LoveMeNow</title>
+<meta name=\"description\" content=\"Programmatic cart endpoint for LoveMeNow shoppers and partners.\">
+<link rel=\"canonical\" href=\"{canonical_url}\">
+<style>
+  body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 2rem; line-height: 1.6; color: #111; }}
+  code {{ background: #f2f2f2; padding: 0.2rem 0.4rem; border-radius: 4px; }}
+  pre {{ background: #f7f7f7; padding: 1rem; border-radius: 8px; overflow: auto; }}
+</style>
+</head>
+<body>
+  <main>
+    <h1>Cart API Endpoint</h1>
+    <p>This endpoint returns the authenticated shopper\'s cart as JSON when accessed with the proper <code>Accept: application/json</code> header or via fetch/XHR.</p>
+    <p>To modify the cart, use the documented POST helpers <code>/api/cart/add</code>, <code>/api/cart/update</code>, and <code>/api/cart/remove</code>.</p>
+    <pre>{{
+  "items": [...],
+  "subtotal": 0,
+  "total": 0,
+  "count": 0
+}}</pre>
+  </main>
+</body>
+</html>
+"""
+            response = make_response(html)
+            response.headers['Cache-Control'] = 'no-store'
+            return response
         if current_user.is_authenticated:
             # Simplified query without variants
             cart_items = (

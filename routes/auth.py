@@ -316,6 +316,32 @@ def auth_status():
         'user_email': current_user.email if current_user.is_authenticated else None
     })
 
+@auth_bp.get('/change-password')
+def change_password_landing():
+    canonical_url = url_for('auth.change_password', _external=True)
+    html = f"""
+<!DOCTYPE html>
+<html lang=\"en\">
+<head>
+<meta charset=\"UTF-8\">
+<title>Change Password · LoveMeNow</title>
+<meta name=\"description\" content=\"Securely update your LoveMeNow account password after signing in.\">
+<link rel=\"canonical\" href=\"{canonical_url}\">
+</head>
+<body>
+<main>
+<h1>Change Password</h1>
+<p>Please sign in to your LoveMeNow account to change your password securely.</p>
+<p>Once signed in, submit your current password together with a new password at this endpoint using a POST request.</p>
+</main>
+</body>
+</html>
+"""
+    response = make_response(html)
+    response.headers['Cache-Control'] = 'no-store'
+    return response
+
+
 @auth_bp.route('/change-password', methods=['POST'])
 @login_required
 def change_password():
@@ -650,21 +676,22 @@ def add_address():
 
 @auth_bp.route('/age-verification')
 def age_verification():
-    """Show age verification page"""
     from flask import render_template
-    
-    current_app.logger.info(f"Age verification page accessed. Session: {dict(session)}")
-    
-    # If user is already age verified, redirect to intended page
-    if 'age_verified' in session and session['age_verified']:
-        next_page = request.args.get('next', url_for('main.index'))
-        current_app.logger.info(f"User already verified, redirecting to: {next_page}")
-        if is_safe_url(next_page):
-            return redirect(next_page)
-        return redirect(url_for('main.index'))
-    
-    current_app.logger.info("Showing age verification template")
-    return render_template('age_verification.html')
+
+    requested_next = request.args.get('next')
+    if requested_next:
+        if is_safe_url(requested_next):
+            session['age_gate_next'] = requested_next
+        return redirect(url_for('auth.age_verification'))
+
+    stored_next = session.get('age_gate_next')
+    if session.get('age_verified'):
+        target = stored_next if stored_next and is_safe_url(stored_next) else url_for('main.index')
+        session.pop('age_gate_next', None)
+        return redirect(target)
+
+    next_target = stored_next if stored_next and is_safe_url(stored_next) else url_for('main.index')
+    return render_template('age_verification.html', next_target=next_target)
 
 # routes/auth.py
 
@@ -675,7 +702,8 @@ def verify_age():
         # Read from form, but also accept ?next=... from the query as fallback
         form = request.form
         verified = (form.get('verified') == 'true')
-        next_page = form.get('next') or request.args.get('next') or url_for('main.index')
+        stored_next = session.pop('age_gate_next', None)
+        next_page = stored_next or form.get('next') or request.args.get('next') or url_for('main.index')
         if not is_safe_url(next_page):
             next_page = url_for('main.index')
 

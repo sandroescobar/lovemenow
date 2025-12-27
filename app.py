@@ -381,16 +381,33 @@ def create_app(config_name=None):
         "/sitemap.xml",
         "/favicon.ico",
     }
+    AGE_GATE_REQUIRED_PREFIXES = (
+        "/checkout",
+        "/settings",
+        "/user-profile",
+        "/auth/settings",
+        "/auth/profile",
+        "/order",
+    )
     BOT_USER_AGENTS = (
         "googlebot",
-        'google-inspectiontool',
+        "googleother",
+        "google-extended",
+        "google-inspectiontool",
+        "google-structured",
+        "google-site-verification",
+        "google-sitemaps",
+        "adsbot-google",
         "bingbot",
+        "bingpreview",
         "slurp",
         "duckduckbot",
         "baiduspider",
         "yandexbot",
         "facebot",
         "ia_archiver",
+        "twitterbot",
+        "linkedinbot",
     )
 
     @app.before_request
@@ -427,6 +444,9 @@ def create_app(config_name=None):
         ):
             return
 
+        if not any(lower_path.startswith(p) for p in AGE_GATE_REQUIRED_PREFIXES):
+            return
+
         # 3) Already age-verified?
         if session.get("age_verified") or request.cookies.get("age_verified") == "1":
             return
@@ -436,6 +456,26 @@ def create_app(config_name=None):
             "[AGE-GATE] redirecting %s -> /auth/age-verification", path
         )
         return redirect(url_for("auth.age_verification", next=request.url))
+
+    @app.before_request
+    def strip_next_query_param():
+        if request.method != "GET":
+            return
+        if "next" not in request.args:
+            return
+        if request.endpoint in ("auth.age_verification", "auth.verify_age"):
+            return
+        if request.path.startswith("/static/") or request.path.startswith("/api/"):
+            return
+        args = request.args.to_dict(flat=False)
+        args.pop("next", None)
+        flattened = [(k, v) for k, values in args.items() for v in values]
+        if flattened:
+            clean_query = urlencode(flattened)
+            clean_url = f"{request.path}?{clean_query}"
+        else:
+            clean_url = request.path
+        return redirect(clean_url, code=301)
 
     # --------- DEBUG ROUTE TO SEE UA AS FLASK SEES IT ---------
     @app.route("/api/debug-ua")

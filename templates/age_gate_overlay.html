@@ -1,0 +1,29 @@
+<div id="ageVerificationOverlay" class="age-overlay" role="dialog" aria-modal="true" aria-label="Age Verification" hidden>
+  <div class="age-modal">
+    <div class="age-icon">
+      <i class="fas fa-shield-heart"></i>
+    </div>
+    <h2>Adults Only</h2>
+    <p>You must confirm that you are 18+ to keep browsing LoveMeNow.</p>
+    <form method="POST" action="{{ url_for('auth.verify_age') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="verified" value="true">
+      <input type="hidden" name="next" value="{{ request.url }}">
+      <button type="submit" class="age-btn age-btn-yes">I am 18+</button>
+    </form>
+    <a class="age-btn age-btn-no" href="https://www.google.com" rel="nofollow">Under 18</a>
+  </div>
+</div>
+<style>
+  .age-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(8,8,12,.92);display:none;align-items:center;justify-content:center;z-index:2147483647;padding:1.5rem}
+  .age-modal{background:#0f0f15;border-radius:1.25rem;max-width:420px;width:100%;padding:2.5rem 2rem;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.08)}
+  .age-icon{width:72px;height:72px;margin:0 auto 1.5rem;display:grid;place-items:center;border-radius:999px;background:linear-gradient(135deg,hsl(var(--primary-color,340 82% 52%)),hsl(var(--accent-color,291 64% 42%)));color:#fff;font-size:2rem}
+  .age-modal h2{color:#fff;font-size:1.75rem;margin-bottom:.75rem;font-weight:700}
+  .age-modal p{color:rgba(255,255,255,.85);margin-bottom:1.5rem;font-size:1rem}
+  .age-btn{display:inline-flex;align-items:center;justify-content:center;width:100%;padding:.95rem 1.5rem;border-radius:.9rem;font-weight:600;font-size:1rem;border:none;cursor:pointer;transition:transform .2s,box-shadow .2s;text-decoration:none}
+  .age-btn-yes{background:linear-gradient(135deg,hsl(var(--primary-color,340 82% 52%)),hsl(var(--accent-color,291 64% 42%)));color:#fff;margin-bottom:.75rem}
+  .age-btn-yes:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(236,72,153,.35)}
+  .age-btn-no{background:rgba(255,255,255,.08);color:rgba(255,255,255,.85);border:1px solid rgba(255,255,255,.2)}
+  .age-btn-no:hover{background:rgba(255,255,255,.15)}
+  @media (max-width:540px){.age-modal{padding:2rem 1.5rem}}
+</style>
