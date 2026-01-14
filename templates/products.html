@@ -457,6 +457,7 @@
           data-product-id="{{ p.id }}"
           data-variant-id="{{ p.default_variant.id if p.default_variant else '' }}"
           data-product-name="{{ p.name|e }}"
+          data-product-base-name="{{ p.name|e }}"
           data-product-price="{{ p.price }}"
           data-quantity-on-hand="{{ p.quantity_on_hand or 0 }}"
           data-is-available="{{ default_variant_available|lower }}"

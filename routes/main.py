@@ -935,72 +935,103 @@ def checkout():
         )
 
         for cart_item, product in cart_items_db:
-            item_total = float(product.price) * cart_item.quantity
+            quantity = int(cart_item.quantity or 0)
+            if quantity <= 0:
+                continue
+            item_total = float(product.price) * quantity
             cart_data['subtotal'] += item_total
+
+            variant = cart_item.variant if cart_item.variant_id else None
+            variant_color = variant.color.name if variant and variant.color else None
+            variant_name = variant.variant_name if variant else None
+            display_name = product.variant_display_name(variant=variant) if variant else product.name
 
             cart_data['items'].append({
                 'id': product.id,
-                'name': product.name,
+                'variant_id': cart_item.variant_id,
+                'name': display_name,
                 'price': float(product.price),
-                'quantity': cart_item.quantity,
+                'quantity': quantity,
                 'image_url': product.main_image_url,
                 'description': product.description or '',
                 'in_stock': product.is_available,
                 'max_quantity': product.quantity_on_hand,
-                'item_total': item_total
+                'item_total': item_total,
+                'variant_color': variant_color,
+                'variant_name': variant_name,
+                'variant_label': variant_color or variant_name
             })
     else:
-        # Get cart from session for guest users
         cart_session = session.get('cart', {})
         if cart_session:
-            # Extract product IDs from cart keys (handle both "product_id" and "product_id:variant_id" formats)
-            product_ids = []
-            for cart_key in cart_session.keys():
+            cart_entries = []
+            product_ids = set()
+            for cart_key, cart_quantity in cart_session.items():
                 try:
-                    if ':' in str(cart_key):
-                        product_id = int(cart_key.split(':')[0])
+                    key_str = str(cart_key)
+                    if ':' in key_str:
+                        product_part, variant_part = key_str.split(':', 1)
                     else:
-                        product_id = int(cart_key)
-                    product_ids.append(product_id)
+                        product_part, variant_part = key_str, None
+                    product_id = int(product_part)
+                    variant_id = None
+                    if variant_part not in (None, '', 'None', 'null'):
+                        variant_id = int(variant_part)
+                    quantity = int(cart_quantity or 0)
                 except (ValueError, TypeError):
                     continue
+                if quantity <= 0:
+                    continue
+                cart_entries.append((product_id, variant_id, quantity))
+                product_ids.add(product_id)
 
-            cart_products = Product.query.filter(Product.id.in_(product_ids)).all()
-            for product in cart_products:
-                # Find the cart entry for this product (could be "product_id" or "product_id:variant_id")
-                quantity = 0
-                for cart_key, cart_quantity in cart_session.items():
-                    try:
-                        if ':' in str(cart_key):
-                            key_product_id = int(cart_key.split(':')[0])
-                        else:
-                            key_product_id = int(cart_key)
+            if cart_entries:
+                cart_products = (
+                    Product.query
+                    .filter(Product.id.in_(list(product_ids)))
+                    .options(joinedload(Product.variants).joinedload(ProductVariant.color))
+                    .all()
+                )
+                product_lookup = {p.id: p for p in cart_products}
 
-                        if key_product_id == product.id:
-                            quantity += cart_quantity  # Sum quantities if multiple variants
-                    except (ValueError, TypeError):
+                for product_id, variant_id, quantity in cart_entries:
+                    product = product_lookup.get(product_id)
+                    if not product:
                         continue
 
-                if quantity > 0:
+                    variant = None
+                    variant_color = None
+                    variant_name = None
+                    if variant_id:
+                        variant = next((v for v in product.variants if v.id == variant_id), None)
+                        if variant:
+                            variant_color = variant.color.name if variant.color else None
+                            variant_name = variant.variant_name
+
+                    display_name = product.variant_display_name(variant=variant) if variant else product.name
                     item_total = float(product.price) * quantity
                     cart_data['subtotal'] += item_total
 
                     cart_data['items'].append({
                         'id': product.id,
-                        'name': product.name,
+                        'variant_id': variant_id,
+                        'name': display_name,
                         'price': float(product.price),
                         'quantity': quantity,
                         'image_url': product.main_image_url,
                         'description': product.description or '',
                         'in_stock': product.is_available,
                         'max_quantity': product.quantity_on_hand,
-                        'item_total': item_total
+                        'item_total': item_total,
+                        'variant_color': variant_color,
+                        'variant_name': variant_name,
+                        'variant_label': variant_color or variant_name
                     })
 
     # Calculate shipping - will be determined at checkout based on delivery method
-    cart_data['shipping'] = 0  # No shipping fee in cart, will be calculated at checkout
+    cart_data['shipping'] = 0
     cart_data['total'] = cart_data['subtotal'] + cart_data['shipping']
-    cart_data['count'] = len(cart_data['items'])
+    cart_data['count'] = sum(item['quantity'] for item in cart_data['items'])
 
     # Prepare user data and addresses for logged-in users
     user_data = None

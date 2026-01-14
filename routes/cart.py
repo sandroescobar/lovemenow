@@ -58,7 +58,7 @@ def add_to_cart():
                 return jsonify({'error': 'Variant not found'}), 404
             if not variant.is_available:
                 return jsonify({'error': 'This item is currently out of stock'}), 400
-            total_stock = int(variant.quantity_on_hand or product.quantity_on_hand or 0)
+            total_stock = int(variant.available_stock())
         else:
             if not product.is_available or (product.quantity_on_hand or 0) <= 0:
                 return jsonify({'error': 'This item is currently out of stock'}), 400
@@ -495,31 +495,23 @@ def get_cart():
                     total += item_total
                     
                     # Build display name - include variant info if variant_id exists
-                    display_name = product.name
+                    variant = cart_item.variant if cart_item.variant_id else None
                     variant_name = None
                     variant_color = None
-                    
-                    if cart_item.variant_id:
-                        # Find the variant to get its name/color
-                        variant = next((v for v in product.variants if v.id == cart_item.variant_id), None)
-                        if variant:
-                            variant_name = variant.variant_name
-                            if variant.color:
-                                variant_color = variant.color.name
-                                display_name = f"{product.name} - {variant_color}"
-                            elif variant_name:
-                                display_name = f"{product.name} - {variant_name}"
-                    
-                    # Use variant-specific image if available
+                    display_name = product.name
+
+                    if variant:
+                        variant_name = variant.variant_name
+                        if variant.color:
+                            variant_color = variant.color.name
+                        display_name = product.variant_display_name(variant=variant)
+
                     image_url = product.main_image_url
-                    if cart_item.variant_id:
-                        variant = next((v for v in product.variants if v.id == cart_item.variant_id), None)
-                        if variant and variant.upc:
-                            # Find image that matches variant UPC
-                            variant_images = [img for img in product.all_image_urls if variant.upc in img]
-                            if variant_images:
-                                image_url = variant_images[0]  # Use first matching image
-                    
+                    if variant and variant.upc:
+                        variant_images = [img for img in product.all_image_urls if variant.upc in img]
+                        if variant_images:
+                            image_url = variant_images[0]
+
                     products.append({
                         'id': product.id,
                         'variant_id': cart_item.variant_id,
@@ -533,7 +525,8 @@ def get_cart():
                         'max_quantity': product.quantity_on_hand,
                         'item_total': item_total,
                         'variant_name': variant_name,
-                        'variant_color': variant_color
+                        'variant_color': variant_color,
+                        'variant_label': variant_color or variant_name
                     })
                 except Exception as e:
                     current_app.logger.error(f"Error processing cart item: {e}")
@@ -582,32 +575,26 @@ def get_cart():
                     total += item_total
                     
                     # Build display name - include variant info if variant_id exists
-                    display_name = product.name
+                    variant_id = item_data.get('variant_id')
+                    variant = None
                     variant_name = None
                     variant_color = None
-                    variant_id = item_data.get('variant_id')
-                    
+                    display_name = product.name
+
                     if variant_id:
-                        # Find the variant to get its name/color
                         variant = next((v for v in product.variants if v.id == variant_id), None)
                         if variant:
                             variant_name = variant.variant_name
                             if variant.color:
                                 variant_color = variant.color.name
-                                display_name = f"{product.name} - {variant_color}"
-                            elif variant_name:
-                                display_name = f"{product.name} - {variant_name}"
-                    
-                    # Use variant-specific image if available
+                            display_name = product.variant_display_name(variant=variant)
+
                     image_url = product.main_image_url
-                    if variant_id:
-                        variant = next((v for v in product.variants if v.id == variant_id), None)
-                        if variant and variant.upc:
-                            # Find image that matches variant UPC
-                            variant_images = [img for img in product.all_image_urls if variant.upc in img]
-                            if variant_images:
-                                image_url = variant_images[0]  # Use first matching image
-                    
+                    if variant and variant.upc:
+                        variant_images = [img for img in product.all_image_urls if variant.upc in img]
+                        if variant_images:
+                            image_url = variant_images[0]
+
                     products.append({
                         'id': product.id,
                         'variant_id': variant_id,
@@ -621,7 +608,8 @@ def get_cart():
                         'max_quantity': product.quantity_on_hand,
                         'item_total': item_total,
                         'variant_name': variant_name,
-                        'variant_color': variant_color
+                        'variant_color': variant_color,
+                        'variant_label': variant_color or variant_name
                     })
         
         # Calculate shipping - will be determined at checkout based on delivery method

@@ -645,11 +645,26 @@ window.switchCardVariant = function switchCardVariant(event, productId, variantI
         qty: variant.quantity_on_hand
       });
 
-      // Update button's data attributes with variant information
       addButton.dataset.variantId = variantId;
       addButton.dataset.isAvailable = String(variant.is_available).toLowerCase();
+      const baseName = addButton.dataset.productBaseName || addButton.dataset.productName;
+      const label = (variant.color_name || variant.variant_name || '').trim();
+      let variantName = variant.display_name || variant.product_name || baseName;
+      if (baseName && label) {
+        const hasParen = baseName.includes('(') && baseName.endsWith(')');
+        if (hasParen) {
+          const head = baseName.slice(0, baseName.lastIndexOf('(')).trimEnd();
+          variantName = `${head} (${label})`;
+        } else {
+          variantName = `${baseName} (${label})`;
+        }
+      }
+      if (variantName) {
+        addButton.dataset.productName = variantName;
+        const titleLink = productCard.querySelector('.product-title a');
+        if (titleLink) titleLink.textContent = variantName;
+      }
 
-      // Update button styling and text based on variant availability
       if (variant.is_available) {
         // In stock: enable button, set to purple/pink color, show "Add to Cart"
         addButton.disabled = false;

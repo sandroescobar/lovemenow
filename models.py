@@ -2,6 +2,7 @@ from datetime import datetime
 from flask_login import UserMixin
 from routes import db, bcrypt
 
+FORCE_PRODUCT_STOCK_IDS = {149, 150}
 
 # ─────────────────────────────────────────────────────────────
 # Users
@@ -100,21 +101,42 @@ class ProductVariant(db.Model):
         db.Index("idx_variant_product_color", "product_id", "color_id"),
     )
 
+    def uses_product_stock(self):
+        if not self.product:
+            return False
+        if self.product.force_product_inventory:
+            return True
+        return len(self.product.variants or []) <= 1
+
+    def available_stock(self):
+        if not self.product:
+            return 0
+        if self.uses_product_stock():
+            return self.product.quantity_on_hand or 0
+        if self.quantity_on_hand is not None:
+            return self.quantity_on_hand
+        return self.product.quantity_on_hand or 0
+
+    def effective_in_stock(self):
+        if not self.product:
+            return False
+        if self.uses_product_stock():
+            return bool(self.product.in_stock)
+        if self.in_stock is not None:
+            return bool(self.in_stock)
+        return bool(self.product.in_stock)
+
     @property
     def is_available(self):
-        if self.product.in_active:
+        if not self.product or self.product.in_active:
             return False
-        if self.in_stock is not None:
-            return self.in_stock and (self.quantity_on_hand or 0) > 0
-        return self.product.is_available
+        return self.effective_in_stock() and self.available_stock() > 0
 
     def can_add_to_cart(self, requested_quantity=1, current_cart_quantity=0):
         if not self.is_available:
             return False, "This item is currently out of stock"
 
-        # Use variant-level stock if set, otherwise product-level
-        stock_qty = self.quantity_on_hand if self.quantity_on_hand is not None else self.product.quantity_on_hand
-        
+        stock_qty = self.available_stock()
         total_requested = current_cart_quantity + requested_quantity
         if total_requested > stock_qty:
             available = stock_qty - current_cart_quantity
@@ -126,29 +148,36 @@ class ProductVariant(db.Model):
     def decrement_inventory(self, quantity):
         if quantity <= 0:
             return False
-        
-        # Decrement variant-level stock if set, otherwise product-level
-        if self.in_stock is not None:
+
+        if self.uses_product_stock():
+            if (self.product.quantity_on_hand or 0) < quantity:
+                return False
+            self.product.quantity_on_hand -= quantity
+            if self.product.quantity_on_hand <= 0:
+                self.product.in_stock = False
+            return True
+
+        if self.quantity_on_hand is not None:
             if (self.quantity_on_hand or 0) < quantity:
                 return False
             self.quantity_on_hand -= quantity
             if self.quantity_on_hand <= 0:
                 self.in_stock = False
-        else:
-            if self.product.quantity_on_hand < quantity:
-                return False
-            self.product.quantity_on_hand -= quantity
-            if self.product.quantity_on_hand <= 0:
-                self.product.in_stock = False
+            return True
+
+        if (self.product.quantity_on_hand or 0) < quantity:
+            return False
+        self.product.quantity_on_hand -= quantity
+        if self.product.quantity_on_hand <= 0:
+            self.product.in_stock = False
         return True
 
     @property
     def display_name(self):
-        if self.variant_name:
-            return f"{self.product.name} - {self.variant_name}"
-        if self.color:
-            return f"{self.product.name} - {self.color.name}"
-        return self.product.name
+        if self.product:
+            return self.product.variant_display_name(variant=self)
+        label = (self.color.name if self.color else None) or (self.variant_name or None)
+        return label or ""
 
 
 class ProductImage(db.Model):
@@ -205,9 +234,25 @@ class Product(db.Model):
     )
 
     @property
+    def force_product_inventory(self):
+        return (self.id or 0) in FORCE_PRODUCT_STOCK_IDS
+
+    @property
     def default_variant(self):
         if not self.variants:
             return None
+        if len(self.variants) == 1:
+            return self.variants[0]
+        suffix = None
+        name = self.name or ""
+        if "(" in name and name.endswith(")"):
+            suffix = name.rsplit("(", 1)[1][:-1].strip().lower()
+        if suffix:
+            for variant in self.variants:
+                variant_label = (variant.variant_name or "").strip().lower()
+                color_label = (variant.color.name if variant.color else "").strip().lower()
+                if variant_label == suffix or color_label == suffix:
+                    return variant
         return self.variants[0]
 
     @property
@@ -228,7 +273,11 @@ class Product(db.Model):
     @property
     def all_image_urls(self):
         all_images = []
-        for variant in self.variants:
+        ordered_variants = list(self.variants or [])
+        dv = self.default_variant
+        if dv:
+            ordered_variants.sort(key=lambda v: 0 if v.id == dv.id else 1)
+        for variant in ordered_variants:
             for img in sorted(variant.images, key=lambda x: x.sort_order):
                 img_url = img.url
                 if not img_url.startswith("/static/") and not img_url.startswith("http"):
@@ -241,12 +290,14 @@ class Product(db.Model):
     def is_available(self):
         if self.in_active:
             return False
-        if self.in_stock and self.quantity_on_hand > 0:
+        if self.in_stock and (self.quantity_on_hand or 0) > 0:
             return True
-        return any(
-            (variant.in_stock is not None and variant.in_stock and (variant.quantity_on_hand or 0) > 0)
-            for variant in self.variants
-        )
+        if len(self.variants or []) > 1 and not self.force_product_inventory:
+            return any(
+                (variant.in_stock is not None and variant.in_stock and (variant.quantity_on_hand or 0) > 0)
+                for variant in self.variants
+            )
+        return False
 
     @property
     def total_quantity_on_hand(self):
@@ -279,6 +330,20 @@ class Product(db.Model):
         if self.quantity_on_hand <= 0:
             self.in_stock = False
         return True
+
+    def variant_display_name(self, variant=None, preferred_label=None):
+        base_name = (self.name or "").strip()
+        label = preferred_label
+        if not label and variant:
+            label = (variant.color.name if variant and variant.color else None) or (variant.variant_name or None)
+        if not label:
+            return base_name
+        if not base_name:
+            return label
+        if "(" in base_name and base_name.endswith(")"):
+            head = base_name.rsplit("(", 1)[0].rstrip()
+            return f"{head} ({label})"
+        return f"{base_name} ({label})"
 
     @property
     def clean_name(self):

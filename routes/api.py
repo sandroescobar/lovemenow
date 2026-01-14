@@ -108,9 +108,9 @@ def single_product_json(product_id: int):
                 "color_hex": variant.color.hex if variant.color else "#808080",
                 "variant_name": variant.variant_name,
                 "display_name": variant.display_name,
-                # variant-level inventory (with fallback to product-level):
                 "is_available": variant.is_available,
-                "quantity_on_hand": variant.quantity_on_hand if variant.quantity_on_hand is not None else product.quantity_on_hand,
+                "quantity_on_hand": variant.available_stock(),
+                "uses_product_stock": variant.uses_product_stock(),
                 "images": [
                     {
                         "url": (
@@ -175,9 +175,9 @@ def single_variant_json(variant_id: int):
             "color_hex": variant.color.hex if variant.color else "#808080",
             "variant_name": variant.variant_name,
             "display_name": variant.display_name,
-            # variant-level inventory (with product fallback):
             "is_available": variant.is_available if variant else (product.is_available if product else False),
-            "quantity_on_hand": variant.quantity_on_hand if variant and variant.quantity_on_hand is not None else (product.quantity_on_hand if product else 0),
+            "quantity_on_hand": variant.available_stock(),
+            "uses_product_stock": variant.uses_product_stock(),
             "price": float(product.price) if product else 0.0,
             "images": [
                 {
