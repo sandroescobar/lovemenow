@@ -37,11 +37,24 @@ def find_images_for_upc(upc):
     
     # Get all files in the directory
     files = glob.glob(os.path.join(upc_dir, f"{upc}_*"))
-    files.sort()
+
+    def sort_key(file_path):
+        name = os.path.basename(file_path).lower()
+        priority_order = [
+            "main", "1st", "first", "2nd", "second", "3rd", "third",
+            "4th", "fourth", "5th", "fifth", "6th", "sixth", "7th", "seventh"
+        ]
+        priority = 100
+        for idx, token in enumerate(priority_order):
+            if token in name:
+                priority = idx
+                break
+        return (priority, name)
+
+    files.sort(key=sort_key)
     
     for file_path in files:
         if os.path.isfile(file_path):
-            # Get just the filename for storage
             filename = os.path.basename(file_path)
             image_files.append({
                 'path': file_path,
