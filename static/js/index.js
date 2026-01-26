@@ -1480,6 +1480,8 @@ window.filterProducts = function filterProducts(categorySlug) {
     'Water Based Lubricant': 55,
     'oil based': 56,
     'Massage Oil': 57,
+    'bedroom-games': 61,
+    'edibles-candy': 62,
     // Toys subcategories reported missing
     'vibrators': 36,
     'wands': 39,

@@ -45,7 +45,8 @@
         'cock-pumps': 35, 'vibrators': 36, 'penis-extensions': 37, 'anal-beads': 38,
         'wands': 39, 'collars-nipple-clamps': 40, 'nipple-clamps': 50,
         'douches-and-enemas': 51, 'strap-on-kits': 54, 'cock-rings': 60,
-        'Water Based Lubricant': 55, 'oil based': 56, 'Massage Oil': 57
+        'Water Based Lubricant': 55, 'oil based': 56, 'Massage Oil': 57,
+        'bedroom-games': 61, 'edibles-candy': 62
       };
   const SLUG_BY_ID = Object.fromEntries(Object.entries(ID_BY_SLUG).map(([slug, id]) => [String(id), slug]));
 
