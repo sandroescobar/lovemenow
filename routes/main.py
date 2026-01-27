@@ -208,8 +208,8 @@ def products():
         # SPECIAL HANDLING for gender slugs (these are not database categories)
         # These map to specific product category IDs
         gender_mappings = {
-            'men': [34, 60, 35, 33, 55, 56, 57, 4, 11, 37, 53, 38, 51],
-            'women': [36, 39, 5, 33, 54, 1, 7, 10, 40, 50, 4, 55, 56, 57, 58, 11, 38]
+            'men': [34, 60, 35, 33, 55, 56, 57, 4, 11, 37, 53, 38, 51, 61, 62],
+            'women': [36, 39, 5, 33, 54, 1, 7, 10, 40, 50, 4, 55, 56, 57, 58, 11, 38, 61, 62]
         }
         
         if category_param:

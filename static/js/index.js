@@ -1480,17 +1480,24 @@ window.filterProducts = function filterProducts(categorySlug) {
     'Water Based Lubricant': 55,
     'oil based': 56,
     'Massage Oil': 57,
-    'bedroom-games': 61,
-    'edibles-candy': 62,
     // Toys subcategories reported missing
     'vibrators': 36,
     'wands': 39,
-    'cock-rings': 60
+    'cock-rings': 60,
+    'bedroom-games': 61,
+    'edibles-candy': 62
   };
 
   const categoryId = categoryMap[categorySlug];
-  if (categoryId) window.location.href = `/products?category=${categoryId}`;
-  else window.location.href = '/products';
+  if (categoryId) {
+    window.location.href = `/products?category=${categoryId}`;
+  } else if (categorySlug) {
+    // Robust fallback: pass the slug directly if not in our hardcoded map
+    // The backend supports looking up by slug
+    window.location.href = `/products?category=${categorySlug}`;
+  } else {
+    window.location.href = '/products';
+  }
 };
 
 window.handleSearch = function handleSearch() {
