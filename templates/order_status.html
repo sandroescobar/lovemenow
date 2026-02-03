@@ -300,6 +300,12 @@
                         <span class="detail-label">Delivery Address:</span>
                         <span class="detail-value">{{ order.shipping_address }}, {{ order.shipping_city }}, {{ order.shipping_state }}</span>
                     </div>
+                    {% if order.pin_code %}
+                    <div class="detail-row" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed hsl(var(--border-color));">
+                        <span class="detail-label"><i class="fas fa-lock" style="color: #ffc107;"></i> Verification PIN:</span>
+                        <span class="detail-value" style="font-size: 1.2rem; font-weight: 700; color: #d32f2f; letter-spacing: 2px;">{{ order.pin_code }}</span>
+                    </div>
+                    {% endif %}
                 </div>
                 
                 {% if order.delivery.tracking_url %}

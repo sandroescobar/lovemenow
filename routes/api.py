@@ -420,6 +420,7 @@ def create_checkout_session():
                 'has_quote': '1' if delivery_quote else '0',
                 'delivery_fee': str(totals.get('delivery_fee', 0)),
                 'subtotal': str(totals.get('subtotal', 0)),
+                'request_pin': '1' if data.get('request_pin') else '0',
             }
         )
         
@@ -481,6 +482,13 @@ def create_order():
 
         # 3) Build and save the order
         cust = data['customer_info'] or {}
+        
+        # Generation PIN if requested for manual delivery
+        pin_code = None
+        if data.get('request_pin'):
+            pin_code = "PIN Delivery Requested"
+            current_app.logger.info(f"PIN Delivery Requested for order")
+
         order = Order(
             user_id=current_user.id if current_user.is_authenticated else None,
             order_number=f"LMN{datetime.now().strftime('%Y%m%d%H%M%S')}",
@@ -495,6 +503,7 @@ def create_order():
             payment_status='paid',
             stripe_session_id=pi_id,  # store PI id
             status='confirmed',
+            pin_code=pin_code,
             # NEW: Track payment intent status and duplicate info
             payment_intent_status_at_creation=intent.status,
             is_duplicate_payment=False,  # This is the first order for this PI
@@ -603,19 +612,19 @@ def create_order():
                     tracking_url = None
                 else:
                     # Prepare Uber delivery data
-                    quote_id = data.get('quote_id')
+                    quote_data = data.get('delivery_quote') or {}
+                    quote_id = quote_data.get('id') or data.get('quote_id')
                     manual_quote_id = quote_id
                     current_app.logger.info(f"🔍 Delivery order - quote_id: {quote_id}")
-                    is_custom_quote = bool(quote_id and str(quote_id).startswith('custom_'))
-                    uber_quote_id = None if is_custom_quote else quote_id
-                    if is_custom_quote:
-                        current_app.logger.info("Custom quote detected; proceeding with live Uber pricing to keep automation")
                     
                     # Check if Uber service is configured
                     if not uber_service.client_id:
                         current_app.logger.error(f"❌ Uber service not configured - missing credentials")
                         tracking_url = None
+                        manual_dispatch_required = True
+                        manual_dispatch_reason = "Uber service not configured"
                     else:
+                        uber_quote_id = quote_id
                         # Store pickup/dropoff info
                         store_address = get_miami_store_address()
                         store_coords = get_miami_store_coordinates()
@@ -740,6 +749,7 @@ def create_order():
                     delivery_type=order.delivery_type,
                     delivery_address=delivery_address,
                     tracking_url=tracking_url,  # ← NOW INCLUDES TRACKING URL
+                    pin_code=order.pin_code,    # ← ADD PIN CODE
                 )
                 totals_ns = SimpleNamespace(
                     subtotal=totals['subtotal'],

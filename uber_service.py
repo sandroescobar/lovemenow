@@ -421,6 +421,86 @@ def create_manifest_items(cart_items: list) -> list:
     
     return manifest_items
 
+def get_hybrid_delivery_quote(pickup_address: Dict, dropoff_address: Dict, 
+                              pickup_coords: Dict, dropoff_coords: Dict,
+                              straight_line_distance: float) -> Dict:
+    """
+    Get a delivery quote using either Uber Direct or Google Maps (Manual Dispatch)
+    Based on distance and Uber API availability.
+    """
+    from flask import current_app
+    
+    # 1. Under 10 miles: Try Uber Direct first
+    if straight_line_distance <= 10:
+        try:
+            logger.info(f"Straight-line distance {straight_line_distance:.2f} <= 10mi, trying Uber Direct...")
+            uber_service = UberDirectService()
+            uber_service.configure(
+                client_id=current_app.config.get('UBER_CLIENT_ID'),
+                client_secret=current_app.config.get('UBER_CLIENT_SECRET'),
+                customer_id=current_app.config.get('UBER_CUSTOMER_ID'),
+                is_sandbox=current_app.config.get('UBER_SANDBOX', True)
+            )
+            
+            uber_quote = uber_service.create_quote_with_coordinates(
+                pickup_address, dropoff_address,
+                pickup_coords=pickup_coords,
+                dropoff_coords=dropoff_coords
+            )
+            
+            # If we got a valid Uber quote, return it
+            return {
+                'id': uber_quote['id'],
+                'fee': uber_quote['fee'],
+                'fee_dollars': uber_quote['fee'] / 100,
+                'currency': uber_quote['currency'],
+                'pickup_duration': uber_quote.get('pickup_duration', 0),
+                'dropoff_eta': uber_quote.get('dropoff_eta'),
+                'duration': uber_quote.get('duration', 0),
+                'expires': uber_quote.get('expires'),
+                'source': 'uber_direct'
+            }
+        except Exception as e:
+            logger.warning(f"Uber Direct quote failed for <10mi distance: {str(e)}. Falling back to Google Maps.")
+            # Fall through to Google Maps calculation if Uber fails even for < 10mi
+
+    # 2. Over 10 miles or Uber failed: Use Google Maps Distance Matrix
+    logger.info(f"Using Google Maps for distance/duration calculation (Distance: {straight_line_distance:.2f}mi)")
+    
+    # Format addresses for Google Maps
+    origin_street = ' '.join(filter(None, pickup_address.get('street_address', [])))
+    origin_str = f"{origin_street}, {pickup_address.get('city', '')}, {pickup_address.get('state', '')} {pickup_address.get('zip_code', '')}"
+    
+    dest_street = ' '.join(filter(None, dropoff_address.get('street_address', [])))
+    dest_str = f"{dest_street}, {dropoff_address.get('city', '')}, {dropoff_address.get('state', '')} {dropoff_address.get('zip_code', '')}"
+    
+    matrix = get_driving_distance_matrix(origin_str, dest_str)
+    
+    if not matrix:
+        logger.warning("Failed to get driving distance from Google Maps, falling back to straight-line distance")
+        # Use straight-line distance with a 1.25x buffer for driving distance estimation
+        driving_distance = straight_line_distance * 1.25
+        # Estimate duration: ~2.5 minutes per mile (includes traffic/signals)
+        duration_minutes = driving_distance * 2.5
+    else:
+        driving_distance = matrix['distance']
+        duration_minutes = matrix['duration']
+    
+    # Calculate fee using custom formula
+    fee_cents = calculate_manual_delivery_fee(driving_distance, duration_minutes)
+    
+    return {
+        'id': f"manual_{int(datetime.now().timestamp())}",
+        'fee': fee_cents,
+        'fee_dollars': fee_cents / 100,
+        'currency': 'USD',
+        'pickup_duration': 15, # Default 15 min pickup for manual
+        'duration': int(duration_minutes),
+        'expires': (datetime.now() + timedelta(minutes=30)).isoformat(),
+        'source': 'manual_dispatch',
+        'driving_distance': driving_distance
+    }
+
 def calculate_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """
     Calculate the great circle distance between two points 
@@ -441,31 +521,42 @@ def calculate_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> fl
     
     return c * r
 
-def get_driving_distance(origin_address: str, destination_address: str) -> Optional[float]:
+def calculate_manual_delivery_fee(distance_miles: float, duration_minutes: float) -> int:
     """
-    Get actual driving distance using Google Maps Distance Matrix API
-    Returns distance in miles or None if API call fails
+    Calculate delivery fee for manual dispatch (long distance)
+    Returns fee in cents
+    Formula: Base Fee + (Miles * Per-Mile Fee) + (Minutes * Per-Minute Fee)
+    """
+    # Pricing constants (could be moved to config)
+    base_fee = 10.00      # $10.00 base (reduced from $15)
+    mile_fee = 1.00       # $1.00 per mile (reduced from $1.50)
+    minute_fee = 0.15     # $0.15 per minute (reduced from $0.25)
+    
+    total_fee_dollars = base_fee + (distance_miles * mile_fee) + (duration_minutes * minute_fee)
+    
+    # Round to 2 decimal places and convert to cents
+    return int(round(total_fee_dollars, 2) * 100)
+
+def get_driving_distance_matrix(origin_address: str, destination_address: str) -> Optional[Dict[str, float]]:
+    """
+    Get actual driving distance and duration using Google Maps Distance Matrix API
+    Returns dict with 'distance' (miles) and 'duration' (minutes) or None if API call fails
     """
     try:
         from flask import current_app
         import requests
-        import urllib.parse
         
         api_key = current_app.config.get('GOOGLE_MAPS_API_KEY')
         if not api_key:
-            logger.warning("Google Maps API key not configured, falling back to straight-line distance")
+            logger.warning("Google Maps API key not configured")
             return None
         
-        # Format addresses for Google Maps API
-        origin = urllib.parse.quote(origin_address)
-        destination = urllib.parse.quote(destination_address)
-        
         # Google Maps Distance Matrix API endpoint
-        url = f"https://maps.googleapis.com/maps/api/distancematrix/json"
+        url = "https://maps.googleapis.com/maps/api/distancematrix/json"
         params = {
             'origins': origin_address,
             'destinations': destination_address,
-            'units': 'imperial',  # Get distance in miles
+            'units': 'imperial',
             'mode': 'driving',
             'key': api_key
         }
@@ -481,10 +572,17 @@ def get_driving_distance(origin_address: str, destination_address: str) -> Optio
                 if element['status'] == 'OK':
                     # Distance is returned in meters, convert to miles
                     distance_meters = element['distance']['value']
-                    distance_miles = distance_meters * 0.000621371  # Convert meters to miles
+                    distance_miles = distance_meters * 0.000621371
                     
-                    logger.info(f"Google Maps driving distance: {distance_miles:.2f} miles from '{origin_address}' to '{destination_address}'")
-                    return distance_miles
+                    # Duration is returned in seconds, convert to minutes
+                    duration_seconds = element['duration']['value']
+                    duration_minutes = duration_seconds / 60
+                    
+                    logger.info(f"Google Maps matrix: {distance_miles:.2f} miles, {duration_minutes:.1f} mins from '{origin_address}' to '{destination_address}'")
+                    return {
+                        'distance': distance_miles,
+                        'duration': duration_minutes
+                    }
                 else:
                     logger.warning(f"Google Maps API element error: {element['status']}")
                     return None
@@ -496,82 +594,15 @@ def get_driving_distance(origin_address: str, destination_address: str) -> Optio
             return None
             
     except Exception as e:
-        logger.error(f"Error getting driving distance: {str(e)}")
+        logger.error(f"Error getting driving distance matrix: {str(e)}")
         return None
 
-def get_custom_delivery_price(distance_miles: float, is_peak_hours: bool = False) -> float:
+def get_driving_distance(origin_address: str, destination_address: str) -> Optional[float]:
     """
-    Calculate custom delivery price for addresses outside the automatic Uber radius (~20 miles)
-    Returns price in dollars
+    Legacy wrapper for get_driving_distance_matrix that only returns distance
     """
-    base_price = 12.99  # Base price covering the first ~10 miles
-    effective_distance = max(distance_miles or 0, 0)
-    included_radius = 10
-    auto_dispatch_radius = 20
-    distance_fee = 0.0
-    
-    # First band: 10-20 miles (keeps pricing close to Uber's quotes)
-    if effective_distance > included_radius:
-        first_band = min(effective_distance, auto_dispatch_radius) - included_radius
-        distance_fee += max(first_band, 0) * 1.35
-    
-    # Second band: 20-35 miles (Miami + Broward core)
-    if effective_distance > auto_dispatch_radius:
-        mid_band = min(effective_distance, 35) - auto_dispatch_radius
-        distance_fee += max(mid_band, 0) * 1.85
-    
-    # Third band: 35-50 miles (northern Broward / southern Palm Beach)
-    if effective_distance > 35:
-        long_band = min(effective_distance, 50) - 35
-        distance_fee += max(long_band, 0) * 2.35
-    
-    # Extended band: 50-70 miles (edge of service radius)
-    if effective_distance > 50:
-        extended_band = effective_distance - 50
-        distance_fee += max(extended_band, 0) * 2.75
-    
-    subtotal = base_price + distance_fee
-    
-    # Time-on-road surcharge: assume ~22 mph average with a 30-minute minimum
-    avg_speed_mph = 22
-    estimated_minutes = max(30, (effective_distance / avg_speed_mph) * 60)
-    if estimated_minutes > 50:
-        subtotal += (estimated_minutes - 50) * 0.45
-    
-    # Peak hours surcharge (traffic-heavy windows)
-    if is_peak_hours:
-        subtotal *= 1.25  # 25% uplift during heavy traffic
-    
-    # Cap the maximum delivery fee to keep quotes predictable
-    return min(subtotal, 85.00)
-
-def is_peak_hours() -> bool:
-    """Check if current time is during heavy traffic windows in Miami"""
-    try:
-        import pytz
-        miami_tz = pytz.timezone('America/New_York')  # Miami is in Eastern Time
-        current_time = datetime.now(miami_tz)
-        weekday = current_time.weekday()
-        
-        # Weekday rush hours plus weekend evening surges
-        peak_windows = [
-            ((7, 0), (9, 30)),
-            ((15, 0), (19, 30)),
-        ]
-        if weekday >= 4:  # Friday + Saturday evenings stay busy
-            peak_windows.append(((20, 0), (23, 30)))
-        
-        for start, end in peak_windows:
-            start_dt = current_time.replace(hour=start[0], minute=start[1], second=0, microsecond=0)
-            end_dt = current_time.replace(hour=end[0], minute=end[1], second=0, microsecond=0)
-            if start_dt <= current_time <= end_dt:
-                return True
-        
-        return False
-    except ImportError:
-        # Fallback if pytz is not available - assume not peak hours
-        logger.warning("pytz not available, cannot determine peak hours")
-        return False
+    matrix = get_driving_distance_matrix(origin_address, destination_address)
+    return matrix['distance'] if matrix else None
 
 def geocode_address(address_dict: Dict) -> Optional[Tuple[float, float]]:
     """

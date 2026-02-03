@@ -113,6 +113,13 @@ class SlackNotificationService:
         local_time = utc_time.astimezone(eastern)
         
         # Build the main message
+        pin_text = ""
+        if getattr(order, 'pin_code', None):
+            if order.pin_code == "PIN Delivery Requested":
+                pin_text = f"🚨 *PIN DELIVERY REQUESTED:* `Customer must provide PIN to driver`"
+            else:
+                pin_text = f"🔐 *PIN:* `{order.pin_code}`"
+
         message_text = f"""🛍️ *NEW ORDER - {order.order_number}*
 
 {customer_info}
@@ -120,6 +127,7 @@ class SlackNotificationService:
 {products_text}
 🚚 *Fulfillment:* {"🚗 Delivery" if is_delivery else "🏪 Store Pickup"}
 💰 *Total:* ${float(order.total_amount):.2f}
+{pin_text}
 {uber_link}
 
 ⏰ *Order Time:* {local_time.strftime('%I:%M %p on %m/%d/%Y')} EST
@@ -165,6 +173,14 @@ class SlackNotificationService:
         if reason:
             details.append(f"*Reason:* {reason}")
         details_text = "\n".join(details) if details else "*Reason:* Manual courier dispatch required"
+        
+        pin_text = ""
+        if getattr(order, 'pin_code', None):
+            if order.pin_code == "PIN Delivery Requested":
+                pin_text = f"🚨 *PIN DELIVERY REQUESTED:* `Customer must provide PIN to driver`"
+            else:
+                pin_text = f"🔐 *Verification PIN:* `{order.pin_code}`"
+
         manual_text = f"""⚠️ *MANUAL DELIVERY REQUIRED*
 
 *Order:* {order.order_number}
@@ -172,6 +188,7 @@ class SlackNotificationService:
 *Phone:* {getattr(order, 'phone', 'Not provided')}
 *Address:*
 {address_lines}
+{pin_text}
 {details_text}
 *Total:* ${float(order.total_amount):.2f}
 """

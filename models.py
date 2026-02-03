@@ -436,6 +436,7 @@ class Order(db.Model):
     stripe_session_id = db.Column(db.String(255), nullable=True)
 
     status = db.Column(db.String(50), nullable=False, default="pending")
+    pin_code = db.Column(db.String(10), nullable=True)  # PIN for manual delivery verification
     
     # NEW: Track if this order is a duplicate from same PI or was cancelled
     is_duplicate_payment = db.Column(db.Boolean, default=False)  # True if another order was already created from this PI

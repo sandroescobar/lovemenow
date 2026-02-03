@@ -263,6 +263,14 @@
                         <div class="info-label" style="font-weight: 600; color: hsl(var(--text-color)); margin-bottom: 0.25rem;">Status</div>
                         <div class="info-value" style="color: hsl(var(--muted-color)); font-size: 0.9rem;">Processing</div>
                     </div>
+                    
+                    {% if order.pin_code %}
+                    <div class="info-item" style="padding: 0.75rem; background: #fff8e1; border-radius: var(--radius-sm); border: 1px solid #ffc107; grid-column: span 2;">
+                        <div class="info-label" style="font-weight: 600; color: #856404; margin-bottom: 0.25rem;">🔐 Delivery Verification PIN</div>
+                        <div class="info-value" style="color: #d32f2f; font-size: 1.5rem; font-weight: 700; letter-spacing: 4px;">{{ order.pin_code }}</div>
+                        <div style="font-size: 0.8rem; color: #856404; margin-top: 0.25rem;">Please provide this PIN to your driver to verify your delivery.</div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
             

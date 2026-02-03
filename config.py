@@ -80,8 +80,8 @@ class Config:
     STORE_CITY = os.getenv('STORE_CITY', 'Miami')
     STORE_STATE = os.getenv('STORE_STATE', 'FL')
     STORE_ZIP = os.getenv('STORE_ZIP', '33138')
-    STORE_LATITUDE = float(os.getenv('STORE_LATITUDE', '25.8466'))
-    STORE_LONGITUDE = float(os.getenv('STORE_LONGITUDE', '-80.1891'))
+    STORE_LATITUDE = float(os.getenv('STORE_LATITUDE', '25.8479'))
+    STORE_LONGITUDE = float(os.getenv('STORE_LONGITUDE', '-80.1898'))
     
     # Slack integration
     SLACK_WEBHOOK_URL = os.getenv('SLACK_WEBHOOK_URL')

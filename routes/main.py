@@ -1357,6 +1357,7 @@ def create_checkout_session():
                 'tax': str(breakdown['tax']),
                 'total': str(breakdown['total']),
                 'user_id': str(current_user.id) if current_user.is_authenticated else 'guest',
+                'request_pin': '1' if data.get('request_pin') else '0',
             }
         )
         

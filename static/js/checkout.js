@@ -297,6 +297,12 @@
         hideDeliveryError();
         updateOrderSummary();
 
+        // Show/hide PIN protection section for custom pricing (manual delivery)
+        const pinSection = document.getElementById('pin-protection-section');
+        if (pinSection) {
+          pinSection.style.display = (deliveryQuote.source === 'manual_dispatch') ? 'block' : 'none';
+        }
+
         // Now that we have the delivery quote, re-init Stripe with correct total on server
         stripeInitialized = false;
         clientSecret = null;
@@ -352,10 +358,12 @@
     if (statusEl) statusEl.textContent = 'Setting up payment...';
 
     try {
+      const pinCheckbox = document.getElementById('request-pin');
       const body = {
         delivery_type: selectedDeliveryType,
         // send quote so backend can include delivery fee in server-side calculation
-        delivery_quote: deliveryQuote || null
+        delivery_quote: deliveryQuote || null,
+        request_pin: pinCheckbox ? pinCheckbox.checked : false
         // NOTE: discount is NOT sent; backend reads session and re-validates
       };
       const r = await fetch('/create-checkout-session', {
@@ -554,9 +562,11 @@
 
   async function createOrder(paymentIntentId) {
     try {
+      const pinCheckbox = document.getElementById('request-pin');
       const orderData = {
         payment_intent_id: paymentIntentId,
         delivery_type: selectedDeliveryType,
+        request_pin: pinCheckbox ? pinCheckbox.checked : false,
         customer_info: {
           email: document.getElementById('email').value,
           first_name: document.getElementById('fullName')

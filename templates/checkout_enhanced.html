@@ -259,6 +259,22 @@
             <i class="fa-solid fa-triangle-exclamation"></i>
             <span id="delivery-error-text"></span>
           </div>
+
+          <!-- PIN Protection for Manual Delivery -->
+          <div id="pin-protection-section" style="display:none; margin-top: 15px; padding: 15px; border: 1px solid #ff0000; border-radius: 12px; background: #fff5f5;">
+            <div style="display: flex; gap: 10px; align-items: flex-start;">
+              <input type="checkbox" id="request-pin" name="request-pin" style="width: auto; margin-top: 4px; transform: scale(1.2);">
+              <div style="flex: 1;">
+                <label for="request-pin" style="margin: 0; font-size: 14px; font-weight: 700; cursor: pointer; color: #cc0000;">PIN DELIVERY (Recommended)</label>
+                <div style="font-size: 13px; color: #333; margin-top: 6px; line-height: 1.4;">
+                  <strong>SELECTING THIS MEANS WE WILL TEXT YOU A PIN AND YOU MUST BE PRESENT TO GIVE THE DRIVER THE PIN FOR YOUR PACKAGE.</strong>
+                </div>
+                <div style="font-size: 12px; color: #666; margin-top: 8px; font-style: italic;">
+                  IF YOU DO NOT SELECT THIS, DRIVER WILL LEAVE PACKAGE AT DOOR AND WE ARE NOT RESPONSIBLE FOR LOSSES.
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Payment -->
