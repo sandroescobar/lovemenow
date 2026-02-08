@@ -408,6 +408,26 @@ def create_checkout_session():
         except Exception as e:
             current_app.logger.warning(f"Failed to cancel old PI: {str(e)}")
 
+        # Prepare metadata for fulfillment (Webhook recovery)
+        metadata = {
+            'delivery_type': delivery_type,
+            'has_quote': '1' if delivery_quote else '0',
+            'delivery_fee': str(totals.get('delivery_fee', 0)),
+            'subtotal': str(totals.get('subtotal', 0)),
+            'request_pin': '1' if data.get('request_pin') else '0',
+            'user_id': str(current_user.id) if current_user.is_authenticated else 'guest',
+        }
+
+        # Add items to metadata for webhook-based recovery
+        items = totals.get('items', [])
+        metadata['item_count'] = str(len(items))
+        for i, it in enumerate(items):
+            # Handle both Product object and dict formats from compute_totals
+            prod = it['product']
+            pid = prod.id if hasattr(prod, 'id') else prod.get('id')
+            metadata[f'item_{i}_product_id'] = str(pid)
+            metadata[f'item_{i}_quantity'] = str(it['quantity'])
+
         # Create fresh PaymentIntent with CARD ONLY
         intent = stripe.PaymentIntent.create(
             amount=int(totals['amount_cents']),
@@ -415,13 +435,7 @@ def create_checkout_session():
             automatic_payment_methods={'enabled': False},  # <-- turn off auto
             payment_method_types=['card'],                 # <-- only card
             description='LoveMeNow order',
-            metadata={
-                'delivery_type': delivery_type,
-                'has_quote': '1' if delivery_quote else '0',
-                'delivery_fee': str(totals.get('delivery_fee', 0)),
-                'subtotal': str(totals.get('subtotal', 0)),
-                'request_pin': '1' if data.get('request_pin') else '0',
-            }
+            metadata=metadata
         )
         
         # Store PI id in session to track it (for cancellation next time)
