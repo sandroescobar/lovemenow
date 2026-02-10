@@ -46,6 +46,9 @@
   <link rel="dns-prefetch" href="https://www.googletagmanager.com">
   <link rel="dns-prefetch" href="https://www.google-analytics.com">
 
+  <!-- Google Tag Manager -->
+  {% include 'google_tag_head.html' %}
+
   <!-- CSRF Token -->
   {% include 'csrf_meta.html' %}
 
@@ -81,15 +84,6 @@
   <link rel="preload" href="https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.css"></noscript>
 
-  <!-- Google Analytics & GTM (async, non-blocking) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=GTM-WW7VC75G"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'GTM-WW7VC75G');
-  </script>
-
   <!-- Age verification check (non-blocking, moved to body end) -->
   <script type="module">
     // Deferred age verification to avoid blocking render
@@ -118,10 +112,7 @@
   </style>
 </head>
 <body>
-
-  <!-- Google Tag Manager (noscript) -->
-  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WW7VC75G"
-  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  {% include 'google_tag_body.html' %}
 
   <!-- NAV -->
   {% include "navbar.html" %}

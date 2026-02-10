@@ -2,16 +2,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-WW7VC75G');</script>
-
-
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Wishlist - LoveMeNow</title>
@@ -23,14 +13,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     {% include 'csrf_meta.html' %}
     
     <!-- Google AdWords Tracking -->
-    {% include 'google_tag.html' %}
+    {% include 'google_tag_head.html' %}
 </head>
 <body>
-
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WW7VC75G"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
+    {% include 'google_tag_body.html' %}
     <!-- Navigation -->
     <nav class="navbar">
         <div class="container d-flex justify-content-between align-items-center" style="padding: 1rem;">

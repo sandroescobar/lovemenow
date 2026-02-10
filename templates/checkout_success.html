@@ -9,7 +9,10 @@
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="dns-prefetch" href="https://www.googletagmanager.com">
     <link rel="dns-prefetch" href="https://www.google-analytics.com">
-    
+
+    <!-- Google Tag Manager -->
+    {% include 'google_tag_head.html' %}
+
     <!-- CSRF Protection -->
     {% include 'csrf_meta.html' %}
     
@@ -26,57 +29,63 @@
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"></noscript>
     
-    <!-- Google Analytics & GTM (async, non-blocking) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=GTM-WW7VC75G"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'GTM-WW7VC75G');
-    </script>
-    
-    <!-- Google Ads Conversion Tracking (deferred) -->
+    <!-- Google Ads Conversion Tracking (dataLayer) -->
     {% if order %}
-    <script defer>
-        // Google Ads Purchase Conversion
-        if (typeof gtag !== 'undefined') {
-            gtag('event', 'conversion', {
-                'send_to': 'AW-17555943226/Q9ItCKrBg5obELreqbNB',
-                'transaction_id': '{{ order.order_number }}',
-                'value': {{ order.total_amount }},
-                'currency': 'USD'
-            });
-            console.log('Google Ads Conversion Fired:', {
-                transaction_id: '{{ order.order_number }}',
-                value: {{ order.total_amount }},
-                currency: 'USD'
-            });
+    <script>
+      (function() {
+        const transactionId = '{{ order.order_number }}';
+        // Prevent duplicate push on refresh
+        if (localStorage.getItem('gtm_purchase_' + transactionId)) {
+          return;
         }
+
+        window.dataLayer = window.dataLayer || [];
+        dataLayer.push({
+          'event': 'purchase',
+          'transaction_id': transactionId,
+          'value': {{ "%.2f"|format(order.total_amount) }},
+          'currency': 'USD',
+          'items': [
+            {% for item in order_items %}
+            {
+              'item_id': '{{ item.product_id }}',
+              'item_name': '{{ item.product.name|e }}',
+              'price': {{ "%.2f"|format(item.unit_price) }},
+              'quantity': {{ item.quantity }}
+            }{% if not loop.last %},{% endif %}
+            {% endfor %}
+          ]
+        });
+
+        // Mark as pushed
+        localStorage.setItem('gtm_purchase_' + transactionId, 'true');
+      })();
     </script>
-    {% elif checkout_session %}
-    <script defer>
-        // Google Ads Purchase Conversion
-        if (typeof gtag !== 'undefined') {
-            gtag('event', 'conversion', {
-                'send_to': 'AW-17555943226/Q9ItCKrBg5obELreqbNB',
-                'transaction_id': '{{ checkout_session.id }}',
-                'value': {{ (checkout_session.amount_total / 100) if checkout_session.amount_total else 0 }},
-                'currency': '{{ checkout_session.currency.upper() if checkout_session.currency else "USD" }}'
-            });
-            console.log('Google Ads Conversion Fired:', {
-                transaction_id: '{{ checkout_session.id }}',
-                value: {{ (checkout_session.amount_total / 100) if checkout_session.amount_total else 0 }},
-                currency: '{{ checkout_session.currency.upper() if checkout_session.currency else "USD" }}'
-            });
+    {% elif checkout_session and checkout_session.amount_total %}
+    <script>
+      (function() {
+        const transactionId = '{{ checkout_session.id }}';
+        // Prevent duplicate push on refresh
+        if (localStorage.getItem('gtm_purchase_' + transactionId)) {
+          return;
         }
+
+        window.dataLayer = window.dataLayer || [];
+        dataLayer.push({
+            'event': 'purchase',
+            'transaction_id': transactionId,
+            'value': {{ "%.2f"|format(checkout_session.amount_total / 100) }},
+            'currency': '{{ checkout_session.currency.upper() if checkout_session.currency else "USD" }}'
+        });
+
+        // Mark as pushed
+        localStorage.setItem('gtm_purchase_' + transactionId, 'true');
+      })();
     </script>
     {% endif %}
 </head>
 <body>
-
-    <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WW7VC75G"
-    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    {% include 'google_tag_body.html' %}
 
     <!-- Navigation -->
     <nav class="navbar">
