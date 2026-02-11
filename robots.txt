@@ -1,0 +1,27 @@
+User-agent: *
+Allow: /
+Allow: /products
+Allow: /miami-map
+Allow: /login
+Allow: /register
+
+# Block sensitive areas
+Disallow: /admin/
+Disallow: /api/
+Disallow: /profile/
+Disallow: /settings/
+Disallow: /user-profile/
+Disallow: /checkout/
+Disallow: /cart/
+Disallow: /wishlist/
+
+# Allow CSS and JS for better crawling
+Allow: /static/css/
+Allow: /static/js/
+Allow: /static/IMG/
+
+# Sitemap location
+Sitemap: https://lovemenowmiami.com/sitemap.xml
+
+# Crawl delay (optional - helps with server load)
+Crawl-delay: 1

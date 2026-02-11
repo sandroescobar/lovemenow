@@ -1,0 +1,38 @@
+# Core Flask dependencies
+Flask==3.0.3
+Flask-Login==0.6.3
+Flask-SQLAlchemy==3.1.1
+Flask-Bcrypt==1.0.1
+Flask-Migrate==4.0.7
+
+# Database
+SQLAlchemy==2.0.35
+PyMySQL==1.1.1
+
+# Environment and configuration
+python-dotenv==1.0.1
+
+# Payment processing
+stripe==10.12.0
+
+# Email and notifications
+requests==2.32.3
+pytz==2024.1  # Timezone handling
+
+# Maps
+folium==0.15.1
+
+# Security enhancements
+Flask-Talisman==1.1.0  # Security headers and CSP
+Flask-WTF==1.2.1       # CSRF protection
+cryptography>=42.0.0   # Enhanced cryptography - use latest compatible version
+Flask-Limiter==3.8.0   # Rate limiting
+
+# Production server
+gunicorn==23.0.0
+
+# Monitoring and logging
+sentry-sdk[flask]==2.17.0  # Error tracking (optional)
+
+# Development dependencies (optional)
+python-decouple==3.8
