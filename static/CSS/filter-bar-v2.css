@@ -334,6 +334,10 @@
 
 /* Results count */
 .fb2-results {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
   color: #fff;
   font: 600 12px/1 Inter, system-ui, sans-serif;
   white-space: nowrap;
@@ -343,10 +347,8 @@
   border-radius: 50px;
   border: 1px solid rgba(255,255,255,0.1);
   letter-spacing: 0.3px;
-  display: inline-flex;
-  align-items: center;
-  height: 30px; /* Match chip height */
 }
+
 @media (max-width: 768px) {
   .fb2-results { display: none; }
 }
@@ -356,6 +358,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  margin-top: 8px;
   margin-bottom: 8px;
 }
 

@@ -263,6 +263,8 @@
           <span class="fb2-toggle-track"><span class="fb2-toggle-knob"></span></span>
           In Stock
         </button>
+
+        <span class="fb2-results">{{ products.total }} product{{ 's' if products.total != 1 else '' }}</span>
       </div>
 
       {# ── Mobile toolbar (visible < 769px) ── #}
@@ -274,9 +276,7 @@
       </div>
 
       {# ── Active filter chips ── #}
-      <div class="fb2-active-filters" id="fb2ActiveFilters">
-        <span class="fb2-results">{{ products.total }} product{{ 's' if products.total != 1 else '' }}</span>
-      </div>
+      <div class="fb2-active-filters" id="fb2ActiveFilters"></div>
 
     </div>
   </section>
