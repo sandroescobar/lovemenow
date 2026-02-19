@@ -40,7 +40,7 @@ body {
     left: 0;
     right: 0;
     z-index: 1000;
-    background: rgba(255,255,255,0.95);
+    background: rgba(34, 40, 49, 0.95);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid hsl(var(--border-color));
     height: 64px;
@@ -66,6 +66,25 @@ body {
     text-decoration: none;
 }
 
+.brand-logo-img {
+    height: 180px;
+    width: auto;
+    max-width: none;
+    object-fit: contain;
+    margin-top: -45px;
+    margin-bottom: -45px;
+    position: relative;
+    z-index: 10002;
+}
+
+@media (max-width: 768px) {
+    .brand-logo-img {
+        height: 100px;
+        margin-top: -15px;
+        margin-bottom: -15px;
+    }
+}
+
 .nav-links {
     display: flex;
     gap: 2rem;
@@ -73,7 +92,7 @@ body {
 }
 
 .nav-link {
-    color: hsl(var(--text-color));
+    color: #ffffff;
     text-decoration: none;
     font-weight: 500;
     transition: color 0.2s;
@@ -89,7 +108,7 @@ body {
     position: relative;
     background: transparent;
     border: none;
-    color: hsl(var(--text-color));
+    color: #ffffff;
     cursor: pointer;
     padding: 0.5rem;
     font-size: 1.25rem;

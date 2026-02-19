@@ -105,6 +105,7 @@
 
   <!-- Safari Fixes CSS -->
   <link rel="stylesheet" href="{{ url_for('static', filename='CSS/safari-fixes.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/filter-bar-v2.css') }}?v=20260218">
 
 
   <!-- CSRF + Tags -->
@@ -156,149 +157,127 @@
   {% include "navbar.html" %}
 
   {# ░░░ FILTER NAVBAR ░░░ #}
-  <section class="professional-filter-navbar">
+  {% set cur_cat = current_filters.category|default('') %}
+  {% set cur_sort = current_filters.sort|default('') if current_filters.sort is defined else '' %}
+  <section class="filter-bar-v2">
     <div class="container">
-      <div class="filter-navbar-content">
-        <!-- Top Row: Search Only -->
-        <div class="filter-top-row">
-          <div class="search-section">
-            <div class="search-wrapper">
-              <i class="fas fa-search search-icon"></i>
-              <input type="text"
-                     id="productSearch"
-                     class="clean-search-input"
-                     placeholder="Search products..."
-                     value="{{ current_filters.search or '' }}"
-                     onkeyup="handleSearch()">
-              <button class="clear-search-btn" onclick="clearSearch()" style="display:none;">
-                <i class="fas fa-times"></i>
-              </button>
-            </div>
-          </div>
+
+      {# ── Row 1: Search ── #}
+      <div class="fb2-search">
+        <div class="fb2-search-inner">
+          <i class="fas fa-search fb2-search-icon"></i>
+          <input type="text" id="fb2Search" placeholder="Search products..." value="{{ current_filters.search or '' }}">
+          <button class="fb2-clear-search" id="fb2ClearSearch" type="button"><i class="fas fa-times"></i></button>
         </div>
+      </div>
 
-        <!-- MOBILE: category toolbar (hidden on desktop via CSS) -->
-        <div class="mobile-category-toolbar">
-          <button id="openCategorySheet" class="btn-category-picker" type="button">
-            <span id="mobileCategoryLabel">👆 Click to filter/sort</span>
-            <i class="fas fa-chevron-down" aria-hidden="true"></i>
-          </button>
-          <div class="mobile-toolbar-meta">
-            <span class="mobile-count" id="mobileResultCount">
-              {{ products.total }} product{{ 's' if products.total != 1 else '' }}
-            </span>
-          </div>
-        </div>
-
-        <!-- Bottom Row (desktop / tablet): Category Navigation First -->
-        <div class="filter-bottom-row">
-          <!-- Gender Filter - Multi-level Dropdown -->
-          <div class="nav-dropdown gender-dropdown">
-            <a href="#" class="dropdown-toggle">
-              <span>Gender</span>
-              <i class="fas fa-chevron-down"></i>
-            </a>
-            <div class="dropdown-menu gender-menu">
-              <!-- Men Section -->
-              <div class="dropdown-section gender-section">
-                <div class="gender-submenu-item">
-                  <a href="#" class="gender-submenu-toggle" data-submenu="men-categories">
-                    <span>Men</span>
-                    <i class="fas fa-chevron-right"></i>
-                  </a>
-                </div>
-                <div id="men-categories" class="gender-submenu" style="display:none;">
-                  <a href="#" class="dropdown-item" onclick="filterProducts('men')">All Men</a>
-                  <a href="#" class="dropdown-item" onclick="filterProducts('masturbators')">Masturbators</a>
-                  <a href="#" class="dropdown-item" onclick="filterProducts('cock-rings')">Cock Rings</a>
-                  <a href="#" class="dropdown-item" onclick="filterProducts('cock-pumps')">Cock Pumps</a>
-                  <a href="#" class="dropdown-item" onclick="filterProducts('dildos')">Dildos</a>
-                  <a href="#" class="dropdown-item" onclick="filterProducts('lubricant')">Lubricants</a>
-                  <a href="#" class="dropdown-item" onclick="filterProducts('Water Based Lubricant')">Water Based Lubricant</a>
-                  <a href="#" class="dropdown-item" onclick="filterProducts('oil based')">Oil Based Lubricant</a>
-                  <a href="#" class="dropdown-item" onclick="filterProducts('Massage Oil')">Massage Oil</a>
-                  <a href="#" class="dropdown-item" onclick="filterProducts('butt-plug')">Butt Plugs</a>
-                  <a href="#" class="dropdown-item" onclick="filterProducts('penis-extensions')">Penis Extensions</a>
-                  <a href="#" class="dropdown-item" onclick="filterProducts('anal-beads')">Anal Beads</a>
-                  <a href="#" class="dropdown-item" onclick="filterProducts('douches-and-enemas')">Douches & Enemas</a>
-                </div>
-              </div>
-              
-              <!-- Women Section -->
-              <div class="dropdown-section gender-section">
-                <div class="gender-submenu-item">
-                  <a href="#" class="gender-submenu-toggle" data-submenu="women-categories">
-                    <span>Women</span>
-                    <i class="fas fa-chevron-right"></i>
-                  </a>
-                </div>
-                <div id="women-categories" class="gender-submenu" style="display:none;">
-                  <a href="#" class="dropdown-item" onclick="filterProducts('women')">All Women</a>
-                  <a href="#" class="dropdown-item" onclick="filterProducts('vibrators')">Vibrators</a>
-                  <a href="#" class="dropdown-item" onclick="filterProducts('wands')">Wands</a>
-                  <a href="#" class="dropdown-item" onclick="filterProducts('lingerie')">Lingerie</a>
-                  <a href="#" class="dropdown-item" onclick="filterProducts('dildos')">Dildos</a>
-                  <a href="#" class="dropdown-item" onclick="filterProducts('strap-on-kits')">Strap-ons</a>
-                  <a href="#" class="dropdown-item" onclick="filterProducts('bdsm')">BDSM</a>
-                  <a href="#" class="dropdown-item" onclick="filterProducts('masks')">Masks</a>
-                  <a href="#" class="dropdown-item" onclick="filterProducts('restraints')">Restraints</a>
-                  <a href="#" class="dropdown-item" onclick="filterProducts('collars-nipple-clamps')">Collars & Clamps</a>
-                  <a href="#" class="dropdown-item" onclick="filterProducts('nipple-clamps')">Nipple Clamps</a>
-                  <a href="#" class="dropdown-item" onclick="filterProducts('lubricant')">Lubricants</a>
-                  <a href="#" class="dropdown-item" onclick="filterProducts('Water Based Lubricant')">Water Based Lubricant</a>
-                  <a href="#" class="dropdown-item" onclick="filterProducts('oil based')">Oil Based Lubricant</a>
-                  <a href="#" class="dropdown-item" onclick="filterProducts('Massage Oil')">Massage Oil</a>
-                  <a href="#" class="dropdown-item" onclick="filterProducts('anal-toys')">Anal Toys</a>
-                  <a href="#" class="dropdown-item" onclick="filterProducts('butt-plug')">Butt Plugs</a>
-                  <a href="#" class="dropdown-item" onclick="filterProducts('anal-beads')">Anal Beads</a>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {% for category in categories %}
-            {% if category.children %}
-              <div class="nav-dropdown">
-                <a href="#" class="dropdown-toggle">
-                  <span>{{ category.name }}</span>
-                  <i class="fas fa-chevron-down"></i>
-                </a>
-                <div class="dropdown-menu">
-                  <div class="dropdown-section">
-                    <h4>{{ category.name }}</h4>
-                    <a href="#" class="dropdown-item" onclick="filterProducts('{{ category.slug }}')">All {{ category.name }}</a>
-                    {% for subcategory in category.children %}
-                      <a href="#" class="dropdown-item" onclick="filterProducts('{{ subcategory.slug }}')">{{ subcategory.name }}</a>
-                    {% endfor %}
-                  </div>
-                </div>
-              </div>
+      {# ── Row 2: Category Pills ── #}
+      <div class="fb2-categories">
+        <button class="fb2-pill fb2-cat-pill{{ ' active' if not cur_cat }}" data-category="all" data-label="All">
+          <i class="fas fa-th"></i> All
+        </button>
+        {% set cat_map = {
+          'bdsm':                 {'icon':'fa-link',   'label':'Bondage & Kink'},
+          'toys':                 {'icon':'fa-star',   'label':'Toys'},
+          'lingerie':             {'icon':'fa-tshirt', 'label':'Lingerie'},
+          'lubricant':            {'icon':'fa-tint',   'label':'Lubricants'},
+          'anal-toys':            {'icon':'__svg_plug', 'label':'Anal Toys'},
+          'sexual-enhancements':  {'icon':'fa-pills',  'label':'Sexual Enhancements'},
+          'kits':                 {'icon':'fa-heart',  'label':'Couples Kits'}
+        } %}
+        {% for category in categories %}
+          {% set slug = category.slug %}
+          {% set info = cat_map.get(slug, {}) %}
+          {% set icon = info.get('icon', 'fa-tag') %}
+          {% set label = info.get('label', category.name) %}
+          <button class="fb2-pill fb2-cat-pill{{ ' active' if cur_cat == slug }}" data-category="{{ slug }}" data-label="{{ label }}">
+            {% if icon == '__svg_plug' %}
+              <svg class="fb2-plug-icon" width="16" height="18" viewBox="0 0 16 18" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M8 0L12.8 7.5c.8 1.3 1.2 2.5 1.2 3.5 0 2-1.6 3-3.5 3.2v1H10a.7.7 0 0 1 .7.7v.4a.7.7 0 0 1-.7.7H6a.7.7 0 0 1-.7-.7v-.4A.7.7 0 0 1 6 15.2h-.5v-1C3.6 14 2 13 2 11c0-1 .4-2.2 1.2-3.5L8 0z"/><ellipse cx="8" cy="17.2" rx="4.2" ry="1"/></svg>
             {% else %}
-              <a href="#" class="dropdown-toggle" onclick="filterProducts('{{ category.slug }}')">
-                <span>{{ category.name }}</span>
-              </a>
+              <i class="fas {{ icon }}"></i>
             {% endif %}
-          {% endfor %}
+            {{ label }}
+          </button>
+        {% endfor %}
 
-          {% if current_filters.category %}
-          <a href="#" id="clearFilterButton" class="dropdown-toggle active-category-clear" onclick="clearCategoryFilter()" title="Clear category filter">
-            <i class="fas fa-times"></i>
-            <span>Clear All</span>
-          </a>
-          {% endif %}
-
-          <div class="filter-clear-wrapper">
-            <button id="clearAllFilters" class="btn-clear-filters" onclick="clearAllFilters()">
-              <i class="fas fa-times"></i>
-              Clear All
-            </button>
-          </div>
-
-          <div class="results-info">
-            <span id="resultCount">{{ products.total }} product{{ 's' if products.total != 1 else '' }}</span>
+        {# More dropdown — subcategories + gender #}
+        <div class="fb2-more-wrap">
+          <button class="fb2-pill" type="button">
+            <i class="fas fa-ellipsis-h"></i> More <i class="fas fa-chevron-down" style="font-size:10px;margin-left:2px;"></i>
+          </button>
+          <div class="fb2-more-dropdown">
+            <div class="fb2-dd-section-title">Gender</div>
+            <a class="fb2-dd-item" data-category="men">Men</a>
+            <a class="fb2-dd-item" data-category="women">Women</a>
+            <div class="fb2-dd-divider"></div>
+            {% for category in categories if category.children %}
+            <div class="fb2-dd-section-title">{{ cat_map.get(category.slug, {}).get('label', category.name) }}</div>
+            {% for sub in category.children %}
+            <a class="fb2-dd-item" data-category="{{ sub.slug }}">{{ sub.name }}</a>
+            {% endfor %}
+            {% if not loop.last %}<div class="fb2-dd-divider"></div>{% endif %}
+            {% endfor %}
           </div>
         </div>
       </div>
+
+      {# ── Row 3: Filter Controls ── #}
+      <div class="fb2-filters">
+        <button class="fb2-pill fb2-bestseller" id="fb2BestSellers" type="button">
+          <i class="fas fa-crown"></i> Best Sellers
+        </button>
+
+        <div class="fb2-sort-wrap">
+          <button class="fb2-pill" type="button">
+            <i class="fas fa-sort"></i> <span id="fb2SortLabel">Sort By</span> <i class="fas fa-chevron-down" style="font-size:10px;margin-left:2px;"></i>
+          </button>
+          <div class="fb2-sort-dropdown">
+            <a class="fb2-dd-item" data-sort="name"><i class="fas fa-sort-alpha-down"></i> Name A–Z</a>
+            <div class="fb2-dd-divider"></div>
+            <a class="fb2-dd-item" data-sort="low-high"><i class="fas fa-arrow-down-short-wide"></i> Price Low → High</a>
+            <div class="fb2-dd-divider"></div>
+            <a class="fb2-dd-item" data-sort="high-low"><i class="fas fa-arrow-up-wide-short"></i> Price High → Low</a>
+            <div class="fb2-dd-divider"></div>
+            <a class="fb2-dd-item" data-sort="newest"><i class="fas fa-clock"></i> Newest</a>
+          </div>
+        </div>
+
+        <div class="fb2-price-wrap">
+          <button class="fb2-pill" id="fb2PriceBtn" type="button">
+            <i class="fas fa-tag"></i>
+            <span id="fb2PriceLabel">Price</span>
+            <i class="fas fa-chevron-down" style="font-size:11px;"></i>
+          </button>
+          <div class="fb2-price-dropdown">
+            <a class="fb2-dd-item" data-min="" data-max="25"><i class="fas fa-tag"></i> &lt;$25</a>
+            <div class="fb2-dd-divider"></div>
+            <a class="fb2-dd-item" data-min="25" data-max="50"><i class="fas fa-tags"></i> $25 – $50</a>
+            <div class="fb2-dd-divider"></div>
+            <a class="fb2-dd-item" data-min="50" data-max="100"><i class="fas fa-coins"></i> $50 – $100</a>
+            <div class="fb2-dd-divider"></div>
+            <a class="fb2-dd-item" data-min="100" data-max=""><i class="fas fa-gem"></i> $100+</a>
+          </div>
+        </div>
+
+        <button class="fb2-pill fb2-stock-pill" id="fb2InStock" type="button">
+          <span class="fb2-toggle-track"><span class="fb2-toggle-knob"></span></span>
+          In Stock
+        </button>
+      </div>
+
+      {# ── Mobile toolbar (visible < 769px) ── #}
+      <div class="fb2-mobile-toolbar">
+        <button class="fb2-pill" id="fb2MobileFilter" type="button">
+          <i class="fas fa-sliders-h"></i> Filter &amp; Sort
+        </button>
+        <span class="fb2-mobile-count">{{ products.total }} product{{ 's' if products.total != 1 else '' }}</span>
+      </div>
+
+      {# ── Active filter chips ── #}
+      <div class="fb2-active-filters" id="fb2ActiveFilters">
+        <span class="fb2-results">{{ products.total }} product{{ 's' if products.total != 1 else '' }}</span>
+      </div>
+
     </div>
   </section>
 
@@ -486,6 +465,37 @@
           <p style="grid-column:1/-1;text-align:center;padding:3rem 0">No products found.</p>
         {% endif %}
       </div>
+
+      {# ── Pagination ── #}
+      {% if products.pages > 1 %}
+      <div class="fb2-pagination">
+        {% if products.has_prev %}
+          <a href="{{ url_for('main.products', page=products.prev_num, **request.args.to_dict()|reject_keys(['page'])) }}" class="fb2-page-btn">
+            <i class="fas fa-chevron-left"></i> Prev
+          </a>
+        {% endif %}
+
+        <div class="fb2-page-numbers">
+          {% for page_num in products.iter_pages(left_edge=1, left_current=2, right_current=2, right_edge=1) %}
+            {% if page_num %}
+              {% if page_num == products.page %}
+                <span class="fb2-page-btn active">{{ page_num }}</span>
+              {% else %}
+                <a href="{{ url_for('main.products', page=page_num, **request.args.to_dict()|reject_keys(['page'])) }}" class="fb2-page-btn">{{ page_num }}</a>
+              {% endif %}
+            {% else %}
+              <span class="fb2-page-dots">...</span>
+            {% endif %}
+          {% endfor %}
+        </div>
+
+        {% if products.has_next %}
+          <a href="{{ url_for('main.products', page=products.next_num, **request.args.to_dict()|reject_keys(['page'])) }}" class="fb2-page-btn">
+            Next <i class="fas fa-chevron-right"></i>
+          </a>
+        {% endif %}
+      </div>
+      {% endif %}
     </div>
   </section>
 
@@ -518,7 +528,7 @@
         <!-- Level 1: parents -->
         <ul class="category-list level-1" id="catLevel1">
           <li>
-            <button type="button" class="row" data-category="gender" data-has-children="true" data-children='[{"slug":"men","name":"Men","children":[{"slug":"masturbators","name":"Masturbators"},{"slug":"cock-rings","name":"Cock Rings"},{"slug":"cock-pumps","name":"Cock Pumps"},{"slug":"dildos","name":"Dildos"},{"slug":"lubricant","name":"Lubricants"},{"slug":"Water Based Lubricant","name":"Water Based Lubricant"},{"slug":"oil based","name":"Oil Based Lubricant"},{"slug":"Massage Oil","name":"Massage Oil"},{"slug":"butt-plug","name":"Butt Plugs"},{"slug":"penis-extensions","name":"Penis Extensions"},{"slug":"anal-beads","name":"Anal Beads"},{"slug":"douches-and-enemas","name":"Douches & Enemas"}]},{"slug":"women","name":"Women","children":[{"slug":"vibrators","name":"Vibrators"},{"slug":"wands","name":"Wands"},{"slug":"lingerie","name":"Lingerie"},{"slug":"dildos","name":"Dildos"},{"slug":"strap-on-kits","name":"Strap-ons"},{"slug":"bdsm","name":"BDSM"},{"slug":"masks","name":"Masks"},{"slug":"restraints","name":"Restraints"},{"slug":"collars-nipple-clamps","name":"Collars & Clamps"},{"slug":"nipple-clamps","name":"Nipple Clamps"}]}]'>
+            <button type="button" class="row" data-category="gender" data-has-children="true" data-children='[{"slug":"men","name":"Men","children":[{"slug":"masturbators","name":"Masturbators"},{"slug":"cock-rings","name":"Cock Rings"},{"slug":"cock-pumps","name":"Cock Pumps"},{"slug":"dildos","name":"Dildos"},{"slug":"lubricant","name":"Lubricants"},{"slug":"Water Based Lubricant","name":"Water Based Lubricant"},{"slug":"oil based","name":"Oil Based Lubricant"},{"slug":"Massage Oil","name":"Massage Oil"},{"slug":"butt-plug","name":"Butt Plugs"},{"slug":"penis-extensions","name":"Penis Extensions"},{"slug":"anal-beads","name":"Anal Beads"},{"slug":"douches-and-enemas","name":"Douches & Enemas"}]},{"slug":"women","name":"Women","children":[{"slug":"vibrators","name":"Vibrators"},{"slug":"wands","name":"Wands"},{"slug":"lingerie","name":"Lingerie"},{"slug":"dildos","name":"Dildos"},{"slug":"strap-on-kits","name":"Strap-ons"},{"slug":"bdsm","name":"Bondage & Kink"},{"slug":"masks","name":"Masks"},{"slug":"restraints","name":"Restraints"},{"slug":"collars-nipple-clamps","name":"Collars & Clamps"},{"slug":"nipple-clamps","name":"Nipple Clamps"}]}]'>
               <span class="label">Gender</span><span class="chevron">›</span>
             </button>
           </li>
@@ -575,47 +585,9 @@
     };
   </script>
 
-  <!-- Gender Dropdown Submenu Handler -->
-  <!-- Gender menu: desktop/mobile click-to-toggle grids (no auto-open) -->
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  const toggles = document.querySelectorAll('.gender-submenu-toggle');
-  const menus   = document.querySelectorAll('.gender-submenu');
-
-  function isDesktop(){ return window.matchMedia('(min-width:769px)').matches; }
-
-  function closeAll(){
-    menus.forEach(m => m.classList.remove('open'));
-  }
-
-  // Toggle Men/Women grids on click for BOTH desktop and mobile
-  toggles.forEach(t => {
-    t.addEventListener('click', function(e){
-      e.preventDefault();
-      const id = this.getAttribute('data-submenu');
-      const menu = document.getElementById(id);
-      if(!menu) return;
-      const willOpen = !menu.classList.contains('open');
-      closeAll();
-      if (willOpen) menu.classList.add('open');
-    }, { passive:false });
-  });
-
-  // Close submenus when a subcategory is picked (mobile & desktop)
-  document.querySelectorAll('.gender-submenu .dropdown-item').forEach(item=>{
-    item.addEventListener('click', () => closeAll());
-  });
-
-  // Click outside the Gender dropdown closes submenus
-  document.addEventListener('click', (e) => {
-    const wrapper = document.querySelector('.gender-dropdown');
-    if (wrapper && !wrapper.contains(e.target)) closeAll();
-  });
-});
-</script>
-
-  <!-- NEW: category sheet controller (loads after products.js so it can call filterProducts) -->
+  <!-- Category sheet controller (loads after products.js so it can call filterProducts) -->
   <script src="{{ url_for('static', filename='js/filters.js') }}?v=20251004-5" defer></script>
+  <script src="{{ url_for('static', filename='js/filter-bar-v2.js') }}?v=20260218" defer></script>
 
   <!-- Product Card Color Variant Switching -->
   <script>

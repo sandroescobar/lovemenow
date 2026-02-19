@@ -140,17 +140,18 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 
 .navbar {
     background: rgba(34, 40, 49, 0.95);
+    backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--border-color);
     position: sticky;
     top: 0;
-    z-index: 10001; /* Higher than all modals to keep navigation visible */
+    z-index: 10001;
 }
 
 .navbar-container {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1rem;
+    padding: 0.4rem 1rem;
     max-width: 1200px;
     margin: 0 auto;
 }
@@ -158,11 +159,31 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 .navbar-brand {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
     text-decoration: none;
-    color: hsl(var(--text-color));
-    font-size: 1.5rem;
-    font-weight: 700;
+    transition: transform 0.2s ease;
+}
+
+.brand-logo-img {
+    height: 180px;
+    width: auto;
+    max-width: none;
+    object-fit: contain;
+    margin-top: -45px;
+    margin-bottom: -45px;
+    position: relative;
+    z-index: 10002;
+}
+
+@media (max-width: 768px) {
+    .brand-logo-img {
+        height: 100px;
+        margin-top: -15px;
+        margin-bottom: -15px;
+    }
+}
+
+.navbar-brand:hover {
+    transform: scale(1.02);
 }
 
 .logo-icon {
@@ -6426,17 +6447,18 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 
 .navbar {
     background: rgba(34, 40, 49, 0.95);
+    backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--border-color);
     position: sticky;
     top: 0;
-    z-index: 10001; /* Higher than all modals to keep navigation visible */
+    z-index: 10001;
 }
 
 .navbar-container {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1rem;
+    padding: 0.4rem 1rem;
     max-width: 1200px;
     margin: 0 auto;
 }
@@ -6444,11 +6466,31 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 .navbar-brand {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
     text-decoration: none;
-    color: hsl(var(--text-color));
-    font-size: 1.5rem;
-    font-weight: 700;
+    transition: transform 0.2s ease;
+}
+
+.brand-logo-img {
+    height: 180px;
+    width: auto;
+    max-width: none;
+    object-fit: contain;
+    margin-top: -45px;
+    margin-bottom: -45px;
+    position: relative;
+    z-index: 10002;
+}
+
+@media (max-width: 768px) {
+    .brand-logo-img {
+        height: 100px;
+        margin-top: -15px;
+        margin-bottom: -15px;
+    }
+}
+
+.navbar-brand:hover {
+    transform: scale(1.02);
 }
 
 .logo-icon {
