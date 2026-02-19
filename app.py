@@ -294,6 +294,11 @@ def create_app(config_name=None):
 
     app.jinja_env.globals["csrf_token"] = generate_csrf
 
+    @app.template_filter('reject_keys')
+    def reject_keys(d, keys):
+        """Filter a dictionary to reject specified keys"""
+        return {k: v for k, v in d.items() if k not in keys}
+
     # Initialize security middleware
     security = SecurityMiddleware()
     security.init_app(app)

@@ -195,13 +195,18 @@ def products():
     """Products listing page with filtering and pagination"""
     try:
         page = request.args.get('page', 1, type=int)
-        per_page = 48  # Paginate for performance: 100x smaller initial load
+        
+        # Set per_page based on category (user requested 40 specifically for "All Products")
+        category_param = request.args.get('category')
+        if not category_param or category_param.lower() == 'all':
+            per_page = 40
+        else:
+            per_page = 48  # Default pagination for other categories
 
         # Build query - show all products including out of stock
         query = Product.query.filter(Product.in_active.is_(False))
 
         # Apply filters
-        category_param = request.args.get('category')
         category_id = None
         category = None
         
