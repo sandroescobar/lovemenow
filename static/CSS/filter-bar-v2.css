@@ -115,14 +115,7 @@
   position: relative;
 }
 .fb2-categories::-webkit-scrollbar { display: none; }
-@media (max-width: 768px) {
-  .fb2-categories {
-    overflow-x: auto;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    justify-content: flex-start;
-  }
-}
+
 
 /* More dropdown */
 .fb2-more-wrap {
@@ -334,10 +327,6 @@
 
 /* Results count */
 .fb2-results {
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
   color: #fff;
   font: 600 12px/1 Inter, system-ui, sans-serif;
   white-space: nowrap;
@@ -347,19 +336,26 @@
   border-radius: 50px;
   border: 1px solid rgba(255,255,255,0.1);
   letter-spacing: 0.3px;
+  margin-left: auto;
 }
 
 @media (max-width: 768px) {
   .fb2-results { display: none; }
 }
 
-/* ── Row 4: Active filter chips ── */
+/* ── Row 4: Bottom row (Active filters + Results) ── */
+.fb2-bottom-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  min-height: 32px;
+}
+
 .fb2-active-filters {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 8px;
-  margin-bottom: 8px;
 }
 
 /* ── Pagination ── */
@@ -466,22 +462,11 @@
 
 @media (max-width: 768px) {
   .fb2-categories,
-  .fb2-filters,
-  .fb2-active-filters { display: none; }
+  .fb2-filters { display: none !important; }
 
-  .fb2-mobile-toolbar {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .fb2-mobile-toolbar .fb2-pill {
-    flex: 1;
-    justify-content: center;
-  }
-  .fb2-mobile-count {
-    color: #7B7994;
-    font: 500 13px/1 Inter, system-ui, sans-serif;
-    white-space: nowrap;
+  .fb2-bottom-row {
+    margin-top: 8px;
+    padding: 0 4px;
   }
 }
 

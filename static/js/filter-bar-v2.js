@@ -116,9 +116,9 @@
   });
 
   // ── Best Sellers ──
-  var bestBtn = document.getElementById('fb2BestSellers');
-  if (bestBtn) {
-    bestBtn.addEventListener('click', function(e) {
+  var bestBtns = document.querySelectorAll('.fb2-bestseller');
+  bestBtns.forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
       e.preventDefault();
       var p = getParams();
       if (p.get('sort') === 'bestseller') {
@@ -128,7 +128,24 @@
       }
       navigate(p);
     });
-  }
+  });
+
+  // ── Mobile Sort Items (in bottom sheet) ──
+  var mobileSortItems = document.querySelectorAll('.mobile-sort-item');
+  mobileSortItems.forEach(function(item) {
+    item.addEventListener('click', function(e) {
+      e.preventDefault();
+      var sort = this.dataset.sort;
+      var p = getParams();
+      if (sort === 'bestseller') {
+        if (p.get('sort') === 'bestseller') p.delete('sort');
+        else p.set('sort', 'bestseller');
+      } else {
+        p.set('sort', sort);
+      }
+      navigate(p);
+    });
+  });
 
   // ── Price Dropdown ──
   var priceWrap = document.querySelector('.fb2-price-wrap');
@@ -163,9 +180,9 @@
   });
 
   // ── In Stock Toggle ──
-  var stockPill = document.getElementById('fb2InStock');
-  if (stockPill) {
-    stockPill.addEventListener('click', function(e) {
+  var stockPills = document.querySelectorAll('.fb2-stock-pill');
+  stockPills.forEach(function(pill) {
+    pill.addEventListener('click', function(e) {
       e.preventDefault();
       var p = getParams();
       if (p.get('in_stock') === 'true') {
@@ -175,7 +192,7 @@
       }
       navigate(p);
     });
-  }
+  });
 
   // ── Active state sync on load ──
   (function syncActiveStates() {
@@ -213,7 +230,14 @@
     }
 
     // Best sellers
-    if (bestBtn) bestBtn.classList.toggle('active', currentSort === 'bestseller');
+    bestBtns.forEach(function(btn) {
+      btn.classList.toggle('active', currentSort === 'bestseller');
+    });
+
+    // Mobile sort items
+    mobileSortItems.forEach(function(item) {
+      item.classList.toggle('is-selected', item.dataset.sort === currentSort);
+    });
 
     // Price dropdown
     document.querySelectorAll('.fb2-price-dropdown .fb2-dd-item').forEach(function(item) {
@@ -233,7 +257,9 @@
     }
 
     // In stock
-    if (stockPill) stockPill.classList.toggle('active', currentInStock === 'true');
+    stockPills.forEach(function(pill) {
+      pill.classList.toggle('active', currentInStock === 'true');
+    });
   })();
 
   // ── Active filter chips ──
@@ -318,15 +344,7 @@
   });
 
   // ── Mobile toolbar open sheet ──
-  var mobileFilterBtn = document.getElementById('fb2MobileFilter');
-  if (mobileFilterBtn) {
-    mobileFilterBtn.addEventListener('click', function(e) {
-      e.preventDefault();
-      // Trigger existing sheet
-      var openBtn = document.getElementById('openCategorySheet');
-      if (openBtn) openBtn.click();
-    });
-  }
+  // Handled by filters.js using id="openCategorySheet"
 
   // ── Expose filterProducts for mobile sheet compatibility ──
   window.filterProducts = function(slug) {

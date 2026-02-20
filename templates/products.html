@@ -263,20 +263,30 @@
           <span class="fb2-toggle-track"><span class="fb2-toggle-knob"></span></span>
           In Stock
         </button>
-
-        <span class="fb2-results">{{ products.total }} product{{ 's' if products.total != 1 else '' }}</span>
       </div>
 
       {# ── Mobile toolbar (visible < 769px) ── #}
-      <div class="fb2-mobile-toolbar">
-        <button class="fb2-pill" id="fb2MobileFilter" type="button">
-          <i class="fas fa-sliders-h"></i> Filter &amp; Sort
-        </button>
-        <span class="fb2-mobile-count">{{ products.total }} product{{ 's' if products.total != 1 else '' }}</span>
+      <div class="mobile-category-toolbar">
+        <div class="mobile-toolbar-top">
+          <button class="btn-category-picker" id="openCategorySheet" type="button">
+            <span id="mobileCategoryLabel">👆 Click to filter/sort</span>
+            <i class="fas fa-chevron-right"></i>
+          </button>
+          <button class="fb2-pill fb2-stock-pill" type="button">
+            <span class="fb2-toggle-track"><span class="fb2-toggle-knob"></span></span>
+            In Stock
+          </button>
+        </div>
+        <div class="mobile-toolbar-meta">
+          <span>{{ products.total }} products found</span>
+        </div>
       </div>
 
-      {# ── Active filter chips ── #}
-      <div class="fb2-active-filters" id="fb2ActiveFilters"></div>
+      {# ── Bottom row: Active filters + Results count ── #}
+      <div class="fb2-bottom-row">
+        <div class="fb2-active-filters" id="fb2ActiveFilters"></div>
+        <span class="fb2-results">{{ products.total }} product{{ 's' if products.total != 1 else '' }}</span>
+      </div>
 
     </div>
   </section>
@@ -516,55 +526,98 @@
       <div class="sheet-grabber" aria-hidden="true"></div>
 
       <header class="sheet-header">
-        <button class="sheet-back" type="button" hidden aria-label="Back">‹ Back</button>
         <h3 class="sheet-title">Choose Category</h3>
         <button class="sheet-close" type="button" aria-label="Close">×</button>
       </header>
 
       <div class="sheet-content">
-        <!-- Header for main list -->
-        <h4 class="section-label" id="mainHeader">Main Categories</h4>
-
-        <!-- Level 1: parents -->
-        <ul class="category-list level-1" id="catLevel1">
+        <!-- Sort Options (New for mobile parity) -->
+        <h4 class="section-label">Sort By</h4>
+        <ul class="category-list">
           <li>
-            <button type="button" class="row" data-category="gender" data-has-children="true" data-children='[{"slug":"men","name":"Men","children":[{"slug":"masturbators","name":"Masturbators"},{"slug":"cock-rings","name":"Cock Rings"},{"slug":"cock-pumps","name":"Cock Pumps"},{"slug":"dildos","name":"Dildos"},{"slug":"lubricant","name":"Lubricants"},{"slug":"Water Based Lubricant","name":"Water Based Lubricant"},{"slug":"oil based","name":"Oil Based Lubricant"},{"slug":"Massage Oil","name":"Massage Oil"},{"slug":"butt-plug","name":"Butt Plugs"},{"slug":"penis-extensions","name":"Penis Extensions"},{"slug":"anal-beads","name":"Anal Beads"},{"slug":"douches-and-enemas","name":"Douches & Enemas"}]},{"slug":"women","name":"Women","children":[{"slug":"vibrators","name":"Vibrators"},{"slug":"wands","name":"Wands"},{"slug":"lingerie","name":"Lingerie"},{"slug":"dildos","name":"Dildos"},{"slug":"strap-on-kits","name":"Strap-ons"},{"slug":"bdsm","name":"Bondage & Kink"},{"slug":"masks","name":"Masks"},{"slug":"restraints","name":"Restraints"},{"slug":"collars-nipple-clamps","name":"Collars & Clamps"},{"slug":"nipple-clamps","name":"Nipple Clamps"}]}]'>
-              <span class="label">Gender</span><span class="chevron">›</span>
+            <button type="button" class="row mobile-sort-item" data-sort="bestseller">
+              <span class="label"><i class="fas fa-crown" style="margin-right:8px;color:#ffd700;"></i> Best Sellers</span>
+              <span class="check" aria-hidden="true"></span>
             </button>
           </li>
+          <li>
+            <button type="button" class="row mobile-sort-item" data-sort="newest">
+              <span class="label"><i class="fas fa-clock" style="margin-right:8px;"></i> Newest</span>
+              <span class="check" aria-hidden="true"></span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="row mobile-sort-item" data-sort="low-high">
+              <span class="label"><i class="fas fa-arrow-down-short-wide" style="margin-right:8px;"></i> Price Low → High</span>
+              <span class="check" aria-hidden="true"></span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="row mobile-sort-item" data-sort="high-low">
+              <span class="label"><i class="fas fa-arrow-up-wide-short" style="margin-right:8px;"></i> Price High → Low</span>
+              <span class="check" aria-hidden="true"></span>
+            </button>
+          </li>
+        </ul>
+
+        <div class="section-divider"></div>
+
+        <!-- Gender Section -->
+        <h4 class="section-label">Gender</h4>
+        <ul class="category-list">
+          <li>
+            <button type="button" class="row" data-category="men" data-category-name="Men">
+              <span class="label">Men</span><span class="check" aria-hidden="true"></span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="row" data-category="women" data-category-name="Women">
+              <span class="label">Women</span><span class="check" aria-hidden="true"></span>
+            </button>
+          </li>
+        </ul>
+
+        <div class="section-divider"></div>
+
+        <!-- Main Categories -->
+        <h4 class="section-label" id="mainHeader">Main Categories</h4>
+        <ul class="category-list level-1" id="catLevel1">
           {% for category in categories %}
-            {% set children_slim = [] %}
-            {% for sc in (category.children or []) %}
-              {% set _ = children_slim.append({'slug': sc.slug, 'name': sc.name}) %}
-            {% endfor %}
-            {% set has_children = (children_slim|length) > 0 %}
             <li>
               <button
                 type="button"
                 class="row"
                 data-category="{{ category.slug }}"
-                data-has-children="{{ 'true' if has_children else 'false' }}"
-                data-children='{{ children_slim|tojson }}'
                 data-category-name="{{ category.name|e }}">
-                <span class="label">{{ category.name }}</span>
-                <span class="chevron">›</span>
+                <span class="label">{{ category.name }}</span><span class="check" aria-hidden="true"></span>
               </button>
             </li>
           {% endfor %}
         </ul>
 
-        <!-- Divider + Sub header (shown after choosing a parent) -->
-        <div class="section-divider" id="sectionDivider" hidden></div>
-        <h4 class="section-label" id="subHeader" hidden>
-          Subcategories — <span id="subHeaderName"></span>
-        </h4>
+        <div class="section-divider"></div>
 
-        <!-- Level 2: subcategories (built by JS) -->
-        <ul class="category-list level-2" id="catLevel2" hidden></ul>
+        <!-- Subcategories (Flat list below) -->
+        <h4 class="section-label">Subcategories</h4>
+        <ul class="category-list level-sub">
+          {% for category in categories if category.children %}
+            {% for sub in category.children %}
+              <li>
+                <button
+                  type="button"
+                  class="row"
+                  data-category="{{ sub.slug }}"
+                  data-category-name="{{ sub.name|e }}">
+                  <span class="label">{{ sub.name }}</span><span class="check" aria-hidden="true"></span>
+                </button>
+              </li>
+            {% endfor %}
+          {% endfor %}
+        </ul>
       </div>
 
       <footer class="sheet-footer">
-        <button class="btn-apply" type="button" id="applyCategory" disabled>Apply</button>
+        <button class="btn-apply" type="button" id="applyCategory">Close</button>
       </footer>
     </div>
   </div>
