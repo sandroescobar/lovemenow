@@ -491,7 +491,7 @@
 
         function displayCheckout(cartData) {
             const subtotal = cartData.total;
-            const taxRate = 0.0875;
+            const taxRate = 0.07;
             const taxAmount = subtotal * taxRate;
             // For now, assume pickup (no shipping) - will be updated when delivery options are implemented
             const shippingAmount = 0; // subtotal > 50 ? 0 : 9.99; // Disabled until delivery method is properly implemented

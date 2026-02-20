@@ -1611,7 +1611,7 @@ function displayCart(cartData) {
   }
 
   const subtotal = cartData.subtotal;
-  const taxRate = 0.0875;
+  const taxRate = 0.07;
   const taxAmount = subtotal * taxRate;
   const shippingAmount = cartData.shipping;
   const total = cartData.total + taxAmount;

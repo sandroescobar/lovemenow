@@ -266,7 +266,7 @@
       // minimal fallback (no server)
       const subText = $('#subtotal')?.textContent || '$0.00';
       const sub = Number(subText.replace(/[^0-9.]/g, '') || 0);
-      const tax = sub * 0.0875;
+      const tax = sub * 0.07;
       $('#tax-amount') && ($('#tax-amount').textContent = fmt(tax));
       $('#total') && ($('#total').textContent = fmt(sub + tax));
     }

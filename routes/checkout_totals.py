@@ -8,7 +8,7 @@ from flask_login import current_user
 from routes import db
 from models import Product, Cart, DiscountCode
 
-TAX_RATE = 0.0875  # Miami-Dade 8.75%
+TAX_RATE = 0.07  # Florida 7%
 
 
 def _round2(x: float) -> float:
