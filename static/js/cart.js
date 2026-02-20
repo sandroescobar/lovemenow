@@ -188,7 +188,7 @@
           </div>
 
           <div class="summary-row">
-            <span>Tax (8.75%):</span>
+            <span>Tax (7%):</span>
             <span id="tax-amount">$0.00</span>
           </div>
 

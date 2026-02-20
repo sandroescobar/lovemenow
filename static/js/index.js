@@ -1661,7 +1661,7 @@ function displayCart(cartData) {
       <div class="cart-summary">
         <h3>Order Summary</h3>
         <div class="summary-row"><span>Subtotal:</span><span>$${subtotal.toFixed(2)}</span></div>
-        <div class="summary-row"><span>Tax (8.75%):</span><span>$${taxAmount.toFixed(2)}</span></div>
+        <div class="summary-row"><span>Tax (7%):</span><span>$${taxAmount.toFixed(2)}</span></div>
         <div class="summary-row"><span>Shipping:</span><span>${shippingAmount === 0 ? 'FREE' : '$' + shippingAmount.toFixed(2)}</span></div>
         ${subtotal < 50 ? '<p style="font-size: 0.9rem; color: hsl(var(--muted-color)); margin: 0.5rem 0;">Free shipping on orders over $50</p>' : ''}
         <div class="summary-row total"><span>Total:</span><span>$${total.toFixed(2)}</span></div>
