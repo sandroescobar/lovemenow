@@ -105,30 +105,6 @@ def resolve_discount(subtotal: float):
     return min(subtotal, discount_amount), code
 
 
-def _apply_fallback_delivery_fee():
-    """
-    Apply fallback tiered delivery fee when no Uber quote is available.
-    Uses a default distance assumption (12 miles, midpoint of delivery range)
-    and applies time-of-day multipliers.
-    
-    Returns fee in dollars (float).
-    """
-    import logging
-    from uber_service import calculate_manual_delivery_fee
-    
-    logger = logging.getLogger(__name__)
-    
-    DEFAULT_DISTANCE_MILES = 12.0
-    DEFAULT_DURATION_MINUTES = 25
-    
-    fee_cents = calculate_manual_delivery_fee(DEFAULT_DISTANCE_MILES, DEFAULT_DURATION_MINUTES)
-    fee_dollars = _round2(fee_cents / 100.0)
-    
-    logger.info(f"📍 Fallback delivery fee applied: ${fee_dollars:.2f} (default distance={DEFAULT_DISTANCE_MILES}mi)")
-    
-    return fee_dollars
-
-
 
 def compute_totals(delivery_type: str = "pickup", delivery_quote: dict | None = None):
     """
@@ -136,7 +112,10 @@ def compute_totals(delivery_type: str = "pickup", delivery_quote: dict | None = 
     Returns a dict with all numbers rounded to 2 decimals and amount_cents.
     Tax base: (discounted_subtotal + delivery_fee)
     
-    If delivery_type is 'delivery' but no quote provided, applies tiered fallback fee.
+    Delivery behavior:
+    - If delivery_type is 'delivery' AND quote is provided: use quote fee
+    - If delivery_type is 'delivery' BUT no quote yet: show $0 (user hasn't entered address)
+    - If delivery_type is 'pickup': delivery_fee = $0
     """
     import logging
     logger = logging.getLogger(__name__)
@@ -165,12 +144,11 @@ def compute_totals(delivery_type: str = "pickup", delivery_quote: dict | None = 
                 delivery_fee = _round2(float(delivery_quote["fee_dollars"]))
                 logger.info(f"✅ Delivery fee from quote: ${delivery_fee:.2f}")
             except Exception as e:
-                logger.warning(f"⚠️  Failed to parse delivery_quote fee: {str(e)}, applying fallback")
-                delivery_fee = _apply_fallback_delivery_fee()
+                logger.warning(f"⚠️  Failed to parse delivery_quote fee: {str(e)}")
+                delivery_fee = 0.0
         else:
-            # No quote provided - apply fallback tiered fee
-            logger.warning(f"⚠️  No delivery_quote provided, applying fallback tiered fee")
-            delivery_fee = _apply_fallback_delivery_fee()
+            logger.info(f"📍 Delivery selected but no quote yet - showing $0 until address is entered")
+            delivery_fee = 0.0
 
     discounted_subtotal = _round2(max(0.0, subtotal - discount_amount))
     tax_base = discounted_subtotal + delivery_fee

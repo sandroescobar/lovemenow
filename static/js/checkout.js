@@ -251,7 +251,7 @@
       t = setTimeout(() => fn(...args), wait);
     };
   }
-  const debouncedGetQuote = debounce(getDeliveryQuote, 500);
+  const debouncedGetQuote = debounce(getDeliveryQuote, 1500);
 
   async function getDeliveryQuote() {
     if (selectedDeliveryType !== 'delivery' || isGettingQuote || isQuoteLocked) return;

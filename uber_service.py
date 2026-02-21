@@ -341,6 +341,9 @@ def is_store_open() -> Tuple[bool, str]:
     """
     from datetime import datetime
     import pytz
+    import logging
+    
+    logger = logging.getLogger(__name__)
     
     # Get current time in Miami timezone
     miami_tz = pytz.timezone('America/New_York')
@@ -349,6 +352,9 @@ def is_store_open() -> Tuple[bool, str]:
     current_hour = now.hour
     current_minute = now.minute
     current_time_minutes = current_hour * 60 + current_minute
+    
+    day_name = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][current_day]
+    logger.info(f"🕐 Store hours check: {day_name} {current_hour:02d}:{current_minute:02d} ({current_time_minutes} minutes from midnight)")
     
     # Define store hours (in minutes from midnight)
     store_hours = {
@@ -365,15 +371,18 @@ def is_store_open() -> Tuple[bool, str]:
         return False, "Store is closed"
     
     open_time, close_time = store_hours[current_day]
+    logger.info(f"📅 {day_name} store hours: {open_time} - {close_time} minutes. Current: {current_time_minutes}")
     
     if current_time_minutes < open_time or current_time_minutes >= close_time:
-        day_name = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][current_day]
         open_hour = open_time // 60
         open_minute = open_time % 60
         close_hour = (close_time // 60) % 24
         close_minute = close_time % 60
-        return False, f"Store is closed. {day_name} hours: {open_hour}:{open_minute:02d} AM - {close_hour}:{close_minute:02d} PM"
+        msg = f"Store is closed. {day_name} hours: {open_hour}:{open_minute:02d} AM - {close_hour}:{close_minute:02d} PM"
+        logger.warning(f"❌ {msg}")
+        return False, msg
     
+    logger.info(f"✅ Store is open!")
     return True, "Store is open"
 
 def format_address_for_uber(address_dict: Dict) -> Dict:
@@ -426,49 +435,48 @@ def get_hybrid_delivery_quote(pickup_address: Dict, dropoff_address: Dict,
                               straight_line_distance: float) -> Dict:
     """
     Get a delivery quote using either Uber Direct or Google Maps (Manual Dispatch)
-    Based on distance and Uber API availability.
+    Tries Uber first regardless of distance, falls back to Google Maps if Uber fails.
     """
     from flask import current_app
     
-    # 1. Under 10 miles: Try Uber Direct first
-    if straight_line_distance <= 10:
-        try:
-            logger.info(f"📍 Straight-line distance {straight_line_distance:.2f}mi <= 10mi, attempting Uber Direct API...")
-            uber_service = UberDirectService()
-            uber_service.configure(
-                client_id=current_app.config.get('UBER_CLIENT_ID'),
-                client_secret=current_app.config.get('UBER_CLIENT_SECRET'),
-                customer_id=current_app.config.get('UBER_CUSTOMER_ID'),
-                is_sandbox=current_app.config.get('UBER_SANDBOX', True)
-            )
-            
-            uber_quote = uber_service.create_quote_with_coordinates(
-                pickup_address, dropoff_address,
-                pickup_coords=pickup_coords,
-                dropoff_coords=dropoff_coords
-            )
-            
-            logger.info(f"✅ Uber Direct API successful: quote_id={uber_quote['id']}, fee=${uber_quote['fee']/100:.2f}")
-            
-            # If we got a valid Uber quote, return it
-            return {
-                'id': uber_quote['id'],
-                'fee': uber_quote['fee'],
-                'fee_dollars': uber_quote['fee'] / 100,
-                'currency': uber_quote['currency'],
-                'pickup_duration': uber_quote.get('pickup_duration', 0),
-                'dropoff_eta': uber_quote.get('dropoff_eta'),
-                'duration': uber_quote.get('duration', 0),
-                'expires': uber_quote.get('expires'),
-                'source': 'uber_direct'
-            }
-        except Exception as e:
-            logger.warning(f"❌ Uber Direct API failed (distance {straight_line_distance:.2f}mi): {str(e)}")
-            logger.info(f"🔄 Falling back to Google Maps Distance Matrix API...")
-            # Fall through to Google Maps calculation if Uber fails even for < 10mi
+    # 1. Try Uber Direct first (regardless of distance)
+    try:
+        logger.info(f"📍 Distance: {straight_line_distance:.2f}mi - Attempting Uber Direct API...")
+        uber_service = UberDirectService()
+        uber_service.configure(
+            client_id=current_app.config.get('UBER_CLIENT_ID'),
+            client_secret=current_app.config.get('UBER_CLIENT_SECRET'),
+            customer_id=current_app.config.get('UBER_CUSTOMER_ID'),
+            is_sandbox=current_app.config.get('UBER_SANDBOX', True)
+        )
+        
+        uber_quote = uber_service.create_quote_with_coordinates(
+            pickup_address, dropoff_address,
+            pickup_coords=pickup_coords,
+            dropoff_coords=dropoff_coords
+        )
+        
+        logger.info(f"✅ Uber Direct API successful: quote_id={uber_quote['id']}, fee=${uber_quote['fee']/100:.2f}")
+        
+        # If we got a valid Uber quote, return it
+        return {
+            'id': uber_quote['id'],
+            'fee': uber_quote['fee'],
+            'fee_dollars': uber_quote['fee'] / 100,
+            'currency': uber_quote['currency'],
+            'pickup_duration': uber_quote.get('pickup_duration', 0),
+            'dropoff_eta': uber_quote.get('dropoff_eta'),
+            'duration': uber_quote.get('duration', 0),
+            'expires': uber_quote.get('expires'),
+            'source': 'uber_direct'
+        }
+    except Exception as e:
+        logger.warning(f"❌ Uber Direct API failed: {str(e)}")
+        logger.info(f"🔄 Falling back to Google Maps Distance Matrix API...")
+        # Fall through to Google Maps calculation if Uber fails
 
-    # 2. Over 10 miles or Uber failed: Use Google Maps Distance Matrix
-    logger.info(f"📡 Using Google Maps Distance Matrix API (straight-line distance: {straight_line_distance:.2f}mi)")
+    # 2. Uber failed or not available: Use Google Maps Distance Matrix
+    logger.info(f"📡 Using Google Maps Distance Matrix API (distance: {straight_line_distance:.2f}mi)")
     
     # Format addresses for Google Maps
     origin_street = ' '.join(filter(None, pickup_address.get('street_address', [])))
@@ -493,13 +501,14 @@ def get_hybrid_delivery_quote(pickup_address: Dict, dropoff_address: Dict,
     
     # Calculate fee using custom formula
     fee_cents = calculate_manual_delivery_fee(driving_distance, duration_minutes)
+    fee_dollars = fee_cents / 100
     
-    logger.info(f"💳 Manual dispatch quote created: ${fee_cents/100:.2f} (id=manual_*, source=manual_dispatch)")
+    logger.info(f"💳 Manual dispatch quote created: distance={driving_distance:.2f}mi, fee=${fee_dollars:.2f} (source=manual_dispatch)")
     
     return {
         'id': f"manual_{int(datetime.now().timestamp())}",
         'fee': fee_cents,
-        'fee_dollars': fee_cents / 100,
+        'fee_dollars': fee_dollars,
         'currency': 'USD',
         'pickup_duration': 15,
         'duration': int(duration_minutes),
