@@ -433,7 +433,7 @@ def get_hybrid_delivery_quote(pickup_address: Dict, dropoff_address: Dict,
     # 1. Under 10 miles: Try Uber Direct first
     if straight_line_distance <= 10:
         try:
-            logger.info(f"Straight-line distance {straight_line_distance:.2f} <= 10mi, trying Uber Direct...")
+            logger.info(f"📍 Straight-line distance {straight_line_distance:.2f}mi <= 10mi, attempting Uber Direct API...")
             uber_service = UberDirectService()
             uber_service.configure(
                 client_id=current_app.config.get('UBER_CLIENT_ID'),
@@ -448,6 +448,8 @@ def get_hybrid_delivery_quote(pickup_address: Dict, dropoff_address: Dict,
                 dropoff_coords=dropoff_coords
             )
             
+            logger.info(f"✅ Uber Direct API successful: quote_id={uber_quote['id']}, fee=${uber_quote['fee']/100:.2f}")
+            
             # If we got a valid Uber quote, return it
             return {
                 'id': uber_quote['id'],
@@ -461,11 +463,12 @@ def get_hybrid_delivery_quote(pickup_address: Dict, dropoff_address: Dict,
                 'source': 'uber_direct'
             }
         except Exception as e:
-            logger.warning(f"Uber Direct quote failed for <10mi distance: {str(e)}. Falling back to Google Maps.")
+            logger.warning(f"❌ Uber Direct API failed (distance {straight_line_distance:.2f}mi): {str(e)}")
+            logger.info(f"🔄 Falling back to Google Maps Distance Matrix API...")
             # Fall through to Google Maps calculation if Uber fails even for < 10mi
 
     # 2. Over 10 miles or Uber failed: Use Google Maps Distance Matrix
-    logger.info(f"Using Google Maps for distance/duration calculation (Distance: {straight_line_distance:.2f}mi)")
+    logger.info(f"📡 Using Google Maps Distance Matrix API (straight-line distance: {straight_line_distance:.2f}mi)")
     
     # Format addresses for Google Maps
     origin_street = ' '.join(filter(None, pickup_address.get('street_address', [])))
@@ -477,24 +480,28 @@ def get_hybrid_delivery_quote(pickup_address: Dict, dropoff_address: Dict,
     matrix = get_driving_distance_matrix(origin_str, dest_str)
     
     if not matrix:
-        logger.warning("Failed to get driving distance from Google Maps, falling back to straight-line distance")
+        logger.warning(f"❌ Google Maps Distance Matrix API failed. Using estimated distance based on straight-line ({straight_line_distance:.2f}mi)")
         # Use straight-line distance with a 1.25x buffer for driving distance estimation
         driving_distance = straight_line_distance * 1.25
         # Estimate duration: ~2.5 minutes per mile (includes traffic/signals)
         duration_minutes = driving_distance * 2.5
+        logger.info(f"📏 Estimated driving distance: {driving_distance:.2f}mi, duration: {duration_minutes:.0f}min")
     else:
         driving_distance = matrix['distance']
         duration_minutes = matrix['duration']
+        logger.info(f"✅ Google Maps Distance Matrix API successful: distance={driving_distance:.2f}mi, duration={duration_minutes:.0f}min")
     
     # Calculate fee using custom formula
     fee_cents = calculate_manual_delivery_fee(driving_distance, duration_minutes)
+    
+    logger.info(f"💳 Manual dispatch quote created: ${fee_cents/100:.2f} (id=manual_*, source=manual_dispatch)")
     
     return {
         'id': f"manual_{int(datetime.now().timestamp())}",
         'fee': fee_cents,
         'fee_dollars': fee_cents / 100,
         'currency': 'USD',
-        'pickup_duration': 15, # Default 15 min pickup for manual
+        'pickup_duration': 15,
         'duration': int(duration_minutes),
         'expires': (datetime.now() + timedelta(minutes=30)).isoformat(),
         'source': 'manual_dispatch',
@@ -521,21 +528,74 @@ def calculate_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> fl
     
     return c * r
 
+def get_time_multiplier() -> float:
+    """
+    Get time-of-day multiplier for delivery fees
+    Returns multiplier based on current time
+    """
+    from datetime import datetime
+    current_hour = datetime.now().hour
+    
+    # 6am-11am (Morning): 1.0x (normal rate)
+    if 6 <= current_hour < 11:
+        multiplier = 1.0
+        time_period = "Morning"
+    # 11am-5pm (Midday): 0.95x (slight discount)
+    elif 11 <= current_hour < 17:
+        multiplier = 0.95
+        time_period = "Midday"
+    # 5pm-8pm (Rush Hour): 1.15x (premium)
+    elif 17 <= current_hour < 20:
+        multiplier = 1.15
+        time_period = "Rush Hour"
+    # 8pm-11pm (Evening): 1.20x (premium)
+    elif 20 <= current_hour < 23:
+        multiplier = 1.20
+        time_period = "Evening"
+    # 11pm-6am (Late Night): 0.85x (discount, or unavailable)
+    else:
+        multiplier = 0.85
+        time_period = "Late Night"
+    
+    logger.info(f"⏰ Time multiplier: {multiplier}x ({time_period}, hour={current_hour})")
+    return multiplier
+
+
 def calculate_manual_delivery_fee(distance_miles: float, duration_minutes: float) -> int:
     """
-    Calculate delivery fee for manual dispatch (long distance)
+    Calculate delivery fee using tiered pricing + time-of-day multipliers
     Returns fee in cents
-    Formula: Base Fee + (Miles * Per-Mile Fee) + (Minutes * Per-Minute Fee)
-    """
-    # Pricing constants (could be moved to config)
-    base_fee = 10.00      # $10.00 base (reduced from $15)
-    mile_fee = 1.00       # $1.00 per mile (reduced from $1.50)
-    minute_fee = 0.15     # $0.15 per minute (reduced from $0.25)
     
-    total_fee_dollars = base_fee + (distance_miles * mile_fee) + (duration_minutes * minute_fee)
+    Tiered pricing:
+    - 0-10 miles: $19.99
+    - 10-17 miles: $25.99
+    - 17-25 miles: $35.99
+    - 25+ miles: $45.99
+    
+    Then apply time-of-day multiplier (rush hour 1.15x, evening 1.20x, midday 0.95x, etc.)
+    """
+    # Determine base tier fee based on distance
+    if distance_miles <= 10:
+        base_fee = 19.99
+        tier = "0-10mi"
+    elif distance_miles <= 17:
+        base_fee = 25.99
+        tier = "10-17mi"
+    elif distance_miles <= 25:
+        base_fee = 35.99
+        tier = "17-25mi"
+    else:
+        base_fee = 45.99
+        tier = "25+mi"
+    
+    # Get time multiplier and apply it
+    time_multiplier = get_time_multiplier()
+    final_fee_dollars = base_fee * time_multiplier
+    
+    logger.info(f"💰 Delivery fee calculation: distance={distance_miles:.2f}mi ({tier}), base=${base_fee:.2f}, multiplier={time_multiplier}x, final=${final_fee_dollars:.2f}")
     
     # Round to 2 decimal places and convert to cents
-    return int(round(total_fee_dollars, 2) * 100)
+    return int(round(final_fee_dollars, 2) * 100)
 
 def get_driving_distance_matrix(origin_address: str, destination_address: str) -> Optional[Dict[str, float]]:
     """

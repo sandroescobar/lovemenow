@@ -269,6 +269,15 @@
       return;
     }
 
+    const zipPattern = /^\d{5}(-\d{4})?$/;
+    if (!zipPattern.test(zip.trim())) {
+      deliveryQuote = null;
+      lastQuoteKey = null;
+      isQuoteLocked = false;
+      showDeliveryError('Please enter a valid 5-digit ZIP code (e.g., 33146)');
+      return;
+    }
+
     const quoteKey = `${address.trim().toLowerCase()}|${city.trim().toLowerCase()}|${(state || '').trim().toLowerCase()}|${zip.trim()}`;
     if (isQuoteLocked && quoteKey === lastQuoteKey) {
       return;

@@ -244,7 +244,7 @@
               </div>
 
               <label for="zip">ZIP code</label>
-              <input type="text" id="zip" name="zip" {% if default_address %} value="{{ default_address.zip }}"{% endif %} autocomplete="postal-code">
+              <input type="text" id="zip" name="zip" {% if default_address %} value="{{ default_address.zip }}"{% endif %} autocomplete="postal-code" pattern="^\d{5}(-\d{4})?$" minlength="5" maxlength="10" placeholder="12345 or 12345-6789" title="Enter a valid 5-digit ZIP code or ZIP+4">
             </div>
 
           <div id="delivery-error-message" class="error-message" style="display:none;">

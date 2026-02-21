@@ -95,20 +95,25 @@ def get_delivery_quote():
     """Get delivery quote with hybrid logic (Uber < 10mi, Google Maps > 10mi)"""
     try:
         data = request.get_json()
-        logger.info(f"Quote request received: {data}")
+        address = data.get('delivery_address', {})
+        address_str = f"{address.get('address', '')} {address.get('city', '')}, {address.get('zip', '')}"
+        logger.info(f"📦 Quote request received for: {address_str}")
         
         # Check if store is open before providing quote
         from uber_service import is_store_open
         store_is_open, store_status = is_store_open()
         if not store_is_open:
-            logger.warning(f"Quote request rejected - store closed: {store_status}")
+            logger.warning(f"❌ Quote request rejected - store closed: {store_status}")
             return jsonify({
                 'success': False,
                 'error': f"We're currently closed. {store_status}. We offer delivery during business hours."
             }), 400
         
+        logger.info(f"✅ Store is open - proceeding with quote calculation")
+        
         # Validate required fields
         if 'delivery_address' not in data:
+            logger.error(f"❌ Quote request missing delivery_address field")
             return jsonify({'error': 'Missing delivery_address'}), 400
         
         # Cache check
@@ -119,13 +124,16 @@ def get_delivery_quote():
             cached_quote = session[cache_key]
             cache_time = datetime.fromisoformat(cached_quote['timestamp'])
             if (datetime.now() - cache_time).total_seconds() < 300:
-                logger.info(f"Returning cached quote for address: {address_key}")
+                logger.info(f"⚡ Returning cached quote for: {address_key} (age: {(datetime.now() - cache_time).total_seconds():.0f}s)")
                 return jsonify({'success': True, 'quote': cached_quote['quote']})
         
         # Initial area check
         is_valid, error_msg = is_in_delivery_area(data['delivery_address'])
         if not is_valid:
+            logger.warning(f"❌ Address failed initial delivery area check: {error_msg}")
             return jsonify({'success': False, 'error': error_msg}), 400
+        
+        logger.info(f"✅ Address passed initial delivery area check")
         
         # Get coordinates
         pickup_address = get_miami_store_address()
@@ -133,21 +141,28 @@ def get_delivery_quote():
         delivery_coords = geocode_address(data['delivery_address'])
         
         if not delivery_coords:
+            logger.error(f"❌ Failed to geocode delivery address: {address_str}")
             return jsonify({'success': False, 'error': 'Could not verify delivery address. Please check and try again.'}), 400
+        
+        logger.info(f"✅ Geocoded address to coordinates: {delivery_coords}")
             
         # Calculate straight-line distance
         straight_line_distance = calculate_distance(
             store_coords['latitude'], store_coords['longitude'],
             delivery_coords[0], delivery_coords[1]
         )
-        logger.info(f"Straight-line distance: {straight_line_distance:.2f} miles")
+        logger.info(f"📏 Straight-line distance: {straight_line_distance:.2f} miles")
         
         # Final area check with distance
         is_valid_dist, dist_error = is_in_delivery_area(data['delivery_address'], straight_line_distance)
         if not is_valid_dist:
+            logger.warning(f"❌ Address failed distance-based delivery area check: {dist_error}")
             return jsonify({'success': False, 'error': dist_error}), 400
+        
+        logger.info(f"✅ Address passed distance-based delivery area check")
             
         # Get hybrid quote
+        logger.info(f"🔍 Generating hybrid quote (Uber for <10mi, Google Maps for >=10mi)...")
         quote_data = get_hybrid_delivery_quote(
             pickup_address, 
             format_address_for_uber(data['delivery_address']),
@@ -155,6 +170,8 @@ def get_delivery_quote():
             delivery_coords,
             straight_line_distance
         )
+        
+        logger.info(f"✅ Quote generated: ${quote_data['fee_dollars']:.2f} via {quote_data['source']}")
         
         # Cache and return
         session[cache_key] = {
