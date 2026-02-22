@@ -15,9 +15,10 @@ def get_featured_products():
         from models import Product
         
         # Get featured products (limit to 3) - products that are in stock
+        # Exclude Sexual Enhancements (category_id=59) to avoid Google Ads policy flags
         featured_products = (
             Product.query
-            .filter(Product.in_stock == True, Product.quantity_on_hand > 0)
+            .filter(Product.in_stock == True, Product.quantity_on_hand > 0, Product.category_id != 59)
             .limit(3)
             .all()
         )

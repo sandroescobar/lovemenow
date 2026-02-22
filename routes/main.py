@@ -128,9 +128,10 @@ def index():
             return resp
 
         # Featured products + categories
+        # Exclude Sexual Enhancements (category_id=59) to avoid Google Ads policy flags
         featured_products = (
             Product.query
-            .filter(Product.in_stock.is_(True), Product.quantity_on_hand > 0, Product.in_active.is_(False))
+            .filter(Product.in_stock.is_(True), Product.quantity_on_hand > 0, Product.in_active.is_(False), Product.category_id != 59)
             .options(
                 joinedload(Product.variants),
                 joinedload(Product.colors),
@@ -205,6 +206,12 @@ def products():
 
         # Build query - show all products including out of stock
         query = Product.query.filter(Product.in_active.is_(False))
+        
+        # Hide Sexual Enhancements (cat 59) from default "All Products" view
+        # so Google Ads crawler doesn't flag for recreational drugs / supplements.
+        # Products still visible when browsing the category directly.
+        if not request.args.get('category') or request.args.get('category', '').lower() == 'all':
+            query = query.filter(Product.category_id != 59)
 
         # Apply filters
         category_id = None

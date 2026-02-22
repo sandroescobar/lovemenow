@@ -7,6 +7,9 @@
   <title>{{ product.name }} - LoveMeNow</title>
   <meta name="description" content="{{ (product.description[:150] if product and product.description else 'Premium quality adult product from LoveMeNow') }}"/>
   <link rel="canonical" href="{{ url_for('main.product_detail', product_id=product.id, _external=True) }}"/>
+  {% if product.category_id == 59 %}
+  <meta name="robots" content="noindex, nofollow"/>
+  {% endif %}
 
   <!-- Favicon -->
   <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" />

@@ -8,6 +8,20 @@ Allow: /register
 # Block sensitive areas
 Disallow: /admin/
 Disallow: /api/
+
+# Block Sexual Enhancements products (Google Ads policy: recreational drugs / supplements)
+Disallow: /product/158
+Disallow: /product/159
+Disallow: /product/160
+Disallow: /product/186
+Disallow: /product/187
+Disallow: /product/188
+Disallow: /product/190
+Disallow: /product/191
+Disallow: /product/192
+Disallow: /product/193
+Disallow: /product/194
+Disallow: /product/195
 Disallow: /profile/
 Disallow: /settings/
 Disallow: /user-profile/
