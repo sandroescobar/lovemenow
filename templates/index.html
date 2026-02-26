@@ -114,6 +114,10 @@
 <body>
   {% include 'google_tag_body.html' %}
 
+  {% if not age_verified %}
+    {% include "age_gate_overlay.html" %}
+  {% endif %}
+
   <!-- NAV -->
   {% include "navbar.html" %}
 
