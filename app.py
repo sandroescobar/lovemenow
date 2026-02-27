@@ -494,9 +494,47 @@ def create_app(config_name=None):
     # SEO Routes
     @app.route("/sitemap.xml")
     def sitemap():
-        from flask import send_from_directory
+        from flask import Response
+        from models import Product
+        from datetime import datetime
 
-        return send_from_directory(".", "sitemap.xml", mimetype="application/xml")
+        today = datetime.utcnow().strftime("%Y-%m-%d")
+
+        # Static pages
+        static_pages = [
+            {"loc": "https://lovemenowmiami.com/", "changefreq": "daily", "priority": "1.0"},
+            {"loc": "https://lovemenowmiami.com/products", "changefreq": "daily", "priority": "0.9"},
+            {"loc": "https://lovemenowmiami.com/about", "changefreq": "monthly", "priority": "0.6"},
+            {"loc": "https://lovemenowmiami.com/support", "changefreq": "monthly", "priority": "0.6"},
+            {"loc": "https://lovemenowmiami.com/return", "changefreq": "monthly", "priority": "0.5"},
+            {"loc": "https://lovemenowmiami.com/track", "changefreq": "monthly", "priority": "0.5"},
+        ]
+
+        # All active products
+        products = Product.query.filter(Product.in_active.is_(False)).all()
+
+        xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+        xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+
+        for page in static_pages:
+            xml += f'  <url>\n'
+            xml += f'    <loc>{page["loc"]}</loc>\n'
+            xml += f'    <lastmod>{today}</lastmod>\n'
+            xml += f'    <changefreq>{page["changefreq"]}</changefreq>\n'
+            xml += f'    <priority>{page["priority"]}</priority>\n'
+            xml += f'  </url>\n'
+
+        for p in products:
+            xml += f'  <url>\n'
+            xml += f'    <loc>https://lovemenowmiami.com/product/{p.id}</loc>\n'
+            xml += f'    <lastmod>{today}</lastmod>\n'
+            xml += f'    <changefreq>weekly</changefreq>\n'
+            xml += f'    <priority>0.8</priority>\n'
+            xml += f'  </url>\n'
+
+        xml += '</urlset>'
+
+        return Response(xml, mimetype="application/xml")
 
     @app.route("/robots.txt")
     def robots():

@@ -7,6 +7,65 @@
   <link rel="canonical" href="{{ url_for('main.index', _external=True) }}" />
   <title>LoveMeNow Miami – Premium Adult Products | Same-Day Delivery & Free Pickup</title>
 
+  <!-- Open Graph -->
+  <meta property="og:type" content="website"/>
+  <meta property="og:title" content="LoveMeNow Miami – Premium Adult Products | Same-Day Delivery"/>
+  <meta property="og:description" content="Premium adult products with same-day discreet delivery in Miami and free local pickup at 351 NE 79th St."/>
+  <meta property="og:url" content="https://lovemenowmiami.com/"/>
+  <meta property="og:site_name" content="LoveMeNow Miami"/>
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary"/>
+  <meta name="twitter:title" content="LoveMeNow Miami – Premium Adult Products"/>
+  <meta name="twitter:description" content="Same-day discreet delivery in Miami. Free local pickup available."/>
+
+  <!-- LocalBusiness + WebSite JSON-LD -->
+  <script type="application/ld+json">
+  [{
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "LoveMeNow Miami",
+    "description": "Premium adult products with same-day discreet delivery in Miami",
+    "url": "https://lovemenowmiami.com",
+    "telephone": "",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "351 NE 79th St",
+      "addressLocality": "Miami",
+      "addressRegion": "FL",
+      "postalCode": "33138",
+      "addressCountry": "US"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": 25.8455,
+      "longitude": -80.1918
+    },
+    "openingHoursSpecification": [
+      {"@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday"], "opens": "10:00", "closes": "22:00"},
+      {"@type": "OpeningHoursSpecification", "dayOfWeek": "Friday", "opens": "10:00", "closes": "00:00"},
+      {"@type": "OpeningHoursSpecification", "dayOfWeek": "Saturday", "opens": "10:00", "closes": "00:00"},
+      {"@type": "OpeningHoursSpecification", "dayOfWeek": "Sunday", "opens": "12:00", "closes": "20:00"}
+    ],
+    "areaServed": {
+      "@type": "City",
+      "name": "Miami"
+    },
+    "priceRange": "$$"
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "LoveMeNow Miami",
+    "url": "https://lovemenowmiami.com",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://lovemenowmiami.com/products?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }]
+  </script>
+
   <!-- localStorage Cleanup - Prevent stale data from affecting Lighthouse tests -->
   <script>
     (function() {

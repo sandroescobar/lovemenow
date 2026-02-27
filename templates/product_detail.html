@@ -7,6 +7,51 @@
   <title>{{ product.name }} - LoveMeNow</title>
   <meta name="description" content="{{ (product.description[:150] if product and product.description else 'Premium quality adult product from LoveMeNow') }}"/>
   <link rel="canonical" href="{{ url_for('main.product_detail', product_id=product.id, _external=True) }}"/>
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="product"/>
+  <meta property="og:title" content="{{ product.name }} - LoveMeNow Miami"/>
+  <meta property="og:description" content="{{ (product.description[:200] if product and product.description else 'Premium adult product with same-day delivery in Miami') }}"/>
+  <meta property="og:url" content="{{ url_for('main.product_detail', product_id=product.id, _external=True) }}"/>
+  {% if product.variants and product.variants[0].images %}
+  <meta property="og:image" content="{{ product.variants[0].images[0].url }}"/>
+  {% endif %}
+  <meta property="og:site_name" content="LoveMeNow Miami"/>
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="{{ product.name }} - LoveMeNow Miami"/>
+  <meta name="twitter:description" content="{{ (product.description[:200] if product and product.description else 'Premium adult product with same-day delivery in Miami') }}"/>
+
+  <!-- Product JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": {{ product.name | tojson }},
+    "description": {{ (product.description or '') | tojson }},
+    "url": "{{ url_for('main.product_detail', product_id=product.id, _external=True) }}",
+    {% if product.variants and product.variants[0].images %}
+    "image": "{{ product.variants[0].images[0].url }}",
+    {% endif %}
+    "brand": {
+      "@type": "Brand",
+      "name": "LoveMeNow"
+    },
+    "offers": {
+      "@type": "Offer",
+      "url": "{{ url_for('main.product_detail', product_id=product.id, _external=True) }}",
+      "priceCurrency": "USD",
+      "price": "{{ '%.2f' | format(product.price) }}",
+      "availability": "{{ 'https://schema.org/InStock' if product.in_stock and product.quantity_on_hand > 0 else 'https://schema.org/OutOfStock' }}",
+      "seller": {
+        "@type": "LocalBusiness",
+        "name": "LoveMeNow Miami",
+        "areaServed": "Miami, FL"
+      }
+    }
+  }
+  </script>
   {% if product.category_id == 59 %}
   <meta name="robots" content="noindex, nofollow"/>
   {% endif %}
