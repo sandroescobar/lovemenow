@@ -510,8 +510,11 @@ def create_app(config_name=None):
             {"loc": "https://lovemenowmiami.com/track", "changefreq": "monthly", "priority": "0.5"},
         ]
 
-        # All active products
-        products = Product.query.filter(Product.in_active.is_(False)).all()
+        # All active products (exclude Sexual Enhancements category 59 — noindex)
+        products = Product.query.filter(
+            Product.in_active.is_(False),
+            Product.category_id != 59
+        ).all()
 
         xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
         xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
