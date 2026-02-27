@@ -253,6 +253,9 @@ class Product(db.Model):
                 color_label = (variant.color.name if variant.color else "").strip().lower()
                 if variant_label == suffix or color_label == suffix:
                     return variant
+        for variant in self.variants:
+            if variant.is_available:
+                return variant
         return self.variants[0]
 
     @property
@@ -335,7 +338,11 @@ class Product(db.Model):
         base_name = (self.name or "").strip()
         label = preferred_label
         if not label and variant:
-            label = (variant.color.name if variant and variant.color else None) or (variant.variant_name or None)
+            vn = (variant.variant_name or "").strip()
+            if vn and vn.lower() != "default":
+                label = vn
+            else:
+                label = (variant.color.name if variant and variant.color else None) or (variant.variant_name or None)
         if not label:
             return base_name
         if not base_name:

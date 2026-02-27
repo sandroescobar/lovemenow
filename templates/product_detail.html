@@ -253,7 +253,7 @@
                           data-color-id="{{ color.id }}"
                           onclick="switchColorVariant({{ variant_with_color.id }})">
                     <span class="color-swatch" style="background-color: {{ color.hex }};"></span>
-                    {{ color.name }}
+                    {{ variant_with_color.variant_name if variant_with_color.variant_name and variant_with_color.variant_name != 'Default' else color.name }}
                   </button>
                 {% endif %}
               {% endfor %}

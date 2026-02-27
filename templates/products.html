@@ -419,10 +419,10 @@
                                 data-product-id="{{ p.id }}"
                                 data-variant-id="{{ variant_with_color.id }}"
                                 data-color-id="{{ color.id }}"
-                                onclick="switchCardVariant(event, {{ p.id }}, {{ variant_with_color.id }}, '{{ color.hex }}', '{{ color.name }}')"
-                                title="{{ color.name }}"
+                                onclick="switchCardVariant(event, {{ p.id }}, {{ variant_with_color.id }}, '{{ color.hex }}', '{{ variant_with_color.variant_name if variant_with_color.variant_name and variant_with_color.variant_name != 'Default' else color.name }}')"
+                                title="{{ variant_with_color.variant_name if variant_with_color.variant_name and variant_with_color.variant_name != 'Default' else color.name }}"
                                 style="background-color: {{ color.hex }};"
-                                aria-label="Select {{ color.name }} variant">
+                                aria-label="Select {{ variant_with_color.variant_name if variant_with_color.variant_name and variant_with_color.variant_name != 'Default' else color.name }} variant">
                         </button>
                       {% endif %}
                     {% endfor %}
