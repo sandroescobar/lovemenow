@@ -315,16 +315,21 @@
         }
         html += `</div>`;
 
-        // Nudge message
-        if (nextTier) {
-          html += `<div style="font-size:.85rem;">Add <strong>${fmt(nextTier.min - sub)}</strong> more to unlock <strong>${nextTier.label}</strong>!</div>`;
-        } else {
-          html += `<div style="font-size:.85rem;">🎉 You unlocked our <strong>best deal — 8% OFF + FREE Delivery!</strong></div>`;
+        // Current unlocked benefits message
+        const benefitStyle = 'margin-top:8px;padding:8px 12px;border-radius:8px;font-size:.85rem;font-weight:600;text-align:center;';
+        if (sub >= 150) {
+          html += `<div style="${benefitStyle}background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.3);color:#c4b5fd;">🔥 You're getting <strong>8% OFF</strong> + <strong>FREE Delivery</strong> — our best deal!</div>`;
+        } else if (sub >= 110) {
+          html += `<div style="${benefitStyle}background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);color:#22c55e;">🚚 You're getting <strong>5% OFF</strong> + <strong>FREE Same-Day Delivery!</strong></div>`;
+        } else if (sub >= 75) {
+          html += `<div style="${benefitStyle}background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.3);color:#93c5fd;">🎁 You're getting <strong>8% OFF</strong> your order!</div>`;
+        } else if (sub >= 50) {
+          html += `<div style="${benefitStyle}background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.3);color:#93c5fd;">🛒 You're getting <strong>5% OFF</strong> your order!</div>`;
         }
 
-        // Free delivery badge if qualified
-        if (t.free_delivery) {
-          html += `<div style="margin-top:8px;padding:6px 10px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);border-radius:8px;font-size:.85rem;color:#22c55e;font-weight:600;text-align:center;">🚚 FREE Same-Day Delivery Unlocked!</div>`;
+        // Nudge to next tier
+        if (nextTier) {
+          html += `<div style="margin-top:6px;font-size:.85rem;">Add <strong>${fmt(nextTier.min - sub)}</strong> more to unlock <strong>${nextTier.label}</strong>!</div>`;
         }
 
         nudgeEl.style.display = '';
