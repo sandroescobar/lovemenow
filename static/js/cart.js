@@ -288,7 +288,7 @@
         const tiers = [
           { min: 50, label: '5% OFF', icon: '🛒' },
           { min: 75, label: '8% OFF', icon: '🎁' },
-          { min: 100, label: 'FREE Delivery', icon: '🚚' },
+          { min: 110, label: '5% OFF + FREE Delivery', icon: '🚚' },
           { min: 150, label: '8% OFF + FREE Delivery', icon: '🔥' },
         ];
 

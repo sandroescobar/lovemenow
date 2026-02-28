@@ -15,13 +15,13 @@ TAX_RATE = 0.07  # Florida 7%
 # Highest qualifying tier wins. Tiers are checked top-down.
 SPEND_TIERS = [
     (150.0, 8, "8% OFF + FREE Delivery on orders $150+"),
-    (100.0, 0, "FREE Delivery on orders $100+"),
+    (110.0, 5, "5% OFF + FREE Delivery on orders $110+"),
     (75.0,  8, "8% OFF orders $75+"),
     (50.0,  5, "5% OFF orders $50+"),
 ]
 
 # Free delivery thresholds (subtotal must meet this to qualify)
-FREE_DELIVERY_THRESHOLD = 100.0
+FREE_DELIVERY_THRESHOLD = 110.0
 
 
 def resolve_tier(subtotal: float):
