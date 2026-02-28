@@ -14,10 +14,14 @@ TAX_RATE = 0.07  # Florida 7%
 # Each tier: (min_subtotal, discount_percent, label)
 # Highest qualifying tier wins. Tiers are checked top-down.
 SPEND_TIERS = [
-    (100.0, 13, "13% OFF orders $100+"),
-    (75.0,   9, "9% OFF orders $75+"),
-    (50.0,   5, "5% OFF orders $50+"),
+    (150.0, 8, "8% OFF + FREE Delivery on orders $150+"),
+    (100.0, 0, "FREE Delivery on orders $100+"),
+    (75.0,  8, "8% OFF orders $75+"),
+    (50.0,  5, "5% OFF orders $50+"),
 ]
+
+# Free delivery thresholds (subtotal must meet this to qualify)
+FREE_DELIVERY_THRESHOLD = 100.0
 
 
 def resolve_tier(subtotal: float):
@@ -188,9 +192,15 @@ def compute_totals(delivery_type: str = "pickup", delivery_quote: dict | None = 
         discount_code = None  # tier wins, don't attribute to code
         discount_source = "tier"
 
+    # Free delivery check: $100+ subtotal qualifies
+    free_delivery = subtotal >= FREE_DELIVERY_THRESHOLD
+
     delivery_fee = 0.0
     if delivery_type == "delivery":
-        if delivery_quote and "fee_dollars" in delivery_quote:
+        if free_delivery:
+            delivery_fee = 0.0
+            logger.info(f"🚚 FREE delivery — subtotal ${subtotal:.2f} >= ${FREE_DELIVERY_THRESHOLD}")
+        elif delivery_quote and "fee_dollars" in delivery_quote:
             try:
                 delivery_fee = _round2(float(delivery_quote["fee_dollars"]))
                 logger.info(f"✅ Delivery fee from quote: ${delivery_fee:.2f}")
@@ -215,6 +225,7 @@ def compute_totals(delivery_type: str = "pickup", delivery_quote: dict | None = 
         "tier_pct": tier_pct,
         "tier_label": tier_label,
         "next_tier": next_tier,
+        "free_delivery": free_delivery,
         "delivery_fee": delivery_fee,
         "tax": tax,
         "total": total,

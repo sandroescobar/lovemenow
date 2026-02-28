@@ -1,23 +1,55 @@
-<!-- Promo Discount Modal (DARK CARD) -->
+<!-- Promo Discount Modal — Spend & Save Tiers -->
 <div id="promoOverlay" class="promo-overlay" hidden aria-hidden="true">
   <div class="promo-dialog" role="dialog" aria-modal="true" aria-labelledby="promoTitle">
     <button class="promo-close" type="button" aria-label="Close" id="promoCloseBtn">×</button>
 
-    <div class="promo-badge">🔥 Limited Time</div>
+    <div class="promo-badge">💰 Spend More, Save More</div>
 
     <h2 id="promoTitle" class="promo-title">
-      <span class="promo-title-lg">15% OFF Everything</span><br/>
-      sitewide sale
+      <span class="promo-title-lg">Unlock Deals</span><br/>
+      the more you spend
     </h2>
-    <p class="promo-sub">All prices already marked down. Same-day delivery in Miami.</p>
 
-    <button class="promo-apply" type="button" id="promoApplyBtn">Shop the Sale</button>
+    <div class="promo-tiers">
+      <div class="promo-tier">
+        <div class="promo-tier-icon">🛒</div>
+        <div class="promo-tier-info">
+          <strong>$50+</strong>
+          <span>5% OFF your order</span>
+        </div>
+      </div>
+      <div class="promo-tier">
+        <div class="promo-tier-icon">🎁</div>
+        <div class="promo-tier-info">
+          <strong>$75+</strong>
+          <span>8% OFF your order</span>
+        </div>
+      </div>
+      <div class="promo-tier">
+        <div class="promo-tier-icon">🚚</div>
+        <div class="promo-tier-info">
+          <strong>$100+</strong>
+          <span>FREE same-day delivery</span>
+        </div>
+      </div>
+      <div class="promo-tier promo-tier-best">
+        <div class="promo-tier-icon">🔥</div>
+        <div class="promo-tier-info">
+          <strong>$150+</strong>
+          <span>8% OFF + FREE delivery</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="promo-sub">All prices already 15% OFF. Discounts apply automatically at checkout.</p>
+
+    <button class="promo-apply" type="button" id="promoApplyBtn">Start Shopping</button>
     <button class="promo-later" type="button" id="promoLaterBtn">Maybe later</button>
   </div>
 </div>
 
 <style>
-/* ===== Overlay (dim background, still visible) ===== */
+/* ===== Overlay ===== */
 .promo-overlay{
   position:fixed; inset:0; display:grid; place-items:center;
   background: rgba(0,0,0,.72);
@@ -26,10 +58,10 @@
 }
 .promo-overlay[hidden]{display:none}
 
-/* ===== Dialog (SOLID card so nothing bleeds through) ===== */
+/* ===== Dialog ===== */
 .promo-dialog{
   width: min(92vw, 520px);
-  background: #0f1220;           /* solid dark */
+  background: #0f1220;
   color: #fff;
   border-radius: 20px;
   padding: 24px 22px 18px;
@@ -39,7 +71,6 @@
   position: relative;
 }
 
-/* Close button */
 .promo-close{
   position:absolute; right:10px; top:10px;
   background: transparent; border: 0; color: #fff;
@@ -48,7 +79,6 @@
 }
 .promo-close:hover{ opacity: 1; background: rgba(255,255,255,.08); }
 
-/* Badge / title / subtitle */
 .promo-badge{
   display:inline-block; padding:6px 12px; border-radius:999px;
   background: rgba(255,255,255,.08);
@@ -56,26 +86,51 @@
 }
 .promo-title{ margin: 4px 0; line-height: 1.15; }
 .promo-title-lg{ font-size: 2.15rem; font-weight: 800; letter-spacing: .2px; display:block; }
-.promo-sub{ margin: 6px 0 16px; color: #cbd5e1; }
+.promo-sub{ margin: 6px 0 16px; color: #cbd5e1; font-size: .85rem; }
 
-/* Code row */
-.promo-code-row{ display:flex; gap:8px; align-items:center; margin: 8px 0 14px; }
-.promo-code{
-  flex:1;
-  background: #111827;
-  border: 1px solid rgba(255,255,255,.12);
-  color:#fff; padding: 12px 14px; border-radius: 12px;
-  font-weight: 700; letter-spacing: .02em;
+/* ===== Tier Cards ===== */
+.promo-tiers{
+  display: flex; flex-direction: column; gap: 8px;
+  margin: 16px 0 12px;
 }
-.promo-copy{
-  padding: 10px 14px; border-radius: 12px; border:0; cursor:pointer;
-  font-weight: 700; color:#fff; background: rgba(255,255,255,.12);
+.promo-tier{
+  display: flex; align-items: center; gap: 12px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px;
+  padding: 12px 14px;
+  transition: border-color .2s;
 }
-.promo-copy:hover{ background: rgba(255,255,255,.2); }
+.promo-tier:hover{
+  border-color: rgba(255,255,255,.18);
+}
+.promo-tier-best{
+  background: linear-gradient(135deg, rgba(168,85,247,.15), rgba(236,72,153,.15));
+  border-color: rgba(168,85,247,.35);
+}
+.promo-tier-best:hover{
+  border-color: rgba(168,85,247,.55);
+}
+.promo-tier-icon{
+  font-size: 1.4rem;
+  width: 36px; height: 36px;
+  display: grid; place-items: center;
+  flex-shrink: 0;
+}
+.promo-tier-info{
+  display: flex; flex-direction: column; gap: 1px;
+}
+.promo-tier-info strong{
+  font-size: 1rem; color: #fff;
+}
+.promo-tier-info span{
+  font-size: .85rem; color: #94a3b8;
+}
+.promo-tier-best .promo-tier-info span{
+  color: #c4b5fd;
+}
 
-
-
-/* Primary & secondary actions */
+/* ===== Buttons ===== */
 .promo-apply{
   width:100%; margin:14px 0 8px; padding:14px 16px; border-radius:14px;
   border:0; cursor:pointer; color:#fff; font-weight:800; font-size:1rem;
@@ -91,9 +146,9 @@
 }
 .promo-later:hover{ opacity:1; }
 
-/* Small screens */
 @media (max-width: 480px){
   .promo-title-lg{ font-size: 1.8rem; }
   .promo-dialog{ padding: 20px 18px 16px; }
+  .promo-tier{ padding: 10px 12px; }
 }
 </style>

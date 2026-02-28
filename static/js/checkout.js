@@ -78,7 +78,13 @@
     // Show the delivery row whenever "delivery" is selected (even if $0 before quote)
     if (selectedDeliveryType === 'delivery') {
       if (deliveryFeeRow) deliveryFeeRow.style.display = 'flex';
-      if (deliveryFeeEl) deliveryFeeEl.textContent = money(t.delivery_fee || 0);
+      if (deliveryFeeEl) {
+        if (t.free_delivery) {
+          deliveryFeeEl.innerHTML = '<span style="color:#22c55e;font-weight:600;">FREE 🚚</span>';
+        } else {
+          deliveryFeeEl.textContent = money(t.delivery_fee || 0);
+        }
+      }
     } else {
       if (deliveryFeeRow) deliveryFeeRow.style.display = 'none';
       if (deliveryFeeEl) deliveryFeeEl.textContent = money(0);

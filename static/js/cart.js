@@ -256,7 +256,13 @@
       $('#subtotal')?.replaceChildren(document.createTextNode(fmt(subtotal)));
       $('#tax-amount')?.replaceChildren(document.createTextNode(fmt(tax)));
       $('#total')?.replaceChildren(document.createTextNode(fmt(total)));
-      if ($('#shipping-amount') && ship != null) $('#shipping-amount').textContent = fmt(ship);
+      if ($('#shipping-amount')) {
+        if (t.free_delivery) {
+          $('#shipping-amount').innerHTML = '<span style="color:#22c55e;font-weight:600;">FREE 🚚</span>';
+        } else if (ship != null) {
+          $('#shipping-amount').textContent = fmt(ship);
+        }
+      }
 
       if (discount && discount > 0) {
         $('#discount-row').style.display = '';
@@ -275,20 +281,54 @@
         $('#discount-row').style.display = 'none';
       }
 
-      // Tier nudge
+      // Tier progress + nudge
       const nudgeEl = $('#tier-nudge');
       if (nudgeEl) {
-        const next = t.next_tier;
-        if (next && next.spend_more > 0) {
-          nudgeEl.style.display = '';
-          nudgeEl.innerHTML = `<span style="font-size:1.1rem;">🎁</span> Add <strong>${fmt(next.spend_more)}</strong> more to unlock <strong>${next.next_pct}% OFF</strong> your entire order!`;
-        } else if (t.tier_pct > 0 && !next) {
-          // At max tier
-          nudgeEl.style.display = '';
-          nudgeEl.innerHTML = `<span style="font-size:1.1rem;">🎉</span> You unlocked our <strong>best deal — ${t.tier_pct}% OFF!</strong>`;
-        } else {
-          nudgeEl.style.display = 'none';
+        const sub = subtotal;
+        const tiers = [
+          { min: 50, label: '5% OFF', icon: '🛒' },
+          { min: 75, label: '8% OFF', icon: '🎁' },
+          { min: 100, label: 'FREE Delivery', icon: '🚚' },
+          { min: 150, label: '8% OFF + FREE Delivery', icon: '🔥' },
+        ];
+
+        // Build progress bar
+        const maxTier = 150;
+        const pct = Math.min(100, (sub / maxTier) * 100);
+        const unlocked = tiers.filter(t => sub >= t.min);
+        const nextTier = tiers.find(t => sub < t.min);
+
+        let html = '';
+
+        // Progress bar
+        html += `<div style="background:rgba(255,255,255,.08);border-radius:8px;height:8px;margin-bottom:10px;overflow:hidden;">`;
+        html += `<div style="height:100%;border-radius:8px;background:linear-gradient(90deg,hsl(var(--primary-color)),hsl(var(--accent-color)));width:${pct}%;transition:width .4s ease;"></div>`;
+        html += `</div>`;
+
+        // Tier dots
+        html += `<div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:.75rem;">`;
+        for (const tier of tiers) {
+          const active = sub >= tier.min;
+          const color = active ? 'color:#22c55e;' : 'color:#64748b;';
+          const check = active ? '✓' : '';
+          html += `<span style="${color}text-align:center;line-height:1.2;">${tier.icon}<br/>$${tier.min}${check ? ' ✓' : ''}</span>`;
         }
+        html += `</div>`;
+
+        // Nudge message
+        if (nextTier) {
+          html += `<div style="font-size:.85rem;">Add <strong>${fmt(nextTier.min - sub)}</strong> more to unlock <strong>${nextTier.label}</strong>!</div>`;
+        } else {
+          html += `<div style="font-size:.85rem;">🎉 You unlocked our <strong>best deal — 8% OFF + FREE Delivery!</strong></div>`;
+        }
+
+        // Free delivery badge if qualified
+        if (t.free_delivery) {
+          html += `<div style="margin-top:8px;padding:6px 10px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);border-radius:8px;font-size:.85rem;color:#22c55e;font-weight:600;text-align:center;">🚚 FREE Same-Day Delivery Unlocked!</div>`;
+        }
+
+        nudgeEl.style.display = '';
+        nudgeEl.innerHTML = html;
       }
     } catch {
       // minimal fallback (no server)

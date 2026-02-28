@@ -220,6 +220,7 @@ def cart_totals():
         "tier_pct": totals.get("tier_pct", 0),
         "tier_label": totals.get("tier_label"),
         "next_tier": totals.get("next_tier"),
+        "free_delivery": totals.get("free_delivery", False),
         "delivery_fee": totals["delivery_fee"],
         "tax": totals["tax"],
         "total": totals["total"]
