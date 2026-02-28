@@ -216,6 +216,10 @@ def cart_totals():
         "subtotal": totals["subtotal"],
         "discount_amount": totals["discount_amount"],
         "discount_code": totals["discount_code"],
+        "discount_source": totals.get("discount_source"),
+        "tier_pct": totals.get("tier_pct", 0),
+        "tier_label": totals.get("tier_label"),
+        "next_tier": totals.get("next_tier"),
         "delivery_fee": totals["delivery_fee"],
         "tax": totals["tax"],
         "total": totals["total"]

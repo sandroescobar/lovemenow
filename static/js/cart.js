@@ -184,7 +184,10 @@
 
           <div class="summary-row" id="discount-row" style="display:none;">
             <span>Discount <span id="discount-code-label"></span>:</span>
-            <span id="discount-amount">-$0.00</span>
+            <span id="discount-amount" style="color:#22c55e;font-weight:600;">-$0.00</span>
+          </div>
+
+          <div id="tier-nudge" style="display:none;background:linear-gradient(135deg,rgba(168,85,247,.12),rgba(236,72,153,.12));border:1px solid rgba(168,85,247,.3);border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.85rem;color:hsl(var(--text-color));">
           </div>
 
           <div class="summary-row">
@@ -257,10 +260,35 @@
 
       if (discount && discount > 0) {
         $('#discount-row').style.display = '';
-        $('#discount-amount').textContent = `-${fmt(discount).replace('$', '$')}`;
-        if ($('#discount-code-label')) $('#discount-code-label').textContent = code ? `(${code})` : '';
+        $('#discount-amount').textContent = `-${fmt(discount)}`;
+        const src = t.discount_source;
+        if ($('#discount-code-label')) {
+          if (src === 'tier' && t.tier_label) {
+            $('#discount-code-label').textContent = `(${t.tier_label})`;
+          } else if (code) {
+            $('#discount-code-label').textContent = `(${code})`;
+          } else {
+            $('#discount-code-label').textContent = '';
+          }
+        }
       } else {
         $('#discount-row').style.display = 'none';
+      }
+
+      // Tier nudge
+      const nudgeEl = $('#tier-nudge');
+      if (nudgeEl) {
+        const next = t.next_tier;
+        if (next && next.spend_more > 0) {
+          nudgeEl.style.display = '';
+          nudgeEl.innerHTML = `<span style="font-size:1.1rem;">🎁</span> Add <strong>${fmt(next.spend_more)}</strong> more to unlock <strong>${next.next_pct}% OFF</strong> your entire order!`;
+        } else if (t.tier_pct > 0 && !next) {
+          // At max tier
+          nudgeEl.style.display = '';
+          nudgeEl.innerHTML = `<span style="font-size:1.1rem;">🎉</span> You unlocked our <strong>best deal — ${t.tier_pct}% OFF!</strong>`;
+        } else {
+          nudgeEl.style.display = 'none';
+        }
       }
     } catch {
       // minimal fallback (no server)

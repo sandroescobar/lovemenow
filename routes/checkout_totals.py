@@ -10,6 +10,39 @@ from models import Product, Cart, DiscountCode
 
 TAX_RATE = 0.07  # Florida 7%
 
+# ── Tiered auto-discounts (no code needed) ──────────────────
+# Each tier: (min_subtotal, discount_percent, label)
+# Highest qualifying tier wins. Tiers are checked top-down.
+SPEND_TIERS = [
+    (100.0, 13, "13% OFF orders $100+"),
+    (75.0,   9, "9% OFF orders $75+"),
+    (50.0,   5, "5% OFF orders $50+"),
+]
+
+
+def resolve_tier(subtotal: float):
+    """Return (discount_pct, tier_label, next_tier_info) for the given subtotal."""
+    matched = None
+    for min_amt, pct, label in SPEND_TIERS:
+        if subtotal >= min_amt:
+            matched = (pct, label)
+            break
+
+    if matched:
+        pct, label = matched
+        # Find next tier above current
+        next_tier = None
+        for min_amt, npct, nlabel in reversed(SPEND_TIERS):
+            if min_amt > subtotal:
+                next_tier = {"spend_more": _round2(min_amt - subtotal), "next_pct": npct, "next_label": nlabel}
+                break
+        return pct, label, next_tier
+
+    # No tier matched — show nudge toward first tier
+    lowest = SPEND_TIERS[-1]  # $50 tier
+    nudge = {"spend_more": _round2(lowest[0] - subtotal), "next_pct": lowest[1], "next_label": lowest[2]}
+    return 0, None, nudge
+
 
 def _round2(x: float) -> float:
     return float(Decimal(str(x)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
@@ -127,6 +160,10 @@ def compute_totals(delivery_type: str = "pickup", delivery_quote: dict | None = 
             "subtotal": 0.0,
             "discount_amount": 0.0,
             "discount_code": None,
+            "discount_source": None,
+            "tier_pct": 0,
+            "tier_label": None,
+            "next_tier": {"spend_more": 50.0, "next_pct": 5, "next_label": "5% OFF orders $50+"},
             "delivery_fee": 0.0,
             "tax": 0.0,
             "total": 0.0,
@@ -135,7 +172,21 @@ def compute_totals(delivery_type: str = "pickup", delivery_quote: dict | None = 
 
     subtotal = _round2(sum(float(it["product"].price) * it["quantity"] for it in items))
 
-    discount_amount, discount_code = resolve_discount(subtotal)
+    # 1) Check tiered auto-discount
+    tier_pct, tier_label, next_tier = resolve_tier(subtotal)
+    tier_discount = _round2(subtotal * (tier_pct / 100.0)) if tier_pct else 0.0
+
+    # 2) Check promo code discount
+    code_discount, discount_code = resolve_discount(subtotal)
+
+    # Use whichever is greater (no stacking)
+    if code_discount >= tier_discount:
+        discount_amount = code_discount
+        discount_source = "code"
+    else:
+        discount_amount = tier_discount
+        discount_code = None  # tier wins, don't attribute to code
+        discount_source = "tier"
 
     delivery_fee = 0.0
     if delivery_type == "delivery":
@@ -160,6 +211,10 @@ def compute_totals(delivery_type: str = "pickup", delivery_quote: dict | None = 
         "subtotal": subtotal,
         "discount_amount": discount_amount,
         "discount_code": discount_code,
+        "discount_source": discount_source,
+        "tier_pct": tier_pct,
+        "tier_label": tier_label,
+        "next_tier": next_tier,
         "delivery_fee": delivery_fee,
         "tax": tax,
         "total": total,
