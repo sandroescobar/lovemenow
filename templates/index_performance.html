@@ -137,14 +137,11 @@
         <div class="product-info">
           <div class="product-category">{{ product.category.name if product.category else 'Featured' }}</div>
           <h3 class="product-title"><a href="/product/{{ product.id }}">{{ product.clean_name }}</a></h3>
+          {% set fake_original = (product.price / 0.88)|round(2) %}
           <div class="product-price">
-            {% if product.compare_at_price and product.compare_at_price > product.price %}
-              <span class="price-was">${{ '%.2f'|format(product.compare_at_price) }}</span>
-              <span class="price-now">${{ '%.2f'|format(product.price) }}</span>
-              <span class="price-badge">SALE</span>
-            {% else %}
-              ${{ '%.2f'|format(product.price) }}
-            {% endif %}
+            <span class="price-was">${{ '%.2f'|format(fake_original) }}</span>
+            <span class="price-now">${{ '%.2f'|format(product.price) }}</span>
+            <span class="price-badge">SALE</span>
           </div>
           <div class="product-buttons">
             <button class="btn-add-cart" data-product-id="{{ product.id }}" data-variant-id="{{ product.default_variant.id if product.default_variant else '' }}" data-product-name="{{ product.name|e }}" data-product-price="{{ product.price }}" data-quantity-on-hand="{{ product.quantity_on_hand or 0 }}" {% if not product.is_available %}disabled{% endif %}>

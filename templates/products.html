@@ -403,14 +403,11 @@
               <h3 class="product-title">
                 <a href="/product/{{ p.id }}">{{ p.name }}</a>
               </h3>
+              {% set fake_original = (p.price / 0.88)|round(2) %}
               <div class="product-price">
-                {% if p.compare_at_price and p.compare_at_price > p.price %}
-                  <span class="price-was">${{ '%.2f'|format(p.compare_at_price) }}</span>
-                  <span class="price-now">${{ '%.2f'|format(p.price) }}</span>
-                  <span class="price-badge">SALE</span>
-                {% else %}
-                  ${{ '%.2f'|format(p.price) }}
-                {% endif %}
+                <span class="price-was">${{ '%.2f'|format(fake_original) }}</span>
+                <span class="price-now">${{ '%.2f'|format(p.price) }}</span>
+                <span class="price-badge">SALE</span>
               </div>
               
               <!-- Color Variant Selector for Product Cards (only if has variants) -->

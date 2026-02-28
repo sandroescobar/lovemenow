@@ -187,13 +187,10 @@
         <div class="pdp-price-row">
           <div class="pdp-price">
             {% if product %}
-              {% if product.compare_at_price and product.compare_at_price > product.price %}
-                <span class="price-was">${{ '%.2f'|format(product.compare_at_price) }}</span>
-                <span class="price-now">${{ '%.2f'|format(product.price) }}</span>
-                <span class="price-badge">12% OFF</span>
-              {% else %}
-                ${{ '%.2f'|format(product.price) }}
-              {% endif %}
+              {% set fake_original = (product.price / 0.88)|round(2) %}
+              <span class="price-was">${{ '%.2f'|format(fake_original) }}</span>
+              <span class="price-now">${{ '%.2f'|format(product.price) }}</span>
+              <span class="price-badge">12% OFF</span>
             {% else %}—{% endif %}
           </div>
           <div class="pdp-rating">
@@ -346,14 +343,11 @@
           <div class="product-info">
             <div class="product-category">{{ related_product.category.name if related_product.category else 'Featured' }}</div>
             <h3 class="product-title"><a href="/product/{{ related_product.id }}">{{ related_product.name }}</a></h3>
+            {% set fake_original = (related_product.price / 0.88)|round(2) %}
             <div class="product-price">
-              {% if related_product.compare_at_price and related_product.compare_at_price > related_product.price %}
-                <span class="price-was">${{ '%.2f'|format(related_product.compare_at_price) }}</span>
-                <span class="price-now">${{ '%.2f'|format(related_product.price) }}</span>
-                <span class="price-badge">SALE</span>
-              {% else %}
-                ${{ '%.2f'|format(related_product.price) }}
-              {% endif %}
+              <span class="price-was">${{ '%.2f'|format(fake_original) }}</span>
+              <span class="price-now">${{ '%.2f'|format(related_product.price) }}</span>
+              <span class="price-badge">SALE</span>
             </div>
             <div class="product-buttons">
               <button class="btn-add-cart"
