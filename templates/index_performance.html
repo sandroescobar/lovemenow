@@ -137,7 +137,7 @@
         <div class="product-info">
           <div class="product-category">{{ product.category.name if product.category else 'Featured' }}</div>
           <h3 class="product-title"><a href="/product/{{ product.id }}">{{ product.clean_name }}</a></h3>
-          {% set fake_original = (product.price / 0.85)|round(2) %}
+          {% set fake_original = (product.price|float / 0.85)|round(2) %}
           <div class="product-price">
             <span class="price-was">${{ '%.2f'|format(fake_original) }}</span>
             <span class="price-now">${{ '%.2f'|format(product.price) }}</span>
