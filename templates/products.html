@@ -94,7 +94,7 @@
     picture{display:contents}
     .product-info{padding:1rem}
     .product-title{font-size:.95rem;font-weight:600;line-height:1.2;margin:.5rem 0}
-    .product-price{font-size:1.1rem;color:hsl(var(--primary));font-weight:700}
+    .product-price{font-size:1.1rem;color:hsl(var(--primary-color));font-weight:700;display:flex;align-items:center;flex-wrap:wrap;gap:2px}
   </style>
 
   <!-- Non-critical CSS - load async -->
@@ -403,7 +403,15 @@
               <h3 class="product-title">
                 <a href="/product/{{ p.id }}">{{ p.name }}</a>
               </h3>
-              <div class="product-price">${{ '%.2f'|format(p.price) }}</div>
+              <div class="product-price">
+                {% if p.compare_at_price and p.compare_at_price > p.price %}
+                  <span class="price-was">${{ '%.2f'|format(p.compare_at_price) }}</span>
+                  <span class="price-now">${{ '%.2f'|format(p.price) }}</span>
+                  <span class="price-badge">SALE</span>
+                {% else %}
+                  ${{ '%.2f'|format(p.price) }}
+                {% endif %}
+              </div>
               
               <!-- Color Variant Selector for Product Cards (only if has variants) -->
               {% if p.variants|length > 1 and p.available_colors %}

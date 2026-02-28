@@ -161,43 +161,15 @@
 
   function wireApplyHandler(overlay) {
     const applyBtn = overlay.querySelector('#promoApplyBtn');
-    const input = overlay.querySelector('#promoCodeInput');
-    if (!applyBtn || !input) return;
+    if (!applyBtn) return;
 
-    applyBtn.addEventListener('click', async () => {
-      const code = (input.value || '').trim().toUpperCase();
-      if (!code) return;
-      if (applyBtn.disabled) return;
-
-      const originalText = applyBtn.textContent;
-      try {
-        // Apply even if cart is empty — persist code now; totals will update when items are added
-        const cartTotal = 0;
-
-        applyBtn.disabled = true;
-        applyBtn.textContent = 'Applying…';
-
-        await validateCode(code, cartTotal);
-        const res = await applyCode(code, cartTotal);
-
-        // Reflect applied state locally
-        applyBtn.textContent = 'Applied';
-
-        // Global notifications and sync so existing UIs update themselves
-        if (typeof window.showToast === 'function') window.showToast(res.message || `Discount "${code}" applied!`, 'success');
-        document.dispatchEvent(new CustomEvent('discountApplied', { detail: { code } }));
-        window.dispatchEvent(new CustomEvent('lmn:discount:applied', { detail: { code } }));
-        if (window.discountManager && typeof window.discountManager.syncFromServer === 'function') {
-          window.discountManager.syncFromServer();
-        }
-
-        // Lock button to avoid re-applying
-        applyBtn.disabled = true;
-      } catch (e) {
-        console.error('[PROMO] apply error', e);
-        if (typeof window.showToast === 'function') window.showToast(e.message || 'Error applying discount code. Please try again.', 'error');
-        applyBtn.disabled = false;
-        applyBtn.textContent = originalText;
+    applyBtn.addEventListener('click', () => {
+      // Just close modal and scroll to products
+      closeOverlay(overlay);
+      const productsSection = document.querySelector('.products-grid, .product-grid, #products');
+      if (productsSection) {
+        productsSection.scrollIntoView({ behavior: 'smooth' });
+      }
       }
     });
   }

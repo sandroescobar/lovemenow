@@ -137,7 +137,15 @@
         <div class="product-info">
           <div class="product-category">{{ product.category.name if product.category else 'Featured' }}</div>
           <h3 class="product-title"><a href="/product/{{ product.id }}">{{ product.clean_name }}</a></h3>
-          <div class="product-price">${{ '%.2f'|format(product.price) }}</div>
+          <div class="product-price">
+            {% if product.compare_at_price and product.compare_at_price > product.price %}
+              <span class="price-was">${{ '%.2f'|format(product.compare_at_price) }}</span>
+              <span class="price-now">${{ '%.2f'|format(product.price) }}</span>
+              <span class="price-badge">SALE</span>
+            {% else %}
+              ${{ '%.2f'|format(product.price) }}
+            {% endif %}
+          </div>
           <div class="product-buttons">
             <button class="btn-add-cart" data-product-id="{{ product.id }}" data-variant-id="{{ product.default_variant.id if product.default_variant else '' }}" data-product-name="{{ product.name|e }}" data-product-price="{{ product.price }}" data-quantity-on-hand="{{ product.quantity_on_hand or 0 }}" {% if not product.is_available %}disabled{% endif %}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>

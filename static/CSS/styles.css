@@ -14895,3 +14895,64 @@ button:focus, .btn:focus, input[type="button"]:focus, input[type="submit"]:focus
 
 
 
+
+/* ========== SALE PRICE STYLING ========== */
+.price-was {
+    text-decoration: line-through;
+    color: hsl(0 0% 55%);
+    font-size: 0.85em;
+    font-weight: 500;
+    margin-right: 6px;
+}
+
+.price-now {
+    color: hsl(var(--primary-color));
+    font-weight: 800;
+}
+
+.price-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, hsl(var(--primary-color)), hsl(var(--accent-color)));
+    color: #fff;
+    font-size: 0.6em;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-left: 6px;
+    vertical-align: middle;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+/* Product cards */
+.product-price .price-was {
+    font-size: 0.8rem;
+}
+.product-price .price-now {
+    font-size: 1.1rem;
+}
+.product-price .price-badge {
+    font-size: 0.55rem;
+    padding: 2px 5px;
+}
+
+/* PDP (detail page) */
+.pdp-price .price-was {
+    font-size: 1.1rem;
+}
+.pdp-price .price-now {
+    font-size: 1.8rem;
+}
+.pdp-price .price-badge {
+    font-size: 0.75rem;
+    padding: 3px 10px;
+    border-radius: 6px;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .product-price .price-was { font-size: 0.7rem; }
+    .product-price .price-now { font-size: 1rem; }
+    .product-price .price-badge { font-size: 0.5rem; }
+    .pdp-price .price-now { font-size: 1.5rem; }
+}

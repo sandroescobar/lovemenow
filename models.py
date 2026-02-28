@@ -213,6 +213,7 @@ class Product(db.Model):
     specifications = db.Column(db.Text, nullable=True)
     dimensions = db.Column(db.String(200), nullable=True)
     price = db.Column(db.Numeric(10, 2), nullable=False)
+    compare_at_price = db.Column(db.Numeric(10, 2), nullable=True)
     wholesale_id = db.Column(db.Integer, nullable=True)
     wholesale_price = db.Column(db.Float, nullable=True)
     image_url = db.Column(db.String(500), nullable=True)

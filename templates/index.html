@@ -284,7 +284,15 @@
         <div class="product-info">
           <div class="product-category">{{ product.category.name if product.category else 'Featured' }}</div>
           <h3 class="product-title"><a href="/product/{{ product.id }}">{{ product.clean_name }}</a></h3>
-          <div class="product-price">${{ '%.2f'|format(product.price) }}</div>
+          <div class="product-price">
+            {% if product.compare_at_price and product.compare_at_price > product.price %}
+              <span class="price-was">${{ '%.2f'|format(product.compare_at_price) }}</span>
+              <span class="price-now">${{ '%.2f'|format(product.price) }}</span>
+              <span class="price-badge">SALE</span>
+            {% else %}
+              ${{ '%.2f'|format(product.price) }}
+            {% endif %}
+          </div>
           <div class="product-buttons">
             <button class="btn-add-cart {{ 'in-stock' if default_variant_available else 'out-of-stock' }}"
                     type="button"

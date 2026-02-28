@@ -186,7 +186,15 @@
 
         <div class="pdp-price-row">
           <div class="pdp-price">
-            {% if product %}${{ '%.2f'|format(product.price) }}{% else %}—{% endif %}
+            {% if product %}
+              {% if product.compare_at_price and product.compare_at_price > product.price %}
+                <span class="price-was">${{ '%.2f'|format(product.compare_at_price) }}</span>
+                <span class="price-now">${{ '%.2f'|format(product.price) }}</span>
+                <span class="price-badge">12% OFF</span>
+              {% else %}
+                ${{ '%.2f'|format(product.price) }}
+              {% endif %}
+            {% else %}—{% endif %}
           </div>
           <div class="pdp-rating">
             <span>
@@ -338,7 +346,15 @@
           <div class="product-info">
             <div class="product-category">{{ related_product.category.name if related_product.category else 'Featured' }}</div>
             <h3 class="product-title"><a href="/product/{{ related_product.id }}">{{ related_product.name }}</a></h3>
-            <div class="product-price">${{ '%.2f'|format(related_product.price) }}</div>
+            <div class="product-price">
+              {% if related_product.compare_at_price and related_product.compare_at_price > related_product.price %}
+                <span class="price-was">${{ '%.2f'|format(related_product.compare_at_price) }}</span>
+                <span class="price-now">${{ '%.2f'|format(related_product.price) }}</span>
+                <span class="price-badge">SALE</span>
+              {% else %}
+                ${{ '%.2f'|format(related_product.price) }}
+              {% endif %}
+            </div>
             <div class="product-buttons">
               <button class="btn-add-cart"
                       data-product-id="{{ related_product.id }}"
