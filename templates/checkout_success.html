@@ -48,7 +48,7 @@
           'items': [
             {% for item in order_items %}
             {
-              'item_id': '{{ item.product_id }}',
+              'item_id': '{{ item.product.id }}',
               'item_name': '{{ item.product.name|e }}',
               'price': {{ "%.2f"|format(item.unit_price) }},
               'quantity': {{ item.quantity }}
